@@ -1,4 +1,4 @@
-import { User } from '@pickslots/domain';
+import { User } from '@pikslots/domain';
 import {
   domainAuditToPersistence,
   persistenceAuditToDomain,

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ILoginUserUseCase, IRegisterUseCase } from '@pickslots/domain';
-import type { LoginUserUseCase, RegisterUserUseCase } from '@pickslots/domain';
+import { ILoginUserUseCase, IRegisterUseCase } from '@pikslots/domain';
+import type { LoginUserUseCase, RegisterUserUseCase } from '@pikslots/domain';
 
 @Injectable()
 export class UserUsecasesFactory {

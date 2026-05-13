@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { UserRole } from '@pickslots/domain';
+import type { UserRole } from '@pikslots/domain';
 import * as jwt from 'jsonwebtoken';
 import { Env } from 'src/shared/config/env';
 

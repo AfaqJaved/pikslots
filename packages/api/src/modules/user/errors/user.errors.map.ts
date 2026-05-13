@@ -3,7 +3,7 @@ import type {
   InfrastructureError,
   UnauthorizedError,
   UserAlreadyExistsError,
-} from '@pickslots/domain';
+} from '@pikslots/domain';
 import { BaseErrorResponse } from 'src/shared/types/base.error.response';
 
 type UserError =

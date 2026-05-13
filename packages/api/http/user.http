@@ -20,12 +20,12 @@ POST {{baseUrl}}/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "afaqjavedofficial@gmail.com",
+  "email": "test@test.com",
   "name": {
-    "firstName": "Afaq",
-    "lastName": "Javed"
+    "firstName": "Test",
+    "lastName": "Test"
   },
-  "password": "password",
+  "password": "a",
   "phone": "+14155552671",
   "role": "businessOwner",
   "timezone": "America/New_York",

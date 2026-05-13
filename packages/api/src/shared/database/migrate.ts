@@ -4,7 +4,7 @@ import pg from 'pg';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Migrator, FileMigrationProvider } from 'kysely/migration';
 import { run } from 'kysely-migration-cli';
-import { PickSlotsDatabase } from './schema';
+import { PikSlotsDatabase } from './schema';
 
 // For ESM environment
 // const migrationFolder = new URL('./migrations', import.meta.url).pathname;
@@ -12,7 +12,7 @@ import { PickSlotsDatabase } from './schema';
 // For CJS environment
 const migrationFolder = path.join(__dirname, './migrations');
 
-const db = new Kysely<PickSlotsDatabase>({
+const db = new Kysely<PikSlotsDatabase>({
   dialect: new PostgresDialect({
     pool: new pg.Pool({
       connectionString: process.env.DATABASE_URL,

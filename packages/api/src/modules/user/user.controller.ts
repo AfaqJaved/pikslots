@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { BaseResponse } from 'src/shared/types/base.response';
+import { mapUserError } from './errors/user.errors.map';
 import { LoginUserDto } from './dto/login.user.dto';
 import { RegisterUserDto } from './dto/register.user.dto';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
-import { mapUserError } from './errors/user.errors.map';
 
 @Controller('/users')
 export class UserController {
@@ -17,7 +18,7 @@ export class UserController {
 
     if (!result.ok) return mapUserError(result.error);
 
-    return result.value;
+    return new BaseResponse(result.value, HttpStatus.CREATED);
   }
 
   @Post('/login')
@@ -27,6 +28,6 @@ export class UserController {
 
     if (!result.ok) return mapUserError(result.error);
 
-    return result.value;
+    return new BaseResponse(result.value, HttpStatus.OK);
   }
 }

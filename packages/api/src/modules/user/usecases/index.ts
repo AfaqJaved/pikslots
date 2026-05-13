@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { RegisterUserUsecaseImpl } from './register.user.usecase.impl';
-import { ILoginUserUseCase, IRegisterUseCase } from '@pickslots/domain';
+import { ILoginUserUseCase, IRegisterUseCase } from '@pikslots/domain';
 import { LoginUserUseCaseImpl } from './login.user.usecase.impl';
 
 export const USER_USECASES: Provider[] = [

@@ -3,6 +3,6 @@ import { UserTable } from './user.table';
 
 export type { AuditFields };
 
-export interface PickSlotsDatabase {
+export interface PikSlotsDatabase {
   users: UserTable;
 }

@@ -6,13 +6,13 @@ import {
   LoginUserUseCase,
   ok,
   Result,
-} from '@pickslots/domain';
+} from '@pikslots/domain';
 import type {
   LoginUserCommand,
   UnauthorizedError,
   User,
   UserRepository,
-} from '@pickslots/domain';
+} from '@pikslots/domain';
 import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 import {
   JwtLoginService,

@@ -9,14 +9,16 @@ import {
   Result,
   User,
   UserAlreadyExistsError,
-} from '@pickslots/domain';
-import type { UserRepository } from '@pickslots/domain';
+} from '@pikslots/domain';
+import type { UserRepository } from '@pikslots/domain';
+import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 import { v7 as uuidv7 } from 'uuid';
 
 @Injectable()
 export class RegisterUserUsecaseImpl implements RegisterUserUseCase {
   constructor(
     @Inject(IUserRepository) private readonly userRepository: UserRepository,
+    private readonly passwordHashingService: PasswordHashingService,
   ) {}
   async execute(
     command: RegisterUserCommand,
@@ -26,7 +28,7 @@ export class RegisterUserUsecaseImpl implements RegisterUserUseCase {
     const user: User = User.create({
       id: uuidv7(),
       username: command.username,
-      password: command.password,
+      password: await this.passwordHashingService.hash(command.password),
       name: command.name,
       email: command.email,
       phone: command.phone,
@@ -34,8 +36,6 @@ export class RegisterUserUsecaseImpl implements RegisterUserUseCase {
       timezone: command.timezone,
       createdBy: uuidv7(), // TODO: replace with actual user id from security context
     });
-
-    console.log(JSON.stringify(user));
 
     const insertedUser = await this.userRepository.save(user);
 

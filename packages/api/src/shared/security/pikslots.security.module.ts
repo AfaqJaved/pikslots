@@ -19,4 +19,4 @@ import { JwtVerificationMiddleware } from './middleware/jwt.verficiation.middlew
     PasswordHashingService,
   ],
 })
-export class PickslotsSecurityModule {}
+export class PikslotsSecurityModule {}

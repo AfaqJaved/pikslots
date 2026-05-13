@@ -1,21 +1,21 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { PickslotsConfigModule } from './shared/config/pickslots.config.module';
-import { PickslotsDatabaseModule } from './shared/database/pickslots.database.module';
+import { PikslotsConfigModule } from './shared/config/pikslots.config.module';
+import { PikslotsDatabaseModule } from './shared/database/pikslots.database.module';
 import { UserModule } from './modules/user/user.module';
-import { PickslotsSecurityModule } from './shared/security/pickslots.security.module';
+import { PikslotsSecurityModule } from './shared/security/pikslots.security.module';
 import { JwtVerificationMiddleware } from './shared/security/middleware/jwt.verficiation.middleware';
 
 @Module({
   imports: [
-    PickslotsSecurityModule,
-    PickslotsConfigModule,
-    PickslotsDatabaseModule,
+    PikslotsSecurityModule,
+    PikslotsConfigModule,
+    PikslotsDatabaseModule,
     UserModule,
   ],
   controllers: [],
   providers: [],
 })
-export class PickslotsAppModule implements NestModule {
+export class PikslotsAppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtVerificationMiddleware).forRoutes('*');
   }

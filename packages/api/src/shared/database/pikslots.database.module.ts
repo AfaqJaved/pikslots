@@ -3,17 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 import { Env } from '../config/env';
-import { PickSlotsDatabase } from './schema';
+import { PikSlotsDatabase } from './schema';
 
-export const PICKSLOTS_DB = 'PICKSLOTS_DB';
-export type PickSlotsPersistence = Kysely<PickSlotsDatabase>;
+export const PIKSLOTS_DB = 'PIKSLOTS_DB';
+export type PikSlotsPersistence = Kysely<PikSlotsDatabase>;
 
 const KyselyProvider = {
-  provide: PICKSLOTS_DB,
+  provide: PIKSLOTS_DB,
   inject: [ConfigService],
   useFactory: async (
     configService: ConfigService<Env, true>,
-  ): Promise<PickSlotsPersistence> => {
+  ): Promise<PikSlotsPersistence> => {
     const dialect = new PostgresDialect({
       pool: new Pool({
         connectionString: configService.get('DATABASE_URL', { infer: true }),
@@ -22,7 +22,7 @@ const KyselyProvider = {
         console.log('Database error : ' + error.message);
       }),
     });
-    const db = new Kysely<PickSlotsDatabase>({ dialect });
+    const db = new Kysely<PikSlotsDatabase>({ dialect });
     await sql`SELECT 1`.execute(db);
     return db;
   },
@@ -31,6 +31,6 @@ const KyselyProvider = {
 @Global()
 @Module({
   providers: [KyselyProvider],
-  exports: [PICKSLOTS_DB],
+  exports: [PIKSLOTS_DB],
 })
-export class PickslotsDatabaseModule {}
+export class PikslotsDatabaseModule {}

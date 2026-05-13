@@ -1,7 +1,7 @@
 import { type Kysely, sql } from 'kysely';
-import { PickSlotsDatabase } from '../schema';
+import { PikSlotsDatabase } from '../schema';
 
-export async function up(db: Kysely<PickSlotsDatabase>): Promise<void> {
+export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
   // Enums
   await sql`CREATE TYPE user_role AS ENUM ('superAdmin', 'businessOwner', 'locationOwner')`.execute(
     db,
@@ -82,7 +82,7 @@ export async function up(db: Kysely<PickSlotsDatabase>): Promise<void> {
     .execute();
 }
 
-export async function down(db: Kysely<PickSlotsDatabase>): Promise<void> {
+export async function down(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema.dropTable('users').execute();
   await sql`DROP TYPE IF EXISTS user_status`.execute(db);
   await sql`DROP TYPE IF EXISTS user_role`.execute(db);

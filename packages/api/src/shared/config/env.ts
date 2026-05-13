@@ -44,7 +44,7 @@ export function validateEnv(config: Record<string, unknown>): Env {
       .join('\n  ');
 
     throw new Error(
-      `[PickslotsConfigModule] Invalid environment variables:\n  ${messages}`,
+      `[PikslotsConfigModule] Invalid environment variables:\n  ${messages}`,
     );
   }
 

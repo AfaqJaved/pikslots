@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { PickslotsAppModule } from './pickslots.app.module';
+import { PikslotsAppModule } from './pikslots.app.module';
 import { type Env } from './shared/config/env';
 import { PrintLoadedEnv } from './shared/config/print.env';
 
 async function bootstrap() {
-  const app = await NestFactory.create(PickslotsAppModule);
+  const app = await NestFactory.create(PikslotsAppModule);
   app.get(PrintLoadedEnv).logEnv(); // printing the loaded env variables
 
   const config = app.get(ConfigService<Env, true>);

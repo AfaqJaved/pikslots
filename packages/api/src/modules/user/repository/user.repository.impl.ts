@@ -8,14 +8,14 @@ import {
   UserAlreadyExistsError,
   UserNotFoundError,
   UserRepository,
-} from '@pickslots/domain';
+} from '@pikslots/domain';
 import { Kysely } from 'kysely';
-import { PICKSLOTS_DB } from 'src/shared/database/pickslots.database.module';
+import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
 import {
   isUniqueViolation,
   getUniqueViolationField,
 } from 'src/shared/database/helpers';
-import { PickSlotsDatabase } from 'src/shared/database/schema';
+import { PikSlotsDatabase } from 'src/shared/database/schema';
 import { UserPersistenceMapper } from '../mappers/user.database.mapper';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UserRepositoryImpl implements UserRepository {
   private readonly mapper = new UserPersistenceMapper();
 
   constructor(
-    @Inject(PICKSLOTS_DB) private readonly db: Kysely<PickSlotsDatabase>,
+    @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
   async save(
