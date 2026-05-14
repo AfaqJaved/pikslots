@@ -90,11 +90,24 @@
         "typescript": "^5",
       },
     },
+    "packages/shared": {
+      "name": "@pikslots/shared",
+      "version": "0.0.1",
+      "devDependencies": {
+        "@types/bun": "latest",
+        "prettier": "^3.8.3",
+        "tsup": "^8.5.1",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
     "packages/ui": {
       "name": "ui",
       "version": "0.0.1",
       "dependencies": {
         "@lucide/svelte": "^1.14.0",
+        "@pikslots/shared": "workspace:*",
         "clsx": "^2.1.1",
         "tailwind-merge": "^3.6.0",
         "tailwind-variants": "^3.2.2",
@@ -707,6 +720,8 @@
     "@pikslots/api": ["@pikslots/api@workspace:packages/api"],
 
     "@pikslots/domain": ["@pikslots/domain@workspace:packages/domain"],
+
+    "@pikslots/shared": ["@pikslots/shared@workspace:packages/shared"],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
@@ -2531,6 +2546,8 @@
     "@pikslots/api/prettier": ["prettier@3.8.3", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw=="],
 
     "@pikslots/domain/prettier": ["prettier@3.8.3", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw=="],
+
+    "@pikslots/shared/prettier": ["prettier@3.8.3", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw=="],
 
     "@rolldown/binding-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.10.0", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.1", "tslib": "^2.4.0" } }, "sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw=="],
 
