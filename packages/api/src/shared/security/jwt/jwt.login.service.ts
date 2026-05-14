@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { UnauthorizedError, ValidationError, Result } from '@pikslots/domain';
 import type { UserRole } from '@pikslots/domain';
 import * as jwt from 'jsonwebtoken';
 import { Env } from 'src/shared/config/env';
@@ -27,8 +28,13 @@ export class JwtLoginService {
     });
   }
 
-  verifyAccessToken(token: string): LoginJwtPayload {
-    return jwt.verify(token, this.accessSecret) as LoginJwtPayload;
+  verifyAccessToken(token: string): Result<LoginJwtPayload, UnauthorizedError | ValidationError> {
+    try {
+      const payload = jwt.verify(token, this.accessSecret) as LoginJwtPayload;
+      return { ok: true, value: payload };
+    } catch (error) {
+      return { ok: false, error: this.mapJwtError(error, 'access') };
+    }
   }
 
   signRefreshToken(payload: LoginJwtPayload): string {
@@ -37,7 +43,39 @@ export class JwtLoginService {
     });
   }
 
-  verifyRefreshToken(token: string): LoginJwtPayload {
-    return jwt.verify(token, this.refreshSecret) as LoginJwtPayload;
+  verifyRefreshToken(token: string): Result<LoginJwtPayload, UnauthorizedError | ValidationError> {
+    try {
+      const payload = jwt.verify(token, this.refreshSecret) as LoginJwtPayload;
+      return { ok: true, value: payload };
+    } catch (error) {
+      return { ok: false, error: this.mapJwtError(error, 'refresh') };
+    }
+  }
+
+  private mapJwtError(error: unknown, tokenType: 'access' | 'refresh'): UnauthorizedError | ValidationError {
+    if (error instanceof jwt.TokenExpiredError) {
+      // Token was valid in structure but has passed its expiry time
+      return {
+        kind: 'unauthorized',
+        message: `${tokenType} token has expired`,
+        timestamp: new Date(),
+      } satisfies UnauthorizedError;
+    }
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      // Token is malformed or signature is invalid — cannot be parsed or trusted
+      return {
+        kind: 'validation',
+        message: `${tokenType} token is malformed or has an invalid signature`,
+        timestamp: new Date(),
+      } satisfies ValidationError;
+    }
+
+    // Unexpected JWT error (e.g. NotBeforeError) — treat as unauthorized
+    return {
+      kind: 'unauthorized',
+      message: `${tokenType} token is not accepted`,
+      timestamp: new Date(),
+    } satisfies UnauthorizedError;
   }
 }

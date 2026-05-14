@@ -1,6 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ILoginUserUseCase, IRegisterUseCase } from '@pikslots/domain';
-import type { LoginUserUseCase, RegisterUserUseCase } from '@pikslots/domain';
+import {
+  ILoginUserUseCase,
+  IRefreshUserSessionUseCase,
+  IRegisterUseCase,
+} from '@pikslots/domain';
+import type {
+  LoginUserUseCase,
+  RefreshUserSessionUseCase,
+  RegisterUserUseCase,
+} from '@pikslots/domain';
 
 @Injectable()
 export class UserUsecasesFactory {
@@ -9,4 +17,7 @@ export class UserUsecasesFactory {
 
   @Inject(ILoginUserUseCase)
   public readonly loginUserUseCase: LoginUserUseCase;
+
+  @Inject(IRefreshUserSessionUseCase)
+  public readonly refreshUserSessionUseCase: RefreshUserSessionUseCase;
 }

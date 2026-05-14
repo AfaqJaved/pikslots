@@ -6,7 +6,11 @@ import { JwtLoginService } from '../jwt/jwt.login.service';
 
 // Routes bypassed from JWT verification.
 // Supports exact paths ('/users/register') and wildcards ('/users/*').
-const PUBLIC_ROUTES: string[] = ['/users/register', '/users/login'];
+const PUBLIC_ROUTES: string[] = [
+  '/users/register',
+  '/users/login',
+  '/users/refresh',
+];
 
 function isPublicRoute(originalUrl: string): boolean {
   const path = originalUrl.split('?')[0];
@@ -48,8 +52,11 @@ export class JwtVerificationMiddleware implements NestMiddleware {
 
     try {
       const payload = this.jwtLoginService.verifyAccessToken(token);
-      this.securityContext.userId = payload.userId;
-      this.securityContext.role = payload.role;
+      if (!payload.ok)
+        return res.status(HttpStatus.UNAUTHORIZED).json(payload.error);
+
+      this.securityContext.userId = payload.value.userId;
+      this.securityContext.role = payload.value.role;
       next();
     } catch {
       return res

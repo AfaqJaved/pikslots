@@ -11,7 +11,9 @@ import type {
   LoginUserCommand,
   UnauthorizedError,
   User,
+  UserInactiveError,
   UserRepository,
+  UserSuspendedError,
 } from '@pikslots/domain';
 import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 import {
@@ -19,7 +21,11 @@ import {
   LoginJwtPayload,
 } from 'src/shared/security/jwt/jwt.login.service';
 
-type LoginError = UnauthorizedError | InfrastructureError;
+type LoginError =
+  | UnauthorizedError
+  | InfrastructureError
+  | UserSuspendedError
+  | UserInactiveError;
 type LoginResult = Result<
   { accessToken: string; refreshToken: string },
   LoginError
@@ -28,6 +34,20 @@ type LoginResult = Result<
 const ACCESS_DENIED = (): UnauthorizedError => ({
   kind: 'unauthorized',
   message: 'Access denied',
+  timestamp: new Date(),
+});
+
+const USER_INACTIVE = (): UserInactiveError => ({
+  kind: 'user_inactive',
+  message: 'User is inactive',
+  status: 'inactive',
+  timestamp: new Date(),
+});
+
+const USER_SUSPENDED = (reason: string): UserSuspendedError => ({
+  kind: 'user_suspended',
+  reason,
+  message: 'User is suspended',
   timestamp: new Date(),
 });
 
@@ -48,6 +68,9 @@ export class LoginUserUseCaseImpl implements LoginUserUseCase {
       user.value.password,
     );
     if (!passwordMatches) return err(ACCESS_DENIED());
+    if (user.value.status === 'inactive') return err(USER_INACTIVE());
+    if (user.value.status === 'suspended' && user.value.suspendedReason)
+      return err(USER_SUSPENDED(user.value.suspendedReason));
 
     return this.issueTokens(user.value);
   }
