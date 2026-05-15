@@ -1,13 +1,17 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { BaseResponse } from 'src/shared/types/base.response';
 import { mapUserError } from './errors/user.errors.map';
 import { LoginUserDto } from './dto/login.user.dto';
 import { RegisterUserDto } from './dto/register.user.dto';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
-import { BaseErrorResponse } from 'src/shared/types/base.error.response';
-import { RegisterUserDocs, LoginUserDocs, RefreshUserSessionDocs } from './docs/user.controller.docs';
+import {
+  RegisterUserDocs,
+  LoginUserDocs,
+  RefreshUserSessionDocs,
+} from './docs/user.controller.docs';
 import { RefreshUserSessionDto } from './dto/refresh.user.session.dto';
+import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
+import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 
 @ApiTags('Users')
 @Controller('/users')
@@ -18,7 +22,9 @@ export class UserController {
   @Post('/register')
   async registerUser(
     @Body() registerUserDto: RegisterUserDto,
-  ): Promise<BaseErrorResponse | BaseResponse<{ message: 'success' }>> {
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<{ message: 'success' }>
+  > {
     const result =
       await this.userUseCaseFactory.registerUserUsecase.execute(
         registerUserDto,
@@ -26,7 +32,7 @@ export class UserController {
 
     if (!result.ok) return mapUserError(result.error);
 
-    return new BaseResponse(result.value, HttpStatus.CREATED);
+    return new PikslotsBaseResponse(result.value, HttpStatus.CREATED);
   }
 
   @LoginUserDocs()
@@ -34,15 +40,15 @@ export class UserController {
   async loginUser(
     @Body() loginUserDto: LoginUserDto,
   ): Promise<
-    | BaseErrorResponse
-    | BaseResponse<{ accessToken: string; refreshToken: string }>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<{ accessToken: string; refreshToken: string }>
   > {
     const result =
       await this.userUseCaseFactory.loginUserUseCase.execute(loginUserDto);
 
     if (!result.ok) return mapUserError(result.error);
 
-    return new BaseResponse(result.value, HttpStatus.OK);
+    return new PikslotsBaseResponse(result.value, HttpStatus.OK);
   }
 
   @RefreshUserSessionDocs()
@@ -50,8 +56,8 @@ export class UserController {
   async refreshUserSession(
     @Body() dto: RefreshUserSessionDto,
   ): Promise<
-    | BaseErrorResponse
-    | BaseResponse<{ accessToken: string; refreshToken: string }>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<{ accessToken: string; refreshToken: string }>
   > {
     const result =
       await this.userUseCaseFactory.refreshUserSessionUseCase.execute({
@@ -60,6 +66,6 @@ export class UserController {
 
     if (!result.ok) return mapUserError(result.error);
 
-    return new BaseResponse(result.value, HttpStatus.OK);
+    return new PikslotsBaseResponse(result.value, HttpStatus.OK);
   }
 }

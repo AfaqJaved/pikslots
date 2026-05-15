@@ -10,10 +10,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { UserRole } from '@pikslots/domain';
+import {
+  FullNameInput,
+  RegisterUserInput,
+  type UserRole,
+} from '@pikslots/shared';
 import { IsTimezone } from 'src/shared/decorators/is.timezone';
 
-class FullNameDto {
+export class FullNameDto implements FullNameInput {
   @ApiProperty({ example: 'John' })
   @IsString()
   @MinLength(1)
@@ -27,7 +31,7 @@ class FullNameDto {
   lastName: string;
 }
 
-export class RegisterUserDto {
+export class RegisterUserDto implements RegisterUserInput {
   @ApiProperty({ example: 'john_doe', minLength: 3, maxLength: 30 })
   @IsString()
   @MinLength(3)

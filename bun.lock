@@ -37,6 +37,7 @@
         "@nestjs/platform-express": "^11.0.1",
         "@nestjs/swagger": "^11.4.2",
         "@pikslots/domain": "workspace:*",
+        "@pikslots/shared": "workspace:*",
         "@scalar/nestjs-api-reference": "^1.1.14",
         "@types/bcrypt": "^6.0.0",
         "bcrypt": "^6.0.0",

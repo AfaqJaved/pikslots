@@ -1,4 +1,6 @@
-export class BaseErrorResponse {
+import type { BaseErrorResponse } from '@pikslots/shared';
+
+export class PikslotsBaseErrorResponse implements BaseErrorResponse {
   readonly message: string;
   readonly statusCode: number;
   readonly timestamp: string;

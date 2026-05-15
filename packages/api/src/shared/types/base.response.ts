@@ -1,4 +1,6 @@
-export class BaseResponse<T> {
+import type { BaseResponse } from '@pikslots/shared';
+
+export class PikslotsBaseResponse<T> implements BaseResponse<T> {
   readonly data: T;
   readonly statusCode: number;
   readonly timestamp: string;

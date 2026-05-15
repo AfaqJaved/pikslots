@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MinLength } from 'class-validator';
+import { LoginUserInput } from '@pikslots/shared';
 
-export class LoginUserDto {
+export class LoginUserDto implements LoginUserInput {
   @ApiProperty({ example: 'john_doe or john@example.com' })
   @IsString()
   @MinLength(1)
