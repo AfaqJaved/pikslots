@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { PikslotsAppModule } from './pikslots.app.module';
 import { type Env } from './shared/config/env';
@@ -9,6 +10,11 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 async function bootstrap() {
   const app = await NestFactory.create(PikslotsAppModule);
   app.get(PrintLoadedEnv).logEnv(); // printing the loaded env variables
+
+  app.use(cookieParser());
+
+  //cors settings
+  app.enableCors({ origin: 'http://localhost:5173', credentials: true });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Pikslots')

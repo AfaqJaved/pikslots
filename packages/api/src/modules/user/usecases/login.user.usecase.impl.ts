@@ -33,7 +33,7 @@ type LoginResult = Result<
 
 const ACCESS_DENIED = (): UnauthorizedError => ({
   kind: 'unauthorized',
-  message: 'Access denied',
+  message: 'Access denied : please provide valid credentials',
   timestamp: new Date(),
 });
 

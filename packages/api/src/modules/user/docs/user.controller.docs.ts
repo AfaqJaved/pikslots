@@ -1,9 +1,10 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { BaseErrorResponse } from 'src/shared/types/base.error.response';
+import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { LoginUserDto } from '../dto/login.user.dto';
 import { RefreshUserSessionDto } from '../dto/refresh.user.session.dto';
 import { RegisterUserDto } from '../dto/register.user.dto';
+
 
 export const RegisterUserDocs = () =>
   applyDecorators(
@@ -23,12 +24,12 @@ export const RegisterUserDocs = () =>
     ApiResponse({
       status: HttpStatus.CONFLICT,
       description: 'User with this email or username already exists',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
       status: HttpStatus.BAD_REQUEST,
       description: 'Validation error',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
     }),
   );
 
@@ -53,22 +54,25 @@ export const LoginUserDocs = () =>
     ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
       description: 'Invalid credentials',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
       status: HttpStatus.NOT_FOUND,
       description: 'User not found',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
     }),
   );
 
 export const RefreshUserSessionDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Rotate refresh token and issue a new token pair' }),
+    ApiOperation({
+      summary: 'Rotate refresh token and issue a new token pair',
+    }),
     ApiBody({ type: RefreshUserSessionDto }),
     ApiResponse({
       status: HttpStatus.OK,
-      description: 'Token rotation successful — returns a new access and refresh token',
+      description:
+        'Token rotation successful — returns a new access and refresh token',
       schema: {
         example: {
           data: {
@@ -83,11 +87,27 @@ export const RefreshUserSessionDocs = () =>
     ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
       description: 'Refresh token is expired or has been revoked',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
       status: HttpStatus.BAD_REQUEST,
       description: 'Refresh token is malformed or has an invalid signature',
-      type: BaseErrorResponse,
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const LogoutUserDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Logout and clear the refresh token cookie' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Logged out successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
     }),
   );

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import GalleryVerticalEndIcon from '@lucide/svelte/icons/gallery-vertical-end';
 	import {
 		FieldGroup,
 		Field,
@@ -9,17 +8,37 @@
 	} from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { cn, type WithElementRef } from '$lib/utils.js';
-	import type { HTMLFormAttributes } from 'svelte/elements';
+	import { cn } from '$lib/utils.js';
 	import { CalendarDays } from '@lucide/svelte';
 	import loginImage from '$lib/assets/login-image.jpg';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { loginUser } from '../../api/user/login.mutation';
+	import type { BaseErrorResponse, LoginUserInput, LoginUserResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
+	import { authStore } from '$lib/stores/auth.svelte.js';
+	import { goto } from '$app/navigation';
 
-	let {
-		ref = $bindable(null),
-		class: className,
-		...restProps
-	}: WithElementRef<HTMLFormAttributes> = $props();
-	const id = $props.id();
+	let userNameorEmail = $state<string>('');
+	let password = $state<string>('');
+	const loginMutation = createMutation<
+		LoginUserResponse,
+		AxiosError<BaseErrorResponse>,
+		LoginUserInput
+	>(() => ({
+		mutationFn: loginUser
+	}));
+
+	$effect(() => {
+		if (loginMutation.data) {
+			authStore.setAccessToken(loginMutation.data.accessToken);
+			goto('/home');
+		}
+
+		if (loginMutation.isError && loginMutation.error.response?.data.message) {
+			toast.error(loginMutation?.error?.response?.data?.message);
+		}
+	});
 </script>
 
 <div class="grid min-h-svh lg:grid-cols-2">
@@ -36,7 +55,7 @@
 		</div>
 		<div class="flex flex-1 items-center justify-center">
 			<div class="w-full max-w-xs">
-				<form class={cn('flex flex-col gap-6', className)} bind:this={ref} {...restProps}>
+				<form class={cn('flex flex-col gap-6')}>
 					<FieldGroup>
 						<div class="flex flex-col items-center gap-1 text-center">
 							<h1 class="text-2xl font-bold">Login to your account</h1>
@@ -45,20 +64,35 @@
 							</p>
 						</div>
 						<Field>
-							<FieldLabel for="email-{id}">Email</FieldLabel>
-							<Input id="email-{id}" type="email" placeholder="m@example.com" required />
+							<FieldLabel for="email">Email</FieldLabel>
+							<Input
+								bind:value={userNameorEmail}
+								type="email"
+								placeholder="m@example.com"
+								required
+							/>
 						</Field>
 						<Field>
 							<div class="flex items-center">
-								<FieldLabel for="password-{id}">Password</FieldLabel>
+								<FieldLabel for="password">Password</FieldLabel>
 								<a href="##" class="ms-auto text-sm underline-offset-4 hover:underline">
 									Forgot your password?
 								</a>
 							</div>
-							<Input id="password-{id}" type="password" required />
+							<Input bind:value={password} type="password" required />
 						</Field>
 						<Field>
-							<Button type="submit">Login</Button>
+							{#if !loginMutation.isPending}
+								<Button
+									onclick={() =>
+										loginMutation.mutate({ usernameOrEmail: userNameorEmail, password })}
+									>Login</Button
+								>
+							{/if}
+
+							{#if loginMutation.isPending}
+								<Button disabled>Please wait logging you in....</Button>
+							{/if}
 						</Field>
 						<FieldSeparator>Or no account 👇🏻</FieldSeparator>
 						<Field>

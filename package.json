@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build": "bunx nx run-many -t build",
-    "dev": "bunx nx run-many -t dev",
+    "dev": "bunx nx run-many -t dev --no-tui",
     "format": "bunx nx run-many -t format",
     "lint": "bunx nx run-many -t lint"
   },

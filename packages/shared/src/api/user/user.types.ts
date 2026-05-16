@@ -32,12 +32,14 @@ export interface RegisterUserResponse {
   message: 'success';
 }
 
+export interface LogoutUserResponse {
+  message: 'success';
+}
+
 export interface LoginUserResponse {
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface RefreshUserSessionResponse {
   accessToken: string;
-  refreshToken: string;
 }

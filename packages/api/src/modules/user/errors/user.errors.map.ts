@@ -8,7 +8,7 @@ import type {
   UserInactiveError,
   ValidationError,
 } from '@pikslots/domain';
-import { BaseErrorResponse } from 'src/shared/types/base.error.response';
+import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
 type UserError =
   | UserAlreadyExistsError
@@ -21,27 +21,27 @@ type UserError =
 
 const userErrorMap: Record<
   UserError['kind'],
-  (error: UserError) => BaseErrorResponse
+  (error: UserError) => PikslotsBaseErrorResponse
 > = {
   user_already_exists: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.CONFLICT),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.CONFLICT),
   user_not_found: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.NOT_FOUND),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.NOT_FOUND),
   user_suspended: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   user_inactive: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   unauthorized: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
   validation: (error) =>
-    new BaseErrorResponse(error.message, HttpStatus.BAD_REQUEST),
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.BAD_REQUEST),
   infrastructure: () =>
-    new BaseErrorResponse(
+    new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',
       HttpStatus.INTERNAL_SERVER_ERROR,
     ),
 };
 
-export function mapUserError(error: UserError): BaseErrorResponse {
+export function mapUserError(error: UserError): PikslotsBaseErrorResponse {
   return userErrorMap[error.kind](error);
 }

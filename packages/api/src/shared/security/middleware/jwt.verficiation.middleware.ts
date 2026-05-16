@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { BaseErrorResponse } from 'src/shared/types/base.error.response';
 import { SecurityContext } from '../context/security.context';
 import { JwtLoginService } from '../jwt/jwt.login.service';
+import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
 // Routes bypassed from JWT verification.
 // Supports exact paths ('/users/register') and wildcards ('/users/*').
@@ -41,7 +41,7 @@ export class JwtVerificationMiddleware implements NestMiddleware {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json(
-          new BaseErrorResponse(
+          new PikslotsBaseErrorResponse(
             'Missing or malformed authorization header',
             HttpStatus.UNAUTHORIZED,
           ),
@@ -62,7 +62,7 @@ export class JwtVerificationMiddleware implements NestMiddleware {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json(
-          new BaseErrorResponse(
+          new PikslotsBaseErrorResponse(
             'Invalid or expired token',
             HttpStatus.UNAUTHORIZED,
           ),
