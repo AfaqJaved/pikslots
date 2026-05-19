@@ -10,7 +10,7 @@ import { BusinessModule } from './modules/business/business.module';
   imports: [
     PikslotsSecurityModule,
     PikslotsConfigModule,
-    PikslotsDatabaseModule,
+    PikslotsDatabaseModule, // also runs the migrations
 
     // domain modules
     UserModule,

@@ -4,6 +4,7 @@ import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 import { Env } from '../config/env';
 import { PikSlotsDatabase } from './schema';
+import { runMigrations } from './migration.runner';
 
 export const PIKSLOTS_DB = 'PIKSLOTS_DB';
 export type PikSlotsPersistence = Kysely<PikSlotsDatabase>;
@@ -24,6 +25,7 @@ const KyselyProvider = {
     });
     const db = new Kysely<PikSlotsDatabase>({ dialect });
     await sql`SELECT 1`.execute(db);
+    await runMigrations(db);
     return db;
   },
 };
