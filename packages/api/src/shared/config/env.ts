@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, Min, validateSync } from 'class-validator';
+import { plainToInstance, Transform } from 'class-transformer';
+import { IsArray, IsEnum, IsNumber, IsString, Min, validateSync } from 'class-validator';
 
 export enum NodeEnv {
   Development = 'development',
@@ -31,6 +31,13 @@ export class Env {
 
   @IsString()
   JWT_REFRESH_EXPIRES_IN: string = '7d';
+
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.split(',').map((s: string) => s.trim()) : value,
+  )
+  CORS_ORIGINS: string[];
 }
 
 export function validateEnv(config: Record<string, unknown>): Env {

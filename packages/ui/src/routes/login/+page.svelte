@@ -12,7 +12,7 @@
 	import { CalendarDays } from '@lucide/svelte';
 	import loginImage from '$lib/assets/login-image.jpg';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { loginUser } from '../../api/user/login.mutation';
+	import { loginUser } from '../../api/user/login.user.mutation';
 	import type { BaseErrorResponse, LoginUserInput, LoginUserResponse } from '@pikslots/shared';
 	import type { AxiosError } from 'axios';
 	import { toast } from 'svelte-sonner';

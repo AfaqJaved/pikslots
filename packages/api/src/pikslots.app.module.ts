@@ -4,13 +4,17 @@ import { PikslotsDatabaseModule } from './shared/database/pikslots.database.modu
 import { UserModule } from './modules/user/user.module';
 import { PikslotsSecurityModule } from './shared/security/pikslots.security.module';
 import { JwtVerificationMiddleware } from './shared/security/middleware/jwt.verficiation.middleware';
+import { BusinessModule } from './modules/business/business.module';
 
 @Module({
   imports: [
     PikslotsSecurityModule,
     PikslotsConfigModule,
     PikslotsDatabaseModule,
+
+    // domain modules
     UserModule,
+    BusinessModule,
   ],
   controllers: [],
   providers: [],

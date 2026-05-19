@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
 import { RefreshUserSessionInput } from '@pikslots/shared';
+import { PikSlotsStringValidation } from 'src/shared/decorators/validations';
 
 export class RefreshUserSessionDto implements RefreshUserSessionInput {
   @ApiProperty({ example: '<jwt>' })
-  @IsString()
+  @PikSlotsStringValidation(1, 2048)
   currentRefreshToken: string;
 }

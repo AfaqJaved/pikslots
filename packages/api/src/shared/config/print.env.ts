@@ -19,6 +19,7 @@ export class PrintLoadedEnv {
     'JWT_EXPIRES_IN',
     'JWT_REFRESH_EXPIRES_IN',
     'JWT_REFRESH_SECRET',
+    'CORS_ORIGINS',
   ];
 
   constructor(private readonly configService: ConfigService<Env, true>) {}

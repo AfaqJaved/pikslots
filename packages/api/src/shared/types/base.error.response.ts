@@ -8,6 +8,6 @@ export class PikslotsBaseErrorResponse implements BaseErrorResponse {
   constructor(message: string, statusCode: number) {
     this.message = message;
     this.statusCode = statusCode;
-    this.timestamp = new Date().toISOString();
+    this.timestamp = new Date().toUTCString();
   }
 }

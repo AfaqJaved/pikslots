@@ -6,15 +6,28 @@ import { type Env } from './shared/config/env';
 import { PrintLoadedEnv } from './shared/config/print.env';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { ValidationPipe } from '@nestjs/common';
+import { validationExceptionFactory } from './shared/pipes/validation.exception.factory';
 
 async function bootstrap() {
   const app = await NestFactory.create(PikslotsAppModule);
-  app.get(PrintLoadedEnv).logEnv(); // printing the loaded env variables
+
+  //validation pipe global
+  app.useGlobalPipes(
+    new ValidationPipe({ exceptionFactory: validationExceptionFactory }),
+  );
+
+  // printing the loaded env variables
+  app.get(PrintLoadedEnv).logEnv();
 
   app.use(cookieParser());
 
-  //cors settings
-  app.enableCors({ origin: 'http://localhost:5173', credentials: true });
+  const config = app.get(ConfigService<Env, true>);
+
+  app.enableCors({
+    origin: config.get('CORS_ORIGINS', { infer: true }),
+    credentials: true,
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Pikslots')
@@ -27,8 +40,6 @@ async function bootstrap() {
   // SwaggerModule.setup('api', app, documentFactory);
 
   app.use('/api', apiReference({ content: documentFactory() }));
-
-  const config = app.get(ConfigService<Env, true>);
   const port = config.get('PORT', { infer: true });
   await app.listen(port);
 }

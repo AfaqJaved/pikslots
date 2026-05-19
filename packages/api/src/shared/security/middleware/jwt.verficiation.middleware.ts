@@ -10,6 +10,7 @@ const PUBLIC_ROUTES: string[] = [
   '/users/register',
   '/users/login',
   '/users/refresh',
+  '/businesses/register',
 ];
 
 function isPublicRoute(originalUrl: string): boolean {

@@ -1,15 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
 import { LoginUserInput } from '@pikslots/shared';
+import {
+  PikSlotsPasswordValidation,
+  PikSlotsStringValidation,
+} from 'src/shared/decorators/validations';
 
 export class LoginUserDto implements LoginUserInput {
   @ApiProperty({ example: 'john_doe or john@example.com' })
-  @IsString()
-  @MinLength(1)
+  @PikSlotsStringValidation(1, 100)
   usernameOrEmail: string;
 
   @ApiProperty({ example: 'secret123', minLength: 8 })
-  @IsString()
-  @MinLength(8)
+  @PikSlotsPasswordValidation()
   password: string;
 }
