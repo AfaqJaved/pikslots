@@ -55,6 +55,7 @@
 		"zod": "^4.3.6"
 	},
 	"dependencies": {
+		"@fontsource-variable/fira-code": "^5.2.7",
 		"@lucide/svelte": "^1.14.0",
 		"@pikslots/shared": "workspace:*",
 		"@tanstack/svelte-query": "^6.1.29",

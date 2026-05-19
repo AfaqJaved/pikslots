@@ -44,12 +44,12 @@
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-center gap-2 md:justify-start">
-			<a href="##" class="flex items-center gap-2 font-medium">
-				<div
-					class="flex size-8 items-center justify-center rounded-md bg-black text-white dark:bg-white dark:text-black"
-				>
-					<CalendarDays class="size-6" />
-				</div>
+			<a href="##" class="font-code flex items-center gap-2 text-2xl">
+				<!-- <div -->
+				<!-- 	class="flex size-8 items-center justify-center rounded-md bg-black text-white dark:bg-white dark:text-black" -->
+				<!-- > -->
+				<!-- 	<CalendarDays class="size-6" /> -->
+				<!-- </div> -->
 				Pikslots
 			</a>
 		</div>

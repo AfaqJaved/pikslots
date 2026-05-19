@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import "shadcn-svelte/tailwind.css";
 @import "@fontsource-variable/roboto";
+@import "@fontsource-variable/fira-code";
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -111,6 +112,7 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 	--font-sans: 'Roboto Variable', sans-serif;
 	--font-heading: 'Roboto Variable', sans-serif;
+	--font-mono: 'Fira Code Variable', monospace;
 	--radius-2xl: calc(var(--radius) * 1.8);
 	--radius-3xl: calc(var(--radius) * 2.2);
 	--radius-4xl: calc(var(--radius) * 2.6);
@@ -126,5 +128,12 @@
 	}
 	html {
 		@apply font-sans;
+	}
+}
+
+@layer utilities {
+	.font-code {
+		font-family: var(--font-mono);
+		font-feature-settings: "liga" 1, "calt" 1;
 	}
 }
