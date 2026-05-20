@@ -2,6 +2,8 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import SiteHeader from '$lib/components/site-header.svelte';
+	import SettingsSidebar from '$lib/components/settings-sidebar.svelte';
+	import { settingsStore } from '$lib/stores/settings.svelte.js';
 	import { authStore } from '$lib/stores/auth.svelte.js';
 	import { goto } from '$app/navigation';
 
@@ -20,6 +22,9 @@
 	"
 	>
 		<AppSidebar variant="inset" />
+		{#if settingsStore.open}
+			<SettingsSidebar />
+		{/if}
 		<Sidebar.Inset>
 			<SiteHeader />
 			<div class="flex flex-1 flex-col">

@@ -10,6 +10,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getAllBusinessesQueryOptions } from '../../api/business/get.all.businesses.query.js';
 	import NavMenuPrimary from './nav-menu-primary.svelte';
+	import { settingsStore } from '$lib/stores/settings.svelte.js';
 	import Calendar from '@tabler/icons-svelte/icons/calendar';
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
 	import UserHeart from '@tabler/icons-svelte/icons/user-heart';
@@ -54,7 +55,8 @@
 			{
 				title: 'Settings',
 				url: '#',
-				icon: SettingsIcon
+				icon: SettingsIcon,
+				onclick: () => settingsStore.toggle()
 			},
 			{
 				title: 'Get Help',

@@ -7,7 +7,7 @@
 	let {
 		items,
 		...restProps
-	}: { items: { title: string; url: string; icon: Icon }[] } & WithoutChildren<
+	}: { items: { title: string; url: string; icon: Icon; onclick?: () => void }[] } & WithoutChildren<
 		ComponentProps<typeof Sidebar.Group>
 	> = $props();
 </script>
@@ -19,10 +19,17 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href={item.url} {...props}>
-								<item.icon />
-								<span>{item.title}</span>
-							</a>
+							{#if item.onclick}
+								<button onclick={item.onclick} {...props}>
+									<item.icon />
+									<span>{item.title}</span>
+								</button>
+							{:else}
+								<a href={item.url} {...props}>
+									<item.icon />
+									<span>{item.title}</span>
+								</a>
+							{/if}
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
