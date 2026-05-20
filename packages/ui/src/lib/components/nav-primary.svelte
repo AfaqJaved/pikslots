@@ -8,10 +8,12 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/stores';
+	import { settingsStore } from '$lib/stores/settings.svelte';
+	import { Button } from './ui/button';
 
 	let { items }: { items: { name: string; url: string; icon: Icon }[] } = $props();
 
-	const sidebar = Sidebar.useSidebar();
+	// const sidebar = Sidebar.useSidebar();
 
 	function isActive(url: string): boolean {
 		return $page.url.pathname === url || $page.url.pathname.startsWith(url + '/');
@@ -25,10 +27,12 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton isActive={isActive(item.url)}>
 					{#snippet child({ props })}
-						<a {...props} href={item.url}>
-							<item.icon />
-							<span>{item.name}</span>
-						</a>
+						<div on:click={() => settingsStore.close()}>
+							<a {...props} href={item.url}>
+								<item.icon />
+								<span>{item.name}</span>
+							</a>
+						</div>
 					{/snippet}
 				</Sidebar.MenuButton>
 				<!-- <DropdownMenu.Root> -->

@@ -6,11 +6,18 @@
 	import { settingsStore } from '$lib/stores/settings.svelte.js';
 	import { authStore } from '$lib/stores/auth.svelte.js';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let { children } = $props();
 
 	$effect(() => {
 		if (!authStore.isInitializing && !authStore.isAuthenticated) goto('/login');
+	});
+
+	$effect(() => {
+		if ($page.url.pathname.startsWith('/home/settings')) {
+			settingsStore.makeOpen();
+		}
 	});
 </script>
 

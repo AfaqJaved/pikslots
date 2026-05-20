@@ -9,7 +9,7 @@
 	import BusinessSwitcher from './business-switcher.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getAllBusinessesQueryOptions } from '../../api/business/get.all.businesses.query.js';
-	import NavMenuPrimary from './nav-menu-primary.svelte';
+	import NavPrimary from './nav-primary.svelte';
 	import { settingsStore } from '$lib/stores/settings.svelte.js';
 	import Calendar from '@tabler/icons-svelte/icons/calendar';
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
@@ -24,7 +24,7 @@
 			email: 'm@example.com',
 			avatar: '/avatars/shadcn.jpg'
 		},
-		primaryMenu: [
+		navPrimary: [
 			{
 				name: 'Bookings',
 				url: '/home/bookings',
@@ -54,7 +54,7 @@
 		navSecondary: [
 			{
 				title: 'Settings',
-				url: '#',
+				url: '/home/settings/brand/brand-details',
 				icon: SettingsIcon,
 				onclick: () => settingsStore.toggle()
 			},
@@ -93,7 +93,7 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<!-- <NavMain items={data.navMain} /> -->
-		<NavMenuPrimary items={data.primaryMenu} />
+		<NavPrimary items={data.navPrimary} />
 		<NavSecondary items={data.navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>

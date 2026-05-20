@@ -12,5 +12,8 @@ export const settingsStore = {
 	},
 	close() {
 		open = false;
+	},
+	makeOpen() {
+		open = true;
 	}
 };

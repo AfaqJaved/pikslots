@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { settingsStore } from '$lib/stores/settings.svelte.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { page } from '$app/stores';
 
 	import BuildingStore from '@tabler/icons-svelte/icons/building-store';
 	import User from '@tabler/icons-svelte/icons/user';
@@ -16,175 +16,220 @@
 	import Star from '@tabler/icons-svelte/icons/star';
 	import Lock from '@tabler/icons-svelte/icons/lock';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
-	import ChevronUp from '@tabler/icons-svelte/icons/chevron-up';
 
-	let brandOpen = $state(true);
+	const brandItems = [
+		{ label: 'Brand details', href: '/home/settings/brand/brand-details' },
+		{ label: 'Appearance', href: '/home/settings/brand/appearance' },
+		{ label: 'Contact details', href: '/home/settings/brand/contact' },
+		{ label: 'Location', href: '/home/settings/brand/location' },
+		{ label: 'Business hours', href: '/home/settings/brand/hours' },
+		{ label: 'Your links', href: '/home/settings/brand/links' }
+	];
+
+	function isBrandSubActive(href: string): boolean {
+		if (href === '/home/settings/brand') {
+			return $page.url.pathname === '/home/settings/brand';
+		}
+		return $page.url.pathname === href;
+	}
+
+	let brandOpen = $state($page.url.pathname.startsWith('/home/settings/brand'));
 	let bookingPrefsOpen = $state(false);
 	let paymentsOpen = $state(false);
 	let notificationsOpen = $state(false);
+
+	$effect(() => {
+		if ($page.url.pathname.startsWith('/home/settings/brand')) {
+			brandOpen = true;
+		}
+	});
 </script>
 
 <aside
-	class="bg-sidebar text-sidebar-foreground flex h-svh w-64 shrink-0 flex-col overflow-y-auto border-r"
+	class="flex h-svh w-64 shrink-0 flex-col overflow-y-auto border-r border-l bg-sidebar text-sidebar-foreground"
 >
-	<div class="flex items-center justify-between border-b px-5 py-4">
-		<h2 class="text-base font-semibold">Settings</h2>
+	<div class="flex items-center border-b px-4 py-3" style="height: var(--header-height)">
+		<span class="text-sm font-semibold">Settings</span>
 	</div>
 
-	<nav class="flex flex-col gap-0.5 px-3 py-3">
-		<!-- Your brand (collapsible) -->
-		<button
-			onclick={() => (brandOpen = !brandOpen)}
-			class="hover:bg-sidebar-accent flex w-full items-center justify-between rounded-md px-2 py-2 text-sm font-medium transition-colors"
-		>
-			<span class="flex items-center gap-2">
-				<BuildingStore size={16} />
-				Your brand
-			</span>
-			{#if brandOpen}
-				<ChevronUp size={14} class="text-sidebar-foreground/50" />
-			{:else}
-				<ChevronDown size={14} class="text-sidebar-foreground/50" />
-			{/if}
-		</button>
-		{#if brandOpen}
-			<div class="ml-4 flex flex-col border-l pl-3">
-				{#each ['Brand details', 'Appearance', 'Contact details', 'Location', 'Business hours', 'Your links'] as label}
-					<a
-						href="#"
-						class="hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md px-2 py-1.5 text-sm transition-colors"
-					>
-						{label}
-					</a>
-				{/each}
-			</div>
-		{/if}
+	<div class="flex flex-col gap-1 py-2">
+		<!-- Brand section -->
+		<Sidebar.Group>
+			<Sidebar.Menu>
+				<!-- Your brand (collapsible) -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton onclick={() => (brandOpen = !brandOpen)}>
+						<BuildingStore />
+						<span>Your brand</span>
+						<ChevronDown
+							class="ml-auto transition-transform duration-200 {brandOpen ? 'rotate-180' : ''}"
+						/>
+					</Sidebar.MenuButton>
+					{#if brandOpen}
+						<Sidebar.MenuSub>
+							{#each brandItems as item (item.href)}
+								<Sidebar.MenuSubItem>
+									<Sidebar.MenuSubButton isActive={isBrandSubActive(item.href)}>
+										{#snippet child({ props })}
+											<a href={item.href} {...props}>{item.label}</a>
+										{/snippet}
+									</Sidebar.MenuSubButton>
+								</Sidebar.MenuSubItem>
+							{/each}
+						</Sidebar.MenuSub>
+					{/if}
+				</Sidebar.MenuItem>
 
-		{#each [{ icon: User, label: 'Your profile' }, { icon: Users, label: 'Your team' }, { icon: Briefcase, label: 'Services' }, { icon: AdjustmentsHorizontal, label: 'General' }] as item}
-			<a
-				href="#"
-				class="hover:bg-sidebar-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors"
-			>
-				<item.icon size={16} />
-				{item.label}
-			</a>
-		{/each}
+				<!-- Simple items -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><User /><span>Your profile</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><Users /><span>Your team</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><Briefcase /><span>Services</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><AdjustmentsHorizontal /><span>General</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			</Sidebar.Menu>
+		</Sidebar.Group>
 
-		<Separator class="my-2" />
-		<p class="text-sidebar-foreground/50 px-2 py-1 text-xs font-semibold tracking-wider uppercase">
-			Manage
-		</p>
+		<!-- Manage section -->
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Manage</Sidebar.GroupLabel>
+			<Sidebar.Menu>
+				<!-- Booking preferences (collapsible) -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton onclick={() => (bookingPrefsOpen = !bookingPrefsOpen)}>
+						<CalendarCog />
+						<span>Booking preferences</span>
+						<ChevronDown
+							class="ml-auto transition-transform duration-200 {bookingPrefsOpen
+								? 'rotate-180'
+								: ''}"
+						/>
+					</Sidebar.MenuButton>
+					{#if bookingPrefsOpen}
+						<Sidebar.MenuSub>
+							{#each ['Booking rules', 'Availability', 'Reminders'] as label}
+								<Sidebar.MenuSubItem>
+									<Sidebar.MenuSubButton>
+										{#snippet child({ props })}
+											<a href="#" {...props}>{label}</a>
+										{/snippet}
+									</Sidebar.MenuSubButton>
+								</Sidebar.MenuSubItem>
+							{/each}
+						</Sidebar.MenuSub>
+					{/if}
+				</Sidebar.MenuItem>
 
-		<!-- Booking preferences (collapsible) -->
-		<button
-			onclick={() => (bookingPrefsOpen = !bookingPrefsOpen)}
-			class="hover:bg-sidebar-accent flex w-full items-center justify-between rounded-md px-2 py-2 text-sm font-medium transition-colors"
-		>
-			<span class="flex items-center gap-2">
-				<CalendarCog size={16} />
-				Booking preferences
-			</span>
-			{#if bookingPrefsOpen}
-				<ChevronUp size={14} class="text-sidebar-foreground/50" />
-			{:else}
-				<ChevronDown size={14} class="text-sidebar-foreground/50" />
-			{/if}
-		</button>
-		{#if bookingPrefsOpen}
-			<div class="ml-4 flex flex-col border-l pl-3">
-				{#each ['Booking rules', 'Availability', 'Reminders'] as label}
-					<a
-						href="#"
-						class="hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md px-2 py-1.5 text-sm transition-colors"
-					>
-						{label}
-					</a>
-				{/each}
-			</div>
-		{/if}
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><DeviceMobile /><span>Your branded app</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
 
-		<a
-			href="#"
-			class="hover:bg-sidebar-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors"
-		>
-			<DeviceMobile size={16} />
-			Your branded app
-		</a>
+				<!-- Payments (collapsible) -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton onclick={() => (paymentsOpen = !paymentsOpen)}>
+						<Cash />
+						<span>Payments</span>
+						<ChevronDown
+							class="ml-auto transition-transform duration-200 {paymentsOpen ? 'rotate-180' : ''}"
+						/>
+					</Sidebar.MenuButton>
+					{#if paymentsOpen}
+						<Sidebar.MenuSub>
+							{#each ['Payment methods', 'Payouts', 'Tax settings'] as label}
+								<Sidebar.MenuSubItem>
+									<Sidebar.MenuSubButton>
+										{#snippet child({ props })}
+											<a href="#" {...props}>{label}</a>
+										{/snippet}
+									</Sidebar.MenuSubButton>
+								</Sidebar.MenuSubItem>
+							{/each}
+						</Sidebar.MenuSub>
+					{/if}
+				</Sidebar.MenuItem>
 
-		<!-- Payments (collapsible) -->
-		<button
-			onclick={() => (paymentsOpen = !paymentsOpen)}
-			class="hover:bg-sidebar-accent flex w-full items-center justify-between rounded-md px-2 py-2 text-sm font-medium transition-colors"
-		>
-			<span class="flex items-center gap-2">
-				<Cash size={16} />
-				Payments
-			</span>
-			{#if paymentsOpen}
-				<ChevronUp size={14} class="text-sidebar-foreground/50" />
-			{:else}
-				<ChevronDown size={14} class="text-sidebar-foreground/50" />
-			{/if}
-		</button>
-		{#if paymentsOpen}
-			<div class="ml-4 flex flex-col border-l pl-3">
-				{#each ['Payment methods', 'Payouts', 'Tax settings'] as label}
-					<a
-						href="#"
-						class="hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md px-2 py-1.5 text-sm transition-colors"
-					>
-						{label}
-					</a>
-				{/each}
-			</div>
-		{/if}
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><ChartBar /><span>Reports</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><CreditCard /><span>Billing</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
 
-		{#each [{ icon: ChartBar, label: 'Reports' }, { icon: CreditCard, label: 'Billing' }] as item}
-			<a
-				href="#"
-				class="hover:bg-sidebar-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors"
-			>
-				<item.icon size={16} />
-				{item.label}
-			</a>
-		{/each}
+				<!-- Notifications (collapsible) -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton onclick={() => (notificationsOpen = !notificationsOpen)}>
+						<Bell />
+						<span>Notifications</span>
+						<ChevronDown
+							class="ml-auto transition-transform duration-200 {notificationsOpen
+								? 'rotate-180'
+								: ''}"
+						/>
+					</Sidebar.MenuButton>
+					{#if notificationsOpen}
+						<Sidebar.MenuSub>
+							{#each ['Email', 'SMS', 'Push'] as label}
+								<Sidebar.MenuSubItem>
+									<Sidebar.MenuSubButton>
+										{#snippet child({ props })}
+											<a href="#" {...props}>{label}</a>
+										{/snippet}
+									</Sidebar.MenuSubButton>
+								</Sidebar.MenuSubItem>
+							{/each}
+						</Sidebar.MenuSub>
+					{/if}
+				</Sidebar.MenuItem>
 
-		<!-- Notifications (collapsible) -->
-		<button
-			onclick={() => (notificationsOpen = !notificationsOpen)}
-			class="hover:bg-sidebar-accent flex w-full items-center justify-between rounded-md px-2 py-2 text-sm font-medium transition-colors"
-		>
-			<span class="flex items-center gap-2">
-				<Bell size={16} />
-				Notifications
-			</span>
-			{#if notificationsOpen}
-				<ChevronUp size={14} class="text-sidebar-foreground/50" />
-			{:else}
-				<ChevronDown size={14} class="text-sidebar-foreground/50" />
-			{/if}
-		</button>
-		{#if notificationsOpen}
-			<div class="ml-4 flex flex-col border-l pl-3">
-				{#each ['Email', 'SMS', 'Push'] as label}
-					<a
-						href="#"
-						class="hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md px-2 py-1.5 text-sm transition-colors"
-					>
-						{label}
-					</a>
-				{/each}
-			</div>
-		{/if}
-
-		{#each [{ icon: Star, label: 'Reviews' }, { icon: Lock, label: 'Security' }] as item}
-			<a
-				href="#"
-				class="hover:bg-sidebar-accent flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors"
-			>
-				<item.icon size={16} />
-				{item.label}
-			</a>
-		{/each}
-	</nav>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><Star /><span>Reviews</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a href="#" {...props}><Lock /><span>Security</span></a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			</Sidebar.Menu>
+		</Sidebar.Group>
+	</div>
 </aside>
