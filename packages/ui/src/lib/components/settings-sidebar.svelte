@@ -8,6 +8,9 @@
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
 	import AdjustmentsHorizontal from '@tabler/icons-svelte/icons/adjustments-horizontal';
 	import CalendarCog from '@tabler/icons-svelte/icons/calendar-cog';
+	import Clock from '@tabler/icons-svelte/icons/clock';
+	import Coffee from '@tabler/icons-svelte/icons/coffee';
+	import CalendarOff from '@tabler/icons-svelte/icons/calendar-off';
 	import DeviceMobile from '@tabler/icons-svelte/icons/device-mobile';
 	import Cash from '@tabler/icons-svelte/icons/cash';
 	import ChartBar from '@tabler/icons-svelte/icons/chart-bar';
@@ -16,32 +19,39 @@
 	import Star from '@tabler/icons-svelte/icons/star';
 	import Lock from '@tabler/icons-svelte/icons/lock';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
+	import CalendarTime from '@tabler/icons-svelte/icons/calendar-time';
 
 	const brandItems = [
 		{ label: 'Brand details', href: '/home/settings/brand/brand-details' },
 		{ label: 'Appearance', href: '/home/settings/brand/appearance' },
 		{ label: 'Contact details', href: '/home/settings/brand/contact' },
 		{ label: 'Location', href: '/home/settings/brand/location' },
-		{ label: 'Business hours', href: '/home/settings/brand/hours' },
 		{ label: 'Your links', href: '/home/settings/brand/links' }
 	];
 
-	function isBrandSubActive(href: string): boolean {
-		if (href === '/home/settings/brand') {
-			return $page.url.pathname === '/home/settings/brand';
-		}
+	const availabilityItems = [
+		{ label: 'Working hours', href: '/home/settings/availability/working-hours', icon: Clock },
+		{ label: 'Breaks', href: '/home/settings/availability/breaks', icon: Coffee },
+		{ label: 'Time offs', href: '/home/settings/availability/timeoffs', icon: CalendarOff }
+	];
+
+	function isActive(href: string): boolean {
+		return $page.url.pathname === href;
+	}
+
+	function isSubActive(href: string): boolean {
 		return $page.url.pathname === href;
 	}
 
 	let brandOpen = $state($page.url.pathname.startsWith('/home/settings/brand'));
+	let availabilityOpen = $state($page.url.pathname.startsWith('/home/settings/availability'));
 	let bookingPrefsOpen = $state(false);
 	let paymentsOpen = $state(false);
 	let notificationsOpen = $state(false);
 
 	$effect(() => {
-		if ($page.url.pathname.startsWith('/home/settings/brand')) {
-			brandOpen = true;
-		}
+		if ($page.url.pathname.startsWith('/home/settings/brand')) brandOpen = true;
+		if ($page.url.pathname.startsWith('/home/settings/availability')) availabilityOpen = true;
 	});
 </script>
 
@@ -58,7 +68,10 @@
 			<Sidebar.Menu>
 				<!-- Your brand (collapsible) -->
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton onclick={() => (brandOpen = !brandOpen)}>
+					<Sidebar.MenuButton
+						isActive={$page.url.pathname.startsWith('/home/settings/brand')}
+						onclick={() => (brandOpen = !brandOpen)}
+					>
 						<BuildingStore />
 						<span>Your brand</span>
 						<ChevronDown
@@ -69,7 +82,7 @@
 						<Sidebar.MenuSub>
 							{#each brandItems as item (item.href)}
 								<Sidebar.MenuSubItem>
-									<Sidebar.MenuSubButton isActive={isBrandSubActive(item.href)}>
+									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
 										{#snippet child({ props })}
 											<a href={item.href} {...props}>{item.label}</a>
 										{/snippet}
@@ -80,32 +93,35 @@
 					{/if}
 				</Sidebar.MenuItem>
 
-				<!-- Simple items -->
+				<!-- Your profile -->
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton>
+					<Sidebar.MenuButton isActive={isActive('/home/settings/profile')}>
 						{#snippet child({ props })}
-							<a href="#" {...props}><User /><span>Your profile</span></a>
+							<a href="/home/settings/profile" {...props}>
+								<User /><span>Your profile</span>
+							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
+
+				<!-- Your team -->
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton>
+					<Sidebar.MenuButton isActive={isActive('/home/settings/team')}>
 						{#snippet child({ props })}
-							<a href="#" {...props}><Users /><span>Your team</span></a>
+							<a href="/home/settings/team" {...props}>
+								<Users /><span>Your team</span>
+							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
+
+				<!-- General -->
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton>
+					<Sidebar.MenuButton isActive={isActive('/home/settings/general')}>
 						{#snippet child({ props })}
-							<a href="#" {...props}><Briefcase /><span>Services</span></a>
-						{/snippet}
-					</Sidebar.MenuButton>
-				</Sidebar.MenuItem>
-				<Sidebar.MenuItem>
-					<Sidebar.MenuButton>
-						{#snippet child({ props })}
-							<a href="#" {...props}><AdjustmentsHorizontal /><span>General</span></a>
+							<a href="/home/settings/general" {...props}>
+								<AdjustmentsHorizontal /><span>General</span>
+							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
@@ -116,6 +132,35 @@
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>Manage</Sidebar.GroupLabel>
 			<Sidebar.Menu>
+				<!-- Your availability (collapsible) -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton
+						isActive={$page.url.pathname.startsWith('/home/settings/availability')}
+						onclick={() => (availabilityOpen = !availabilityOpen)}
+					>
+						<CalendarTime />
+						<span>Business availability</span>
+						<ChevronDown
+							class="ml-auto transition-transform duration-200 {availabilityOpen
+								? 'rotate-180'
+								: ''}"
+						/>
+					</Sidebar.MenuButton>
+					{#if availabilityOpen}
+						<Sidebar.MenuSub>
+							{#each availabilityItems as item (item.href)}
+								<Sidebar.MenuSubItem>
+									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
+										{#snippet child({ props })}
+											<a href={item.href} {...props}>{item.label}</a>
+										{/snippet}
+									</Sidebar.MenuSubButton>
+								</Sidebar.MenuSubItem>
+							{/each}
+						</Sidebar.MenuSub>
+					{/if}
+				</Sidebar.MenuItem>
+
 				<!-- Booking preferences (collapsible) -->
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton onclick={() => (bookingPrefsOpen = !bookingPrefsOpen)}>
@@ -181,6 +226,7 @@
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
+
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
@@ -222,6 +268,7 @@
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
+
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
