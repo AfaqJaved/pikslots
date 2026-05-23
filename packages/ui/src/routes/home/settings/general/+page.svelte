@@ -15,14 +15,14 @@
 </script>
 
 <div class="flex flex-col gap-6 px-6 py-6">
-	<h1 class="text-base font-semibold">General</h1>
+	<h1 class="text-sm font-semibold">General</h1>
 
 	<div class="flex w-56 flex-col gap-2">
 		<Select.Root type="single" bind:value={language}>
 			<Select.Trigger class="w-full">
 				<div class="flex flex-col items-start gap-0.5 text-left">
 					<!-- <span class="text-xs text-muted-foreground">Preferred language</span> -->
-					<span class="text-sm font-medium">
+					<span class="text-xs font-medium">
 						{languages.find((l) => l.value === language)?.label ?? 'Select a language'}
 					</span>
 				</div>

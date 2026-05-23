@@ -82,7 +82,7 @@
 <div class="flex flex-col">
 	<!-- Working hours content -->
 	<div class="flex flex-col px-6">
-		<p class="pt-4 pb-2 text-sm text-muted-foreground">
+		<p class="pt-4 pb-2 text-xs text-muted-foreground">
 			What days and hours does you business operate? This determines your business availability.
 		</p>
 
@@ -94,12 +94,12 @@
 					<Switch bind:checked={day.enabled} />
 
 					<!-- Day label -->
-					<span class="w-28 text-sm font-medium">{day.label}</span>
+					<span class="w-28 text-xs font-medium">{day.label}</span>
 
 					{#if day.enabled}
 						<!-- Start time -->
 						<Select.Root type="single" bind:value={day.start}>
-							<Select.Trigger class="w-28 text-sm">
+							<Select.Trigger class="w-28 text-xs">
 								{day.start}
 							</Select.Trigger>
 							<Select.Content class="max-h-60 overflow-y-auto">
@@ -113,7 +113,7 @@
 
 						<!-- End time -->
 						<Select.Root type="single" bind:value={day.end}>
-							<Select.Trigger class="w-28 text-sm">
+							<Select.Trigger class="w-28 text-xs">
 								{day.end}
 							</Select.Trigger>
 							<Select.Content class="max-h-60 overflow-y-auto">
@@ -145,7 +145,7 @@
 		</div>
 
 		<!-- Info note -->
-		<!-- <div class="flex items-start gap-2 py-2 text-sm text-muted-foreground"> -->
+		<!-- <div class="flex items-start gap-2 py-2 text-xs text-muted-foreground"> -->
 		<!-- 	<InfoCircle size={15} class="mt-0.5 shrink-0" /> -->
 		<!-- 	<p> -->
 		<!-- 		To update when your overall business opens and closes, go to -->

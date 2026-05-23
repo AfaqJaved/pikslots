@@ -5,12 +5,8 @@
 	import BuildingStore from '@tabler/icons-svelte/icons/building-store';
 	import User from '@tabler/icons-svelte/icons/user';
 	import Users from '@tabler/icons-svelte/icons/users';
-	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
 	import AdjustmentsHorizontal from '@tabler/icons-svelte/icons/adjustments-horizontal';
 	import CalendarCog from '@tabler/icons-svelte/icons/calendar-cog';
-	import Clock from '@tabler/icons-svelte/icons/clock';
-	import Coffee from '@tabler/icons-svelte/icons/coffee';
-	import CalendarOff from '@tabler/icons-svelte/icons/calendar-off';
 	import DeviceMobile from '@tabler/icons-svelte/icons/device-mobile';
 	import Cash from '@tabler/icons-svelte/icons/cash';
 	import ChartBar from '@tabler/icons-svelte/icons/chart-bar';
@@ -19,20 +15,40 @@
 	import Star from '@tabler/icons-svelte/icons/star';
 	import Lock from '@tabler/icons-svelte/icons/lock';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
-	import CalendarTime from '@tabler/icons-svelte/icons/calendar-time';
+
+	const notificationsItems = [
+		{ label: 'Your notifications', href: '/home/settings/notifications/your-notifications' },
+		{ label: 'Team notifications', href: '/home/settings/notifications/team-notifications' },
+		{
+			label: 'Customer notifications',
+			href: '/home/settings/notifications/customer-notifications'
+		},
+		{ label: 'Customization', href: '/home/settings/notifications/customization' }
+	];
+
+	const paymentsItems = [
+		{ label: 'Payment integrations', href: '/home/settings/payments/payment-integrations' },
+		{ label: 'Booking Page payments', href: '/home/settings/payments/booking-page-payments' },
+		{ label: 'Payments history', href: '/home/settings/payments/payments-history' }
+	];
+
+	const bookingPrefsItems = [
+		{ label: 'Booking policies', href: '/home/settings/booking-preferences/booking-policies' },
+		{ label: 'Booking setup', href: '/home/settings/booking-preferences/booking-setup' },
+		{ label: 'Customization', href: '/home/settings/booking-preferences/customization' },
+		{
+			label: 'Booking page visibility',
+			href: '/home/settings/booking-preferences/booking-page-visibility'
+		}
+	];
 
 	const brandItems = [
 		{ label: 'Brand details', href: '/home/settings/brand/brand-details' },
 		{ label: 'Appearance', href: '/home/settings/brand/appearance' },
 		{ label: 'Contact details', href: '/home/settings/brand/contact' },
 		{ label: 'Location', href: '/home/settings/brand/location' },
+		{ label: 'Business Hours', href: '/home/settings/brand/business-hours' },
 		{ label: 'Your links', href: '/home/settings/brand/links' }
-	];
-
-	const availabilityItems = [
-		{ label: 'Working hours', href: '/home/settings/availability/working-hours', icon: Clock },
-		{ label: 'Breaks', href: '/home/settings/availability/breaks', icon: Coffee },
-		{ label: 'Time offs', href: '/home/settings/availability/timeoffs', icon: CalendarOff }
 	];
 
 	function isActive(href: string): boolean {
@@ -132,35 +148,6 @@
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>Manage</Sidebar.GroupLabel>
 			<Sidebar.Menu>
-				<!-- Your availability (collapsible) -->
-				<Sidebar.MenuItem>
-					<Sidebar.MenuButton
-						isActive={$page.url.pathname.startsWith('/home/settings/availability')}
-						onclick={() => (availabilityOpen = !availabilityOpen)}
-					>
-						<CalendarTime />
-						<span>Business availability</span>
-						<ChevronDown
-							class="ml-auto transition-transform duration-200 {availabilityOpen
-								? 'rotate-180'
-								: ''}"
-						/>
-					</Sidebar.MenuButton>
-					{#if availabilityOpen}
-						<Sidebar.MenuSub>
-							{#each availabilityItems as item (item.href)}
-								<Sidebar.MenuSubItem>
-									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
-										{#snippet child({ props })}
-											<a href={item.href} {...props}>{item.label}</a>
-										{/snippet}
-									</Sidebar.MenuSubButton>
-								</Sidebar.MenuSubItem>
-							{/each}
-						</Sidebar.MenuSub>
-					{/if}
-				</Sidebar.MenuItem>
-
 				<!-- Booking preferences (collapsible) -->
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton onclick={() => (bookingPrefsOpen = !bookingPrefsOpen)}>
@@ -174,11 +161,11 @@
 					</Sidebar.MenuButton>
 					{#if bookingPrefsOpen}
 						<Sidebar.MenuSub>
-							{#each ['Booking rules', 'Availability', 'Reminders'] as label}
+							{#each bookingPrefsItems as item (item.href)}
 								<Sidebar.MenuSubItem>
-									<Sidebar.MenuSubButton>
+									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
 										{#snippet child({ props })}
-											<a href="#" {...props}>{label}</a>
+											<a href={item.href} {...props}>{item.label}</a>
 										{/snippet}
 									</Sidebar.MenuSubButton>
 								</Sidebar.MenuSubItem>
@@ -206,11 +193,11 @@
 					</Sidebar.MenuButton>
 					{#if paymentsOpen}
 						<Sidebar.MenuSub>
-							{#each ['Payment methods', 'Payouts', 'Tax settings'] as label}
+							{#each paymentsItems as item (item.href)}
 								<Sidebar.MenuSubItem>
-									<Sidebar.MenuSubButton>
+									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
 										{#snippet child({ props })}
-											<a href="#" {...props}>{label}</a>
+											<a href={item.href} {...props}>{item.label}</a>
 										{/snippet}
 									</Sidebar.MenuSubButton>
 								</Sidebar.MenuSubItem>
@@ -222,7 +209,7 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href="#" {...props}><ChartBar /><span>Reports</span></a>
+							<a href="/home/settings/reports" {...props}><ChartBar /><span>Reports</span></a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
@@ -248,11 +235,11 @@
 					</Sidebar.MenuButton>
 					{#if notificationsOpen}
 						<Sidebar.MenuSub>
-							{#each ['Email', 'SMS', 'Push'] as label}
+							{#each notificationsItems as item (item.href)}
 								<Sidebar.MenuSubItem>
-									<Sidebar.MenuSubButton>
+									<Sidebar.MenuSubButton isActive={isSubActive(item.href)}>
 										{#snippet child({ props })}
-											<a href="#" {...props}>{label}</a>
+											<a href={item.href} {...props}>{item.label}</a>
 										{/snippet}
 									</Sidebar.MenuSubButton>
 								</Sidebar.MenuSubItem>
@@ -264,7 +251,7 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href="#" {...props}><Star /><span>Reviews</span></a>
+							<a href="/home/settings/reviews" {...props}><Star /><span>Reviews</span></a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
@@ -272,7 +259,7 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href="#" {...props}><Lock /><span>Security</span></a>
+							<a href="/home/settings/security" {...props}><Lock /><span>Security</span></a>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>

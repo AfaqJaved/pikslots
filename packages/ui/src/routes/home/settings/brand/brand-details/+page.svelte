@@ -34,7 +34,7 @@
 <div class="border-b px-4 lg:px-6">
 	<div class="flex items-center justify-between py-3">
 		<div class="flex items-center gap-3">
-			<h1 class="text-base font-semibold">Your brand</h1>
+			<h1 class="text-sm font-semibold">Your brand</h1>
 			<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 				<CircleHalf size={14} />
 				<span>35% complete</span>
@@ -50,7 +50,7 @@
 	<div class="flex flex-col gap-8">
 		<!-- Brand details section -->
 		<section class="flex flex-col gap-5">
-			<h2 class="text-sm font-semibold">Brand details</h2>
+			<h2 class="text-xs font-semibold">Brand details</h2>
 
 			<!-- Banner upload -->
 			<div class="flex h-40 w-full flex-col items-center justify-center rounded-lg border bg-muted">
@@ -69,7 +69,7 @@
 					</Avatar.Fallback>
 				</Avatar.Root>
 				<div class="flex flex-col gap-1">
-					<span class="text-sm font-medium">Brand logo</span>
+					<span class="text-xs font-medium">Brand logo</span>
 					<span class="text-xs text-muted-foreground"
 						>Select a 200 × 200 px image, up to 10 MB in size</span
 					>
@@ -97,7 +97,7 @@
 						class="rounded-r-none"
 					/>
 					<div
-						class="flex items-center rounded-r-md border border-l-0 border-input bg-muted px-3 text-sm text-muted-foreground"
+						class="flex items-center rounded-r-md border border-l-0 border-input bg-muted px-3 text-xs text-muted-foreground"
 					>
 						.pikslots.com
 					</div>
@@ -127,7 +127,7 @@
 					bind:value={about}
 					placeholder="Tell the world about your brand"
 					rows={4}
-					class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+					class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
 				></textarea>
 			</div>
 		</section>
@@ -136,7 +136,7 @@
 	<!-- Right: Preview -->
 	<div class="flex flex-col gap-3">
 		<div class="flex items-center justify-between">
-			<span class="text-sm font-medium">Preview</span>
+			<span class="text-xs font-medium">Preview</span>
 			<div class="flex items-center gap-1">
 				<Button variant="ghost" size="icon-sm">
 					<DeviceTablet size={16} />

@@ -34,7 +34,7 @@
 <div class="border-b px-4 lg:px-6">
 	<div class="flex items-center justify-between py-3">
 		<div class="flex items-center gap-3">
-			<h1 class="text-base font-semibold">Your brand</h1>
+			<h1 class="text-sm font-semibold">Your brand</h1>
 			<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 				<CircleHalf size={14} />
 				<span>35% complete</span>
@@ -49,15 +49,15 @@
 	<!-- Left: Form -->
 	<div class="flex flex-col gap-8">
 		<section class="flex flex-col gap-1">
-			<h2 class="text-sm font-semibold">Appearance</h2>
-			<p class="text-sm text-muted-foreground">
+			<h2 class="text-xs font-semibold">Appearance</h2>
+			<p class="text-xs text-muted-foreground">
 				Style your Booking Page to reflect your brand identity.
 			</p>
 		</section>
 
 		<!-- Brand color -->
 		<section class="flex flex-col gap-3">
-			<h3 class="text-sm font-medium">Brand color</h3>
+			<h3 class="text-xs font-medium">Brand color</h3>
 			<div class="flex flex-wrap gap-2">
 				{#each brandColors as color (color.value)}
 					<button
@@ -91,7 +91,7 @@
 
 		<!-- Button shape -->
 		<section class="flex flex-col gap-3">
-			<h3 class="text-sm font-medium">Button shape</h3>
+			<h3 class="text-xs font-medium">Button shape</h3>
 			<div class="grid grid-cols-3 gap-3">
 				{#each [{ value: 'pill', label: 'Pill' }, { value: 'rounded', label: 'Rounded' }, { value: 'rectangle', label: 'Rectangle' }] as shape (shape.value)}
 					<button
@@ -126,7 +126,7 @@
 
 		<!-- Theme -->
 		<section class="flex flex-col gap-3">
-			<h3 class="text-sm font-medium">Theme</h3>
+			<h3 class="text-xs font-medium">Theme</h3>
 			<div class="grid grid-cols-3 gap-3">
 				{#each [{ value: 'system', label: 'System' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }] as theme (theme.value)}
 					<button
@@ -160,7 +160,7 @@
 
 		<!-- Gallery -->
 		<section class="flex flex-col gap-3">
-			<h3 class="text-sm font-medium">Gallery</h3>
+			<h3 class="text-xs font-medium">Gallery</h3>
 			<div
 				class="flex min-h-40 flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/30"
 			>
@@ -178,7 +178,7 @@
 	<!-- Right: Preview -->
 	<div class="flex flex-col gap-3">
 		<div class="flex items-center justify-between">
-			<span class="text-sm font-medium">Preview</span>
+			<span class="text-xs font-medium">Preview</span>
 			<div class="flex items-center gap-1">
 				<Button
 					variant={previewDevice === 'tablet' ? 'secondary' : 'ghost'}

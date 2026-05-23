@@ -18,7 +18,7 @@
 <div class="border-b px-4 lg:px-6">
 	<div class="flex items-center justify-between py-3">
 		<div class="flex items-center gap-3">
-			<h1 class="text-base font-semibold">Your brand</h1>
+			<h1 class="text-sm font-semibold">Your brand</h1>
 			<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 				<CircleHalf size={14} />
 				<span>35% complete</span>
@@ -34,8 +34,8 @@
 	<div class="flex flex-col gap-8">
 		<section class="flex flex-col gap-5">
 			<div class="flex flex-col gap-1">
-				<h2 class="text-sm font-semibold">Your links</h2>
-				<p class="text-sm text-muted-foreground">Drive Booking Page visitors to your site, socials and more.</p>
+				<h2 class="text-xs font-semibold">Your links</h2>
+				<p class="text-xs text-muted-foreground">Drive Booking Page visitors to your site, socials and more.</p>
 			</div>
 
 			<div class="flex flex-col gap-2">
@@ -63,7 +63,7 @@
 	<!-- Right: Preview -->
 	<div class="flex flex-col gap-3">
 		<div class="flex items-center justify-between">
-			<span class="text-sm font-medium">Preview</span>
+			<span class="text-xs font-medium">Preview</span>
 			<div class="flex items-center gap-1">
 				<Button
 					variant={previewDevice === 'tablet' ? 'secondary' : 'ghost'}
