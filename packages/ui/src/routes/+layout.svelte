@@ -7,6 +7,7 @@
 	import { Toaster } from 'svelte-sonner';
 	import { refreshUserToken } from '../api/user/refresh.user.mutation';
 	import { browser } from '$app/environment';
+	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 
 	let { children } = $props();
 
@@ -29,4 +30,7 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <Toaster position="top-center" title="Notification" theme={themeStore.current} />
-<QueryClientProvider client={query}>{@render children()}</QueryClientProvider>
+<QueryClientProvider client={query}
+	>{@render children()}
+	<SvelteQueryDevtools />
+</QueryClientProvider>

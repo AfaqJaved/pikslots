@@ -59,6 +59,7 @@
 		"@lucide/svelte": "^1.14.0",
 		"@pikslots/shared": "workspace:*",
 		"@tanstack/svelte-query": "^6.1.29",
+		"@tanstack/svelte-query-devtools": "^6.1.33",
 		"axios": "^1.16.1",
 		"clsx": "^2.1.1",
 		"jwt-decode": "^4.0.0",

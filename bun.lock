@@ -115,6 +115,7 @@
         "@lucide/svelte": "^1.14.0",
         "@pikslots/shared": "workspace:*",
         "@tanstack/svelte-query": "^6.1.29",
+        "@tanstack/svelte-query-devtools": "^6.1.33",
         "axios": "^1.16.1",
         "clsx": "^2.1.1",
         "jwt-decode": "^4.0.0",
@@ -946,7 +947,11 @@
 
     "@tanstack/query-core": ["@tanstack/query-core@5.100.10", "", {}, "sha512-8UR0yJR+GiQ40m3lPhUr0xbfAupe6GSQiksSBSa9SM2NjezFyxXCIA69/lz8cSoNKZLrw1/PktIyQBJcVeMi3w=="],
 
+    "@tanstack/query-devtools": ["@tanstack/query-devtools@5.100.14", "", {}, "sha512-g96SmSSQecYTYcyuAMRXr895GplJv01UGt7qttQWPOUyZ5EGz5tbRc589bMc2m5BsPFD6O0PCEAHdbDYNP6UBw=="],
+
     "@tanstack/svelte-query": ["@tanstack/svelte-query@6.1.29", "", { "dependencies": { "@tanstack/query-core": "5.100.10" }, "peerDependencies": { "svelte": "^5.25.0" } }, "sha512-qB6hv21JzGvUtKcqUFhbhYEp1qp2/x/PgBaeQVNCkz+BvygLCv/+OMnrzzi5hLoIDJgIbEtQSoX3xW85OYJ9JA=="],
+
+    "@tanstack/svelte-query-devtools": ["@tanstack/svelte-query-devtools@6.1.33", "", { "dependencies": { "@tanstack/query-devtools": "5.100.14", "esm-env": "^1.2.1" }, "peerDependencies": { "@tanstack/svelte-query": "^6.1.33", "svelte": "^5.25.0" } }, "sha512-y7Wa/hxqEHl+vSfphv7EJNkWheLmt7sFfB2bVzTxVt7PFdukL/4pKYqFX0tX2ORR00uNs4qMng4j3pn5moZ6Wg=="],
 
     "@tanstack/table-core": ["@tanstack/table-core@8.21.3", "", {}, "sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg=="],
 
