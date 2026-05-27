@@ -1,6 +1,15 @@
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type BusinessStatus = 'pending_setup' | 'active' | 'inactive' | 'suspended';
+export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
+export type WeekDay =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
 
 export type BusinessIndustry =
   | 'salon_and_beauty'
@@ -15,40 +24,154 @@ export type BusinessIndustry =
   | 'other';
 
 export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'enterprise';
+export type BrandButtonShape = 'pill' | 'rounded' | 'rectangle';
+export type BrandTheme = 'system' | 'light' | 'dark';
+export type SupportedCurrencies = 'USD' | 'PKR' | 'RUB';
 
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'cancelled';
 
+export interface StandardContactField {
+  enabled: boolean;
+  required: boolean;
+}
+
+export interface CustomContactField {
+  label: string;
+  enabled: boolean;
+  required: boolean;
+}
+
 // ── Value objects ─────────────────────────────────────────────────────────────
 
-export interface BookingSettings {
-  readonly allowOnlineBooking: boolean;
-  readonly requiresConfirmation: boolean;  // manual confirmation by staff before booking is confirmed
-  readonly cancellationWindowHours: number; // minimum notice required to cancel
-  readonly bookingWindowDays: number;       // how far ahead customers can book
+export interface BrandDetails {
+  bannerImageUrl: string;
+  brandLogoUrl: string;
+}
+
+export interface BrandApperanceDetails {
+  brandColor: string;
+  brandButtonShape: BrandButtonShape;
+  theme: BrandTheme;
+  gallaryPhotosUrls: string[];
+}
+
+export interface LocationDetails {
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  currency: SupportedCurrencies;
+  timeZone: string;
+  language: string;
+}
+
+export interface BookingPolicies {
+  // Lead Time -> How much notice do you require before an appointment?
+  leadTime: {
+    unit: TimeUnit;
+    value: number;
+  };
+  // Schedule Window ->  How far in advance can customers schedule an appointment?
+  scheduleWindow: {
+    unit: TimeUnit;
+    value: number;
+  };
+  cancellationPolicy: {
+    unit: TimeUnit;
+    value: number;
+  } | null; // null is equal to anytime
+
+  bookingPolicyText: string;
+  showPolicyOnBookingPage: boolean;
+}
+
+export interface BookingSetup {
+  bookAppointmentSectionVisible: boolean;
+  bookClassSectionVisible: boolean;
+  aboutUsSectionVisible: boolean;
+  ourTeamSectionVisible: boolean;
+  servicesSectionVisible: boolean;
+  classesSectionVisible: boolean;
+
+  showFirstAvailable: boolean; // "First available appointment"
+  skipTeamSelection: boolean; // "Skip team members"
+  allowToBookMultipleServices: boolean; // "Provide multiple services"
+  bypassTeamMemberSelection: boolean; // "Any team member"
+  customerLoginEnabled: boolean; // "Customer login"
+  customerLoginRequired: boolean; // "Required" (sub-option of customer login)
+  hidePikslotsBranding: boolean; // "Hide branding"
+  accordionView: boolean; // "Accordion view"
+  allowRescheduling: boolean; // "Allow online rescheduling"
+  allowCancellations: boolean; // "Allow online cancellations"
+  showBookNewButton: boolean; // "'Book new appointment' button"
+}
+
+export interface BookingContactFields {
+  name: StandardContactField;
+  email: StandardContactField;
+  phone: StandardContactField;
+  address: StandardContactField;
+  customFields: CustomContactField[];
+}
+
+export interface BookingCustomization {
+  language: string;
+  timeFormat: '12 hours' | '24 hours';
+  weekStartsOn: WeekDay;
+  showBookAnotherAppointmentButton: boolean; // "'Book another appointment' button"
+  showServiceAndClassPrices: boolean; // "Service and class prices"
+  showServiceAndClassDuration: boolean; // "Service and class duration"
+  showBusinessHours: boolean; // "Business hours"
+  showLocalTime: boolean; // "Local time"
+}
+
+export interface BookingLabelOverrides {
+  service: string;
+  class: string;
+  teamMember: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  termsAndConditions: {
+    label: string;
+    link: string;
+    requireTermsAcceptance: boolean;
+  };
+  redirection: {
+    label: string;
+    link: string;
+  };
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 export interface BusinessProps {
   readonly id: string;
-  readonly ownerId: string;         // references User.id (businessOwner role)
-  readonly slug: string;            // unique, URL-friendly tenant identifier e.g. "joes-barbershop"
+  readonly ownerId: string; // references User.id (businessOwner role)
   readonly name: string;
-  readonly description: string | null;
+  readonly slug: string; // unique, URL-friendly tenant identifier e.g. "joes-barbershop"
   readonly industry: BusinessIndustry;
-  readonly address: string;
-  readonly email: string;
-  readonly phone: string | null;
-  readonly website: string | null;
-  readonly logo: string | null;
+  readonly about: string;
+  readonly appearInSearchResults: boolean;
   readonly status: BusinessStatus;
   readonly suspendedReason: string | null;
-  // locale
-  readonly defaultTimeZone: string;
-  readonly defaultCurrency: string; // ISO 4217 e.g. 'USD', 'PKR'
-  readonly defaultLanguage: string; // BCP 47 e.g. 'en', 'ur'
-  // booking config
-  readonly bookingSettings: BookingSettings;
+
+  // settings
+  readonly brandDetail: BrandDetails;
+  readonly brandApperanceDetails: BrandApperanceDetails;
+  readonly locationDetails: LocationDetails;
+  readonly bookingPolicies: BookingPolicies;
+  readonly bookingSetup: BookingSetup;
+  readonly bookingContactFields: BookingContactFields;
+  readonly bookingCustomization: BookingCustomization;
+  readonly bookingLabelOverrides: BookingLabelOverrides;
+
+  //Relations
+  //TODO contact details
+  //TODO business hours
+  //TODO business social links
+
   // subscription
   readonly subscriptionPlan: SubscriptionPlan;
   readonly subscriptionStatus: SubscriptionStatus;
@@ -71,14 +194,7 @@ export interface CreateBusinessInput {
   slug: string;
   name: string;
   industry: BusinessIndustry;
-  address: string;
-  email: string;
-  phone?: string;
-  description?: string;
-  website?: string;
-  defaultTimeZone?: string;
-  defaultCurrency?: string;
-  defaultLanguage?: string;
+  defaultTimeZone: string;
   createdBy: string;
 }
 
@@ -105,23 +221,90 @@ export class Business {
       ownerId: input.ownerId,
       slug: input.slug,
       name: input.name,
-      description: input.description ?? null,
       industry: input.industry,
-      address: input.address,
-      email: input.email,
-      phone: input.phone ?? null,
-      website: input.website ?? null,
-      logo: null,
+      about: '',
+      appearInSearchResults: false,
       status: 'pending_setup',
       suspendedReason: null,
-      defaultTimeZone: input.defaultTimeZone ?? 'UTC',
-      defaultCurrency: input.defaultCurrency ?? 'USD',
-      defaultLanguage: input.defaultLanguage ?? 'en',
-      bookingSettings: {
-        allowOnlineBooking: true,
-        requiresConfirmation: false,
-        cancellationWindowHours: 24,
-        bookingWindowDays: 30,
+      brandDetail: {
+        bannerImageUrl: '',
+        brandLogoUrl: '',
+      },
+      brandApperanceDetails: {
+        brandColor: '#000000',
+        brandButtonShape: 'rounded',
+        theme: 'system',
+        gallaryPhotosUrls: [],
+      },
+      locationDetails: {
+        address: '',
+        city: '',
+        state: '',
+        zip: '',
+        country: '',
+        currency: 'USD',
+        timeZone: input.defaultTimeZone ?? 'UTC',
+        language: 'en',
+      },
+      bookingPolicies: {
+        leadTime: { unit: 'days', value: 0 },
+        scheduleWindow: { unit: 'days', value: 10 },
+        cancellationPolicy: null, // null -> anytime
+        bookingPolicyText: '',
+        showPolicyOnBookingPage: false,
+      },
+      bookingSetup: {
+        bookAppointmentSectionVisible: true,
+        bookClassSectionVisible: true,
+        aboutUsSectionVisible: true,
+        ourTeamSectionVisible: true,
+        servicesSectionVisible: true,
+        classesSectionVisible: true,
+        showFirstAvailable: false,
+        skipTeamSelection: false,
+        allowToBookMultipleServices: false,
+        bypassTeamMemberSelection: false,
+        customerLoginEnabled: false,
+        customerLoginRequired: false,
+        hidePikslotsBranding: false,
+        accordionView: true,
+        allowRescheduling: false,
+        allowCancellations: false,
+        showBookNewButton: false,
+      },
+      bookingContactFields: {
+        name: { enabled: true, required: true },
+        email: { enabled: true, required: false },
+        phone: { enabled: true, required: true },
+        address: { enabled: false, required: false },
+        customFields: [],
+      },
+      bookingCustomization: {
+        language: 'en',
+        timeFormat: '12 hours',
+        weekStartsOn: 'monday',
+        showBookAnotherAppointmentButton: true,
+        showServiceAndClassPrices: true,
+        showServiceAndClassDuration: true,
+        showBusinessHours: true,
+        showLocalTime: true,
+      },
+      bookingLabelOverrides: {
+        service: 'Service',
+        class: 'Class',
+        teamMember: 'Team member',
+        city: 'City',
+        state: 'State',
+        postalCode: 'Postal code',
+        termsAndConditions: {
+          label: '',
+          link: '',
+          requireTermsAcceptance: false,
+        },
+        redirection: {
+          label: '',
+          link: '',
+        },
       },
       subscriptionPlan: 'free',
       subscriptionStatus: 'trialing',
@@ -165,26 +348,14 @@ export class Business {
   get name(): string {
     return this.props.name;
   }
-  get description(): string | null {
-    return this.props.description;
-  }
   get industry(): BusinessIndustry {
     return this.props.industry;
   }
-  get address(): string {
-    return this.props.address;
+  get about(): string {
+    return this.props.about;
   }
-  get email(): string {
-    return this.props.email;
-  }
-  get phone(): string | null {
-    return this.props.phone;
-  }
-  get website(): string | null {
-    return this.props.website;
-  }
-  get logo(): string | null {
-    return this.props.logo;
+  get appearInSearchResults(): boolean {
+    return this.props.appearInSearchResults;
   }
   get status(): BusinessStatus {
     return this.props.status;
@@ -193,22 +364,31 @@ export class Business {
     return this.props.suspendedReason;
   }
 
-  // ── Locale ─────────────────────────────────────────────────────────────────
+  // ── Settings ───────────────────────────────────────────────────────────────
 
-  get defaultTimeZone(): string {
-    return this.props.defaultTimeZone;
+  get brandDetail(): BrandDetails {
+    return this.props.brandDetail;
   }
-  get defaultCurrency(): string {
-    return this.props.defaultCurrency;
+  get brandApperanceDetails(): BrandApperanceDetails {
+    return this.props.brandApperanceDetails;
   }
-  get defaultLanguage(): string {
-    return this.props.defaultLanguage;
+  get locationDetails(): LocationDetails {
+    return this.props.locationDetails;
   }
-
-  // ── Booking config ─────────────────────────────────────────────────────────
-
-  get bookingSettings(): BookingSettings {
-    return this.props.bookingSettings;
+  get bookingPolicies(): BookingPolicies {
+    return this.props.bookingPolicies;
+  }
+  get bookingSetup(): BookingSetup {
+    return this.props.bookingSetup;
+  }
+  get bookingContactFields(): BookingContactFields {
+    return this.props.bookingContactFields;
+  }
+  get bookingCustomization(): BookingCustomization {
+    return this.props.bookingCustomization;
+  }
+  get bookingLabelOverrides(): BookingLabelOverrides {
+    return this.props.bookingLabelOverrides;
   }
 
   // ── Subscription ───────────────────────────────────────────────────────────

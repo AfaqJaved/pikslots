@@ -10,12 +10,12 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
-	import { themeStore } from '$lib/stores/theme.svelte.js';
-	import { logoutUser } from '../../api/user/logout.user.mutation';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { themeStore } from '$stores/theme.svelte.js';
+	import { authStore } from '$stores/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUserProfileQueryOptions } from '../../api/user/get.user.profile.query';
+	import { logoutUser } from '../../api/user/logout.user.mutation';
 
 	const userProfileQuery = createQuery(() => getUserProfileQueryOptions());
 

@@ -8,6 +8,7 @@ import {
   UserAlreadyExistsError,
   UserNotFoundError,
   UserRepository,
+  UserRole,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
@@ -121,6 +122,25 @@ export class UserRepositoryImpl implements UserRepository {
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to find user by username',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async findAllByRole(role: UserRole): Promise<Result<User[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('users')
+        .selectAll()
+        .where('role', '=', role)
+        .where('is_deleted', '=', false)
+        .execute();
+      return ok(rows.map((row) => this.mapper.persistenceToDomain(row)));
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find users by role',
         timestamp: new Date(),
         cause,
       });

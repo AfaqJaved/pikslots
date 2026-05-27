@@ -16,7 +16,7 @@
 	import Trash from '@tabler/icons-svelte/icons/trash';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { getUserProfileQueryOptions } from '../../../../api/user/get.user.profile.query';
+	import { getUserProfileQueryOptions } from '../../../../modules/api/user/get.user.profile.query';
 
 	const userQuery = createQuery(() => getUserProfileQueryOptions());
 

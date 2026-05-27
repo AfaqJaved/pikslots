@@ -4,4 +4,5 @@ export const USER_ENDPOINTS = {
   LOGOUT: '/users/logout',
   ME: '/users/me',
   INVITE: '/users/invite',
+  BUSINESS_OWNERS: '/users/business-owners',
 } as const;

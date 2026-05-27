@@ -8,6 +8,7 @@ import {
   Res,
   UnauthorizedException,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,7 @@ import { LoginUserDto } from './dto/login.user.dto';
 import { InviteUserDto } from './dto/invite.user.dto';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
 import {
+  GetAllBusinessOwnersDocs,
   GetUserProfileDocs,
   InviteUserDocs,
   LoginUserDocs,
@@ -25,15 +27,19 @@ import {
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
+  GetAllBusinessOwnersResponse,
   GetUserProfileResponse,
   InviteUserResponse,
   LoginUserResponse,
   LogoutUserResponse,
   RefreshUserSessionResponse,
+  UserSummary,
 } from '@pikslots/shared';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/shared/config/env';
+import { RolesGuard } from 'src/shared/security/guards/roles.guard';
+import { Roles } from 'src/shared/security/guards/roles.decorator';
 
 @ApiTags('Users')
 @Controller('/users')
@@ -43,6 +49,35 @@ export class UserController {
     private readonly configService: ConfigService<Env, true>,
     private readonly securityContext: SecurityContext,
   ) {}
+
+  @GetAllBusinessOwnersDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner')
+  @Get('/business-owners')
+  async getAllBusinessOwners(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetAllBusinessOwnersResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.getAllBusinessOwnersUseCase.execute();
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const users: UserSummary[] = result.value.map((u) => ({
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      name: { firstName: u.name.firstName, lastName: u.name.lastName },
+    }));
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse(users, HttpStatus.OK);
+  }
 
   @GetUserProfileDocs()
   @Get('/me')

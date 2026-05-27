@@ -18,7 +18,6 @@ import {
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
-  BusinessSummary,
   GetAllBusinessesResponse,
   RegisterBusinessResponse,
 } from '@pikslots/shared';
@@ -35,6 +34,7 @@ export class BusinessController {
 
   @RegisterBusinessDocs()
   @Post('/register')
+  @Roles('Platform Owner')
   async registerBusiness(
     @Res({ passthrough: true }) res: Response,
     @Body() registerBusinessDto: RegisterBusinessDto,
@@ -58,7 +58,7 @@ export class BusinessController {
 
   @GetAllBusinessesDocs()
   @UseGuards(RolesGuard)
-  // @Roles('superAdmin')
+  @Roles('Platform Owner')
   @Get()
   async getAllBusinesses(
     @Res({ passthrough: true }) res: Response,
@@ -74,15 +74,31 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const businesses: BusinessSummary[] = result.value.map((b) => ({
+    const businesses: GetAllBusinessesResponse = result.value.map((b) => ({
       id: b.id,
-      name: b.name,
+      ownerId: b.ownerId,
       slug: b.slug,
-      email: b.email,
+      name: b.name,
       industry: b.industry,
+      about: b.about,
+      appearInSearchResults: b.appearInSearchResults,
       status: b.status,
+      suspendedReason: b.suspendedReason,
+      brandDetail: b.brandDetail,
+      brandAppearanceDetails: b.brandApperanceDetails,
+      locationDetails: b.locationDetails,
+      bookingPolicies: b.bookingPolicies,
+      bookingSetup: b.bookingSetup,
+      bookingContactFields: b.bookingContactFields,
+      bookingCustomization: b.bookingCustomization,
+      bookingLabelOverrides: b.bookingLabelOverrides,
       subscriptionPlan: b.subscriptionPlan,
+      subscriptionStatus: b.subscriptionStatus,
+      trialEndsAt: b.trialEndsAt,
       createdAt: b.createdAt,
+      createdBy: b.createdBy,
+      updatedAt: b.updatedAt,
+      updatedBy: b.updatedBy,
     }));
 
     res.status(HttpStatus.OK);

@@ -11,7 +11,6 @@ export const BUSINESS_USECASES: Provider[] = [
     useClass: RegisterBusinessUseCaseImpl,
     provide: IRegisterBusinessUseCase,
   },
-
   {
     useClass: FindAllRegisteredBusinessesUseCaseImpl,
     provide: IFindAllRegisteredBusinessesUseCase,

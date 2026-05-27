@@ -1,18 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { RegisterBusinessInput, type BusinessIndustry } from '@pikslots/shared';
 import {
-  RegisterBusinessInput,
-  type BusinessIndustry,
-} from '@pikslots/shared';
-import {
-  PikSlotsAddressValidation,
-  PikSlotsEmailValidation,
   PikSlotsEnumValidation,
-  PikSlotsOptionalISOCurrencyValidation,
-  PikSlotsOptionalLanguageValidation,
-  PikSlotsOptionalStringValidation,
   PikSlotsOptionalTimezoneValidation,
-  PikSlotsOptionalUrlValidation,
-  PikSlotsPhoneValidation,
   PikSlotsSlugValidation,
   PikSlotsStringValidation,
 } from 'src/shared/decorators/validations';
@@ -48,35 +38,7 @@ export class RegisterBusinessDto implements RegisterBusinessInput {
   @PikSlotsEnumValidation(INDUSTRIES)
   industry: BusinessIndustry;
 
-  @ApiProperty({ example: '123 Main St, New York, NY 10001' })
-  @PikSlotsAddressValidation()
-  address: string;
-
-  @ApiProperty({ example: 'hello@joesbarbershop.com', maxLength: 100 })
-  @PikSlotsEmailValidation()
-  email: string;
-
-  @ApiPropertyOptional({ example: '+12025551234' })
-  @PikSlotsPhoneValidation()
-  phone?: string;
-
-  @ApiPropertyOptional({ example: 'A friendly neighbourhood barbershop.' })
-  @PikSlotsOptionalStringValidation(500)
-  description?: string;
-
-  @ApiPropertyOptional({ example: 'https://joesbarbershop.com' })
-  @PikSlotsOptionalUrlValidation()
-  website?: string;
-
   @ApiPropertyOptional({ example: 'America/New_York' })
   @PikSlotsOptionalTimezoneValidation()
-  defaultTimeZone?: string;
-
-  @ApiPropertyOptional({ example: 'USD' })
-  @PikSlotsOptionalISOCurrencyValidation()
-  defaultCurrency?: string;
-
-  @ApiPropertyOptional({ example: 'en' })
-  @PikSlotsOptionalLanguageValidation()
-  defaultLanguage?: string;
+  defaultTimeZone: string;
 }

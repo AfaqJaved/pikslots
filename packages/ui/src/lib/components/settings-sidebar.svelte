@@ -16,7 +16,7 @@
 	import Lock from '@tabler/icons-svelte/icons/lock';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import LayoutSidebarLeftCollapse from '@tabler/icons-svelte/icons/layout-sidebar-left-collapse';
-	import { settingsStore } from '$lib/stores/settings.svelte.js';
+	import { settingsStore } from '$stores/settings.svelte.js';
 
 	type SubItem = { label: string; href: string };
 

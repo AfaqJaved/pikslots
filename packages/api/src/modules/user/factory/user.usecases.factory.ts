@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   IFindUserByIdUseCase,
+  IGetAllBusinessOwnersUseCase,
   IGetUserProfileUseCase,
   IInviteUserUseCase,
   ILoginUserUseCase,
@@ -8,6 +9,7 @@ import {
 } from '@pikslots/domain';
 import type {
   FindUserByIdUseCase,
+  GetAllBusinessOwnersUseCase,
   GetUserProfileUseCase,
   InviteUserUseCase,
   LoginUserUseCase,
@@ -24,6 +26,9 @@ export class UserUsecasesFactory {
 
   @Inject(IGetUserProfileUseCase)
   public readonly getUserProfileUseCase: GetUserProfileUseCase;
+
+  @Inject(IGetAllBusinessOwnersUseCase)
+  public readonly getAllBusinessOwnersUseCase: GetAllBusinessOwnersUseCase;
 
   @Inject(ILoginUserUseCase)
   public readonly loginUserUseCase: LoginUserUseCase;

@@ -1,6 +1,7 @@
 import { type Kysely, sql } from 'kysely';
+import { PikSlotsDatabase } from '../schema';
 
-export async function up(db: Kysely<any>): Promise<void> {
+export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema
     .createTable('users')
     .addColumn('id', 'uuid', (col) => col.primaryKey().notNull())
@@ -85,6 +86,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema.dropTable('user').execute();
 }

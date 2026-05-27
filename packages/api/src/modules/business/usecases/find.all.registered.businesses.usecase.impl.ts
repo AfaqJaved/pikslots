@@ -14,12 +14,14 @@ import type {
 
 @Injectable()
 export class FindAllRegisteredBusinessesUseCaseImpl implements FindAllRegisteredBusinessesUseCase {
-  constructor() {}
-  async execute(): Promise<Result<Business[], InfrastructureError>> {
-    // const result = await this.businessRepository.findAll();
-    // if (!result.ok) return err(result.error);
-    // return ok(result.value);
+  constructor(
+    @Inject(IBusinessRepository)
+    private readonly businessRepository: BusinessRepository,
+  ) {}
 
-    return ok([]);
+  async execute(): Promise<Result<Business[], InfrastructureError>> {
+    const result = await this.businessRepository.findAll();
+    if (!result.ok) return err(result.error);
+    return ok(result.value);
   }
 }

@@ -8,7 +8,7 @@ const config = {
 	},
 	kit: {
 		alias: {
-			'@/*': './path/to/lib/*'
+			$stores: './src/modules/core/store'
 		},
 		adapter: adapter({ fallback: 'index.html' })
 	}

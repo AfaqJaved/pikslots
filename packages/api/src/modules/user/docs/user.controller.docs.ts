@@ -140,6 +140,39 @@ export const RefreshUserSessionDocs = () =>
     }),
   );
 
+export const GetAllBusinessOwnersDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Get all users with the Business Owner role' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'List of business owners returned successfully',
+      schema: {
+        example: {
+          data: [
+            {
+              id: 'uuid',
+              username: 'john_doe',
+              email: 'john@example.com',
+              name: { firstName: 'John', lastName: 'Doe' },
+            },
+          ],
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Missing or invalid access token',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Caller is not a Platform Owner',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
 export const LogoutUserDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Logout and clear the refresh token cookie' }),

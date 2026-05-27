@@ -5,7 +5,9 @@ import { RegisterBusinessDto } from '../dto/register.business.dto';
 
 export const GetAllBusinessesDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Get all registered businesses (superAdmin only)' }),
+    ApiOperation({
+      summary: 'Get all registered businesses (superAdmin only)',
+    }),
     ApiResponse({
       status: HttpStatus.OK,
       description: 'List of all businesses returned successfully',
@@ -45,7 +47,7 @@ export const GetAllBusinessesDocs = () =>
 
 export const RegisterBusinessDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Register a new business' }),
+    ApiOperation({ summary: 'Register a new business (Platform Owner Only )' }),
     ApiBody({ type: RegisterBusinessDto }),
     ApiResponse({
       status: HttpStatus.CREATED,
@@ -60,7 +62,7 @@ export const RegisterBusinessDocs = () =>
     }),
     ApiResponse({
       status: HttpStatus.CONFLICT,
-      description: 'A business with this slug or email already exists',
+      description: 'A business with this slug already exists',
       type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({

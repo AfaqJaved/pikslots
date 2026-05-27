@@ -58,3 +58,12 @@ export interface GetUserProfileResponse {
   avatarUrl: string | null;
   bookingUrl: string;
 }
+
+export interface UserSummary {
+  id: string;
+  username: string;
+  email: string;
+  name: FullNameInput;
+}
+
+export type GetAllBusinessOwnersResponse = UserSummary[];
