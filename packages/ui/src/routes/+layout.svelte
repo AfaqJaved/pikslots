@@ -14,7 +14,13 @@
 	const query = new QueryClient({
 		defaultOptions: {
 			queries: {
-				enabled: browser
+				enabled: browser,
+				staleTime: 0,
+				gcTime: 0,
+				refetchOnWindowFocus: false
+			},
+			mutations: {
+				gcTime: 0
 			}
 		}
 	});

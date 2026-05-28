@@ -61,7 +61,8 @@ export class UserController {
   async getAllBusinessOwners(
     @Res({ passthrough: true }) res: Response,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetAllBusinessOwnersResponse>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<GetAllBusinessOwnersResponse>
   > {
     const result =
       await this.userUseCaseFactory.getAllUsersByRoleUseCase.execute(
@@ -104,7 +105,7 @@ export class UserController {
 
     if (!result.ok) {
       const errorResponse = mapUserError(result.error);
-      res.status(errorResponse.statusCode);
+      // res.status(errorResponse.statusCode);
       return errorResponse;
     }
 
@@ -132,7 +133,7 @@ export class UserController {
 
     if (!result.ok) {
       const errorResponse = mapUserError(result.error);
-      res.status(errorResponse.statusCode);
+      // res.status(errorResponse.statusCode);
       return errorResponse;
     }
 

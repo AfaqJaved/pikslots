@@ -1,10 +1,11 @@
 import { HttpStatus } from '@nestjs/common';
-import type {
-  BusinessAlreadyExistsError,
-  BusinessInactiveError,
-  BusinessNotFoundError,
-  BusinessSuspendedError,
-  InfrastructureError,
+import {
+  err,
+  type BusinessAlreadyExistsError,
+  type BusinessInactiveError,
+  type BusinessNotFoundError,
+  type BusinessSuspendedError,
+  type InfrastructureError,
 } from '@pikslots/domain';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
@@ -27,11 +28,14 @@ const businessErrorMap: Record<
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   business_inactive: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
-  infrastructure: () =>
-    new PikslotsBaseErrorResponse(
+  infrastructure: (error) => {
+    //@ts-ignore
+    console.log(error.cause);
+    return new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',
       HttpStatus.INTERNAL_SERVER_ERROR,
-    ),
+    );
+  },
 };
 
 export function mapBusinessError(

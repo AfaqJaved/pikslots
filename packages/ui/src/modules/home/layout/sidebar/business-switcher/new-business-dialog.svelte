@@ -6,41 +6,23 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
-	import type {
-		BaseErrorResponse,
-		BusinessIndustry,
-		InviteUserInput,
-		InviteUserResponse,
-		RegisterBusinessInput,
-		RegisterBusinessResponse
-	} from '@pikslots/shared';
-	import type { AxiosError } from 'axios';
+	import type { BusinessIndustry } from '@pikslots/shared';
 	import { toast } from 'svelte-sonner';
-	import { registerBusiness } from '../../../../api/business/register.business.mutation';
-	import { inviteUser } from '../../../../api/user/invite.user.mutation';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 as zod } from 'sveltekit-superforms/adapters';
+	import { registerBusinessMutationOptions } from '../../../../api/business/register.business.mutation';
+	import { inviteUserMutationOptions } from '../../../../api/user/invite.user.mutation';
 	import { getUsersByRoleQueryOptions } from '../../../../api/user/get.users.by.role.query';
+	import { InviteOwnerFormSchema, CreateBusinessFormSchema } from './validations/schema';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let step = $state<1 | 2>(1);
-	//
-	const businessOwnersQuery = createQuery(() =>
-		getUsersByRoleQueryOptions({ role: 'Business Owner' })
-	);
 
-	// Step 1 — invite business owner
-	let username = $state('');
-	let email = $state('');
-	let firstName = $state('');
-	let lastName = $state('');
-	let phone = $state('');
-
-	// Step 2 — create business
-	let ownerId = $state('');
-	let businessName = $state('');
-	let slug = $state('');
-	let industry = $state<BusinessIndustry | ''>('');
-	let defaultTimeZone = $state('');
+	const businessOwnersQuery = createQuery(() => ({
+		...getUsersByRoleQueryOptions({ role: 'Business Owner' }),
+		enabled: open && step === 2
+	}));
 
 	const INDUSTRIES: { value: BusinessIndustry; label: string }[] = [
 		{ value: 'salon_and_beauty', label: 'Salon & Beauty' },
@@ -55,35 +37,73 @@
 		{ value: 'other', label: 'Other' }
 	];
 
-	// Auto-generate slug from business name
-	$effect(() => {
-		if (businessName) {
-			slug = businessName
-				.toLowerCase()
-				.replace(/[^a-z0-9]+/g, '-')
-				.replace(/^-|-$/g, '');
+	// ── Step 1 form ────────────────────────────────────────────────────────────
+
+	const inviteMutation = createMutation(inviteUserMutationOptions);
+
+	const {
+		form: inviteForm,
+		errors: inviteErrors,
+		enhance: inviteEnhance
+	} = superForm(
+		{ firstName: '', lastName: '', username: '', email: '', phone: '' },
+		{
+			validators: zod(InviteOwnerFormSchema),
+			SPA: true,
+			resetForm: false,
+			onUpdate({ form }) {
+				if (form.valid) {
+					inviteMutation.mutate({
+						username: form.data.username,
+						email: form.data.email,
+						name: { firstName: form.data.firstName, lastName: form.data.lastName },
+						role: 'Business Owner',
+						...(form.data.phone ? { phone: form.data.phone } : {})
+					});
+				}
+			}
 		}
-	});
+	);
 
-	const inviteMutation = createMutation<
-		InviteUserResponse,
-		AxiosError<BaseErrorResponse>,
-		InviteUserInput
-	>(() => ({
-		mutationFn: inviteUser
-	}));
+	// ── Step 2 form ────────────────────────────────────────────────────────────
 
-	const registerMutation = createMutation<
-		RegisterBusinessResponse,
-		AxiosError<BaseErrorResponse>,
-		RegisterBusinessInput
-	>(() => ({
-		mutationFn: registerBusiness
-	}));
+	const registerMutation = createMutation(registerBusinessMutationOptions);
+
+	const {
+		form: businessForm,
+		errors: businessErrors,
+		enhance: businessEnhance
+	} = superForm(
+		{
+			ownerId: '',
+			businessName: '',
+			slug: '',
+			industry: '' as BusinessIndustry,
+			defaultTimeZone: ''
+		},
+		{
+			validators: zod(CreateBusinessFormSchema),
+			SPA: true,
+			resetForm: false,
+			onUpdate({ form }) {
+				if (form.valid) {
+					console.log(form.data);
+					registerMutation.mutate({
+						ownerId: form.data.ownerId,
+						slug: form.data.slug,
+						name: form.data.businessName,
+						industry: form.data.industry,
+						...(form.data.defaultTimeZone ? { defaultTimeZone: form.data.defaultTimeZone } : {})
+					});
+				}
+			}
+		}
+	);
 
 	$effect(() => {
 		if (inviteMutation.isSuccess) {
 			toast.success('Business owner invited successfully');
+			businessOwnersQuery.refetch();
 			step = 2;
 		}
 		if (inviteMutation.isError) {
@@ -98,43 +118,20 @@
 			resetForm();
 		}
 		if (registerMutation.isError) {
-			toast.error(registerMutation.error?.response?.data?.message ?? 'Failed to create business');
+			toast.error(registerMutation.error?.message ?? 'Failed to create business');
 		}
 	});
 
-	function handleInvite() {
-		inviteMutation.mutate({
-			username,
-			email,
-			name: { firstName, lastName },
-			role: 'Business Owner',
-			...(phone ? { phone } : {})
-		});
-	}
-
-	function handleRegister() {
-		if (!industry) return;
-		registerMutation.mutate({
-			ownerId,
-			slug,
-			name: businessName,
-			industry,
-			...(defaultTimeZone ? { defaultTimeZone } : {})
-		});
-	}
-
 	function resetForm() {
 		step = 1;
-		username = '';
-		email = '';
-		firstName = '';
-		lastName = '';
-		phone = '';
-		ownerId = '';
-		businessName = '';
-		slug = '';
-		industry = '';
-		defaultTimeZone = '';
+		$inviteForm = { firstName: '', lastName: '', username: '', email: '', phone: '' };
+		$businessForm = {
+			ownerId: '',
+			businessName: '',
+			slug: '',
+			industry: '' as BusinessIndustry,
+			defaultTimeZone: ''
+		};
 		inviteMutation.reset();
 		registerMutation.reset();
 	}
@@ -193,27 +190,31 @@
 
 		<!-- Step 1: Invite Business Owner -->
 		{#if step === 1}
-			<div class="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
+			<form use:inviteEnhance class="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
 				<FieldGroup>
 					<div class="grid grid-cols-2 gap-4">
 						<Field>
 							<FieldLabel>First name</FieldLabel>
-							<Input bind:value={firstName} placeholder="John" />
+							<Input bind:value={$inviteForm.firstName} placeholder="John" />
+							<FieldError errors={$inviteErrors.firstName?.map((e) => ({ message: e }))} />
 						</Field>
 						<Field>
 							<FieldLabel>Last name</FieldLabel>
-							<Input bind:value={lastName} placeholder="Doe" />
+							<Input bind:value={$inviteForm.lastName} placeholder="Doe" />
+							<FieldError errors={$inviteErrors.lastName?.map((e) => ({ message: e }))} />
 						</Field>
 					</div>
 
 					<Field>
 						<FieldLabel>Username</FieldLabel>
-						<Input bind:value={username} placeholder="john_doe" />
+						<Input bind:value={$inviteForm.username} placeholder="john_doe" />
+						<FieldError errors={$inviteErrors.username?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
 						<FieldLabel>Email</FieldLabel>
-						<Input bind:value={email} type="email" placeholder="john@example.com" />
+						<Input bind:value={$inviteForm.email} type="email" placeholder="john@example.com" />
+						<FieldError errors={$inviteErrors.email?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
@@ -221,31 +222,28 @@
 							Phone
 							<span class="ml-1 text-xs text-muted-foreground">(optional)</span>
 						</FieldLabel>
-						<Input bind:value={phone} type="tel" placeholder="+12025551234" />
+						<Input bind:value={$inviteForm.phone} type="tel" placeholder="+12025551234" />
+						<FieldError errors={$inviteErrors.phone?.map((e) => ({ message: e }))} />
 					</Field>
 				</FieldGroup>
-			</div>
 
-			<div class="border-t px-6 py-4">
-				<Button
-					class="w-full"
-					onclick={handleInvite}
-					disabled={inviteMutation.isPending || !username || !email || !firstName || !lastName}
-				>
-					{inviteMutation.isPending ? 'Inviting...' : 'Invite & Continue'}
-				</Button>
-			</div>
+				<div class="border-t px-0 py-4">
+					<Button type="submit" class="w-full" disabled={inviteMutation.isPending}>
+						{inviteMutation.isPending ? 'Inviting...' : 'Invite & Continue'}
+					</Button>
+				</div>
+			</form>
 		{/if}
 
 		<!-- Step 2: Create Business -->
 		{#if step === 2}
-			<div class="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
+			<form use:businessEnhance class="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
 				<FieldGroup>
 					<Field>
 						<FieldLabel>Business owner</FieldLabel>
 						<Select.Root
 							type="single"
-							bind:value={ownerId}
+							bind:value={$businessForm.ownerId}
 							disabled={businessOwnersQuery.isPending}
 						>
 							<Select.Trigger class="w-full">
@@ -253,7 +251,7 @@
 									Loading owners...
 								{:else}
 									{(() => {
-										const u = businessOwnersQuery.data?.find((o) => o.id === ownerId);
+										const u = businessOwnersQuery.data?.find((o) => o.id === $businessForm.ownerId);
 										return u
 											? `${u.name.firstName} ${u.name.lastName} (${u.username})`
 											: 'Select a business owner';
@@ -270,23 +268,27 @@
 								{/each}
 							</Select.Content>
 						</Select.Root>
+						<FieldError errors={$businessErrors.ownerId?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
 						<FieldLabel>Business name</FieldLabel>
-						<Input bind:value={businessName} placeholder="Joe's Barbershop" />
+						<Input bind:value={$businessForm.businessName} placeholder="Joe's Barbershop" />
+						<FieldError errors={$businessErrors.businessName?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
 						<FieldLabel>Slug</FieldLabel>
-						<Input bind:value={slug} placeholder="joes-barbershop" />
+						<Input bind:value={$businessForm.slug} placeholder="joes-barbershop" />
+						<FieldError errors={$businessErrors.slug?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
 						<FieldLabel>Industry</FieldLabel>
-						<Select.Root type="single" bind:value={industry}>
+						<Select.Root type="single" bind:value={$businessForm.industry}>
 							<Select.Trigger class="w-full">
-								{INDUSTRIES.find((i) => i.value === industry)?.label ?? 'Select an industry'}
+								{INDUSTRIES.find((i) => i.value === $businessForm.industry)?.label ??
+									'Select an industry'}
 							</Select.Trigger>
 							<Select.Content>
 								{#each INDUSTRIES as item (item.value)}
@@ -294,6 +296,7 @@
 								{/each}
 							</Select.Content>
 						</Select.Root>
+						<FieldError errors={$businessErrors.industry?.map((e) => ({ message: e }))} />
 					</Field>
 
 					<Field>
@@ -301,21 +304,20 @@
 							Default timezone
 							<span class="ml-1 text-xs text-muted-foreground">(optional)</span>
 						</FieldLabel>
-						<Input bind:value={defaultTimeZone} placeholder="America/New_York" />
+						<Input bind:value={$businessForm.defaultTimeZone} placeholder="America/New_York" />
+						<FieldError errors={$businessErrors.defaultTimeZone?.map((e) => ({ message: e }))} />
 					</Field>
 				</FieldGroup>
-			</div>
 
-			<div class="flex gap-3 border-t px-6 py-4">
-				<Button variant="outline" class="flex-1" onclick={() => (step = 1)}>Back</Button>
-				<Button
-					class="flex-1"
-					onclick={handleRegister}
-					disabled={registerMutation.isPending || !ownerId || !businessName || !slug || !industry}
-				>
-					{registerMutation.isPending ? 'Creating...' : 'Create Business'}
-				</Button>
-			</div>
+				<div class="flex gap-3 border-t px-0 py-4">
+					<Button type="button" variant="outline" class="flex-1" onclick={() => (step = 1)}
+						>Back</Button
+					>
+					<Button type="submit" class="flex-1" disabled={registerMutation.isPending}>
+						{registerMutation.isPending ? 'Creating...' : 'Create Business'}
+					</Button>
+				</div>
+			</form>
 		{/if}
 	</Sheet.Content>
 </Sheet.Root>

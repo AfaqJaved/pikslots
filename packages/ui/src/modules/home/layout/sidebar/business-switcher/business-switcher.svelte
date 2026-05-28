@@ -9,26 +9,33 @@
 	import { businessStore } from '$stores/business.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import NewBusinessDialog from './new-business-dialog.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { getAllBusinessesQueryOptions } from '../../../../api/business/get.all.businesses.query';
 
-	let { businesses }: { businesses: GetAllBusinessesResponse } = $props();
+	let newBusinessDialogOpen = $state(false);
+	const currentUserRole = authStore.getPayloadData()?.role;
+
+	const businessesQuery = createQuery(() =>
+		getAllBusinessesQueryOptions(currentUserRole === 'Platform Owner')
+	);
+
 	const sidebar = useSidebar();
 
-	$effect(() => {
-		if (!businessStore.hasSelectedBusiness && businesses.length > 0) {
-			businessStore.setSelectedBusiness(businesses[0]);
-		}
-	});
-
-	let activeBusiness = $derived(businessStore.selectedBusiness ?? businesses[0]);
+	let activeBusiness = $derived(businessStore.selectedBusiness);
 
 	const onBusinessChange = (business: BusinessResponse) => {
 		businessStore.setSelectedBusiness(business);
 	};
 
-	let newBusinessDialogOpen = $state(false);
 	const newBusinessDialog = () => {
+		businessesQuery.refetch();
 		newBusinessDialogOpen = true;
 	};
+
+	$effect(() => {
+		if (!businessStore.hasSelectedBusiness && businessesQuery.data.length > 0)
+			businessStore.setSelectedBusiness(businessesQuery.data[0]);
+	});
 </script>
 
 <NewBusinessDialog bind:open={newBusinessDialogOpen} />
@@ -46,13 +53,13 @@
 							<div
 								class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground"
 							>
-								{activeBusiness.name[0].toUpperCase()}
+								{activeBusiness?.name[0].toUpperCase()}
 							</div>
 							<div class="grid flex-1 text-start text-xs leading-tight">
 								<span class="truncate font-medium">
-									{activeBusiness.name}
+									{activeBusiness?.name}
 								</span>
-								<span class="truncate text-xs">{activeBusiness.industry}</span>
+								<span class="truncate text-xs">{activeBusiness?.industry}</span>
 							</div>
 							<ChevronsUpDownIcon class="ms-auto" />
 						</Sidebar.MenuButton>
@@ -65,7 +72,7 @@
 					sideOffset={4}
 				>
 					<DropdownMenu.Label class="text-xs text-muted-foreground">Businesses</DropdownMenu.Label>
-					{#each businesses as business, index (business.name)}
+					{#each businessesQuery.data as business, index (business.name)}
 						<DropdownMenu.Item
 							onSelect={() => onBusinessChange(business)}
 							class="cursor-pointer gap-2 p-2"

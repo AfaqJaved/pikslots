@@ -9,8 +9,6 @@
 	import NavUser from './nav-user.svelte';
 	import BusinessSwitcher from './business-switcher/business-switcher.svelte';
 
-	const businessesQuery = createQuery(() => getAllBusinessesQueryOptions());
-
 	let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
 
@@ -25,9 +23,7 @@
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
-		{#if businessesQuery?.data !== undefined}
-			<BusinessSwitcher businesses={businessesQuery.data} />
-		{/if}
+		<BusinessSwitcher />
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<!-- <NavMain items={data.navMain} /> -->
