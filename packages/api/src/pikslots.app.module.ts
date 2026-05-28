@@ -6,6 +6,7 @@ import { PikslotsSecurityModule } from './shared/security/pikslots.security.modu
 import { JwtVerificationMiddleware } from './shared/security/middleware/jwt.verficiation.middleware';
 import { BusinessModule } from './modules/business/business.module';
 import { PikslotsQueueModule } from './shared/queue/pikslots.queue.module';
+import { PikslotEmailModule } from './shared/email/pikslot.email.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PikslotsQueueModule } from './shared/queue/pikslots.queue.module';
     PikslotsConfigModule,
     PikslotsDatabaseModule, // also runs the migrations
     PikslotsQueueModule,
+    PikslotEmailModule,
 
     // domain modules
     UserModule,

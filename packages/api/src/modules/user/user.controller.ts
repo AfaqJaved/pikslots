@@ -105,7 +105,7 @@ export class UserController {
 
     if (!result.ok) {
       const errorResponse = mapUserError(result.error);
-      // res.status(errorResponse.statusCode);
+      res.status(errorResponse.statusCode);
       return errorResponse;
     }
 
@@ -133,7 +133,7 @@ export class UserController {
 
     if (!result.ok) {
       const errorResponse = mapUserError(result.error);
-      // res.status(errorResponse.statusCode);
+      res.status(errorResponse.statusCode);
       return errorResponse;
     }
 

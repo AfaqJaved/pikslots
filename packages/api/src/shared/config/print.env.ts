@@ -10,6 +10,10 @@ export class PrintLoadedEnv {
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
     'REDIS_PASSWORD',
+    'MAIL_HOST',
+    'MAIL_PORT',
+    'MAIL_PASS',
+    'MAIL_USER',
   ];
 
   private readonly envKeys: Array<keyof Env> = [
@@ -23,6 +27,11 @@ export class PrintLoadedEnv {
     'CORS_ORIGINS',
     'REDIS_HOST',
     'REDIS_PORT',
+    'MAIL_HOST',
+    'MAIL_PORT',
+    'MAIL_USER',
+    'MAIL_PASS',
+    'MAIL_FROM',
   ];
 
   constructor(private readonly configService: ConfigService<Env, true>) {}

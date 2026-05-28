@@ -56,6 +56,21 @@ export class Env {
 
   @IsNumber()
   REDIS_PORT: number;
+
+  @IsString()
+  MAIL_HOST: string;
+
+  @IsNumber()
+  MAIL_PORT: number;
+
+  @IsString()
+  MAIL_USER: string;
+
+  @IsString()
+  MAIL_PASS: string;
+
+  @IsString()
+  MAIL_FROM: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): Env {

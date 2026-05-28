@@ -13,14 +13,8 @@
 	import { getAllBusinessesQueryOptions } from '../../../../api/business/get.all.businesses.query';
 
 	let newBusinessDialogOpen = $state(false);
-	const currentUserRole = authStore.getPayloadData()?.role;
-
-	const businessesQuery = createQuery(() =>
-		getAllBusinessesQueryOptions(currentUserRole === 'Platform Owner')
-	);
-
+	const businessesQuery = createQuery(() => getAllBusinessesQueryOptions());
 	const sidebar = useSidebar();
-
 	let activeBusiness = $derived(businessStore.selectedBusiness);
 
 	const onBusinessChange = (business: BusinessResponse) => {
@@ -28,13 +22,15 @@
 	};
 
 	const newBusinessDialog = () => {
-		businessesQuery.refetch();
 		newBusinessDialogOpen = true;
 	};
 
 	$effect(() => {
 		if (!businessStore.hasSelectedBusiness && businessesQuery.data.length > 0)
 			businessStore.setSelectedBusiness(businessesQuery.data[0]);
+
+		// refetch all the new business when dialog closses
+		if (!newBusinessDialogOpen) businessesQuery.refetch();
 	});
 </script>
 
@@ -43,7 +39,7 @@
 {#if authStore.getPayloadData()?.role === 'Platform Owner'}
 	<Sidebar.Menu>
 		<Sidebar.MenuItem>
-			<DropdownMenu.Root>
+			<DropdownMenu.Root onOpenChange={() => businessesQuery.refetch()}>
 				<DropdownMenu.Trigger>
 					{#snippet child({ props })}
 						<Sidebar.MenuButton

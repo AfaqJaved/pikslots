@@ -1,8 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Env } from '../config/env';
 import { BullModule } from '@nestjs/bullmq';
-
-export const EVENTS = 'EVENTS';
+import { PIKSLOT_EVENTS } from './jobs';
 
 export const QUEUE_CONFIG = BullModule.forRootAsync({
   inject: [ConfigService],
@@ -18,5 +17,5 @@ export const QUEUE_CONFIG = BullModule.forRootAsync({
 });
 
 export const REGISTERED_QUEUES = BullModule.registerQueue({
-  name: EVENTS,
+  name: PIKSLOT_EVENTS.USER.USER_INVITED,
 });

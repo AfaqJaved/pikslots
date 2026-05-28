@@ -26,6 +26,7 @@
     "migration:latest": "bun ./src/shared/database/migrate.ts latest"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
@@ -43,6 +44,7 @@
     "cookie-parser": "^1.4.7",
     "jsonwebtoken": "^9.0.3",
     "kysely": "^0.29.0",
+    "nodemailer": "^8.0.9",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -59,6 +61,7 @@
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.10.7",
+    "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
