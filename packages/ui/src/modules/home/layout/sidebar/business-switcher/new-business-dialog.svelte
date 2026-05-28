@@ -143,7 +143,7 @@
 		if (!v) resetForm();
 	}}
 >
-	<Sheet.Content side="top" class="mx-auto my-12 flex w-full flex-col gap-0 sm:max-w-lg">
+	<Sheet.Content side="top" class="mx-auto my-12 flex w-full flex-col gap-0 sm:max-w-lg" interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
 		<Sheet.Header class="px-6 pt-6">
 			<Sheet.Title>New Business</Sheet.Title>
 			<Sheet.Description>

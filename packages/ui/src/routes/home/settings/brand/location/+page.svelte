@@ -9,8 +9,16 @@
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
 
 	const countries = [
-		'Afghanistan', 'Australia', 'Canada', 'China', 'France',
-		'Germany', 'India', 'Pakistan', 'United Kingdom', 'United States'
+		'Afghanistan',
+		'Australia',
+		'Canada',
+		'China',
+		'France',
+		'Germany',
+		'India',
+		'Pakistan',
+		'United Kingdom',
+		'United States'
 	];
 
 	const currencies = [
@@ -24,7 +32,7 @@
 
 	let address = $state('');
 	let city = $state('');
-	let state = $state('');
+	let cityState = $state('');
 	let zip = $state('');
 	let country = $state('Pakistan');
 	let currency = $state('PKR');
@@ -52,7 +60,9 @@
 		<section class="flex flex-col gap-5">
 			<div class="flex flex-col gap-1">
 				<h2 class="text-xs font-semibold">Location</h2>
-				<p class="text-xs text-muted-foreground">Provide a business address to list on your Booking Page.</p>
+				<p class="text-xs text-muted-foreground">
+					Provide a business address to list on your Booking Page.
+				</p>
 			</div>
 
 			<!-- Address -->
@@ -75,9 +85,9 @@
 			<div class="grid grid-cols-2 gap-3">
 				<div class="flex flex-col gap-2">
 					<Label>State</Label>
-					<Select.Root type="single" bind:value={state}>
+					<Select.Root type="single" bind:value={cityState}>
 						<Select.Trigger class="w-full">
-							{state || 'Select'}
+							{cityState || 'Select'}
 						</Select.Trigger>
 						<Select.Content>
 							{#each ['California', 'New York', 'Texas', 'Punjab', 'Sindh', 'KPK'] as s (s)}
@@ -148,7 +158,9 @@
 
 		<Card.Root class="overflow-hidden">
 			<div class="border-b px-4 py-2">
-				<div class="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
+				<div
+					class="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground"
+				>
 					<span>https://</span>
 					<span class="font-medium text-foreground">your-slug</span>
 					<span>.pikslots.com</span>
