@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import CircleHalf from '@tabler/icons-svelte/icons/circle-half';
 	import DeviceTablet from '@tabler/icons-svelte/icons/device-tablet';
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
@@ -9,6 +10,8 @@
 	import Sun from '@tabler/icons-svelte/icons/sun';
 	import Moon from '@tabler/icons-svelte/icons/moon';
 	import DeviceDesktop2 from '@tabler/icons-svelte/icons/device-desktop';
+	import type { BrandButtonShape, BrandTheme } from '@pikslots/shared';
+	import { businessStore } from '../../../core/store/business.svelte';
 
 	const brandColors = [
 		{ value: '#111111', label: 'Black' },
@@ -24,10 +27,20 @@
 		{ value: '#1a1a1a', label: 'Charcoal' }
 	];
 
+	const business = $derived(businessStore.selectedBusiness);
+
 	let selectedColor = $state('#1a1a1a');
-	let selectedShape = $state('pill');
-	let selectedTheme = $state('system');
+	let selectedShape = $state<BrandButtonShape>('pill');
+	let selectedTheme = $state<BrandTheme>('system');
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
+
+	$effect(() => {
+		if (business) {
+			selectedColor = business.brandAppearanceDetails.brandColor;
+			selectedShape = business.brandAppearanceDetails.brandButtonShape;
+			selectedTheme = business.brandAppearanceDetails.theme;
+		}
+	});
 </script>
 
 <!-- Page header -->
@@ -58,117 +71,150 @@
 		<!-- Brand color -->
 		<section class="flex flex-col gap-3">
 			<h3 class="text-xs font-medium">Brand color</h3>
-			<div class="flex flex-wrap gap-2">
-				{#each brandColors as color (color.value)}
-					<button
-						type="button"
-						onclick={() => (selectedColor = color.value)}
-						title={color.label}
-						class="relative size-8 rounded-full transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-						style="background-color: {color.value};"
-					>
-						{#if selectedColor === color.value}
-							<span
-								class="absolute inset-0 flex items-center justify-center rounded-full ring-2 ring-foreground ring-offset-2"
-							>
-								<svg
-									class="size-3.5 text-white drop-shadow"
-									viewBox="0 0 12 12"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
+			{#if business === null}
+				<div class="flex flex-wrap gap-2">
+					{#each Array(11) as _}
+						<Skeleton class="size-8 rounded-full" />
+					{/each}
+				</div>
+			{:else}
+				<div class="flex flex-wrap gap-2">
+					{#each brandColors as color (color.value)}
+						<button
+							type="button"
+							onclick={() => (selectedColor = color.value)}
+							title={color.label}
+							class="relative size-8 rounded-full transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+							style="background-color: {color.value};"
+						>
+							{#if selectedColor === color.value}
+								<span
+									class="absolute inset-0 flex items-center justify-center rounded-full ring-2 ring-foreground ring-offset-2"
 								>
-									<path d="M2 6l3 3 5-5" />
-								</svg>
-							</span>
-						{/if}
-					</button>
-				{/each}
-			</div>
+									<svg
+										class="size-3.5 text-white drop-shadow"
+										viewBox="0 0 12 12"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M2 6l3 3 5-5" />
+									</svg>
+								</span>
+							{/if}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<!-- Button shape -->
 		<section class="flex flex-col gap-3">
 			<h3 class="text-xs font-medium">Button shape</h3>
-			<div class="grid grid-cols-3 gap-3">
-				{#each [{ value: 'pill', label: 'Pill' }, { value: 'rounded', label: 'Rounded' }, { value: 'rectangle', label: 'Rectangle' }] as shape (shape.value)}
-					<button
-						type="button"
-						onclick={() => (selectedShape = shape.value)}
-						class="relative flex flex-col items-center gap-3 rounded-lg border p-4 text-xs transition-colors hover:bg-accent
-							{selectedShape === shape.value ? 'border-foreground bg-accent/30' : 'border-border'}"
-					>
-						<span
-							class="absolute top-3 left-3 flex size-4 items-center justify-center rounded-full border-2
-								{selectedShape === shape.value ? 'border-foreground' : 'border-muted-foreground'}"
+			{#if business === null}
+				<div class="grid grid-cols-3 gap-3">
+					{#each Array(3) as _}
+						<Skeleton class="h-24 rounded-lg" />
+					{/each}
+				</div>
+			{:else}
+				<div class="grid grid-cols-3 gap-3">
+					{#each [{ value: 'pill' as BrandButtonShape, label: 'Pill' }, { value: 'rounded' as BrandButtonShape, label: 'Rounded' }, { value: 'rectangle' as BrandButtonShape, label: 'Rectangle' }] as shape (shape.value)}
+						<button
+							type="button"
+							onclick={() => (selectedShape = shape.value)}
+							class="relative flex flex-col items-center gap-3 rounded-lg border p-4 text-xs transition-colors hover:bg-accent
+								{selectedShape === shape.value ? 'border-foreground bg-accent/30' : 'border-border'}"
 						>
-							{#if selectedShape === shape.value}
-								<span class="size-2 rounded-full bg-foreground"></span>
-							{/if}
-						</span>
-						<!-- Shape preview -->
-						<div class="mt-3 flex items-center justify-center">
-							{#if shape.value === 'pill'}
-								<div class="h-6 w-16 rounded-full border-2 border-current"></div>
-							{:else if shape.value === 'rounded'}
-								<div class="h-6 w-16 rounded-md border-2 border-current"></div>
-							{:else}
-								<div class="h-6 w-16 rounded-none border-2 border-current"></div>
-							{/if}
-						</div>
-						<span class="font-medium">{shape.label}</span>
-					</button>
-				{/each}
-			</div>
+							<span
+								class="absolute top-3 left-3 flex size-4 items-center justify-center rounded-full border-2
+									{selectedShape === shape.value ? 'border-foreground' : 'border-muted-foreground'}"
+							>
+								{#if selectedShape === shape.value}
+									<span class="size-2 rounded-full bg-foreground"></span>
+								{/if}
+							</span>
+							<div class="mt-3 flex items-center justify-center">
+								{#if shape.value === 'pill'}
+									<div class="h-6 w-16 rounded-full border-2 border-current"></div>
+								{:else if shape.value === 'rounded'}
+									<div class="h-6 w-16 rounded-md border-2 border-current"></div>
+								{:else}
+									<div class="h-6 w-16 rounded-none border-2 border-current"></div>
+								{/if}
+							</div>
+							<span class="font-medium">{shape.label}</span>
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<!-- Theme -->
 		<section class="flex flex-col gap-3">
 			<h3 class="text-xs font-medium">Theme</h3>
-			<div class="grid grid-cols-3 gap-3">
-				{#each [{ value: 'system', label: 'System' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }] as theme (theme.value)}
-					<button
-						type="button"
-						onclick={() => (selectedTheme = theme.value)}
-						class="relative flex flex-col items-center gap-3 rounded-lg border p-4 text-xs transition-colors hover:bg-accent
-							{selectedTheme === theme.value ? 'border-foreground bg-accent/30' : 'border-border'}"
-					>
-						<span
-							class="absolute top-3 left-3 flex size-4 items-center justify-center rounded-full border-2
-								{selectedTheme === theme.value ? 'border-foreground' : 'border-muted-foreground'}"
+			{#if business === null}
+				<div class="grid grid-cols-3 gap-3">
+					{#each Array(3) as _}
+						<Skeleton class="h-24 rounded-lg" />
+					{/each}
+				</div>
+			{:else}
+				<div class="grid grid-cols-3 gap-3">
+					{#each [{ value: 'system' as BrandTheme, label: 'System' }, { value: 'light' as BrandTheme, label: 'Light' }, { value: 'dark' as BrandTheme, label: 'Dark' }] as theme (theme.value)}
+						<button
+							type="button"
+							onclick={() => (selectedTheme = theme.value)}
+							class="relative flex flex-col items-center gap-3 rounded-lg border p-4 text-xs transition-colors hover:bg-accent
+								{selectedTheme === theme.value ? 'border-foreground bg-accent/30' : 'border-border'}"
 						>
-							{#if selectedTheme === theme.value}
-								<span class="size-2 rounded-full bg-foreground"></span>
-							{/if}
-						</span>
-						<div class="mt-3 flex items-center justify-center text-foreground">
-							{#if theme.value === 'system'}
-								<DeviceDesktop2 size={22} />
-							{:else if theme.value === 'light'}
-								<Sun size={22} />
-							{:else}
-								<Moon size={22} />
-							{/if}
-						</div>
-						<span class="font-medium">{theme.label}</span>
-					</button>
-				{/each}
-			</div>
+							<span
+								class="absolute top-3 left-3 flex size-4 items-center justify-center rounded-full border-2
+									{selectedTheme === theme.value ? 'border-foreground' : 'border-muted-foreground'}"
+							>
+								{#if selectedTheme === theme.value}
+									<span class="size-2 rounded-full bg-foreground"></span>
+								{/if}
+							</span>
+							<div class="mt-3 flex items-center justify-center text-foreground">
+								{#if theme.value === 'system'}
+									<DeviceDesktop2 size={22} />
+								{:else if theme.value === 'light'}
+									<Sun size={22} />
+								{:else}
+									<Moon size={22} />
+								{/if}
+							</div>
+							<span class="font-medium">{theme.label}</span>
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<!-- Gallery -->
 		<section class="flex flex-col gap-3">
 			<h3 class="text-xs font-medium">Gallery</h3>
-			<div
-				class="flex min-h-40 flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/30"
-			>
-				<Button variant="outline" size="sm">
-					<Photo size={14} />
-					Upload photos
-				</Button>
-			</div>
+			{#if business === null}
+				<Skeleton class="min-h-40 rounded-lg" />
+			{:else if business.brandAppearanceDetails.gallaryPhotosUrls.length > 0}
+				<div class="grid grid-cols-3 gap-2 rounded-lg border p-2">
+					{#each business.brandAppearanceDetails.gallaryPhotosUrls as url (url)}
+						<img src={url} alt="Gallery" class="aspect-square rounded-md object-cover" />
+					{/each}
+				</div>
+			{:else}
+				<div
+					class="flex min-h-40 flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/30"
+				>
+					<Button variant="outline" size="sm">
+						<Photo size={14} />
+						Upload photos
+					</Button>
+				</div>
+			{/if}
 			<p class="text-center text-xs text-muted-foreground">
 				Up to 10 MB size per image. Max 10 photos per upload.
 			</p>
@@ -203,7 +249,11 @@
 					class="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground"
 				>
 					<span>https://</span>
-					<span class="font-medium text-foreground">your-slug</span>
+					{#if business === null}
+						<Skeleton class="h-3 w-24 rounded" />
+					{:else}
+						<span class="font-medium text-foreground">{business.slug || 'your-slug'}</span>
+					{/if}
 					<span>.pikslots.com</span>
 				</div>
 			</div>

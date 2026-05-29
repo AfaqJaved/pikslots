@@ -1,9 +1,9 @@
-import type { BusinessResponse } from '@pikslots/shared';
+import type { BusinessModel } from '../../api/business/models/business-model';
 
 function createBusinessStore() {
-	let selectedBusiness = $state<BusinessResponse | null>(null);
+	let selectedBusiness = $state<BusinessModel | null>(null);
 
-	function setSelectedBusiness(business: BusinessResponse) {
+	function setSelectedBusiness(business: BusinessModel) {
 		selectedBusiness = business;
 	}
 

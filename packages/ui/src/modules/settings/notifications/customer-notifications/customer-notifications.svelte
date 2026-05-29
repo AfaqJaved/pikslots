@@ -3,6 +3,10 @@
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import type { TimeUnit } from '@pikslots/shared';
+	import { businessStore } from '../../../core/store/business.svelte';
+
+	const business = $derived(businessStore.selectedBusiness);
 
 	// ── Updates ────────────────────────────────────────────────────
 	let confirmations = $state(true);
@@ -12,17 +16,30 @@
 	// ── Reminders ──────────────────────────────────────────────────
 	let reminder1 = $state(true);
 	let reminder1Value = $state('1');
-	let reminder1Unit = $state('Days');
+	let reminder1Unit = $state<TimeUnit>('days');
 
 	let reminder2 = $state(false);
 	let reminder2Value = $state('12');
-	let reminder2Unit = $state('Hours');
+	let reminder2Unit = $state<TimeUnit>('hours');
 
-	const reminderUnits = ['Minutes', 'Hours', 'Days', 'Weeks'];
+	const reminderUnits: { value: TimeUnit; label: string }[] = [
+		{ value: 'minutes', label: 'Minutes' },
+		{ value: 'hours', label: 'Hours' },
+		{ value: 'days', label: 'Days' },
+		{ value: 'weeks', label: 'Weeks' }
+	];
 
-	// ── Customization ──────────────────────────────────────────────
-	let senderName = $state('Afaq');
-	let emailSignature = $state('Thanks,');
+	$effect(() => {
+		if (business) {
+			const n = business.customerNotifications;
+			confirmations = n.notifyBookingConfirmation;
+			changes = n.notifyBookingChanges;
+			cancellations = n.notifyBookingCancellations;
+			reminder1Value = String(n.bookingRemindersTime.value);
+			reminder1Unit = n.bookingRemindersTime.unit;
+			reminder1 = n.bookingRemindersTime.value > 0;
+		}
+	});
 </script>
 
 <div class="flex flex-col">
@@ -36,18 +53,21 @@
 	</div>
 
 	<div class="flex w-[60%] flex-col gap-6 px-6 py-4">
-
 		<!-- Customer notifications -->
 		<div class="flex flex-col gap-0.5">
 			<h2 class="text-sm font-semibold">Customer notifications</h2>
-			<span class="text-xs text-muted-foreground">Select the real-time updates your customers will receive.</span>
+			<span class="text-xs text-muted-foreground"
+				>Select the real-time updates your customers will receive.</span
+			>
 		</div>
 
 		<!-- Updates -->
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Updates</span>
-				<span class="text-xs text-muted-foreground">Automate notifications for new, edited and cancelled bookings</span>
+				<span class="text-xs text-muted-foreground"
+					>Automate notifications for new, edited and cancelled bookings</span
+				>
 			</div>
 
 			<div class="flex flex-col gap-3">
@@ -55,7 +75,9 @@
 					<Checkbox bind:checked={confirmations} class="mt-0.5" />
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Confirmations</span>
-						<span class="text-xs text-muted-foreground">Automate notifications for new bookings</span>
+						<span class="text-xs text-muted-foreground"
+							>Automate notifications for new bookings</span
+						>
 					</div>
 				</div>
 
@@ -63,7 +85,9 @@
 					<Checkbox bind:checked={changes} class="mt-0.5" />
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Changes</span>
-						<span class="text-xs text-muted-foreground">Automate notifications for edited or rescheduled bookings</span>
+						<span class="text-xs text-muted-foreground"
+							>Automate notifications for edited or rescheduled bookings</span
+						>
 					</div>
 				</div>
 
@@ -71,7 +95,9 @@
 					<Checkbox bind:checked={cancellations} class="mt-0.5" />
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Cancellations</span>
-						<span class="text-xs text-muted-foreground">Automate notifications for cancelled bookings</span>
+						<span class="text-xs text-muted-foreground"
+							>Automate notifications for cancelled bookings</span
+						>
 					</div>
 				</div>
 			</div>
@@ -81,7 +107,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Reminders</span>
-				<span class="text-xs text-muted-foreground">Reduce no-shows and rescheduling with automatic booking reminders.</span>
+				<span class="text-xs text-muted-foreground"
+					>Reduce no-shows and rescheduling with automatic booking reminders.</span
+				>
 			</div>
 
 			<div class="flex flex-col gap-0.5">
@@ -104,10 +132,12 @@
 						min="1"
 					/>
 					<Select.Root type="single" bind:value={reminder1Unit} disabled={!reminder1}>
-						<Select.Trigger class="w-28 text-xs">{reminder1Unit}</Select.Trigger>
+						<Select.Trigger class="w-28 text-xs">
+							{reminderUnits.find((u) => u.value === reminder1Unit)?.label ?? reminder1Unit}
+						</Select.Trigger>
 						<Select.Content>
-							{#each reminderUnits as u (u)}
-								<Select.Item value={u}>{u}</Select.Item>
+							{#each reminderUnits as u (u.value)}
+								<Select.Item value={u.value}>{u.label}</Select.Item>
 							{/each}
 						</Select.Content>
 					</Select.Root>
@@ -121,46 +151,19 @@
 					<span class="text-xs text-muted-foreground">Reminder 2</span>
 				</div>
 				<div class="flex shrink-0 items-center gap-2">
-					<Input
-						type="number"
-						bind:value={reminder2Value}
-						disabled
-						class="w-16 text-xs"
-					/>
+					<Input type="number" bind:value={reminder2Value} disabled class="w-16 text-xs" />
 					<Select.Root type="single" bind:value={reminder2Unit} disabled>
-						<Select.Trigger class="w-28 text-xs">{reminder2Unit}</Select.Trigger>
+						<Select.Trigger class="w-28 text-xs">
+							{reminderUnits.find((u) => u.value === reminder2Unit)?.label ?? reminder2Unit}
+						</Select.Trigger>
 						<Select.Content>
-							{#each reminderUnits as u (u)}
-								<Select.Item value={u}>{u}</Select.Item>
+							{#each reminderUnits as u (u.value)}
+								<Select.Item value={u.value}>{u.label}</Select.Item>
 							{/each}
 						</Select.Content>
 					</Select.Root>
 				</div>
 			</div>
 		</div>
-
-		<!-- Customization -->
-		<div class="flex flex-col gap-4">
-			<h2 class="text-sm font-semibold">Customization</h2>
-
-			<div class="flex flex-col gap-3">
-				<span class="text-xs font-medium">Emails</span>
-
-				<div class="flex flex-col gap-1">
-					<span class="text-xs text-muted-foreground">Sender name</span>
-					<Input bind:value={senderName} class="text-xs" />
-				</div>
-
-				<div class="flex flex-col gap-1">
-					<span class="text-xs text-muted-foreground">Email signature</span>
-					<textarea
-						bind:value={emailSignature}
-						rows={3}
-						class="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-xs shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-					></textarea>
-				</div>
-			</div>
-		</div>
-
 	</div>
 </div>

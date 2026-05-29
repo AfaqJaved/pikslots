@@ -4,6 +4,10 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Plus from '@tabler/icons-svelte/icons/plus';
+	import type { TimeUnit } from '@pikslots/shared';
+	import { businessStore } from '../../../core/store/business.svelte';
+
+	const business = $derived(businessStore.selectedBusiness);
 
 	// ── Updates ────────────────────────────────────────────────────
 	let confirmations = $state(true);
@@ -13,12 +17,30 @@
 	// ── Reminders ──────────────────────────────────────────────────
 	let emailReminder = $state(true);
 	let reminderValue = $state('1');
-	let reminderUnit = $state('Days');
+	let reminderUnit = $state<TimeUnit>('days');
 
-	const reminderUnits = ['Minutes', 'Hours', 'Days', 'Weeks'];
+	const reminderUnits: { value: TimeUnit; label: string }[] = [
+		{ value: 'minutes', label: 'Minutes' },
+		{ value: 'hours', label: 'Hours' },
+		{ value: 'days', label: 'Days' },
+		{ value: 'weeks', label: 'Weeks' }
+	];
 
 	// ── CC email ───────────────────────────────────────────────────
 	let ccEmails = $state<string[]>([]);
+
+	$effect(() => {
+		if (business) {
+			const n = business.teamNotifications;
+			confirmations = n.notifyBookingConfirmation;
+			changes = n.notifyBookingChanges;
+			cancellations = n.notifyBookingCancellations;
+			reminderValue = String(n.bookingRemindersTime.value);
+			reminderUnit = n.bookingRemindersTime.unit;
+			emailReminder = n.bookingRemindersTime.value > 0;
+			ccEmails = [...n.extraCCEmails];
+		}
+	});
 </script>
 
 <div class="flex flex-col">
@@ -97,10 +119,12 @@
 						min="1"
 					/>
 					<Select.Root type="single" bind:value={reminderUnit} disabled={!emailReminder}>
-						<Select.Trigger class="w-28 text-xs">{reminderUnit}</Select.Trigger>
+						<Select.Trigger class="w-28 text-xs">
+							{reminderUnits.find((u) => u.value === reminderUnit)?.label ?? reminderUnit}
+						</Select.Trigger>
 						<Select.Content>
-							{#each reminderUnits as u (u)}
-								<Select.Item value={u}>{u}</Select.Item>
+							{#each reminderUnits as u (u.value)}
+								<Select.Item value={u.value}>{u.label}</Select.Item>
 							{/each}
 						</Select.Content>
 					</Select.Root>

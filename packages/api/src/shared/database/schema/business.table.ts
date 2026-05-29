@@ -12,6 +12,9 @@ import type {
   BookingContactFields,
   BookingCustomization,
   BookingLabelOverrides,
+  BusinessTeamNotifications,
+  BusinessCustomerNotifications,
+  BusinessNotificationCustomization,
 } from '@pikslots/domain';
 
 import type { AuditFields } from './audit.table';
@@ -36,6 +39,11 @@ export interface BusinessTable extends AuditFields {
   booking_contact_fields: BookingContactFields; // which contact fields are shown and required at booking
   booking_customization: BookingCustomization; // language, time format, week start, display toggles
   booking_label_overrides: BookingLabelOverrides; // custom labels for services, team members, fields, T&Cs, redirect
+
+  // notifications
+  team_notifications: BusinessTeamNotifications; // team-facing notification preferences and CC emails
+  customer_notifications: BusinessCustomerNotifications; // customer-facing notification preferences
+  notification_customization: BusinessNotificationCustomization; // email sender name and signature
 
   // subscription
   subscription_plan: SubscriptionPlan; // current billing plan tier

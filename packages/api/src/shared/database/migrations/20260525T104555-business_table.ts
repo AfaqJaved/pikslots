@@ -32,6 +32,22 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
     .addColumn('booking_contact_fields', 'jsonb', (col) => col.notNull())
     .addColumn('booking_customization', 'jsonb', (col) => col.notNull())
     .addColumn('booking_label_overrides', 'jsonb', (col) => col.notNull())
+    // notifications
+    .addColumn('team_notifications', 'jsonb', (col) =>
+      col.notNull().defaultTo(
+        sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"unit":"hours","value":24},"extraCCEmails":[]}'::jsonb`,
+      ),
+    )
+    .addColumn('customer_notifications', 'jsonb', (col) =>
+      col.notNull().defaultTo(
+        sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"unit":"hours","value":24}}'::jsonb`,
+      ),
+    )
+    .addColumn('notification_customization', 'jsonb', (col) =>
+      col.notNull().defaultTo(
+        sql`'{"emailSenderName":"","emailSignature":""}'::jsonb`,
+      ),
+    )
     // subscription
     .addColumn(
       'subscription_plan',

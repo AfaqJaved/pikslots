@@ -3,30 +3,49 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import type { WeekDay } from '@pikslots/shared';
+	import { businessStore } from '../../../core/store/business.svelte';
+
+	const business = $derived(businessStore.selectedBusiness);
 
 	// ── General ────────────────────────────────────────────────────
-	let language = $state('English (US)');
-	let timeFormat = $state('12 Hours');
-	let weekStartsOn = $state('Monday');
+	let language = $state('en');
+	let timeFormat = $state<'12 hours' | '24 hours'>('12 hours');
+	let weekStartsOn = $state<WeekDay>('monday');
 
-	const languages = ['English (US)', 'English (UK)', 'Spanish', 'French', 'German', 'Arabic'];
-	const timeFormats = ['12 Hours', '24 Hours'];
-	const weekDays = ['Monday', 'Sunday', 'Saturday'];
+	const languages: { value: string; label: string }[] = [
+		{ value: 'en', label: 'English' },
+		{ value: 'fr', label: 'French' },
+		{ value: 'de', label: 'German' },
+		{ value: 'es', label: 'Spanish' },
+		{ value: 'ar', label: 'Arabic' },
+		{ value: 'ur', label: 'Urdu' }
+	];
+	const timeFormats: { value: '12 hours' | '24 hours'; label: string }[] = [
+		{ value: '12 hours', label: '12 Hours' },
+		{ value: '24 hours', label: '24 Hours' }
+	];
+	const weekDays: { value: WeekDay; label: string }[] = [
+		{ value: 'monday', label: 'Monday' },
+		{ value: 'sunday', label: 'Sunday' },
+		{ value: 'saturday', label: 'Saturday' }
+	];
 
 	// ── Services and classes ───────────────────────────────────────
-	let showPrices = $state(true);
-	let showDuration = $state(true);
-	let showBusinessHours = $state(true);
-	let showLocalTime = $state(true);
-	let bookAnotherButton = $state(true);
+	let showPrices = $state(false);
+	let showDuration = $state(false);
+	let showBusinessHours = $state(false);
+	let showLocalTime = $state(false);
+	let bookAnotherButton = $state(false);
 
 	// ── Labels ─────────────────────────────────────────────────────
-	let labelService = $state('Service');
-	let labelClass = $state('Class');
-	let labelTeamMember = $state('Team member');
-	let labelCity = $state('City');
-	let labelState = $state('State');
-	let labelPostalCode = $state('Postal code');
+	let labelService = $state('');
+	let labelClass = $state('');
+	let labelTeamMember = $state('');
+	let labelCity = $state('');
+	let labelState = $state('');
+	let labelPostalCode = $state('');
 
 	// ── Terms and conditions ───────────────────────────────────────
 	let termsLabel = $state('');
@@ -36,6 +55,36 @@
 	// ── Confirmation redirect ──────────────────────────────────────
 	let redirectLabel = $state('');
 	let redirectLink = $state('');
+
+	$effect(() => {
+		if (business) {
+			const c = business.bookingCustomization;
+			const l = business.bookingLabelOverrides;
+
+			language = c.language;
+			timeFormat = c.timeFormat;
+			weekStartsOn = c.weekStartsOn;
+			showPrices = c.showServiceAndClassPrices;
+			showDuration = c.showServiceAndClassDuration;
+			showBusinessHours = c.showBusinessHours;
+			showLocalTime = c.showLocalTime;
+			bookAnotherButton = c.showBookAnotherAppointmentButton;
+
+			labelService = l.service;
+			labelClass = l.class;
+			labelTeamMember = l.teamMember;
+			labelCity = l.city;
+			labelState = l.state;
+			labelPostalCode = l.postalCode;
+
+			termsLabel = l.termsAndConditions.label;
+			termsLink = l.termsAndConditions.link;
+			requireAgreement = l.termsAndConditions.requireTermsAcceptance;
+
+			redirectLabel = l.redirection.label;
+			redirectLink = l.redirection.link;
+		}
+	});
 </script>
 
 <div class="flex flex-col">
@@ -64,14 +113,20 @@
 						<span class="text-xs font-medium">Preferred language</span>
 						<span class="text-xs text-muted-foreground">This will be the default language of your Booking Page.</span>
 					</div>
-					<Select.Root type="single" bind:value={language}>
-						<Select.Trigger class="w-40 shrink-0 text-xs">{language}</Select.Trigger>
-						<Select.Content>
-							{#each languages as l (l)}
-								<Select.Item value={l}>{l}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
+					{#if business === null}
+						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
+					{:else}
+						<Select.Root type="single" bind:value={language}>
+							<Select.Trigger class="w-40 shrink-0 text-xs">
+								{languages.find((l) => l.value === language)?.label ?? language}
+							</Select.Trigger>
+							<Select.Content>
+								{#each languages as l (l.value)}
+									<Select.Item value={l.value}>{l.label}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					{/if}
 				</div>
 
 				<!-- Time format -->
@@ -80,14 +135,20 @@
 						<span class="text-xs font-medium">Time format</span>
 						<span class="text-xs text-muted-foreground">Display time in 12-hour AM/PM or 24-hour format.</span>
 					</div>
-					<Select.Root type="single" bind:value={timeFormat}>
-						<Select.Trigger class="w-40 shrink-0 text-xs">{timeFormat}</Select.Trigger>
-						<Select.Content>
-							{#each timeFormats as f (f)}
-								<Select.Item value={f}>{f}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
+					{#if business === null}
+						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
+					{:else}
+						<Select.Root type="single" bind:value={timeFormat}>
+							<Select.Trigger class="w-40 shrink-0 text-xs">
+								{timeFormats.find((f) => f.value === timeFormat)?.label ?? timeFormat}
+							</Select.Trigger>
+							<Select.Content>
+								{#each timeFormats as f (f.value)}
+									<Select.Item value={f.value}>{f.label}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					{/if}
 				</div>
 
 				<!-- Week starts on -->
@@ -96,14 +157,20 @@
 						<span class="text-xs font-medium">Week starts on</span>
 						<span class="text-xs text-muted-foreground">Set the first day of the week as seen on your Booking Page.</span>
 					</div>
-					<Select.Root type="single" bind:value={weekStartsOn}>
-						<Select.Trigger class="w-40 shrink-0 text-xs">{weekStartsOn}</Select.Trigger>
-						<Select.Content>
-							{#each weekDays as d (d)}
-								<Select.Item value={d}>{d}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
+					{#if business === null}
+						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
+					{:else}
+						<Select.Root type="single" bind:value={weekStartsOn}>
+							<Select.Trigger class="w-40 shrink-0 text-xs">
+								{weekDays.find((d) => d.value === weekStartsOn)?.label ?? weekStartsOn}
+							</Select.Trigger>
+							<Select.Content>
+								{#each weekDays as d (d.value)}
+									<Select.Item value={d.value}>{d.label}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -116,26 +183,35 @@
 			</div>
 
 			<div class="flex flex-col gap-2.5">
-				<div class="flex items-center gap-3">
-					<Switch bind:checked={showPrices} />
-					<span class="text-xs">Service and class prices</span>
-				</div>
-				<div class="flex items-center gap-3">
-					<Switch bind:checked={showDuration} />
-					<span class="text-xs">Service and class duration</span>
-				</div>
-				<div class="flex items-center gap-3">
-					<Switch bind:checked={showBusinessHours} />
-					<span class="text-xs">Business hours</span>
-				</div>
-				<div class="flex items-center gap-3">
-					<Switch bind:checked={showLocalTime} />
-					<span class="text-xs">Local time</span>
-				</div>
-				<div class="flex items-center gap-3">
-					<Switch bind:checked={bookAnotherButton} />
-					<span class="text-xs">'Book another appointment' button</span>
-				</div>
+				{#if business === null}
+					{#each Array(5) as _}
+						<div class="flex items-center gap-3">
+							<Skeleton class="h-5 w-9 rounded-full" />
+							<Skeleton class="h-3.5 w-40 rounded" />
+						</div>
+					{/each}
+				{:else}
+					<div class="flex items-center gap-3">
+						<Switch bind:checked={showPrices} />
+						<span class="text-xs">Service and class prices</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<Switch bind:checked={showDuration} />
+						<span class="text-xs">Service and class duration</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<Switch bind:checked={showBusinessHours} />
+						<span class="text-xs">Business hours</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<Switch bind:checked={showLocalTime} />
+						<span class="text-xs">Local time</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<Switch bind:checked={bookAnotherButton} />
+						<span class="text-xs">'Book another appointment' button</span>
+					</div>
+				{/if}
 			</div>
 		</div>
 
@@ -150,31 +226,55 @@
 				<div class="grid grid-cols-2 gap-3">
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'service' as</span>
-						<Input bind:value={labelService} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelService} class="text-xs" />
+						{/if}
 					</div>
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'class' as</span>
-						<Input bind:value={labelClass} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelClass} class="text-xs" />
+						{/if}
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-3">
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'team member' as</span>
-						<Input bind:value={labelTeamMember} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelTeamMember} class="text-xs" />
+						{/if}
 					</div>
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'city' as</span>
-						<Input bind:value={labelCity} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelCity} class="text-xs" />
+						{/if}
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-3">
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'state' as</span>
-						<Input bind:value={labelState} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelState} class="text-xs" />
+						{/if}
 					</div>
 					<div class="flex flex-col gap-1">
 						<span class="text-xs text-muted-foreground">Display 'postal code' as</span>
-						<Input bind:value={labelPostalCode} class="text-xs" />
+						{#if business === null}
+							<Skeleton class="h-9 w-full rounded-md" />
+						{:else}
+							<Input bind:value={labelPostalCode} class="text-xs" />
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -190,16 +290,32 @@
 			<div class="grid grid-cols-2 gap-3">
 				<div class="flex flex-col gap-1">
 					<span class="text-xs text-muted-foreground">Label</span>
-					<Input bind:value={termsLabel} class="text-xs" />
+					{#if business === null}
+						<Skeleton class="h-9 w-full rounded-md" />
+					{:else}
+						<Input bind:value={termsLabel} class="text-xs" />
+					{/if}
 				</div>
 				<div class="flex flex-col gap-1">
 					<span class="text-xs text-muted-foreground">Terms link</span>
-					<Input bind:value={termsLink} class="text-xs" />
+					{#if business === null}
+						<Skeleton class="h-9 w-full rounded-md" />
+					{:else}
+						<Input bind:value={termsLink} class="text-xs" />
+					{/if}
 				</div>
 			</div>
 
 			<div class="flex items-start gap-3">
-				<Switch bind:checked={requireAgreement} disabled={!termsLabel && !termsLink} class="mt-0.5 opacity-40" />
+				{#if business === null}
+					<Skeleton class="mt-0.5 h-5 w-9 rounded-full" />
+				{:else}
+					<Switch
+						bind:checked={requireAgreement}
+						disabled={!termsLabel && !termsLink}
+						class="mt-0.5"
+					/>
+				{/if}
 				<div class="flex flex-col gap-0.5">
 					<span class="text-xs text-muted-foreground">Require agreement</span>
 					<span class="text-xs text-muted-foreground">Display a checkbox to confirm customers accept your terms before booking.</span>
@@ -217,11 +333,19 @@
 			<div class="grid grid-cols-2 gap-3">
 				<div class="flex flex-col gap-1">
 					<span class="text-xs text-muted-foreground">Label</span>
-					<Input bind:value={redirectLabel} class="text-xs" />
+					{#if business === null}
+						<Skeleton class="h-9 w-full rounded-md" />
+					{:else}
+						<Input bind:value={redirectLabel} class="text-xs" />
+					{/if}
 				</div>
 				<div class="flex flex-col gap-1">
 					<span class="text-xs text-muted-foreground">Redirect link</span>
-					<Input bind:value={redirectLink} class="text-xs" />
+					{#if business === null}
+						<Skeleton class="h-9 w-full rounded-md" />
+					{:else}
+						<Input bind:value={redirectLink} class="text-xs" />
+					{/if}
 				</div>
 			</div>
 		</div>

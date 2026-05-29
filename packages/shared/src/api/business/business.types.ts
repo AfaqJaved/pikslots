@@ -122,6 +122,26 @@ export interface BookingLabelOverrides {
   redirection: { label: string; link: string };
 }
 
+export interface TeamNotifications {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: { unit: TimeUnit; value: number };
+  extraCCEmails: string[];
+}
+
+export interface CustomerNotifications {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: { unit: TimeUnit; value: number };
+}
+
+export interface NotificationCustomization {
+  emailSenderName: string;
+  emailSignature: string;
+}
+
 // ── Requests ──────────────────────────────────────────────────────────────────
 
 export interface RegisterBusinessInput {
@@ -158,6 +178,10 @@ export interface BusinessResponse {
   bookingContactFields: BookingContactFields;
   bookingCustomization: BookingCustomization;
   bookingLabelOverrides: BookingLabelOverrides;
+  // notifications
+  teamNotifications: TeamNotifications;
+  customerNotifications: CustomerNotifications;
+  notificationCustomization: NotificationCustomization;
   // subscription
   subscriptionPlan: SubscriptionPlan;
   subscriptionStatus: SubscriptionStatus;

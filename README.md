@@ -1,108 +1,150 @@
-# Pikslots
+# Pikslots — Project Overview
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## What Is It?
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+**Pikslots** is a multi-tenant SaaS appointment booking and scheduling platform. Businesses (salons, health centers, fitness studios, medical practices, etc.) use it to offer online booking to their customers, manage their team's calendar, and control the full booking experience — from branding to cancellation policies.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/npm-workspaces-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+The core concept: businesses own "slots" (availability windows) that customers can discover and book, with deep customization over how that process looks and behaves.
 
-## Run tasks
+---
 
-To run tasks with Nx use:
+## Tech Stack
 
-```sh
-npx nx <target> <project-name>
+### Backend
+
+| Layer | Technology |
+|---|---|
+| Framework | NestJS (Node.js) |
+| Language | TypeScript |
+| Database | PostgreSQL |
+| Query Builder | Kysely (type-safe SQL) |
+| Authentication | JWT (access + refresh tokens) |
+| Password Hashing | bcrypt |
+| Job Queue | BullMQ (backed by Redis) |
+| Email | Nodemailer + SMTP (Mailpit in dev) |
+| API Docs | Swagger / OpenAPI (Scalar UI) |
+| Testing | Jest |
+
+### Frontend
+
+| Layer | Technology |
+|---|---|
+| Framework | SvelteKit (static adapter) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| UI Components | shadcn-svelte, Bits UI |
+| Data Fetching | TanStack Svelte Query |
+| HTTP Client | Axios |
+| Forms | sveltekit-superforms + Zod |
+| Icons | Tabler Icons Svelte, Lucide Svelte |
+| Charts | Layerchart (D3) |
+| Drag & Drop | dnd-kit-svelte |
+| Notifications | svelte-sonner |
+
+### Infrastructure & Tooling
+
+| Area | Technology |
+|---|---|
+| Monorepo | Nx v22 + npm workspaces |
+| Package Manager | Bun |
+| Containers | Docker Compose (Postgres, Redis, Mailpit) |
+| Linting | ESLint |
+| Formatting | Prettier |
+
+---
+
+## Project Structure
+
+The project is an **Nx monorepo** with four packages:
+
+```
+pikslots/
+├── packages/
+│   ├── api/        # NestJS REST API (backend)
+│   ├── ui/         # SvelteKit frontend (dashboard + booking UI)
+│   ├── domain/     # Domain entities, use cases, repository interfaces
+│   └── shared/     # Zod schemas and TypeScript types shared across packages
+└── docker/         # Docker Compose service configs
 ```
 
-For example:
+### `packages/api`
+NestJS application. Organized by feature modules (`user`, `business`). Cross-cutting concerns (auth guards, JWT, database, queue, email) live in `shared/`.
 
-```sh
-npx nx build myproject
+### `packages/ui`
+SvelteKit app. Routes map to pages; feature logic sits in `modules/` alongside the routes. Communicates with the API via Axios + TanStack Query.
+
+### `packages/domain`
+Pure TypeScript. Contains entities (`UserEntity`, `BusinessEntity`), use case classes (`LoginUserUseCase`, `RegisterBusinessUseCase`, etc.), repository interfaces, and domain events. No framework dependencies.
+
+### `packages/shared`
+Zod schemas and TypeScript types for API request/response contracts. Consumed by both `api` and `ui` to keep them in sync.
+
+---
+
+## Key Features
+
+### Authentication & Roles
+- JWT-based login with access and refresh tokens
+- 6 roles: Platform Owner, Business Owner, Admin, Enhanced, Standard, No Access
+- Role-based guards on all API endpoints
+
+### Business Management
+- Business registration with a unique slug
+- Industry categories (salon, health, fitness, medical, education, legal, etc.)
+- Subscription tiers: free, starter, pro, enterprise (14-day trial)
+- Status lifecycle: `pending_setup` → `active` → `inactive` / `suspended`
+
+### Booking Configuration
+- **Policies**: lead time, schedule window, cancellation rules
+- **Setup**: team member selection mode, multi-service booking, customer login requirement, rescheduling controls
+- **Contact Fields**: enable/require standard fields (name, email, phone, address) + custom fields
+- **Customization**: language, 12/24h time, week start, label overrides, terms & conditions, post-booking redirect
+
+### Branding
+- Logo and banner upload
+- Color theme, button shapes, light/dark/system mode
+- Option to show or hide Pikslots branding
+
+### Team Management
+- Invite team members with role assignment
+- Per-member notification and reminder preferences
+- Sound preferences (chime, whistle)
+
+### Dashboard
+- Customers and contacts list
+- Bookings management
+- Services / classes management
+- Payments and integrations
+
+### Architecture Patterns
+- **Clean Architecture**: domain layer is framework-agnostic
+- **Repository Pattern**: data access abstracted behind interfaces
+- **Use Case Pattern**: each business operation is an isolated use case class
+- **DTOs + Zod**: validation at system boundaries, type safety throughout
+
+---
+
+## Database
+
+Two primary tables:
+
+**`users`** — core credentials, profile, role, notification preferences, audit fields
+
+**`businesses`** — name, slug, industry, status, subscription, plus 8 JSONB columns for flexible settings (brand details, location, booking policies, customization, etc.)
+
+Both tables use soft delete (`is_deleted`) and full audit fields (`created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`).
+
+---
+
+## Development
+
+```bash
+# Start all packages in dev mode
+bun run dev
+
+# Run database migrations (from packages/api)
+npm run migration:run
+
+# Docker services (Postgres, Redis, Mailpit)
+docker compose -f docker/redis.yml up -d
 ```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
-
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
-
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/npm-workspaces-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

@@ -144,6 +144,30 @@ export interface BookingLabelOverrides {
   };
 }
 
+export interface BusinessTeamNotifications {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: {
+    unit: TimeUnit;
+    value: number;
+  };
+  extraCCEmails: string[];
+}
+
+export interface BusinessCustomerNotifications {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: {
+    unit: TimeUnit;
+    value: number;
+  };
+}
+export interface BusinessNotificationCustomization {
+  emailSenderName: string;
+  emailSignature: string;
+}
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 export interface BusinessProps {
@@ -166,6 +190,11 @@ export interface BusinessProps {
   readonly bookingContactFields: BookingContactFields;
   readonly bookingCustomization: BookingCustomization;
   readonly bookingLabelOverrides: BookingLabelOverrides;
+
+  //notifications
+  readonly teamNotifications: BusinessTeamNotifications;
+  readonly customerNotifications: BusinessCustomerNotifications;
+  readonly notificationCustomization: BusinessNotificationCustomization;
 
   //Relations
   //TODO contact details
@@ -231,7 +260,7 @@ export class Business {
         brandLogoUrl: '',
       },
       brandApperanceDetails: {
-        brandColor: '#000000',
+        brandColor: '#111111',
         brandButtonShape: 'rounded',
         theme: 'system',
         gallaryPhotosUrls: [],
@@ -305,6 +334,23 @@ export class Business {
           label: '',
           link: '',
         },
+      },
+      teamNotifications: {
+        notifyBookingConfirmation: true,
+        notifyBookingChanges: true,
+        notifyBookingCancellations: true,
+        bookingRemindersTime: { unit: 'hours', value: 24 },
+        extraCCEmails: [],
+      },
+      customerNotifications: {
+        notifyBookingConfirmation: true,
+        notifyBookingChanges: true,
+        notifyBookingCancellations: true,
+        bookingRemindersTime: { unit: 'hours', value: 24 },
+      },
+      notificationCustomization: {
+        emailSenderName: '',
+        emailSignature: '',
       },
       subscriptionPlan: 'free',
       subscriptionStatus: 'trialing',
@@ -389,6 +435,28 @@ export class Business {
   }
   get bookingLabelOverrides(): BookingLabelOverrides {
     return this.props.bookingLabelOverrides;
+  }
+
+  // ── Notifications ──────────────────────────────────────────────────────────
+
+  get teamNotifications(): BusinessTeamNotifications {
+    return this.props.teamNotifications;
+  }
+  get customerNotifications(): BusinessCustomerNotifications {
+    return this.props.customerNotifications;
+  }
+  get notificationCustomization(): BusinessNotificationCustomization {
+    return this.props.notificationCustomization;
+  }
+
+  updateTeamNotifications(value: BusinessTeamNotifications): Business {
+    return new Business({ ...this.props, teamNotifications: value });
+  }
+  updateCustomerNotifications(value: BusinessCustomerNotifications): Business {
+    return new Business({ ...this.props, customerNotifications: value });
+  }
+  updateNotificationCustomization(value: BusinessNotificationCustomization): Business {
+    return new Business({ ...this.props, notificationCustomization: value });
   }
 
   // ── Subscription ───────────────────────────────────────────────────────────

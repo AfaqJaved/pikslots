@@ -1,9 +1,20 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { businessStore } from '../../../core/store/business.svelte';
 
-	let senderName = $state('Afaq');
-	let emailSignature = $state('Thanks,\nAfaq');
+	const business = $derived(businessStore.selectedBusiness);
+
+	let senderName = $state('');
+	let emailSignature = $state('');
+
+	$effect(() => {
+		if (business) {
+			const c = business.notificationCustomization;
+			senderName = c.emailSenderName;
+			emailSignature = c.emailSignature;
+		}
+	});
 </script>
 
 <div class="flex flex-col">

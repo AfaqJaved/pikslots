@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import BrandInstagram from '@tabler/icons-svelte/icons/brand-instagram';
 	import BrandFacebook from '@tabler/icons-svelte/icons/brand-facebook';
 	import BrandGoogle from '@tabler/icons-svelte/icons/brand-google';
 	import Code from '@tabler/icons-svelte/icons/code';
 	import Plus from '@tabler/icons-svelte/icons/plus';
+	import { businessStore } from '../../../core/store/business.svelte';
 
-	let appearInSearch = $state(true);
+	const business = $derived(businessStore.selectedBusiness);
+
+	let appearInSearch = $state(false);
 
 	const channels = [
 		{ label: 'Instagram booking', icon: BrandInstagram },
@@ -16,6 +19,12 @@
 		{ label: 'Reserve with Google', icon: BrandGoogle },
 		{ label: 'Booking widget', icon: Code }
 	];
+
+	$effect(() => {
+		if (business) {
+			appearInSearch = business.appearInSearchResults;
+		}
+	});
 </script>
 
 <div class="flex flex-col">
@@ -38,8 +47,13 @@
 				>
 			</div>
 			<div class="flex items-center gap-3">
-				<Switch bind:checked={appearInSearch} />
-				<span class="text-xs">Appear in search results</span>
+				{#if business === null}
+					<Skeleton class="h-5 w-9 rounded-full" />
+					<Skeleton class="h-3.5 w-36 rounded" />
+				{:else}
+					<Switch bind:checked={appearInSearch} />
+					<span class="text-xs">Appear in search results</span>
+				{/if}
 			</div>
 		</div>
 
