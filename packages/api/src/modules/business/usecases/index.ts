@@ -1,10 +1,12 @@
 import {
   IFindAllRegisteredBusinessesUseCase,
   IRegisterBusinessUseCase,
+  IUpdateBusinessBrandDetailsUseCase,
 } from '@pikslots/domain';
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
 import { Provider } from '@nestjs/common';
 import { FindAllRegisteredBusinessesUseCaseImpl } from './find.all.registered.businesses.usecase.impl';
+import { UpdateBusinessBrandDetailsUseCaseImpl } from './update.business.brand.details.usecase.impl';
 
 export const BUSINESS_USECASES: Provider[] = [
   {
@@ -14,5 +16,9 @@ export const BUSINESS_USECASES: Provider[] = [
   {
     useClass: FindAllRegisteredBusinessesUseCaseImpl,
     provide: IFindAllRegisteredBusinessesUseCase,
+  },
+  {
+    useClass: UpdateBusinessBrandDetailsUseCaseImpl,
+    provide: IUpdateBusinessBrandDetailsUseCase,
   },
 ];

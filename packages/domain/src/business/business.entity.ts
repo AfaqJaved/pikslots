@@ -449,6 +449,30 @@ export class Business {
     return this.props.notificationCustomization;
   }
 
+  updateBrandDetails(value: {
+    bannerImageUrl: string;
+    logoUrl: string;
+    name: string;
+    slug: string;
+    industry: BusinessIndustry;
+    about: string;
+    updatedBy: string;
+  }): Business {
+    return new Business({
+      ...this.props,
+      name: value.name,
+      slug: value.slug,
+      industry: value.industry,
+      about: value.about,
+      brandDetail: {
+        bannerImageUrl: value.bannerImageUrl,
+        brandLogoUrl: value.logoUrl,
+      },
+      updatedAt: new Date(),
+      updatedBy: value.updatedBy,
+    });
+  }
+
   updateTeamNotifications(value: BusinessTeamNotifications): Business {
     return new Business({ ...this.props, teamNotifications: value });
   }

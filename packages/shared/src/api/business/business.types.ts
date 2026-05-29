@@ -152,6 +152,15 @@ export interface RegisterBusinessInput {
   defaultTimeZone?: string;
 }
 
+export interface UpdateBusinessBrandDetailsInput {
+  bannerImageUrl: string;
+  logoUrl: string;
+  name: string;
+  slug: string;
+  industry: BusinessIndustry;
+  about: string;
+}
+
 // ── Responses ─────────────────────────────────────────────────────────────────
 
 export interface RegisterBusinessResponse {
@@ -194,3 +203,5 @@ export interface BusinessResponse {
 }
 
 export type GetAllBusinessesResponse = BusinessResponse[];
+
+export type UpdateBusinessBrandDetailsResponse = BusinessResponse;
