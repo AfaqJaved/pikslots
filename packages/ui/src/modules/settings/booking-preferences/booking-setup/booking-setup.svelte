@@ -5,6 +5,15 @@
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessBookingSetup } from '../../../api/business/update.business.booking.setup.mutation';
+	import type {
+		BusinessUpdateBookingSetupInput,
+		BusinessUpdateBookingSetupResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const business = $derived(businessStore.selectedBusiness);
 
@@ -71,13 +80,94 @@
 			];
 		}
 	});
+
+	const isDirty = $derived(
+		!!business &&
+			(sections[0].enabled !== business.bookingSetup.bookAppointmentSectionVisible ||
+				sections[1].enabled !== business.bookingSetup.bookClassSectionVisible ||
+				sections[2].enabled !== business.bookingSetup.aboutUsSectionVisible ||
+				sections[3].enabled !== business.bookingSetup.ourTeamSectionVisible ||
+				sections[4].enabled !== business.bookingSetup.servicesSectionVisible ||
+				sections[5].enabled !== business.bookingSetup.classesSectionVisible ||
+				firstAvailable !== business.bookingSetup.showFirstAvailable ||
+				skipTeamMembers !== business.bookingSetup.skipTeamSelection ||
+				multipleServices !== business.bookingSetup.allowToBookMultipleServices ||
+				anyTeamMember !== business.bookingSetup.bypassTeamMemberSelection ||
+				customerLogin !== business.bookingSetup.customerLoginEnabled ||
+				customerLoginRequired !== business.bookingSetup.customerLoginRequired ||
+				accordionView !== business.bookingSetup.accordionView ||
+				allowRescheduling !== business.bookingSetup.allowRescheduling ||
+				allowCancellations !== business.bookingSetup.allowCancellations ||
+				bookNewButton !== business.bookingSetup.showBookNewButton ||
+				contactFields[0].required !== business.bookingContactFields.name.required ||
+				contactFields[1].enabled !== business.bookingContactFields.phone.enabled ||
+				contactFields[1].required !== business.bookingContactFields.phone.required ||
+				contactFields[2].enabled !== business.bookingContactFields.email.enabled ||
+				contactFields[2].required !== business.bookingContactFields.email.required ||
+				contactFields[3].enabled !== business.bookingContactFields.address.enabled ||
+				contactFields[3].required !== business.bookingContactFields.address.required)
+	);
+
+	const updateMutation = createMutation<
+		BusinessUpdateBookingSetupResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateBookingSetupInput
+	>(() => ({
+		mutationFn: updateBusinessBookingSetup
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Booking setup saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			bookAppointmentSectionVisible: sections[0].enabled,
+			bookClassSectionVisible: sections[1].enabled,
+			aboutUsSectionVisible: sections[2].enabled,
+			ourTeamSectionVisible: sections[3].enabled,
+			servicesSectionVisible: sections[4].enabled,
+			classesSectionVisible: sections[5].enabled,
+			showFirstAvailable: firstAvailable,
+			skipTeamSelection: skipTeamMembers,
+			allowToBookMultipleServices: multipleServices,
+			bypassTeamMemberSelection: anyTeamMember,
+			customerLoginEnabled: customerLogin,
+			customerLoginRequired,
+			hidePikslotsBranding: business.bookingSetup.hidePikslotsBranding,
+			accordionView,
+			allowRescheduling,
+			allowCancellations,
+			showBookNewButton: bookNewButton,
+			nameEnabled: contactFields[0].enabled,
+			nameRequired: contactFields[0].required,
+			emailEnabled: contactFields[2].enabled,
+			emailRequired: contactFields[2].required,
+			phoneEnabled: contactFields[1].enabled,
+			phoneRequired: contactFields[1].required,
+			addressEnabled: contactFields[3].enabled,
+			addressRequired: contactFields[3].required
+		});
+	}
 </script>
 
 <div class="flex flex-col">
 	<!-- Page header -->
 	<div class="flex items-center justify-between border-b px-6 py-4">
 		<h1 class="text-base font-semibold">Booking preferences</h1>
-		<Button>Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 
 	<div class="flex w-[60%] flex-col gap-6 px-6 py-4">

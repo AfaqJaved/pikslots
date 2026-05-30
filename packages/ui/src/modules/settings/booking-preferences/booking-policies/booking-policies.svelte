@@ -7,6 +7,15 @@
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 	import type { TimeUnit } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessBookingPolicies } from '../../../api/business/update.business.booking.policies.mutation';
+	import type {
+		BusinessUpdateBookingPoliciesInput,
+		BusinessUpdateBookingPoliciesResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const business = $derived(businessStore.selectedBusiness);
 
@@ -59,13 +68,66 @@
 			addPolicyToHome = p.showPolicyOnBookingPage;
 		}
 	});
+
+	const isDirty = $derived(
+		!!business &&
+			(Number(leadTimeValue) !== business.bookingPolicies.leadTime.value ||
+				leadTimeUnit !== business.bookingPolicies.leadTime.unit ||
+				Number(schedulingWindowValue) !== business.bookingPolicies.scheduleWindow.value ||
+				schedulingWindowUnit !== business.bookingPolicies.scheduleWindow.unit ||
+				bookingPolicyText !== business.bookingPolicies.bookingPolicyText ||
+				addPolicyToHome !== business.bookingPolicies.showPolicyOnBookingPage ||
+				(cancellationPolicyUnit === 'none') !==
+					(business.bookingPolicies.cancellationPolicy === null) ||
+				(cancellationPolicyUnit !== 'none' &&
+					business.bookingPolicies.cancellationPolicy !== null &&
+					(Number(cancellationPolicyValue) !== business.bookingPolicies.cancellationPolicy.value ||
+						cancellationPolicyUnit !== business.bookingPolicies.cancellationPolicy.unit)))
+	);
+
+	const updateMutation = createMutation<
+		BusinessUpdateBookingPoliciesResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateBookingPoliciesInput
+	>(() => ({
+		mutationFn: updateBusinessBookingPolicies
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Booking policies saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			leadTime: { unit: leadTimeUnit, value: Number(leadTimeValue) },
+			scheduleWindow: { unit: schedulingWindowUnit, value: Number(schedulingWindowValue) },
+			cancellationPolicy:
+				cancellationPolicyUnit === 'none'
+					? null
+					: { unit: cancellationPolicyUnit, value: Number(cancellationPolicyValue) },
+			bookingPolicyText,
+			showPolicyOnBookingPage: addPolicyToHome
+		});
+	}
 </script>
 
 <div class="flex flex-col">
 	<!-- Page header -->
 	<div class="flex items-center justify-between border-b px-6 py-4">
 		<h1 class="text-base font-semibold">Booking preferences</h1>
-		<Button>Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 
 	<div class="flex w-[60%] flex-col gap-2 px-6 py-4">
@@ -131,30 +193,30 @@
 			</div>
 
 			<!-- Booking slot size (local only) -->
-			<div class="flex items-start justify-between gap-6 py-2.5">
-				<div class="flex flex-col gap-0.5">
-					<div class="flex items-center gap-1.5">
-						<span class="text-xs font-medium">Booking slot size</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
-					</div>
-					<span class="text-xs text-muted-foreground"
-						>How often should available booking slots appear?</span
-					>
-				</div>
-				<div class="flex shrink-0 items-center gap-2">
-					<Input type="number" bind:value={slotSizeValue} class="w-16 text-xs" min="1" />
-					<Select.Root type="single" bind:value={slotSizeUnit}>
-						<Select.Trigger class="w-32 text-xs">
-							{leadTimeUnits.find((u) => u.value === slotSizeUnit)?.label ?? slotSizeUnit}
-						</Select.Trigger>
-						<Select.Content>
-							{#each leadTimeUnits as u (u.value)}
-								<Select.Item value={u.value}>{u.label}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				</div>
-			</div>
+			<!-- <div class="flex items-start justify-between gap-6 py-2.5"> -->
+			<!-- 	<div class="flex flex-col gap-0.5"> -->
+			<!-- 		<div class="flex items-center gap-1.5"> -->
+			<!-- 			<span class="text-xs font-medium">Booking slot size</span> -->
+			<!-- 			<InfoCircle size={14} class="text-muted-foreground" /> -->
+			<!-- 		</div> -->
+			<!-- 		<span class="text-xs text-muted-foreground" -->
+			<!-- 			>How often should available booking slots appear?</span -->
+			<!-- 		> -->
+			<!-- 	</div> -->
+			<!-- 	<div class="flex shrink-0 items-center gap-2"> -->
+			<!-- 		<Input type="number" bind:value={slotSizeValue} class="w-16 text-xs" min="1" /> -->
+			<!-- 		<Select.Root type="single" bind:value={slotSizeUnit}> -->
+			<!-- 			<Select.Trigger class="w-32 text-xs"> -->
+			<!-- 				{leadTimeUnits.find((u) => u.value === slotSizeUnit)?.label ?? slotSizeUnit} -->
+			<!-- 			</Select.Trigger> -->
+			<!-- 			<Select.Content> -->
+			<!-- 				{#each leadTimeUnits as u (u.value)} -->
+			<!-- 					<Select.Item value={u.value}>{u.label}</Select.Item> -->
+			<!-- 				{/each} -->
+			<!-- 			</Select.Content> -->
+			<!-- 		</Select.Root> -->
+			<!-- 	</div> -->
+			<!-- </div> -->
 
 			<!-- Cancellation policy -->
 			<div class="flex items-start justify-between gap-6 py-2.5">

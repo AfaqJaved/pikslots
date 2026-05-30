@@ -19,6 +19,15 @@ export type BrandButtonShape = 'pill' | 'rounded' | 'rectangle';
 export type BrandTheme = 'system' | 'light' | 'dark';
 export type SupportedCurrencies = 'USD' | 'PKR' | 'RUB';
 export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
+export type NotificationType = 'email' | 'sms';
+
+export interface DayHours {
+  enabled: boolean;
+  openTime: string; // 'HH:mm' 24-hour, e.g. '09:00'
+  closeTime: string; // 'HH:mm' 24-hour, e.g. '17:00'
+}
+
+export type BusinessHours = Record<WeekDay, DayHours>;
 export type WeekDay =
   | 'monday'
   | 'tuesday'
@@ -126,7 +135,7 @@ export interface TeamNotifications {
   notifyBookingConfirmation: boolean;
   notifyBookingChanges: boolean;
   notifyBookingCancellations: boolean;
-  bookingRemindersTime: { unit: TimeUnit; value: number };
+  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
   extraCCEmails: string[];
 }
 
@@ -134,7 +143,7 @@ export interface CustomerNotifications {
   notifyBookingConfirmation: boolean;
   notifyBookingChanges: boolean;
   notifyBookingCancellations: boolean;
-  bookingRemindersTime: { unit: TimeUnit; value: number };
+  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
 }
 
 export interface NotificationCustomization {
@@ -159,6 +168,110 @@ export interface UpdateBusinessBrandDetailsInput {
   slug: string;
   industry: BusinessIndustry;
   about: string;
+}
+
+export interface UpdateBusinessLocationInput {
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  currency: SupportedCurrencies;
+}
+
+export interface UpdateBusinessAppearanceInput {
+  brandColor: string;
+  brandButtonShape: BrandButtonShape;
+  theme: BrandTheme;
+  gallaryPhotosUrls: string[];
+}
+
+export interface UpdateBusinessGeneralInput {
+  language: string;
+}
+
+export type UpdateBusinessHoursInput = { businessHours: BusinessHours };
+
+export interface UpdateBusinessNotificationCustomizationInput {
+  emailSenderName: string;
+  emailSignature: string;
+}
+
+export interface UpdateBusinessCustomerNotificationsInput {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
+}
+
+export interface UpdateBusinessTeamNotificationsInput {
+  notifyBookingConfirmation: boolean;
+  notifyBookingChanges: boolean;
+  notifyBookingCancellations: boolean;
+  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
+  extraCCEmails: string[];
+}
+
+export interface UpdateBusinessVisibilityInput {
+  appearInSearchResults: boolean;
+}
+
+export interface UpdateBusinessBookingCustomizationInput {
+  language: string;
+  timeFormat: '12 hours' | '24 hours';
+  weekStartsOn: WeekDay;
+  showBookAnotherAppointmentButton: boolean;
+  showServiceAndClassPrices: boolean;
+  showServiceAndClassDuration: boolean;
+  showBusinessHours: boolean;
+  showLocalTime: boolean;
+  labelService: string;
+  labelClass: string;
+  labelTeamMember: string;
+  labelCity: string;
+  labelState: string;
+  labelPostalCode: string;
+  termsLabel: string;
+  termsLink: string;
+  requireTermsAcceptance: boolean;
+  redirectLabel: string;
+  redirectLink: string;
+}
+
+export interface UpdateBusinessBookingSetupInput {
+  bookAppointmentSectionVisible: boolean;
+  bookClassSectionVisible: boolean;
+  aboutUsSectionVisible: boolean;
+  ourTeamSectionVisible: boolean;
+  servicesSectionVisible: boolean;
+  classesSectionVisible: boolean;
+  showFirstAvailable: boolean;
+  skipTeamSelection: boolean;
+  allowToBookMultipleServices: boolean;
+  bypassTeamMemberSelection: boolean;
+  customerLoginEnabled: boolean;
+  customerLoginRequired: boolean;
+  hidePikslotsBranding: boolean;
+  accordionView: boolean;
+  allowRescheduling: boolean;
+  allowCancellations: boolean;
+  showBookNewButton: boolean;
+  nameEnabled: boolean;
+  nameRequired: boolean;
+  emailEnabled: boolean;
+  emailRequired: boolean;
+  phoneEnabled: boolean;
+  phoneRequired: boolean;
+  addressEnabled: boolean;
+  addressRequired: boolean;
+}
+
+export interface UpdateBusinessBookingPoliciesInput {
+  leadTime: { unit: TimeUnit; value: number };
+  scheduleWindow: { unit: TimeUnit; value: number };
+  cancellationPolicy: { unit: TimeUnit; value: number } | null;
+  bookingPolicyText: string;
+  showPolicyOnBookingPage: boolean;
 }
 
 // ── Responses ─────────────────────────────────────────────────────────────────
@@ -187,6 +300,8 @@ export interface BusinessResponse {
   bookingContactFields: BookingContactFields;
   bookingCustomization: BookingCustomization;
   bookingLabelOverrides: BookingLabelOverrides;
+  // business hours
+  businessHours: BusinessHours;
   // notifications
   teamNotifications: TeamNotifications;
   customerNotifications: CustomerNotifications;
@@ -205,3 +320,14 @@ export interface BusinessResponse {
 export type GetAllBusinessesResponse = BusinessResponse[];
 
 export type UpdateBusinessBrandDetailsResponse = BusinessResponse;
+export type UpdateBusinessLocationResponse = BusinessResponse;
+export type UpdateBusinessAppearanceResponse = BusinessResponse;
+export type UpdateBusinessGeneralResponse = BusinessResponse;
+export type UpdateBusinessBookingPoliciesResponse = BusinessResponse;
+export type UpdateBusinessBookingSetupResponse = BusinessResponse;
+export type UpdateBusinessBookingCustomizationResponse = BusinessResponse;
+export type UpdateBusinessTeamNotificationsResponse = BusinessResponse;
+export type UpdateBusinessCustomerNotificationsResponse = BusinessResponse;
+export type UpdateBusinessNotificationCustomizationResponse = BusinessResponse;
+export type UpdateBusinessHoursResponse = BusinessResponse;
+export type UpdateBusinessVisibilityResponse = BusinessResponse;

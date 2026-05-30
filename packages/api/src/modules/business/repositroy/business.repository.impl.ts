@@ -133,6 +133,52 @@ export class BusinessRepositoryImpl implements BusinessRepository {
     }
   }
 
+  async update(
+    business: Business,
+  ): Promise<
+    Result<void, BusinessNotFoundError | BusinessAlreadyExistsError | InfrastructureError>
+  > {
+    try {
+      const { id, owner_id, ...fields } = this.mapper.domainToPersistence(business);
+
+      const result = await this.db
+        .updateTable('businesses')
+        .set(fields)
+        .where('id', '=', business.id)
+        .where('is_deleted', '=', false)
+        .executeTakeFirst();
+
+      if (result.numUpdatedRows === BigInt(0)) {
+        return err<BusinessNotFoundError>({
+          kind: 'business_not_found',
+          message: `Business not found: ${business.id}`,
+          timestamp: new Date(),
+          by: 'id',
+          value: business.id,
+        });
+      }
+
+      return ok(undefined);
+    } catch (cause) {
+      if (isUniqueViolation(cause)) {
+        const field = getUniqueViolationField(cause) as 'slug' | 'email';
+        return err<BusinessAlreadyExistsError>({
+          kind: 'business_already_exists',
+          message: `A business with this ${field} already exists`,
+          timestamp: new Date(),
+          field,
+        });
+      }
+
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to update business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async existsBySlug(
     slug: string,
   ): Promise<Result<boolean, InfrastructureError>> {

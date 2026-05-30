@@ -6,6 +6,15 @@
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import type { WeekDay } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessBookingCustomization } from '../../../api/business/update.business.booking.customization.mutation';
+	import type {
+		BusinessUpdateBookingCustomizationInput,
+		BusinessUpdateBookingCustomizationResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const business = $derived(businessStore.selectedBusiness);
 
@@ -16,12 +25,9 @@
 
 	const languages: { value: string; label: string }[] = [
 		{ value: 'en', label: 'English' },
-		{ value: 'fr', label: 'French' },
-		{ value: 'de', label: 'German' },
-		{ value: 'es', label: 'Spanish' },
-		{ value: 'ar', label: 'Arabic' },
-		{ value: 'ur', label: 'Urdu' }
+		{ value: 'ru', label: 'Russian' }
 	];
+
 	const timeFormats: { value: '12 hours' | '24 hours'; label: string }[] = [
 		{ value: '12 hours', label: '12 Hours' },
 		{ value: '24 hours', label: '24 Hours' }
@@ -85,17 +91,88 @@
 			redirectLink = l.redirection.link;
 		}
 	});
+
+	const isDirty = $derived(
+		!!business &&
+			(language !== business.bookingCustomization.language ||
+				timeFormat !== business.bookingCustomization.timeFormat ||
+				weekStartsOn !== business.bookingCustomization.weekStartsOn ||
+				showPrices !== business.bookingCustomization.showServiceAndClassPrices ||
+				showDuration !== business.bookingCustomization.showServiceAndClassDuration ||
+				showBusinessHours !== business.bookingCustomization.showBusinessHours ||
+				showLocalTime !== business.bookingCustomization.showLocalTime ||
+				bookAnotherButton !== business.bookingCustomization.showBookAnotherAppointmentButton ||
+				labelService !== business.bookingLabelOverrides.service ||
+				labelClass !== business.bookingLabelOverrides.class ||
+				labelTeamMember !== business.bookingLabelOverrides.teamMember ||
+				labelCity !== business.bookingLabelOverrides.city ||
+				labelState !== business.bookingLabelOverrides.state ||
+				labelPostalCode !== business.bookingLabelOverrides.postalCode ||
+				termsLabel !== business.bookingLabelOverrides.termsAndConditions.label ||
+				termsLink !== business.bookingLabelOverrides.termsAndConditions.link ||
+				requireAgreement !==
+					business.bookingLabelOverrides.termsAndConditions.requireTermsAcceptance ||
+				redirectLabel !== business.bookingLabelOverrides.redirection.label ||
+				redirectLink !== business.bookingLabelOverrides.redirection.link)
+	);
+
+	const updateMutation = createMutation<
+		BusinessUpdateBookingCustomizationResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateBookingCustomizationInput
+	>(() => ({
+		mutationFn: updateBusinessBookingCustomization
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Customization saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			language,
+			timeFormat,
+			weekStartsOn,
+			showBookAnotherAppointmentButton: bookAnotherButton,
+			showServiceAndClassPrices: showPrices,
+			showServiceAndClassDuration: showDuration,
+			showBusinessHours,
+			showLocalTime,
+			labelService,
+			labelClass,
+			labelTeamMember,
+			labelCity,
+			labelState,
+			labelPostalCode,
+			termsLabel,
+			termsLink,
+			requireTermsAcceptance: requireAgreement,
+			redirectLabel,
+			redirectLink
+		});
+	}
 </script>
 
 <div class="flex flex-col">
 	<!-- Page header -->
 	<div class="flex items-center justify-between border-b px-6 py-4">
 		<h1 class="text-base font-semibold">Booking preferences</h1>
-		<Button>Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 
 	<div class="flex w-[60%] flex-col gap-6 px-6 py-4">
-
 		<!-- Customization heading -->
 		<h2 class="text-sm font-semibold">Customization</h2>
 
@@ -103,7 +180,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">General</span>
-				<span class="text-xs text-muted-foreground">Select standard display preferences for your Booking Page.</span>
+				<span class="text-xs text-muted-foreground"
+					>Select standard display preferences for your Booking Page.</span
+				>
 			</div>
 
 			<div class="flex flex-col gap-2.5">
@@ -111,7 +190,9 @@
 				<div class="flex items-start justify-between gap-6">
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Preferred language</span>
-						<span class="text-xs text-muted-foreground">This will be the default language of your Booking Page.</span>
+						<span class="text-xs text-muted-foreground"
+							>This will be the default language of your Booking Page.</span
+						>
 					</div>
 					{#if business === null}
 						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
@@ -133,7 +214,9 @@
 				<div class="flex items-start justify-between gap-6">
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Time format</span>
-						<span class="text-xs text-muted-foreground">Display time in 12-hour AM/PM or 24-hour format.</span>
+						<span class="text-xs text-muted-foreground"
+							>Display time in 12-hour AM/PM or 24-hour format.</span
+						>
 					</div>
 					{#if business === null}
 						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
@@ -155,7 +238,9 @@
 				<div class="flex items-start justify-between gap-6">
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Week starts on</span>
-						<span class="text-xs text-muted-foreground">Set the first day of the week as seen on your Booking Page.</span>
+						<span class="text-xs text-muted-foreground"
+							>Set the first day of the week as seen on your Booking Page.</span
+						>
 					</div>
 					{#if business === null}
 						<Skeleton class="h-9 w-40 shrink-0 rounded-md" />
@@ -179,7 +264,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Services and classes</span>
-				<span class="text-xs text-muted-foreground">What will your visitors see when they browse your Booking Page?</span>
+				<span class="text-xs text-muted-foreground"
+					>What will your visitors see when they browse your Booking Page?</span
+				>
 			</div>
 
 			<div class="flex flex-col gap-2.5">
@@ -219,7 +306,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Labels</span>
-				<span class="text-xs text-muted-foreground">Customize the section labels on your Booking Page.</span>
+				<span class="text-xs text-muted-foreground"
+					>Customize the section labels on your Booking Page.</span
+				>
 			</div>
 
 			<div class="flex flex-col gap-3">
@@ -284,7 +373,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Terms and conditions</span>
-				<span class="text-xs text-muted-foreground">Have any T&Cs that need to be accepted before booking? Add them below.</span>
+				<span class="text-xs text-muted-foreground"
+					>Have any T&Cs that need to be accepted before booking? Add them below.</span
+				>
 			</div>
 
 			<div class="grid grid-cols-2 gap-3">
@@ -318,7 +409,9 @@
 				{/if}
 				<div class="flex flex-col gap-0.5">
 					<span class="text-xs text-muted-foreground">Require agreement</span>
-					<span class="text-xs text-muted-foreground">Display a checkbox to confirm customers accept your terms before booking.</span>
+					<span class="text-xs text-muted-foreground"
+						>Display a checkbox to confirm customers accept your terms before booking.</span
+					>
 				</div>
 			</div>
 		</div>
@@ -327,7 +420,9 @@
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-0.5">
 				<span class="text-xs font-medium">Confirmation redirect</span>
-				<span class="text-xs text-muted-foreground">Send customers to your site, socials or somewhere else from the confirmation screen.</span>
+				<span class="text-xs text-muted-foreground"
+					>Send customers to your site, socials or somewhere else from the confirmation screen.</span
+				>
 			</div>
 
 			<div class="grid grid-cols-2 gap-3">
@@ -349,6 +444,5 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 </div>

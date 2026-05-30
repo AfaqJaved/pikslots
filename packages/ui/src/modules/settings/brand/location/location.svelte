@@ -10,6 +10,15 @@
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
 	import type { SupportedCurrencies } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessLocation } from '../../../api/business/update.business.location.mutation';
+	import type {
+		BusinessUpdateLocationInput,
+		BusinessUpdateLocationResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const countries = [
 		'Afghanistan',
@@ -50,6 +59,49 @@
 			currency = business.locationDetails.currency;
 		}
 	});
+
+	const isDirty = $derived(
+		!!business &&
+			(address !== business.locationDetails.address ||
+				city !== business.locationDetails.city ||
+				cityState !== business.locationDetails.state ||
+				zip !== business.locationDetails.zip ||
+				country !== business.locationDetails.country ||
+				currency !== business.locationDetails.currency)
+	);
+
+	const updateMutation = createMutation<
+		BusinessUpdateLocationResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateLocationInput
+	>(() => ({
+		mutationFn: updateBusinessLocation
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Location saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			address,
+			city,
+			state: cityState,
+			zip,
+			country,
+			currency
+		});
+	}
 </script>
 
 <!-- Page header -->
@@ -62,7 +114,9 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button size="sm">Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 </div>
 

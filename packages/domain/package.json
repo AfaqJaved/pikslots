@@ -15,7 +15,8 @@
   "private": true,
   "scripts": {
     "build": "tsup",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "watch": "tsup --watch"
   },
   "devDependencies": {
     "@types/bun": "latest",

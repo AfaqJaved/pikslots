@@ -6,12 +6,20 @@
 	import DeviceTablet from '@tabler/icons-svelte/icons/device-tablet';
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
 	import Photo from '@tabler/icons-svelte/icons/photo';
-	import Upload from '@tabler/icons-svelte/icons/upload';
 	import Sun from '@tabler/icons-svelte/icons/sun';
 	import Moon from '@tabler/icons-svelte/icons/moon';
 	import DeviceDesktop2 from '@tabler/icons-svelte/icons/device-desktop';
 	import type { BrandButtonShape, BrandTheme } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessAppearance } from '../../../api/business/update.business.appearance.mutation';
+	import type {
+		BusinessUpdateAppearanceInput,
+		BusinessUpdateAppearanceResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const brandColors = [
 		{ value: '#111111', label: 'Black' },
@@ -32,6 +40,7 @@
 	let selectedColor = $state('#1a1a1a');
 	let selectedShape = $state<BrandButtonShape>('pill');
 	let selectedTheme = $state<BrandTheme>('system');
+	let gallaryPhotosUrls = $state<string[]>([]);
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
 
 	$effect(() => {
@@ -39,8 +48,53 @@
 			selectedColor = business.brandAppearanceDetails.brandColor;
 			selectedShape = business.brandAppearanceDetails.brandButtonShape;
 			selectedTheme = business.brandAppearanceDetails.theme;
+			gallaryPhotosUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
 		}
 	});
+
+	const isDirty = $derived(
+		!!business &&
+			(selectedColor !== business.brandAppearanceDetails.brandColor ||
+				selectedShape !== business.brandAppearanceDetails.brandButtonShape ||
+				selectedTheme !== business.brandAppearanceDetails.theme ||
+				JSON.stringify(gallaryPhotosUrls) !==
+					JSON.stringify(business.brandAppearanceDetails.gallaryPhotosUrls))
+	);
+
+	function removePhoto(url: string) {
+		gallaryPhotosUrls = gallaryPhotosUrls.filter((u) => u !== url);
+	}
+
+	const updateMutation = createMutation<
+		BusinessUpdateAppearanceResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateAppearanceInput
+	>(() => ({
+		mutationFn: updateBusinessAppearance
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Appearance saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			brandColor: selectedColor,
+			brandButtonShape: selectedShape,
+			theme: selectedTheme,
+			gallaryPhotosUrls
+		});
+	}
 </script>
 
 <!-- Page header -->
@@ -53,7 +107,9 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button size="sm">Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 </div>
 
@@ -199,10 +255,22 @@
 			<h3 class="text-xs font-medium">Gallery</h3>
 			{#if business === null}
 				<Skeleton class="min-h-40 rounded-lg" />
-			{:else if business.brandAppearanceDetails.gallaryPhotosUrls.length > 0}
+			{:else if gallaryPhotosUrls.length > 0}
 				<div class="grid grid-cols-3 gap-2 rounded-lg border p-2">
-					{#each business.brandAppearanceDetails.gallaryPhotosUrls as url (url)}
-						<img src={url} alt="Gallery" class="aspect-square rounded-md object-cover" />
+					{#each gallaryPhotosUrls as url (url)}
+						<div class="group relative">
+							<img src={url} alt="Gallery" class="aspect-square w-full rounded-md object-cover" />
+							<button
+								type="button"
+								onclick={() => removePhoto(url)}
+								class="absolute top-1 right-1 hidden size-5 items-center justify-center rounded-full bg-black/60 text-white group-hover:flex"
+								aria-label="Remove photo"
+							>
+								<svg viewBox="0 0 12 12" class="size-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+									<path d="M2 2l8 8M10 2l-8 8" />
+								</svg>
+							</button>
+						</div>
 					{/each}
 				</div>
 			{:else}

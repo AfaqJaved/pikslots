@@ -8,6 +8,15 @@
 	import Code from '@tabler/icons-svelte/icons/code';
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessVisibility } from '../../../api/business/update.business.visibility.mutation';
+	import type {
+		BusinessUpdateVisibilityInput,
+		BusinessUpdateVisibilityResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const business = $derived(businessStore.selectedBusiness);
 
@@ -25,13 +34,42 @@
 			appearInSearch = business.appearInSearchResults;
 		}
 	});
+
+	const isDirty = $derived(!!business && appearInSearch !== business.appearInSearchResults);
+
+	const updateMutation = createMutation<
+		BusinessUpdateVisibilityResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateVisibilityInput
+	>(() => ({
+		mutationFn: updateBusinessVisibility
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Visibility settings saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({ id: business.id, appearInSearchResults: appearInSearch });
+	}
 </script>
 
 <div class="flex flex-col">
 	<!-- Page header -->
 	<div class="flex items-center justify-between border-b px-6 py-4">
 		<h1 class="text-base font-semibold">Booking preferences</h1>
-		<Button>Save</Button>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 
 	<div class="flex flex-col gap-6 px-6 py-4">

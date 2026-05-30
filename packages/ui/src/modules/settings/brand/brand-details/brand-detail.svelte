@@ -13,6 +13,15 @@
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
 	import type { BusinessIndustry } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessBrandDetails } from '../../../api/business/update.business.brand.details.mutation';
+	import type {
+		BusinessUpdateBrandDetailsInput,
+		BusinessUpdateBrandDetailsResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const INDUSTRIES: { value: BusinessIndustry; label: string }[] = [
 		{ value: 'salon_and_beauty', label: 'Salon & Beauty' },
@@ -42,6 +51,47 @@
 			selectedIndustry = business.industry;
 		}
 	});
+
+	const updateMutation = createMutation<
+		BusinessUpdateBrandDetailsResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateBrandDetailsInput
+	>(() => ({
+		mutationFn: updateBusinessBrandDetails
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Brand details saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	const isDirty = $derived(
+		!!business &&
+			(businessName !== business.name ||
+				bookingUrl !== business.slug ||
+				about !== business.about ||
+				selectedIndustry !== business.industry)
+	);
+
+	function handleSave() {
+		if (!business || !selectedIndustry) return;
+		updateMutation.mutate({
+			id: business.id,
+			bannerImageUrl: business.brandDetail.bannerImageUrl,
+			logoUrl: business.brandDetail.brandLogoUrl,
+			name: businessName,
+			slug: bookingUrl,
+			industry: selectedIndustry,
+			about
+		});
+	}
 </script>
 
 <!-- Page header -->
@@ -54,7 +104,14 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button size="sm">Save</Button>
+		<Button
+			class="cursor-pointer"
+			size="sm"
+			onclick={handleSave}
+			disabled={!isDirty || updateMutation.isPending}
+		>
+			{updateMutation.isPending ? 'Saving...' : 'Save'}
+		</Button>
 	</div>
 </div>
 
@@ -76,7 +133,9 @@
 			{:else if business === null}
 				<Skeleton class="h-40 w-full rounded-lg" />
 			{:else}
-				<div class="flex h-40 w-full flex-col items-center justify-center rounded-lg border bg-muted">
+				<div
+					class="flex h-40 w-full flex-col items-center justify-center rounded-lg border bg-muted"
+				>
 					<Photo size={32} class="mb-3 text-muted-foreground" />
 					<Button variant="outline" size="sm">
 						<Upload size={14} />
@@ -99,7 +158,9 @@
 				{/if}
 				<div class="flex flex-col gap-1">
 					<span class="text-xs font-medium">Brand logo</span>
-					<span class="text-xs text-muted-foreground">Select a 200 × 200 px image, up to 10 MB in size</span>
+					<span class="text-xs text-muted-foreground"
+						>Select a 200 × 200 px image, up to 10 MB in size</span
+					>
 					<Button variant="outline" size="sm" class="mt-1 w-fit">
 						<Upload size={14} />
 						Upload logo

@@ -12,6 +12,7 @@ import type {
   BookingContactFields,
   BookingCustomization,
   BookingLabelOverrides,
+  BusinessHours,
   BusinessTeamNotifications,
   BusinessCustomerNotifications,
   BusinessNotificationCustomization,
@@ -39,6 +40,7 @@ export interface BusinessTable extends AuditFields {
   booking_contact_fields: BookingContactFields; // which contact fields are shown and required at booking
   booking_customization: BookingCustomization; // language, time format, week start, display toggles
   booking_label_overrides: BookingLabelOverrides; // custom labels for services, team members, fields, T&Cs, redirect
+  business_hours: BusinessHours; // per-day open/close times and enabled flags
 
   // notifications
   team_notifications: BusinessTeamNotifications; // team-facing notification preferences and CC emails

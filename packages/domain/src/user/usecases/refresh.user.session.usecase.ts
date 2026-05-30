@@ -1,5 +1,5 @@
-import type { UserInactiveError, UserNotFoundError, UserSuspendedError } from '../../../dist';
 import type { InfrastructureError, UnauthorizedError, ValidationError, Result } from '../../shared';
+import type { UserInactiveError, UserNotFoundError, UserSuspendedError } from '../errors';
 
 export interface RefreshUserSessionCommand {
   currentRefreshToken: string;

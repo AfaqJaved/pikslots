@@ -5,7 +5,9 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema
     .createTable('businesses')
     .addColumn('id', 'uuid', (col) => col.primaryKey().notNull())
-    .addColumn('owner_id', 'uuid', (col) => col.notNull().references('users.id'))
+    .addColumn('owner_id', 'uuid', (col) =>
+      col.notNull().references('users.id'),
+    )
     .addColumn('slug', 'varchar(100)', (col) => col.notNull().unique())
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn(
@@ -32,21 +34,33 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
     .addColumn('booking_contact_fields', 'jsonb', (col) => col.notNull())
     .addColumn('booking_customization', 'jsonb', (col) => col.notNull())
     .addColumn('booking_label_overrides', 'jsonb', (col) => col.notNull())
+    // business hours
+    .addColumn('business_hours', 'jsonb', (col) =>
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"monday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"tuesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"wednesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"thursday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"friday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"saturday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"},"sunday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"}}'::jsonb`,
+        ),
+    )
     // notifications
     .addColumn('team_notifications', 'jsonb', (col) =>
-      col.notNull().defaultTo(
-        sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"unit":"hours","value":24},"extraCCEmails":[]}'::jsonb`,
-      ),
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"active":true,"type":"email","unit":"hours","value":24},"extraCCEmails":[]}'::jsonb`,
+        ),
     )
     .addColumn('customer_notifications', 'jsonb', (col) =>
-      col.notNull().defaultTo(
-        sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"unit":"hours","value":24}}'::jsonb`,
-      ),
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"notifyBookingConfirmation":true,"notifyBookingChanges":true,"notifyBookingCancellations":true,"bookingRemindersTime":{"active":true,"type":"email","unit":"hours","value":24}}'::jsonb`,
+        ),
     )
     .addColumn('notification_customization', 'jsonb', (col) =>
-      col.notNull().defaultTo(
-        sql`'{"emailSenderName":"","emailSignature":""}'::jsonb`,
-      ),
+      col
+        .notNull()
+        .defaultTo(sql`'{"emailSenderName":"","emailSignature":""}'::jsonb`),
     )
     // subscription
     .addColumn(

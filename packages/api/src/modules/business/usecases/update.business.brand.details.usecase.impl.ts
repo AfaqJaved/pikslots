@@ -63,7 +63,7 @@ export class UpdateBusinessBrandDetailsUseCaseImpl implements UpdateBusinessBran
       updatedBy: business.ownerId,
     });
 
-    const saveResult = await this.businessRepository.save(updated);
+    const saveResult = await this.businessRepository.update(updated);
 
     if (!saveResult.ok) return err(saveResult.error);
 

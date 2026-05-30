@@ -35,7 +35,7 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-<Toaster position="top-center" title="Notification" theme={themeStore.current} />
+<Toaster position="top-right" title="Notification" theme={themeStore.current} richColors={true} />
 <QueryClientProvider client={query}
 	>{@render children()}
 	<SvelteQueryDevtools />
