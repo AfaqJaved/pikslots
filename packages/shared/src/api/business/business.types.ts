@@ -28,6 +28,18 @@ export interface DayHours {
 }
 
 export type BusinessHours = Record<WeekDay, DayHours>;
+
+export type SocialPlatforms =
+  | 'Website'
+  | 'Instagram'
+  | 'Facebook'
+  | 'Tiktok'
+  | 'X'
+  | 'Youtube'
+  | 'LinkedIn';
+
+export type BusinessLinks = Record<SocialPlatforms, string>;
+
 export type WeekDay =
   | 'monday'
   | 'tuesday'
@@ -302,6 +314,7 @@ export interface BusinessResponse {
   bookingLabelOverrides: BookingLabelOverrides;
   // business hours
   businessHours: BusinessHours;
+  businessLinks: BusinessLinks;
   // notifications
   teamNotifications: TeamNotifications;
   customerNotifications: CustomerNotifications;
@@ -330,4 +343,7 @@ export type UpdateBusinessTeamNotificationsResponse = BusinessResponse;
 export type UpdateBusinessCustomerNotificationsResponse = BusinessResponse;
 export type UpdateBusinessNotificationCustomizationResponse = BusinessResponse;
 export type UpdateBusinessHoursResponse = BusinessResponse;
+export type UpdateBusinessLinksResponse = BusinessResponse;
 export type UpdateBusinessVisibilityResponse = BusinessResponse;
+
+export type UpdateBusinessLinksInput = BusinessLinks;

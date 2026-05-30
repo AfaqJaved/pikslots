@@ -2,6 +2,7 @@ import { Selectable, Insertable, Updateable } from 'kysely';
 import type {
   BusinessIndustry,
   BusinessStatus,
+  BusinessLinks,
   SubscriptionPlan,
   SubscriptionStatus,
   BrandDetails,
@@ -41,6 +42,7 @@ export interface BusinessTable extends AuditFields {
   booking_customization: BookingCustomization; // language, time format, week start, display toggles
   booking_label_overrides: BookingLabelOverrides; // custom labels for services, team members, fields, T&Cs, redirect
   business_hours: BusinessHours; // per-day open/close times and enabled flags
+  business_links: BusinessLinks; // per-day open/close times and enabled flags
 
   // notifications
   team_notifications: BusinessTeamNotifications; // team-facing notification preferences and CC emails

@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
-import type { Business, BrandButtonShape, BrandTheme } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { BrandButtonShape, BrandTheme } from '../types/';
 
 export interface UpdateBusinessAppearanceCommand {
   id: string;

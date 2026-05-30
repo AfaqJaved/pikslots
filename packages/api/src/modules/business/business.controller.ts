@@ -25,6 +25,7 @@ import { UpdateBusinessTeamNotificationsDto } from './dto/update.business.team.n
 import { UpdateBusinessCustomerNotificationsDto } from './dto/update.business.customer.notifications.dto';
 import { UpdateBusinessNotificationCustomizationDto } from './dto/update.business.notification.customization.dto';
 import { UpdateBusinessHoursDto } from './dto/update.business.hours.dto';
+import { UpdateBusinessLinksDto } from './dto/update.business.links.dto';
 import {
   GetAllBusinessesDocs,
   RegisterBusinessDocs,
@@ -40,6 +41,7 @@ import {
   UpdateBusinessNotificationCustomizationDocs,
   UpdateBusinessHoursDocs,
   UpdateBusinessVisibilityDocs,
+  UpdateBusinessLinksDocs,
 } from './docs/business.controller.docs';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
@@ -58,10 +60,12 @@ import type {
   UpdateBusinessNotificationCustomizationResponse,
   UpdateBusinessHoursResponse,
   UpdateBusinessVisibilityResponse,
+  UpdateBusinessLinksResponse,
 } from '@pikslots/shared';
 import { BusinessUseCaseFactory } from './factroy/business.usecases.factory';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
+import e from 'express';
 
 @ApiTags('Businesses')
 @Controller('/businesses')
@@ -131,6 +135,7 @@ export class BusinessController {
       bookingCustomization: b.bookingCustomization,
       bookingLabelOverrides: b.bookingLabelOverrides,
       businessHours: b.businessHours,
+      businessLinks: b.businessLinks,
       teamNotifications: b.teamNotifications,
       customerNotifications: b.customerNotifications,
       notificationCustomization: b.notificationCustomization,
@@ -194,6 +199,7 @@ export class BusinessController {
       brandAppearanceDetails: b.brandApperanceDetails,
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
+      businessLinks: b.businessLinks,
       bookingSetup: b.bookingSetup,
       bookingContactFields: b.bookingContactFields,
       bookingCustomization: b.bookingCustomization,
@@ -257,6 +263,7 @@ export class BusinessController {
       suspendedReason: b.suspendedReason,
       brandDetail: b.brandDetail,
       brandAppearanceDetails: b.brandApperanceDetails,
+      businessLinks: b.businessLinks,
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
@@ -326,6 +333,7 @@ export class BusinessController {
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
+      businessLinks: b.businessLinks,
       bookingContactFields: b.bookingContactFields,
       bookingCustomization: b.bookingCustomization,
       bookingLabelOverrides: b.bookingLabelOverrides,
@@ -394,6 +402,7 @@ export class BusinessController {
       customerNotifications: b.customerNotifications,
       notificationCustomization: b.notificationCustomization,
       subscriptionPlan: b.subscriptionPlan,
+      businessLinks: b.businessLinks,
       subscriptionStatus: b.subscriptionStatus,
       trialEndsAt: b.trialEndsAt,
       createdAt: b.createdAt,
@@ -452,6 +461,7 @@ export class BusinessController {
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
+      businessLinks: b.businessLinks,
       bookingContactFields: b.bookingContactFields,
       bookingCustomization: b.bookingCustomization,
       bookingLabelOverrides: b.bookingLabelOverrides,
@@ -545,6 +555,7 @@ export class BusinessController {
       teamNotifications: b.teamNotifications,
       customerNotifications: b.customerNotifications,
       notificationCustomization: b.notificationCustomization,
+      businessLinks: b.businessLinks,
       subscriptionPlan: b.subscriptionPlan,
       subscriptionStatus: b.subscriptionStatus,
       trialEndsAt: b.trialEndsAt,
@@ -619,6 +630,7 @@ export class BusinessController {
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
+      businessLinks: b.businessLinks,
       bookingContactFields: b.bookingContactFields,
       bookingCustomization: b.bookingCustomization,
       bookingLabelOverrides: b.bookingLabelOverrides,
@@ -678,6 +690,7 @@ export class BusinessController {
       suspendedReason: b.suspendedReason,
       brandDetail: b.brandDetail,
       brandAppearanceDetails: b.brandApperanceDetails,
+      businessLinks: b.businessLinks,
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
@@ -744,6 +757,7 @@ export class BusinessController {
       suspendedReason: b.suspendedReason,
       brandDetail: b.brandDetail,
       brandAppearanceDetails: b.brandApperanceDetails,
+      businessLinks: b.businessLinks,
       locationDetails: b.locationDetails,
       bookingPolicies: b.bookingPolicies,
       bookingSetup: b.bookingSetup,
@@ -802,6 +816,7 @@ export class BusinessController {
       ownerId: b.ownerId,
       slug: b.slug,
       name: b.name,
+      businessLinks: b.businessLinks,
       industry: b.industry,
       about: b.about,
       appearInSearchResults: b.appearInSearchResults,
@@ -883,6 +898,7 @@ export class BusinessController {
       customerNotifications: b.customerNotifications,
       notificationCustomization: b.notificationCustomization,
       subscriptionPlan: b.subscriptionPlan,
+      businessLinks: b.businessLinks,
       subscriptionStatus: b.subscriptionStatus,
       trialEndsAt: b.trialEndsAt,
       createdAt: b.createdAt,
@@ -947,6 +963,76 @@ export class BusinessController {
       bookingCustomization: b.bookingCustomization,
       bookingLabelOverrides: b.bookingLabelOverrides,
       businessHours: b.businessHours,
+      businessLinks: b.businessLinks,
+      teamNotifications: b.teamNotifications,
+      customerNotifications: b.customerNotifications,
+      notificationCustomization: b.notificationCustomization,
+      subscriptionPlan: b.subscriptionPlan,
+      subscriptionStatus: b.subscriptionStatus,
+      trialEndsAt: b.trialEndsAt,
+      createdAt: b.createdAt,
+      createdBy: b.createdBy,
+      updatedAt: b.updatedAt,
+      updatedBy: b.updatedBy,
+    };
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse(response, HttpStatus.OK);
+  }
+
+  @UpdateBusinessLinksDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(':id/links')
+  async updateBusinessLinks(
+    @Res({ passthrough: true }) res: Response,
+    @Param('id') id: string,
+    @Body() dto: UpdateBusinessLinksDto,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<UpdateBusinessLinksResponse>
+  > {
+    const result =
+      await this.businessUseCaseFactory.updateBusinessLinksUseCase.execute({
+        id,
+        businessLinks: {
+          Website: dto.Website,
+          Instagram: dto.Instagram,
+          Facebook: dto.Facebook,
+          Tiktok: dto.Tiktok,
+          X: dto.X,
+          Youtube: dto.Youtube,
+          LinkedIn: dto.LinkedIn,
+        },
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapBusinessError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const b = result.value;
+    const response: UpdateBusinessLinksResponse = {
+      id: b.id,
+      ownerId: b.ownerId,
+      slug: b.slug,
+      name: b.name,
+      industry: b.industry,
+      about: b.about,
+      appearInSearchResults: b.appearInSearchResults,
+      status: b.status,
+      suspendedReason: b.suspendedReason,
+      brandDetail: b.brandDetail,
+      brandAppearanceDetails: b.brandApperanceDetails,
+      locationDetails: b.locationDetails,
+      bookingPolicies: b.bookingPolicies,
+      bookingSetup: b.bookingSetup,
+      bookingContactFields: b.bookingContactFields,
+      bookingCustomization: b.bookingCustomization,
+      bookingLabelOverrides: b.bookingLabelOverrides,
+      businessHours: b.businessHours,
+      businessLinks: b.businessLinks,
       teamNotifications: b.teamNotifications,
       customerNotifications: b.customerNotifications,
       notificationCustomization: b.notificationCustomization,

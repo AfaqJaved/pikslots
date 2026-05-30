@@ -14,6 +14,7 @@ import {
   IUpdateBusinessNotificationCustomizationUseCase,
   IUpdateBusinessHoursUseCase,
   IUpdateBusinessVisibilityUseCase,
+  IUpdateBusinessLinksUseCase,
 } from '@pikslots/domain';
 import type {
   FindAllRegisteredBusinessesUseCase,
@@ -30,6 +31,7 @@ import type {
   UpdateBusinessNotificationCustomizationUseCase,
   UpdateBusinessHoursUseCase,
   UpdateBusinessVisibilityUseCase,
+  UpdateBusinessLinksUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -75,4 +77,7 @@ export class BusinessUseCaseFactory {
 
   @Inject(IUpdateBusinessHoursUseCase)
   public readonly updateBusinessHoursUseCase: UpdateBusinessHoursUseCase;
+
+  @Inject(IUpdateBusinessLinksUseCase)
+  public readonly updateBusinessLinksUseCase: UpdateBusinessLinksUseCase;
 }

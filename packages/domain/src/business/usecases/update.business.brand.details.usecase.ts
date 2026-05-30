@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessAlreadyExistsError, BusinessNotFoundError } from '../errors';
-import type { Business, BusinessIndustry } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { BusinessIndustry } from '../types/';
 
 export interface UpdateBusinessBrandDetailsCommand {
   id: string;

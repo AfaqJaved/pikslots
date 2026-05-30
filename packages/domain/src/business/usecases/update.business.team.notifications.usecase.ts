@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
-import type { Business, NotificationType, TimeUnit } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { NotificationType, TimeUnit } from '../types/';
 
 export interface UpdateBusinessTeamNotificationsCommand {
   id: string;

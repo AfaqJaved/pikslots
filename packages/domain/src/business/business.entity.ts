@@ -1,186 +1,30 @@
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export type BusinessStatus = 'pending_setup' | 'active' | 'inactive' | 'suspended';
-export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
-export type NotificationType = 'email' | 'sms';
-export type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
-
-export type BusinessIndustry =
-  | 'salon_and_beauty'
-  | 'health_and_wellness'
-  | 'fitness'
-  | 'medical'
-  | 'education'
-  | 'legal'
-  | 'financial'
-  | 'hospitality'
-  | 'retail'
-  | 'other';
-
-export interface DayHours {
-  enabled: boolean;
-  openTime: string; // 'HH:mm' 25-hour, e.g. '09:00'
-  closeTime: string; // 'HH:mm' 25-hour, e.g. '17:00'
-}
-
-export type BusinessHours = Record<WeekDay, DayHours>;
-
-export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'enterprise';
-export type BrandButtonShape = 'pill' | 'rounded' | 'rectangle';
-export type BrandTheme = 'system' | 'light' | 'dark';
-export type SupportedCurrencies = 'USD' | 'PKR' | 'RUB';
-
-export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'cancelled';
-
-export interface StandardContactField {
-  enabled: boolean;
-  required: boolean;
-}
-
-export interface CustomContactField {
-  label: string;
-  enabled: boolean;
-  required: boolean;
-}
-
-// ── Value objects ─────────────────────────────────────────────────────────────
-
-export interface BrandDetails {
-  bannerImageUrl: string;
-  brandLogoUrl: string;
-}
-
-export interface BrandApperanceDetails {
-  brandColor: string;
-  brandButtonShape: BrandButtonShape;
-  theme: BrandTheme;
-  gallaryPhotosUrls: string[];
-}
-
-export interface LocationDetails {
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-  currency: SupportedCurrencies;
-  timeZone: string;
-  language: string;
-}
-
-export interface BookingPolicies {
-  // Lead Time -> How much notice do you require before an appointment?
-  leadTime: {
-    unit: TimeUnit;
-    value: number;
-  };
-  // Schedule Window ->  How far in advance can customers schedule an appointment?
-  scheduleWindow: {
-    unit: TimeUnit;
-    value: number;
-  };
-  cancellationPolicy: {
-    unit: TimeUnit;
-    value: number;
-  } | null; // null is equal to anytime
-
-  bookingPolicyText: string;
-  showPolicyOnBookingPage: boolean;
-}
-
-export interface BookingSetup {
-  bookAppointmentSectionVisible: boolean;
-  bookClassSectionVisible: boolean;
-  aboutUsSectionVisible: boolean;
-  ourTeamSectionVisible: boolean;
-  servicesSectionVisible: boolean;
-  classesSectionVisible: boolean;
-
-  showFirstAvailable: boolean; // "First available appointment"
-  skipTeamSelection: boolean; // "Skip team members"
-  allowToBookMultipleServices: boolean; // "Provide multiple services"
-  bypassTeamMemberSelection: boolean; // "Any team member"
-  customerLoginEnabled: boolean; // "Customer login"
-  customerLoginRequired: boolean; // "Required" (sub-option of customer login)
-  hidePikslotsBranding: boolean; // "Hide branding"
-  accordionView: boolean; // "Accordion view"
-  allowRescheduling: boolean; // "Allow online rescheduling"
-  allowCancellations: boolean; // "Allow online cancellations"
-  showBookNewButton: boolean; // "'Book new appointment' button"
-}
-
-export interface BookingContactFields {
-  name: StandardContactField;
-  email: StandardContactField;
-  phone: StandardContactField;
-  address: StandardContactField;
-  customFields: CustomContactField[];
-}
-
-export interface BookingCustomization {
-  language: string;
-  timeFormat: '12 hours' | '24 hours';
-  weekStartsOn: WeekDay;
-  showBookAnotherAppointmentButton: boolean; // "'Book another appointment' button"
-  showServiceAndClassPrices: boolean; // "Service and class prices"
-  showServiceAndClassDuration: boolean; // "Service and class duration"
-  showBusinessHours: boolean; // "Business hours"
-  showLocalTime: boolean; // "Local time"
-}
-
-export interface BookingLabelOverrides {
-  service: string;
-  class: string;
-  teamMember: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  termsAndConditions: {
-    label: string;
-    link: string;
-    requireTermsAcceptance: boolean;
-  };
-  redirection: {
-    label: string;
-    link: string;
-  };
-}
-
-export interface BusinessTeamNotifications {
-  notifyBookingConfirmation: boolean;
-  notifyBookingChanges: boolean;
-  notifyBookingCancellations: boolean;
-  bookingRemindersTime: {
-    active: boolean;
-    type: NotificationType;
-    unit: TimeUnit;
-    value: number;
-  };
-  extraCCEmails: string[];
-}
-
-export interface BusinessCustomerNotifications {
-  notifyBookingConfirmation: boolean;
-  notifyBookingChanges: boolean;
-  notifyBookingCancellations: boolean;
-  bookingRemindersTime: {
-    active: boolean;
-    type: NotificationType;
-    unit: TimeUnit;
-    value: number;
-  };
-}
-export interface BusinessNotificationCustomization {
-  emailSenderName: string;
-  emailSignature: string;
-}
+import type {
+  BusinessStatus,
+  BusinessIndustry,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  SupportedCurrencies,
+  BrandButtonShape,
+  BrandTheme,
+  TimeUnit,
+  WeekDay,
+} from './types/';
+import type { BrandDetails, BrandApperanceDetails } from './value-objects';
+import type { LocationDetails } from './value-objects';
+import type {
+  BookingPolicies,
+  BookingSetup,
+  BookingContactFields,
+  BookingCustomization,
+  BookingLabelOverrides,
+} from './value-objects';
+import type { BusinessHours } from './value-objects';
+import type {
+  BusinessTeamNotifications,
+  BusinessCustomerNotifications,
+  BusinessNotificationCustomization,
+} from './value-objects';
+import type { BusinessLinks } from './value-objects';
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -205,16 +49,16 @@ export interface BusinessProps {
   readonly bookingCustomization: BookingCustomization;
   readonly bookingLabelOverrides: BookingLabelOverrides;
 
-  //notifications
+  // notifications
   readonly teamNotifications: BusinessTeamNotifications;
   readonly customerNotifications: BusinessCustomerNotifications;
   readonly notificationCustomization: BusinessNotificationCustomization;
 
   readonly businessHours: BusinessHours;
+  readonly businessLinks: BusinessLinks;
 
   //Relations
   //TODO contact details
-  //TODO business social links
 
   // subscription
   readonly subscriptionPlan: SubscriptionPlan;
@@ -293,7 +137,7 @@ export class Business {
       bookingPolicies: {
         leadTime: { unit: 'days', value: 0 },
         scheduleWindow: { unit: 'days', value: 10 },
-        cancellationPolicy: null, // null -> anytime
+        cancellationPolicy: null,
         bookingPolicyText: '',
         showPolicyOnBookingPage: false,
       },
@@ -358,6 +202,15 @@ export class Business {
         friday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
         saturday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
         sunday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+      },
+      businessLinks: {
+        Website: '',
+        Facebook: '',
+        Tiktok: '',
+        X: '',
+        Youtube: '',
+        Instagram: '',
+        LinkedIn: '',
       },
       teamNotifications: {
         notifyBookingConfirmation: true,
@@ -463,6 +316,10 @@ export class Business {
 
   get businessHours(): BusinessHours {
     return this.props.businessHours;
+  }
+
+  get businessLinks(): BusinessLinks {
+    return this.props.businessLinks;
   }
 
   // ── Notifications ──────────────────────────────────────────────────────────
@@ -716,6 +573,16 @@ export class Business {
     return new Business({ ...this.props, businessHours, updatedAt: new Date(), updatedBy });
   }
 
+  updateBusinessLinks({
+    businessLinks,
+    updatedBy,
+  }: {
+    businessLinks: BusinessLinks;
+    updatedBy: string;
+  }): Business {
+    return new Business({ ...this.props, businessLinks, updatedAt: new Date(), updatedBy });
+  }
+
   updateTeamNotifications(value: BusinessTeamNotifications & { updatedBy: string }): Business {
     const { updatedBy, ...teamNotifications } = value;
     return new Business({
@@ -725,12 +592,14 @@ export class Business {
       updatedBy,
     });
   }
+
   updateCustomerNotifications(
     value: BusinessCustomerNotifications & { updatedBy: string },
   ): Business {
     const { updatedBy, ...customerNotifications } = value;
     return new Business({ ...this.props, customerNotifications, updatedAt: new Date(), updatedBy });
   }
+
   updateNotificationCustomization(
     value: BusinessNotificationCustomization & { updatedBy: string },
   ): Business {

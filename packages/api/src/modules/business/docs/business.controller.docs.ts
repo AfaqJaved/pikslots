@@ -14,6 +14,7 @@ import { UpdateBusinessTeamNotificationsDto } from '../dto/update.business.team.
 import { UpdateBusinessCustomerNotificationsDto } from '../dto/update.business.customer.notifications.dto';
 import { UpdateBusinessNotificationCustomizationDto } from '../dto/update.business.notification.customization.dto';
 import { UpdateBusinessHoursDto } from '../dto/update.business.hours.dto';
+import { UpdateBusinessLinksDto } from '../dto/update.business.links.dto';
 
 export const GetAllBusinessesDocs = () =>
   applyDecorators(
@@ -437,6 +438,27 @@ export const UpdateBusinessHoursDocs = () =>
       schema: {
         example: {
           data: { id: 'biz_01j...', businessHours: {}, updatedAt: '2026-01-01T00:00:00.000Z' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Business not found', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Validation error', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Database or infrastructure failure', type: PikslotsBaseErrorResponse }),
+  );
+
+export const UpdateBusinessLinksDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update social/website links for a business' }),
+    ApiParam({ name: 'id', description: 'Business ID', example: 'biz_01j...' }),
+    ApiBody({ type: UpdateBusinessLinksDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Business links updated successfully',
+      schema: {
+        example: {
+          data: { id: 'biz_01j...', businessLinks: { Website: '', Instagram: '', Facebook: '', Tiktok: '', X: '', Youtube: '', LinkedIn: '' }, updatedAt: '2026-01-01T00:00:00.000Z' },
           statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },

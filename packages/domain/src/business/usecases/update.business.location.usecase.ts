@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
-import type { Business, SupportedCurrencies } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { SupportedCurrencies } from '../types/';
 
 export interface UpdateBusinessLocationCommand {
   id: string;

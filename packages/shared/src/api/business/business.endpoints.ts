@@ -13,4 +13,5 @@ export const BUSINESS_ENDPOINTS = {
   UPDATE_CUSTOMER_NOTIFICATIONS: '/businesses/:id/customer-notifications',
   UPDATE_NOTIFICATION_CUSTOMIZATION: '/businesses/:id/notification-customization',
   UPDATE_BUSINESS_HOURS: '/businesses/:id/business-hours',
+  UPDATE_BUSINESS_LINKS: '/businesses/:id/links',
 } as const;

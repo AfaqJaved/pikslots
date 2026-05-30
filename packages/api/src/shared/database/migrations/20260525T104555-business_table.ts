@@ -42,6 +42,14 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
           sql`'{"monday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"tuesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"wednesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"thursday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"friday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"saturday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"},"sunday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"}}'::jsonb`,
         ),
     )
+    // business links
+    .addColumn('business_links', 'jsonb', (col) =>
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"Website":"","Instagram":"","Facebook":"","Tiktok":"","X":"","Youtube":"","LinkedIn":""}'::jsonb`,
+        ),
+    )
     // notifications
     .addColumn('team_notifications', 'jsonb', (col) =>
       col

@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
-import type { Business, WeekDay } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { WeekDay } from '../types/';
 
 export interface UpdateBusinessBookingCustomizationCommand {
   id: string;

@@ -12,3 +12,4 @@ export * from './update.business.team.notifications.usecase.ts';
 export * from './update.business.customer.notifications.usecase.ts';
 export * from './update.business.notification.customization.usecase.ts';
 export * from './update.business.hours.usecase.ts';
+export * from './update.business.links.usecase.ts';

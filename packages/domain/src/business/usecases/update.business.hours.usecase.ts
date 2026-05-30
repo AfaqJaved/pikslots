@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
-import type { Business, BusinessHours } from '../business.entity';
+import type { Business } from '../business.entity';
+import type { BusinessHours } from '../value-objects';
 
 export interface UpdateBusinessHoursCommand {
   id: string;

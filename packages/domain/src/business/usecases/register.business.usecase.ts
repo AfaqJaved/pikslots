@@ -1,6 +1,6 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessAlreadyExistsError } from '../errors';
-import type { BusinessIndustry } from '../business.entity';
+import type { BusinessIndustry } from '../types/';
 
 export interface CreateBusinessCommand {
   ownerId: string;
