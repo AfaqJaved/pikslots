@@ -27,7 +27,9 @@ import type {
 	UpdateBusinessVisibilityInput,
 	UpdateBusinessVisibilityResponse,
 	UpdateBusinessLinksInput,
-	UpdateBusinessLinksResponse
+	UpdateBusinessLinksResponse,
+	UpdateBusinessContactDetailsInput,
+	UpdateBusinessContactDetailsResponse
 } from '@pikslots/shared';
 
 export type BusinessModel = BusinessResponse;
@@ -69,3 +71,5 @@ export type BusinessUpdateVisibilityInput = UpdateBusinessVisibilityInput & { id
 export type BusinessUpdateVisibilityResult = UpdateBusinessVisibilityResponse;
 export type BusinessUpdateLinksInput = UpdateBusinessLinksInput & { id: string };
 export type BusinessUpdateLinksResult = UpdateBusinessLinksResponse;
+export type BusinessUpdateContactDetailsInput = UpdateBusinessContactDetailsInput & { id: string };
+export type BusinessUpdateContactDetailsResult = UpdateBusinessContactDetailsResponse;

@@ -15,6 +15,7 @@ import { UpdateBusinessCustomerNotificationsDto } from '../dto/update.business.c
 import { UpdateBusinessNotificationCustomizationDto } from '../dto/update.business.notification.customization.dto';
 import { UpdateBusinessHoursDto } from '../dto/update.business.hours.dto';
 import { UpdateBusinessLinksDto } from '../dto/update.business.links.dto';
+import { UpdateBusinessContactDetailsDto } from '../dto/update.business.contact.details.dto';
 
 export const GetAllBusinessesDocs = () =>
   applyDecorators(
@@ -459,6 +460,27 @@ export const UpdateBusinessLinksDocs = () =>
       schema: {
         example: {
           data: { id: 'biz_01j...', businessLinks: { Website: '', Instagram: '', Facebook: '', Tiktok: '', X: '', Youtube: '', LinkedIn: '' }, updatedAt: '2026-01-01T00:00:00.000Z' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Business not found', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Validation error', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Database or infrastructure failure', type: PikslotsBaseErrorResponse }),
+  );
+
+export const UpdateBusinessContactDetailsDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update contact details for a business' }),
+    ApiParam({ name: 'id', description: 'Business ID', example: 'biz_01j...' }),
+    ApiBody({ type: UpdateBusinessContactDetailsDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Contact details updated successfully',
+      schema: {
+        example: {
+          data: { id: 'biz_01j...', contactDetails: { primaryEmail: '', primaryPhone: { countryCode: '+1', number: '' }, additionalEmails: [], additionalPhones: [] }, updatedAt: '2026-01-01T00:00:00.000Z' },
           statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },

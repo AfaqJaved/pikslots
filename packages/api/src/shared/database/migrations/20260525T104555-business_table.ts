@@ -50,6 +50,14 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
           sql`'{"Website":"","Instagram":"","Facebook":"","Tiktok":"","X":"","Youtube":"","LinkedIn":""}'::jsonb`,
         ),
     )
+    // contact details
+    .addColumn('contact_details', 'jsonb', (col) =>
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"primaryEmail":"","primaryPhone":{"countryCode":"+1","number":""},"additionalEmails":[],"additionalPhones":[]}'::jsonb`,
+        ),
+    )
     // notifications
     .addColumn('team_notifications', 'jsonb', (col) =>
       col

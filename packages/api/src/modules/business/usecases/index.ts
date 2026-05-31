@@ -14,6 +14,7 @@ import {
   IUpdateBusinessHoursUseCase,
   IUpdateBusinessVisibilityUseCase,
   IUpdateBusinessLinksUseCase,
+  IUpdateBusinessContactDetailsUseCase,
 } from '@pikslots/domain';
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
 import { Provider } from '@nestjs/common';
@@ -31,6 +32,7 @@ import { UpdateBusinessCustomerNotificationsUseCaseImpl } from './update.busines
 import { UpdateBusinessNotificationCustomizationUseCaseImpl } from './update.business.notification.customization.usecase.impl';
 import { UpdateBusinessHoursUseCaseImpl } from './update.business.hours.usecase.impl';
 import { UpdateBusinessLinksUseCaseImpl } from './update.business.links.usecase.impl';
+import { UpdateBusinessContactDetailsUseCaseImpl } from './update.business.contact.details.usecase.impl';
 
 export const BUSINESS_USECASES: Provider[] = [
   {
@@ -92,5 +94,9 @@ export const BUSINESS_USECASES: Provider[] = [
   {
     useClass: UpdateBusinessLinksUseCaseImpl,
     provide: IUpdateBusinessLinksUseCase,
+  },
+  {
+    useClass: UpdateBusinessContactDetailsUseCaseImpl,
+    provide: IUpdateBusinessContactDetailsUseCase,
   },
 ];

@@ -17,6 +17,7 @@ import type {
   BusinessTeamNotifications,
   BusinessCustomerNotifications,
   BusinessNotificationCustomization,
+  BusinessContactDetails,
 } from '@pikslots/domain';
 
 import type { AuditFields } from './audit.table';
@@ -42,7 +43,8 @@ export interface BusinessTable extends AuditFields {
   booking_customization: BookingCustomization; // language, time format, week start, display toggles
   booking_label_overrides: BookingLabelOverrides; // custom labels for services, team members, fields, T&Cs, redirect
   business_hours: BusinessHours; // per-day open/close times and enabled flags
-  business_links: BusinessLinks; // per-day open/close times and enabled flags
+  business_links: BusinessLinks; // social platform URLs
+  contact_details: BusinessContactDetails; // primary/additional emails and phones
 
   // notifications
   team_notifications: BusinessTeamNotifications; // team-facing notification preferences and CC emails

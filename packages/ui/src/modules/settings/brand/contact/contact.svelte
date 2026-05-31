@@ -4,10 +4,23 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import CircleHalf from '@tabler/icons-svelte/icons/circle-half';
 	import DeviceTablet from '@tabler/icons-svelte/icons/device-tablet';
 	import DeviceDesktop from '@tabler/icons-svelte/icons/device-desktop';
 	import Plus from '@tabler/icons-svelte/icons/plus';
+	import Phone from '@tabler/icons-svelte/icons/phone';
+	import Mail from '@tabler/icons-svelte/icons/mail';
+	import { businessStore } from '../../../core/store/business.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { updateBusinessContactDetails } from '../../../api/business/update.business.contact.details.mutation';
+	import type {
+		BusinessUpdateContactDetailsInput,
+		BusinessUpdateContactDetailsResult
+	} from '../../../api/business/models/business-model';
+	import type { BaseErrorResponse } from '@pikslots/shared';
+	import type { AxiosError } from 'axios';
+	import { toast } from 'svelte-sonner';
 
 	const countryCodes = [
 		{ value: '+1', label: '+1 US' },
@@ -19,10 +32,120 @@
 		{ value: '+33', label: '+33 FR' }
 	];
 
+	type ExtraField =
+		| { kind: 'phone'; countryCode: string; value: string }
+		| { kind: 'email'; value: string };
+
+	const business = $derived(businessStore.selectedBusiness);
+
 	let primaryEmail = $state('');
-	let countryCode = $state('+92');
+	let primaryCountryCode = $state('+1');
 	let primaryPhone = $state('');
+	let extraFields = $state<ExtraField[]>([]);
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
+
+	$effect(() => {
+		if (business) {
+			primaryEmail = business.contactDetails.primaryEmail;
+			primaryCountryCode = business.contactDetails.primaryPhone.countryCode;
+			primaryPhone = business.contactDetails.primaryPhone.number;
+			const extras: ExtraField[] = [
+				...business.contactDetails.additionalEmails.map((e) => ({
+					kind: 'email' as const,
+					value: e
+				})),
+				...business.contactDetails.additionalPhones.map((p) => ({
+					kind: 'phone' as const,
+					countryCode: p.countryCode,
+					value: p.number
+				}))
+			];
+			extraFields = extras;
+		}
+	});
+
+	const isDirty = $derived(
+		!!business &&
+			(primaryEmail !== business.contactDetails.primaryEmail ||
+				primaryCountryCode !== business.contactDetails.primaryPhone.countryCode ||
+				primaryPhone !== business.contactDetails.primaryPhone.number ||
+				extraFields.length !==
+					business.contactDetails.additionalEmails.length +
+						business.contactDetails.additionalPhones.length ||
+				extraFields.some((f, i) => {
+					if (f.kind === 'email') {
+						const stored = business.contactDetails.additionalEmails[
+							extraFields.slice(0, i).filter((x) => x.kind === 'email').length
+						];
+						return f.value !== (stored ?? '');
+					} else {
+						const idx = extraFields.slice(0, i).filter((x) => x.kind === 'phone').length;
+						const stored = business.contactDetails.additionalPhones[idx];
+						return f.value !== (stored?.number ?? '') || f.countryCode !== (stored?.countryCode ?? '+1');
+					}
+				}))
+	);
+
+	const updateMutation = createMutation<
+		BusinessUpdateContactDetailsResult,
+		AxiosError<BaseErrorResponse>,
+		BusinessUpdateContactDetailsInput
+	>(() => ({
+		mutationFn: updateBusinessContactDetails
+	}));
+
+	$effect(() => {
+		if (updateMutation.data) {
+			businessStore.setSelectedBusiness(updateMutation.data);
+			toast.success('Contact details saved successfully.');
+		}
+		if (updateMutation.isError) {
+			toast.error(
+				updateMutation.error?.response?.data?.message ?? 'Failed to save. Please try again.'
+			);
+		}
+	});
+
+	function handleSave() {
+		if (!business) return;
+		updateMutation.mutate({
+			id: business.id,
+			primaryEmail,
+			primaryPhone: { countryCode: primaryCountryCode, number: primaryPhone },
+			additionalEmails: extraFields
+				.filter((f): f is Extract<ExtraField, { kind: 'email' }> => f.kind === 'email')
+				.map((f) => f.value),
+			additionalPhones: extraFields
+				.filter((f): f is Extract<ExtraField, { kind: 'phone' }> => f.kind === 'phone')
+				.map((f) => ({ countryCode: f.countryCode, number: f.value }))
+		});
+	}
+
+	function handleCancel() {
+		if (!business) return;
+		primaryEmail = business.contactDetails.primaryEmail;
+		primaryCountryCode = business.contactDetails.primaryPhone.countryCode;
+		primaryPhone = business.contactDetails.primaryPhone.number;
+		extraFields = [
+			...business.contactDetails.additionalEmails.map((e) => ({
+				kind: 'email' as const,
+				value: e
+			})),
+			...business.contactDetails.additionalPhones.map((p) => ({
+				kind: 'phone' as const,
+				countryCode: p.countryCode,
+				value: p.number
+			}))
+		];
+	}
+
+	function addPhone() {
+		extraFields = [...extraFields, { kind: 'phone', countryCode: '+1', value: '' }];
+	}
+
+	function addEmail() {
+		extraFields = [...extraFields, { kind: 'email', value: '' }];
+	}
 </script>
 
 <!-- Page header -->
@@ -35,7 +158,19 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button size="sm">Save</Button>
+		<div class="flex items-center gap-2">
+			<Button
+				variant="outline"
+				size="sm"
+				onclick={handleCancel}
+				disabled={!isDirty || updateMutation.isPending}
+			>
+				Cancel
+			</Button>
+			<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+				{updateMutation.isPending ? 'Saving...' : 'Save'}
+			</Button>
+		</div>
 	</div>
 </div>
 
@@ -59,9 +194,9 @@
 			<div class="flex flex-col gap-2">
 				<Label>Primary phone</Label>
 				<div class="flex gap-2">
-					<Select.Root type="single" bind:value={countryCode}>
+					<Select.Root type="single" bind:value={primaryCountryCode}>
 						<Select.Trigger class="w-24 shrink-0">
-							{countryCode}
+							{primaryCountryCode}
 						</Select.Trigger>
 						<Select.Content>
 							{#each countryCodes as cc (cc.value)}
@@ -73,10 +208,57 @@
 				</div>
 			</div>
 
-			<Button variant="ghost" size="sm" class="w-fit gap-1.5 px-0 text-muted-foreground hover:text-foreground">
-				<Plus size={14} />
-				Add more
-			</Button>
+			{#each extraFields as field, i (i)}
+				{#if field.kind === 'phone'}
+					<div class="flex flex-col gap-2">
+						<Label>Additional phone</Label>
+						<div class="flex gap-2">
+							<Select.Root type="single" bind:value={field.countryCode}>
+								<Select.Trigger class="w-24 shrink-0">
+									{field.countryCode}
+								</Select.Trigger>
+								<Select.Content>
+									{#each countryCodes as cc (cc.value)}
+										<Select.Item value={cc.value}>{cc.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+							<Input type="tel" bind:value={field.value} placeholder="" class="flex-1" />
+						</div>
+					</div>
+				{:else}
+					<div class="flex flex-col gap-2">
+						<Label>Additional email</Label>
+						<Input type="email" bind:value={field.value} placeholder="" />
+					</div>
+				{/if}
+			{/each}
+
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<Button
+							{...props}
+							variant="ghost"
+							size="sm"
+							class="w-fit gap-1.5 px-0 text-muted-foreground hover:text-foreground"
+						>
+							<Plus size={14} />
+							Add more
+						</Button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="start" class="w-44">
+					<DropdownMenu.Item class="flex items-center gap-2" onclick={addPhone}>
+						<Phone size={15} class="text-muted-foreground" />
+						Additional phone
+					</DropdownMenu.Item>
+					<DropdownMenu.Item class="flex items-center gap-2" onclick={addEmail}>
+						<Mail size={15} class="text-muted-foreground" />
+						Additional email
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</section>
 	</div>
 

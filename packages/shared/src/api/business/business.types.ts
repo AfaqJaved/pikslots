@@ -29,6 +29,18 @@ export interface DayHours {
 
 export type BusinessHours = Record<WeekDay, DayHours>;
 
+export interface PhoneEntry {
+  countryCode: string;
+  number: string;
+}
+
+export interface BusinessContactDetails {
+  primaryEmail: string;
+  primaryPhone: PhoneEntry;
+  additionalEmails: string[];
+  additionalPhones: PhoneEntry[];
+}
+
 export type SocialPlatforms =
   | 'Website'
   | 'Instagram'
@@ -315,6 +327,7 @@ export interface BusinessResponse {
   // business hours
   businessHours: BusinessHours;
   businessLinks: BusinessLinks;
+  contactDetails: BusinessContactDetails;
   // notifications
   teamNotifications: TeamNotifications;
   customerNotifications: CustomerNotifications;
@@ -347,3 +360,12 @@ export type UpdateBusinessLinksResponse = BusinessResponse;
 export type UpdateBusinessVisibilityResponse = BusinessResponse;
 
 export type UpdateBusinessLinksInput = BusinessLinks;
+
+export interface UpdateBusinessContactDetailsInput {
+  primaryEmail: string;
+  primaryPhone: PhoneEntry;
+  additionalEmails: string[];
+  additionalPhones: PhoneEntry[];
+}
+
+export type UpdateBusinessContactDetailsResponse = BusinessResponse;

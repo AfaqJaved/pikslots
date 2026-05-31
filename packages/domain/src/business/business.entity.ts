@@ -25,6 +25,7 @@ import type {
   BusinessNotificationCustomization,
 } from './value-objects';
 import type { BusinessLinks } from './value-objects';
+import type { BusinessContactDetails } from './value-objects';
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -56,9 +57,7 @@ export interface BusinessProps {
 
   readonly businessHours: BusinessHours;
   readonly businessLinks: BusinessLinks;
-
-  //Relations
-  //TODO contact details
+  readonly contactDetails: BusinessContactDetails;
 
   // subscription
   readonly subscriptionPlan: SubscriptionPlan;
@@ -212,6 +211,12 @@ export class Business {
         Instagram: '',
         LinkedIn: '',
       },
+      contactDetails: {
+        primaryEmail: '',
+        primaryPhone: { countryCode: '+1', number: '' },
+        additionalEmails: [],
+        additionalPhones: [],
+      },
       teamNotifications: {
         notifyBookingConfirmation: true,
         notifyBookingChanges: true,
@@ -320,6 +325,10 @@ export class Business {
 
   get businessLinks(): BusinessLinks {
     return this.props.businessLinks;
+  }
+
+  get contactDetails(): BusinessContactDetails {
+    return this.props.contactDetails;
   }
 
   // ── Notifications ──────────────────────────────────────────────────────────
@@ -581,6 +590,16 @@ export class Business {
     updatedBy: string;
   }): Business {
     return new Business({ ...this.props, businessLinks, updatedAt: new Date(), updatedBy });
+  }
+
+  updateContactDetails({
+    contactDetails,
+    updatedBy,
+  }: {
+    contactDetails: BusinessContactDetails;
+    updatedBy: string;
+  }): Business {
+    return new Business({ ...this.props, contactDetails, updatedAt: new Date(), updatedBy });
   }
 
   updateTeamNotifications(value: BusinessTeamNotifications & { updatedBy: string }): Business {
