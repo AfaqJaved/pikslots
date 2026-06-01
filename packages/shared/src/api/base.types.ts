@@ -15,4 +15,5 @@ export interface BaseErrorResponse {
 export interface LoginJwtPayload {
   userId: string;
   role: UserRole;
+  businessId: string | null;
 }

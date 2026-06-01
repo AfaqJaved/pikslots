@@ -1,50 +1,8 @@
-// ── Enums ─────────────────────────────────────────────────────────────────────
-
-/**
- * Defines the access level of a user within the platform.
- *
- * ┌─────────────────┬──────────────────────────────────────────────────────────────────┐
- * │ Role            │ Permissions                                                      │
- * ├─────────────────┼──────────────────────────────────────────────────────────────────┤
- * │ Platform Owner  │ Full access to all businesses on the platform                    │
- * │ Business Owner  │ Full access to their own business only                           │
- * │ No Access       │ Cannot log in — calendar is managed by Enhanced/Admin users      │
- * │ Standard        │ Can manage their own calendar only                               │
- * │ Enhanced        │ Can manage all team member calendars + customer profiles         │
- * │ Admin           │ Enhanced permissions + ability to manage all account settings    │
- * └─────────────────┴──────────────────────────────────────────────────────────────────┘
- */
-export type UserRole =
-  | 'Platform Owner'
-  | 'Business Owner'
-  | 'No Access'
-  | 'Standard'
-  | 'Enhanced'
-  | 'Admin';
-
-export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
-export type SupportedSoundTypes = 'chime' | 'whistle';
-
-// ── Value objects ─────────────────────────────────────────────────────────────
-
-export interface FullName {
-  readonly firstName: string;
-  readonly lastName: string;
-}
-
-export interface NotificationPreferences {
-  readonly notificationMode: 'all' | 'focus' | 'none';
-  readonly soundEnabled: boolean;
-  readonly soundType: SupportedSoundTypes;
-}
-
-export interface AppointmentReminders {
-  reminderEnabled: boolean;
-  reminderMinutesBefore: number;
-  reminderSoundType: SupportedSoundTypes;
-}
-
 // ── Props ─────────────────────────────────────────────────────────────────────
+
+import type { UserRole, UserStatus } from './types';
+import type { AppointmentReminders, FullName, NotificationPreferences } from './value-objects';
+import type { UserWorkingHours } from './value-objects/user.working.hours.vo';
 
 export interface UserProps {
   readonly id: string;
@@ -60,8 +18,11 @@ export interface UserProps {
   readonly bookingUrl: string;
   readonly notificationPreferences: NotificationPreferences;
   readonly appointmentReminders: AppointmentReminders;
+  readonly userWorkingHours: UserWorkingHours;
   readonly lastLoginAt: Date | null;
   readonly suspendedReason: string | null;
+
+  readonly businessId: string | null; // platform owner -> businessid is null
   // audit
   readonly createdAt: Date;
   readonly createdBy: string;
@@ -78,6 +39,7 @@ export interface CreateUserInput {
   id: string;
   username: string;
   password: string;
+  businessId: string | null;
   name: FullName;
   email: string;
   phone?: string;
@@ -105,6 +67,7 @@ export class User {
       id: input.id,
       username: input.username,
       password: input.password,
+      businessId: input.businessId,
       name: input.name,
       email: input.email,
       phone: input.phone ?? null,
@@ -118,6 +81,15 @@ export class User {
         reminderEnabled: true,
         reminderMinutesBefore: 10,
         reminderSoundType: 'chime',
+      },
+      userWorkingHours: {
+        monday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+        tuesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+        wednesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+        thursday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+        friday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+        saturday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+        sunday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
       },
       lastLoginAt: null,
       suspendedReason: null,
@@ -174,6 +146,18 @@ export class User {
     return User.QUERY_PERMISSIONS[callerRole].includes(targetRole);
   }
 
+  static canUpdateWorkingHours(
+    updaterRole: UserRole,
+    isSelf: boolean,
+    isPartOfSameBusiness: boolean,
+  ): boolean {
+    if (updaterRole === 'Platform Owner') return true;
+    if ((updaterRole === 'Business Owner' || updaterRole === 'Admin') && isPartOfSameBusiness)
+      return true;
+    if (isSelf && (updaterRole === 'Enhanced' || updaterRole === 'Standard')) return true;
+    return false;
+  }
+
   // ── Identity ───────────────────────────────────────────────────────────────
 
   get id(): string {
@@ -188,6 +172,9 @@ export class User {
 
   get username(): string {
     return this.props.username;
+  }
+  get businessId(): string | null {
+    return this.props.businessId;
   }
   get password(): string {
     return this.props.password;
@@ -228,6 +215,9 @@ export class User {
   get suspendedReason(): string | null {
     return this.props.suspendedReason;
   }
+  get userWorkingHours(): UserWorkingHours {
+    return this.props.userWorkingHours;
+  }
 
   // ── Audit fields ───────────────────────────────────────────────────────────
 
@@ -251,5 +241,15 @@ export class User {
   }
   get isDeleted(): boolean {
     return this.props.isDeleted;
+  }
+
+  updateWorkingHours({
+    userWorkingHours,
+    updatedBy,
+  }: {
+    userWorkingHours: UserWorkingHours;
+    updatedBy: string;
+  }): User {
+    return new User({ ...this.props, userWorkingHours, updatedAt: new Date(), updatedBy });
   }
 }

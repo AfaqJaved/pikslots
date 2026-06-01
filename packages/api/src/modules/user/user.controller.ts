@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -25,6 +27,7 @@ import {
   LoginUserDocs,
   RefreshUserSessionDocs,
   LogoutUserDocs,
+  UpdateUserWorkingHoursDocs,
 } from './docs/user.controller.docs';
 import { GetUsersByRoleDto } from './dto/get.users.by.role.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
@@ -37,8 +40,10 @@ import type {
   LoginUserResponse,
   LogoutUserResponse,
   RefreshUserSessionResponse,
+  UpdateUserWorkingHoursResponse,
   UserSummary,
 } from '@pikslots/shared';
+import { UpdateUserWorkingHoursDto } from './dto/update.user.working.hours.dto';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/shared/config/env';
@@ -239,6 +244,43 @@ export class UserController {
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<RefreshUserSessionResponse>(
       { accessToken: result.value.accessToken },
+      HttpStatus.OK,
+    );
+  }
+
+  @UpdateUserWorkingHoursDocs()
+  @Patch('/:userId/working-hours')
+  async updateWorkingHours(
+    @Res({ passthrough: true }) res: Response,
+    @Param('userId') userId: string,
+    @Body() dto: UpdateUserWorkingHoursDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UpdateUserWorkingHoursResponse>
+  > {
+    const result = await this.userUseCaseFactory.updateUserWorkingHoursUseCase.execute({
+      userId,
+      userWorkingHours: dto,
+    });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const user = result.value;
+    const wh = user.userWorkingHours;
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<UpdateUserWorkingHoursResponse>(
+      {
+        monday: wh.monday,
+        tuesday: wh.tuesday,
+        wednesday: wh.wednesday,
+        thursday: wh.thursday,
+        friday: wh.friday,
+        saturday: wh.saturday,
+        sunday: wh.sunday,
+      },
       HttpStatus.OK,
     );
   }

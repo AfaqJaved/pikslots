@@ -1,14 +1,6 @@
 export type BusinessStatus = 'pending_setup' | 'active' | 'inactive' | 'suspended';
 export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
 export type NotificationType = 'email' | 'sms';
-export type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
 
 export type BusinessIndustry =
   | 'salon_and_beauty'

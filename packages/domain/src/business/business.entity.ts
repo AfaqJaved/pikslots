@@ -1,3 +1,4 @@
+import type { WeekDay } from '../shared';
 import type {
   BusinessStatus,
   BusinessIndustry,
@@ -7,7 +8,6 @@ import type {
   BrandButtonShape,
   BrandTheme,
   TimeUnit,
-  WeekDay,
 } from './types/';
 import type { BrandDetails, BrandApperanceDetails } from './value-objects';
 import type { LocationDetails } from './value-objects';
@@ -343,6 +343,49 @@ export class Business {
     return this.props.notificationCustomization;
   }
 
+  // ── Subscription ───────────────────────────────────────────────────────────
+
+  get subscriptionPlan(): SubscriptionPlan {
+    return this.props.subscriptionPlan;
+  }
+  get subscriptionStatus(): SubscriptionStatus {
+    return this.props.subscriptionStatus;
+  }
+  get trialEndsAt(): Date | null {
+    return this.props.trialEndsAt;
+  }
+  get isTrialing(): boolean {
+    return (
+      this.props.subscriptionStatus === 'trialing' &&
+      this.props.trialEndsAt !== null &&
+      this.props.trialEndsAt > new Date()
+    );
+  }
+
+  // ── Audit fields ───────────────────────────────────────────────────────────
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  get createdBy(): string {
+    return this.props.createdBy;
+  }
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
+  get updatedBy(): string {
+    return this.props.updatedBy;
+  }
+  get deletedAt(): Date | null {
+    return this.props.deletedAt;
+  }
+  get deletedBy(): string | null {
+    return this.props.deletedBy;
+  }
+  get isDeleted(): boolean {
+    return this.props.isDeleted;
+  }
+
   updateBrandDetails(value: {
     bannerImageUrl: string;
     logoUrl: string;
@@ -629,48 +672,5 @@ export class Business {
       updatedAt: new Date(),
       updatedBy,
     });
-  }
-
-  // ── Subscription ───────────────────────────────────────────────────────────
-
-  get subscriptionPlan(): SubscriptionPlan {
-    return this.props.subscriptionPlan;
-  }
-  get subscriptionStatus(): SubscriptionStatus {
-    return this.props.subscriptionStatus;
-  }
-  get trialEndsAt(): Date | null {
-    return this.props.trialEndsAt;
-  }
-  get isTrialing(): boolean {
-    return (
-      this.props.subscriptionStatus === 'trialing' &&
-      this.props.trialEndsAt !== null &&
-      this.props.trialEndsAt > new Date()
-    );
-  }
-
-  // ── Audit fields ───────────────────────────────────────────────────────────
-
-  get createdAt(): Date {
-    return this.props.createdAt;
-  }
-  get createdBy(): string {
-    return this.props.createdBy;
-  }
-  get updatedAt(): Date {
-    return this.props.updatedAt;
-  }
-  get updatedBy(): string {
-    return this.props.updatedBy;
-  }
-  get deletedAt(): Date | null {
-    return this.props.deletedAt;
-  }
-  get deletedBy(): string | null {
-    return this.props.deletedBy;
-  }
-  get isDeleted(): boolean {
-    return this.props.isDeleted;
   }
 }

@@ -1,6 +1,6 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { InviterNotAuthorizedError, UserAlreadyExistsError } from '../errors';
-import type { UserRole } from '../user.entity';
+import type { UserRole } from '../types';
 
 export interface InviteUserCommand {
   email: string;

@@ -1,179 +1,32 @@
-// ── Scalar types ──────────────────────────────────────────────────────────────
-
-export type BusinessIndustry =
-  | 'salon_and_beauty'
-  | 'health_and_wellness'
-  | 'fitness'
-  | 'medical'
-  | 'education'
-  | 'legal'
-  | 'financial'
-  | 'hospitality'
-  | 'retail'
-  | 'other';
-
-export type BusinessStatus = 'pending_setup' | 'active' | 'inactive' | 'suspended';
-export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'enterprise';
-export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'cancelled';
-export type BrandButtonShape = 'pill' | 'rounded' | 'rectangle';
-export type BrandTheme = 'system' | 'light' | 'dark';
-export type SupportedCurrencies = 'USD' | 'PKR' | 'RUB';
-export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
-export type NotificationType = 'email' | 'sms';
-
-export interface DayHours {
-  enabled: boolean;
-  openTime: string; // 'HH:mm' 24-hour, e.g. '09:00'
-  closeTime: string; // 'HH:mm' 24-hour, e.g. '17:00'
-}
-
-export type BusinessHours = Record<WeekDay, DayHours>;
-
-export interface PhoneEntry {
-  countryCode: string;
-  number: string;
-}
-
-export interface BusinessContactDetails {
-  primaryEmail: string;
-  primaryPhone: PhoneEntry;
-  additionalEmails: string[];
-  additionalPhones: PhoneEntry[];
-}
-
-export type SocialPlatforms =
-  | 'Website'
-  | 'Instagram'
-  | 'Facebook'
-  | 'Tiktok'
-  | 'X'
-  | 'Youtube'
-  | 'LinkedIn';
-
-export type BusinessLinks = Record<SocialPlatforms, string>;
-
-export type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
-
-// ── Value object types ────────────────────────────────────────────────────────
-
-export interface BrandDetails {
-  bannerImageUrl: string;
-  brandLogoUrl: string;
-}
-
-export interface BrandAppearanceDetails {
-  brandColor: string;
-  brandButtonShape: BrandButtonShape;
-  theme: BrandTheme;
-  gallaryPhotosUrls: string[];
-}
-
-export interface LocationDetails {
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-  currency: SupportedCurrencies;
-  timeZone: string;
-  language: string;
-}
-
-export interface BookingPolicies {
-  leadTime: { unit: TimeUnit; value: number };
-  scheduleWindow: { unit: TimeUnit; value: number };
-  cancellationPolicy: { unit: TimeUnit; value: number } | null;
-  bookingPolicyText: string;
-  showPolicyOnBookingPage: boolean;
-}
-
-export interface StandardContactField {
-  enabled: boolean;
-  required: boolean;
-}
-
-export interface CustomContactField {
-  label: string;
-  enabled: boolean;
-  required: boolean;
-}
-
-export interface BookingSetup {
-  bookAppointmentSectionVisible: boolean;
-  bookClassSectionVisible: boolean;
-  aboutUsSectionVisible: boolean;
-  ourTeamSectionVisible: boolean;
-  servicesSectionVisible: boolean;
-  classesSectionVisible: boolean;
-  showFirstAvailable: boolean;
-  skipTeamSelection: boolean;
-  allowToBookMultipleServices: boolean;
-  bypassTeamMemberSelection: boolean;
-  customerLoginEnabled: boolean;
-  customerLoginRequired: boolean;
-  hidePikslotsBranding: boolean;
-  accordionView: boolean;
-  allowRescheduling: boolean;
-  allowCancellations: boolean;
-  showBookNewButton: boolean;
-}
-
-export interface BookingContactFields {
-  name: StandardContactField;
-  email: StandardContactField;
-  phone: StandardContactField;
-  address: StandardContactField;
-  customFields: CustomContactField[];
-}
-
-export interface BookingCustomization {
-  language: string;
-  timeFormat: '12 hours' | '24 hours';
-  weekStartsOn: WeekDay;
-  showBookAnotherAppointmentButton: boolean;
-  showServiceAndClassPrices: boolean;
-  showServiceAndClassDuration: boolean;
-  showBusinessHours: boolean;
-  showLocalTime: boolean;
-}
-
-export interface BookingLabelOverrides {
-  service: string;
-  class: string;
-  teamMember: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  termsAndConditions: { label: string; link: string; requireTermsAcceptance: boolean };
-  redirection: { label: string; link: string };
-}
-
-export interface TeamNotifications {
-  notifyBookingConfirmation: boolean;
-  notifyBookingChanges: boolean;
-  notifyBookingCancellations: boolean;
-  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
-  extraCCEmails: string[];
-}
-
-export interface CustomerNotifications {
-  notifyBookingConfirmation: boolean;
-  notifyBookingChanges: boolean;
-  notifyBookingCancellations: boolean;
-  bookingRemindersTime: { active: boolean; type: NotificationType; unit: TimeUnit; value: number };
-}
-
-export interface NotificationCustomization {
-  emailSenderName: string;
-  emailSignature: string;
-}
+import type {
+  BusinessIndustry,
+  BusinessStatus,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  SupportedCurrencies,
+  BrandButtonShape,
+  BrandTheme,
+  TimeUnit,
+  NotificationType,
+  WeekDay,
+} from './types';
+import type {
+  BrandDetails,
+  BrandAppearanceDetails,
+  LocationDetails,
+  BookingPolicies,
+  BookingSetup,
+  BookingContactFields,
+  BookingCustomization,
+  BookingLabelOverrides,
+  BusinessHours,
+  BusinessLinks,
+  PhoneEntry,
+  BusinessContactDetails,
+  TeamNotifications,
+  CustomerNotifications,
+  NotificationCustomization,
+} from './value-objects';
 
 // ── Requests ──────────────────────────────────────────────────────────────────
 
@@ -298,6 +151,15 @@ export interface UpdateBusinessBookingPoliciesInput {
   showPolicyOnBookingPage: boolean;
 }
 
+export type UpdateBusinessLinksInput = BusinessLinks;
+
+export interface UpdateBusinessContactDetailsInput {
+  primaryEmail: string;
+  primaryPhone: PhoneEntry;
+  additionalEmails: string[];
+  additionalPhones: PhoneEntry[];
+}
+
 // ── Responses ─────────────────────────────────────────────────────────────────
 
 export interface RegisterBusinessResponse {
@@ -324,7 +186,7 @@ export interface BusinessResponse {
   bookingContactFields: BookingContactFields;
   bookingCustomization: BookingCustomization;
   bookingLabelOverrides: BookingLabelOverrides;
-  // business hours
+  // business hours & links
   businessHours: BusinessHours;
   businessLinks: BusinessLinks;
   contactDetails: BusinessContactDetails;
@@ -358,14 +220,4 @@ export type UpdateBusinessNotificationCustomizationResponse = BusinessResponse;
 export type UpdateBusinessHoursResponse = BusinessResponse;
 export type UpdateBusinessLinksResponse = BusinessResponse;
 export type UpdateBusinessVisibilityResponse = BusinessResponse;
-
-export type UpdateBusinessLinksInput = BusinessLinks;
-
-export interface UpdateBusinessContactDetailsInput {
-  primaryEmail: string;
-  primaryPhone: PhoneEntry;
-  additionalEmails: string[];
-  additionalPhones: PhoneEntry[];
-}
-
 export type UpdateBusinessContactDetailsResponse = BusinessResponse;

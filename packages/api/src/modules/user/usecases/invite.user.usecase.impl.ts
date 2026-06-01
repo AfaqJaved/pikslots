@@ -23,7 +23,7 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
   constructor(
     @Inject(IUserRepository) private readonly userRepository: UserRepository,
     private readonly securityContext: SecurityContext,
-    @InjectQueue(PIKSLOT_EVENTS.USER.USER_INVITED) private events: Queue,
+    // @InjectQueue(PIKSLOT_EVENTS.USER.USER_INVITED) private events: Queue,
   ) {}
 
   async execute(
@@ -78,6 +78,7 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
       email: command.email,
       phone: command.phone,
       role: command.role,
+      businessId: null,
       bookingUrl: '', // TODO: generate booking url
       createdBy: this.securityContext.userId, // the id of the logged in user acting as inviter
     });
@@ -85,13 +86,13 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
     const saved = await this.userRepository.save(user);
     if (!saved.ok) return err(saved.error);
 
-    await this.events.add(PIKSLOT_EVENTS.USER.USER_INVITED, {
-      userId: user.id,
-      userEmail: user.email,
-      firstName: user.name.firstName,
-      lastName: user.name.lastName,
-      role: user.role,
-    });
+    // await this.events.add(PIKSLOT_EVENTS.USER.USER_INVITED, {
+    //   userId: user.id,
+    //   userEmail: user.email,
+    //   firstName: user.name.firstName,
+    //   lastName: user.name.lastName,
+    //   role: user.role,
+    // });
     return ok({ message: 'success' });
   }
 }

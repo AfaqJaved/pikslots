@@ -1,9 +1,10 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { LoginUserDto } from '../dto/login.user.dto';
 import { RefreshUserSessionDto } from '../dto/refresh.user.session.dto';
 import { InviteUserDto } from '../dto/invite.user.dto';
+import { UpdateUserWorkingHoursDto } from '../dto/update.user.working.hours.dto';
 
 export const InviteUserDocs = () =>
   applyDecorators(
@@ -239,4 +240,34 @@ export const LogoutUserDocs = () =>
         },
       },
     }),
+  );
+
+export const UpdateUserWorkingHoursDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update working hours for a user' }),
+    ApiParam({ name: 'userId', description: 'Target user ID', example: 'uuid' }),
+    ApiBody({ type: UpdateUserWorkingHoursDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Working hours updated successfully',
+      schema: {
+        example: {
+          data: {
+            monday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+            tuesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+            wednesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+            thursday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+            friday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+            saturday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+            sunday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+          },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Validation error', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing or invalid access token', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Infrastructure failure', type: PikslotsBaseErrorResponse }),
   );

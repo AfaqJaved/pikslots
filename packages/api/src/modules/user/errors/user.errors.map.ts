@@ -9,6 +9,7 @@ import type {
   UserSuspendedError,
   UserInactiveError,
   ValidationError,
+  WorkingHoursUpdateNotAuthorizedError,
 } from '@pikslots/domain';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
@@ -20,6 +21,7 @@ type UserError =
   | UserNotFoundError
   | UserInactiveError
   | UserSuspendedError
+  | WorkingHoursUpdateNotAuthorizedError
   | InfrastructureError
   | ValidationError;
 
@@ -32,6 +34,8 @@ const userErrorMap: Record<
   inviter_not_authorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   role_query_not_authorized: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
+  working_hours_update_not_authorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   user_not_found: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.NOT_FOUND),

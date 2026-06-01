@@ -58,6 +58,8 @@ export class JwtVerificationMiddleware implements NestMiddleware {
 
       this.securityContext.userId = payload.value.userId;
       this.securityContext.role = payload.value.role;
+      this.securityContext.businessId = payload.value.businessId;
+
       next();
     } catch {
       return res

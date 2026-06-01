@@ -63,7 +63,11 @@ export class RefreshUserSessionUseCaseImpl implements RefreshUserSessionUseCase 
   }
 
   private issueTokens(user: User): RefreshResult {
-    const payload: LoginJwtPayload = { userId: user.id, role: user.role };
+    const payload: LoginJwtPayload = {
+      userId: user.id,
+      role: user.role,
+      businessId: user.businessId,
+    };
     return ok({
       accessToken: this.jwtLoginService.signAccessToken(payload),
       refreshToken: this.jwtLoginService.signRefreshToken(payload),

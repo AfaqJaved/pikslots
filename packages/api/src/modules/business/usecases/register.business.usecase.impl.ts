@@ -43,6 +43,7 @@ export class RegisterBusinessUseCaseImpl implements RegisterBusinessUseCase {
     if (!result.ok) {
       return err(result.error);
     }
+    //TODO New Business Invite Email
 
     return ok({ message: 'success' });
   }

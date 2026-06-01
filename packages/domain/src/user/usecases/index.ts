@@ -5,3 +5,4 @@ export * from './find.user.by.id.usecase.ts';
 export * from './get.user.profile.usecase.ts';
 export * from './get.all.business.owners.usecase.ts';
 export * from './get.all.users.by.role.usecase.ts';
+export * from './update.user.working.hours.usecase.ts';

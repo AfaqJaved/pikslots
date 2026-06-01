@@ -16,12 +16,14 @@
   "scripts": {
     "build": "tsup",
     "format": "prettier . --write",
-    "watch": "tsup --watch"
+    "watch": "tsup --watch",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "prettier": "^3.8.3",
     "tsup": "^8.5.1",
-    "prettier": "^3.8.3"
+    "vitest": "^4.1.7"
   },
   "peerDependencies": {
     "typescript": "^5"

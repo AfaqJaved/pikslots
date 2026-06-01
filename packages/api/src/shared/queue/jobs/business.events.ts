@@ -1,20 +1,25 @@
-import type { Job } from 'bullmq';
-import type { UserInvitedEvent } from '@pikslots/domain';
-import { PIKSLOT_EVENTS } from './jobs/index';
+import { BusinessRegistrationInviteEvent } from '@pikslots/domain';
+import { Job } from 'bullmq';
+
+export const PIKSLOT_EVENTS = {
+  BUSINESS: {
+    BUSINESS_REGISTRATION_INVITE: 'business.registration.invite',
+  },
+} as const;
 
 // ── Job name type ─────────────────────────────────────────────────────────────
-
-export type UserJobName = (typeof PIKSLOT_EVENTS.USER)[keyof typeof PIKSLOT_EVENTS.USER];
+export type BusinessJobName =
+  (typeof PIKSLOT_EVENTS.BUSINESS)[keyof typeof PIKSLOT_EVENTS.BUSINESS];
 
 // ── Job data map  (name → payload) ────────────────────────────────────────────
 
-export interface UserJobDataMap {
-  [PIKSLOT_EVENTS.USER.USER_INVITED]: UserInvitedEvent;
+export interface BusinessRegistrationInviteJobData {
+  [PIKSLOT_EVENTS.BUSINESS
+    .BUSINESS_REGISTRATION_INVITE]: BusinessRegistrationInviteEvent;
 }
 
 // ── Discriminated union of all user jobs ──────────────────────────────────────
 // Use this as the type for `job` inside a WorkerHost processor.
-
-export type UserJob = {
-  [K in UserJobName]: Job<UserJobDataMap[K], void, K>;
-}[UserJobName];
+export type BusinessJob = {
+  [K in BusinessJobName]: Job<BusinessRegistrationInviteJobData[K], void, K>;
+}[BusinessJobName];

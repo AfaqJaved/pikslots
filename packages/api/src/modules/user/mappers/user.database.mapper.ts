@@ -12,6 +12,7 @@ export class UserPersistenceMapper {
   public persistenceToDomain(row: UserTableSelect): User {
     return User.reconstitute({
       id: row.id,
+      businessId: row.business_id,
       username: row.username,
       password: row.password,
       name: { firstName: row.first_name, lastName: row.last_name },
@@ -32,6 +33,7 @@ export class UserPersistenceMapper {
         soundEnabled: row.notification_sound_enabled,
         soundType: row.notification_sound_type,
       },
+      userWorkingHours: row.user_working_hours,
       lastLoginAt: row.last_login_at,
       suspendedReason: row.suspended_reason,
       ...persistenceAuditToDomain(row),
@@ -41,6 +43,7 @@ export class UserPersistenceMapper {
     return {
       id: user.id,
       username: user.username,
+      business_id: user.businessId,
       password: user.password,
       first_name: user.name.firstName,
       last_name: user.name.lastName,
@@ -59,6 +62,7 @@ export class UserPersistenceMapper {
       reminder_sound_type: user.appointmentReminders.reminderSoundType,
       last_login_at: user.lastLoginAt,
       suspended_reason: user.suspendedReason,
+      user_working_hours: user.userWorkingHours,
       ...domainAuditToPersistence(user),
     };
   }

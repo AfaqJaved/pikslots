@@ -58,3 +58,19 @@ export type RoleQueryNotAuthorizedError = ErrorShape & {
   callerRole: string;
   queriedRole: string;
 };
+
+/**
+ * The caller does not have permission to update working hours for the target user.
+ *
+ * Rules:
+ *   Platform Owner → can update any user
+ *   Business Owner → can update Admin, Enhanced, Standard, No Access (same business only)
+ *   Admin          → can update Enhanced, Standard, No Access (same business only)
+ *   Enhanced / Standard → can only update their own
+ *   No Access → cannot update anyone
+ */
+export type WorkingHoursUpdateNotAuthorizedError = ErrorShape & {
+  kind: 'working_hours_update_not_authorized';
+  updaterRole: string;
+  targetRole: string;
+};

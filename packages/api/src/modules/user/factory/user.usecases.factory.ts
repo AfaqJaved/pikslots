@@ -7,6 +7,7 @@ import {
   IInviteUserUseCase,
   ILoginUserUseCase,
   IRefreshUserSessionUseCase,
+  IUpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 import type {
   FindUserByIdUseCase,
@@ -16,6 +17,7 @@ import type {
   InviteUserUseCase,
   LoginUserUseCase,
   RefreshUserSessionUseCase,
+  UpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -40,4 +42,7 @@ export class UserUsecasesFactory {
 
   @Inject(IRefreshUserSessionUseCase)
   public readonly refreshUserSessionUseCase: RefreshUserSessionUseCase;
+
+  @Inject(IUpdateUserWorkingHoursUseCase)
+  public readonly updateUserWorkingHoursUseCase: UpdateUserWorkingHoursUseCase;
 }

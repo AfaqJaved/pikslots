@@ -73,3 +73,23 @@ export interface GetUsersByRoleInput {
 }
 
 export type GetUsersByRoleResponse = UserSummary[];
+
+// --- Working Hours ---
+
+export interface UserDayHours {
+  enabled: boolean;
+  openTime: string; // 'HH:mm' 24-hour
+  closeTime: string; // 'HH:mm' 24-hour
+}
+
+export interface UpdateUserWorkingHoursInput {
+  monday: UserDayHours;
+  tuesday: UserDayHours;
+  wednesday: UserDayHours;
+  thursday: UserDayHours;
+  friday: UserDayHours;
+  saturday: UserDayHours;
+  sunday: UserDayHours;
+}
+
+export type UpdateUserWorkingHoursResponse = UpdateUserWorkingHoursInput;

@@ -1,11 +1,17 @@
 import { Selectable, Insertable, Updateable } from 'kysely';
 import type { AuditFields } from './audit.table';
-import { UserRole, UserStatus, SupportedSoundTypes } from '@pikslots/domain';
+import {
+  UserRole,
+  UserStatus,
+  SupportedSoundTypes,
+  UserWorkingHours,
+} from '@pikslots/domain';
 
 export interface UserTable extends AuditFields {
   id: string; // uuid primary key
   username: string; // unique login handle
   password: string; // bcrypt-hashed password
+  business_id: string | null; // plaform owner -> business id null
   first_name: string; // given name
   last_name: string; // family name
   email: string; // unique email address
@@ -21,6 +27,7 @@ export interface UserTable extends AuditFields {
   reminder_enabled: boolean;
   reminder_mins_before: number;
   reminder_sound_type: SupportedSoundTypes;
+  user_working_hours: UserWorkingHours;
   last_login_at: Date | null; // timestamp of most recent login
   suspended_reason: string | null; // reason given when account was suspended
 }

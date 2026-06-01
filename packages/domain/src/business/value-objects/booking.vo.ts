@@ -1,4 +1,5 @@
-import type { TimeUnit, WeekDay } from '../types';
+import type { WeekDay } from '../../shared';
+import type { TimeUnit } from '../types';
 
 export interface StandardContactField {
   enabled: boolean;

@@ -5,4 +5,5 @@ import type { UserRole } from '@pikslots/domain';
 export class SecurityContext {
   userId: string;
   role: UserRole;
+  businessId: string | null;
 }

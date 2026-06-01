@@ -4,7 +4,7 @@ import { IUserRepository } from '@pikslots/domain';
 import { UserController } from './user.controller';
 import { USER_USECASES } from './usecases';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
-import { USER_EVENTS } from './events';
+// import { USER_EVENTS } from './events';
 
 @Module({
   controllers: [UserController],
@@ -12,8 +12,8 @@ import { USER_EVENTS } from './events';
     { useClass: UserRepositoryImpl, provide: IUserRepository },
     ...USER_USECASES,
     UserUsecasesFactory,
-    ...USER_EVENTS,
+    // ...USER_EVENTS,
   ],
-  exports: [{ useClass: UserRepositoryImpl, provide: IUserRepository }],
+  exports: [],
 })
 export class UserModule {}

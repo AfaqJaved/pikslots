@@ -147,6 +147,38 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
+  async update(
+    user: User,
+  ): Promise<Result<void, UserNotFoundError | InfrastructureError>> {
+    try {
+      const result = await this.db
+        .updateTable('users')
+        .set(this.mapper.domainToPersistence(user))
+        .where('id', '=', user.id)
+        .where('is_deleted', '=', false)
+        .executeTakeFirst();
+
+      if (!result.numUpdatedRows || result.numUpdatedRows === BigInt(0)) {
+        return err<UserNotFoundError>({
+          kind: 'user_not_found',
+          by: 'id',
+          value: user.id,
+          message: `User not found against ${user.id}`,
+          timestamp: new Date(),
+        });
+      }
+
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to update user',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async existsByEmail(
     email: string,
   ): Promise<Result<boolean, InfrastructureError>> {

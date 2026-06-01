@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
-import type { User, UserRole } from '../user.entity';
+import type { User } from '../user.entity';
 import type { RoleQueryNotAuthorizedError } from '../errors';
+import type { UserRole } from '../types';
 
 export const IGetAllUsersByRole = Symbol('IGetAllUsersByRole');
 

@@ -5,6 +5,7 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema
     .createTable('users')
     .addColumn('id', 'uuid', (col) => col.primaryKey().notNull())
+    .addColumn('business_id', 'uuid', (col) => col.defaultTo(null))
     .addColumn('username', 'varchar(30)', (col) => col.notNull().unique())
     .addColumn('password', 'varchar(255)', (col) => col.notNull())
     .addColumn('first_name', 'varchar(50)', (col) => col.notNull())
@@ -52,6 +53,8 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
       sql`varchar CHECK (reminder_sound_type IN ('chime', 'whistle'))`,
       (col) => col.notNull().defaultTo('chime'),
     )
+    // working hours
+    .addColumn('user_working_hours', 'jsonb', (col) => col.notNull())
     // misc
     .addColumn('last_login_at', 'timestamptz', (col) => col.defaultTo(null))
     .addColumn('suspended_reason', 'text', (col) => col.defaultTo(null))
@@ -87,5 +90,5 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
 }
 
 export async function down(db: Kysely<PikSlotsDatabase>): Promise<void> {
-  await db.schema.dropTable('user').execute();
+  await db.schema.dropTable('users').execute();
 }

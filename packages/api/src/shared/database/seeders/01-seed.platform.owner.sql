@@ -3,6 +3,7 @@ WITH seed_id AS (
 )
 INSERT INTO users (
   id,
+  business_id,
   username,
   password,
   first_name,
@@ -20,6 +21,7 @@ INSERT INTO users (
   reminder_enabled,
   reminder_mins_before,
   reminder_sound_type,
+  user_working_hours,
   last_login_at,
   suspended_reason,
   created_at,
@@ -32,6 +34,7 @@ INSERT INTO users (
 )
 SELECT
   seed_id.id,
+  NULL,
   'afaqjaved',
   '$2b$12$oKeoI5cSWasiDKsGarVXAeaSKFMA2N7Kc8mqgsV2h8G9zWEmSyeg2', -- admin12345
   'Afaq',
@@ -49,6 +52,7 @@ SELECT
   TRUE,
   10,
   'chime',
+  '{"monday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"tuesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"wednesday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"thursday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"friday":{"enabled":true,"openTime":"09:00","closeTime":"17:00"},"saturday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"},"sunday":{"enabled":false,"openTime":"09:00","closeTime":"17:00"}}'::jsonb,
   NULL,
   NULL,
   NOW(),

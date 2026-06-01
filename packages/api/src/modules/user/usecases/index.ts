@@ -12,9 +12,11 @@ import {
   IInviteUserUseCase,
   ILoginUserUseCase,
   IRefreshUserSessionUseCase,
+  IUpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 import { LoginUserUseCaseImpl } from './login.user.usecase.impl';
 import { RefreshUserSessionUseCaseImpl } from './refresh.user.session.usecase.impl';
+import { UpdateUserWorkingHoursUseCaseImpl } from './update.user.working.hours.usecase.impl';
 
 export const USER_USECASES: Provider[] = [
   { useClass: InviteUserUsecaseImpl, provide: IInviteUserUseCase },
@@ -23,8 +25,6 @@ export const USER_USECASES: Provider[] = [
   { useClass: GetAllBusinessOwnersUseCaseImpl, provide: IGetAllBusinessOwnersUseCase },
   { useClass: GetAllUsersByRoleUseCaseImpl, provide: IGetAllUsersByRole },
   { useClass: LoginUserUseCaseImpl, provide: ILoginUserUseCase },
-  {
-    useClass: RefreshUserSessionUseCaseImpl,
-    provide: IRefreshUserSessionUseCase,
-  },
+  { useClass: RefreshUserSessionUseCaseImpl, provide: IRefreshUserSessionUseCase },
+  { useClass: UpdateUserWorkingHoursUseCaseImpl, provide: IUpdateUserWorkingHoursUseCase },
 ];
