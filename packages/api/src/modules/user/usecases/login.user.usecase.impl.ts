@@ -1,4 +1,3 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   err,
@@ -13,19 +12,20 @@ import type {
   UnauthorizedError,
   User,
   UserInactiveError,
+  UserNoAccessError,
   UserRepository,
   UserSuspendedError,
 } from '@pikslots/domain';
 import { LoginJwtPayload } from '@pikslots/shared';
 import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 import { JwtLoginService } from 'src/shared/security/jwt/jwt.login.service';
-import { Queue } from 'bullmq';
 
 type LoginError =
   | UnauthorizedError
   | InfrastructureError
   | UserSuspendedError
-  | UserInactiveError;
+  | UserInactiveError
+  | UserNoAccessError;
 type LoginResult = Result<
   { accessToken: string; refreshToken: string },
   LoginError
@@ -51,6 +51,13 @@ const USER_SUSPENDED = (reason: string): UserSuspendedError => ({
   timestamp: new Date(),
 });
 
+const USER_NO_ACCESS = (): UserNoAccessError => ({
+  kind: 'user_no_access',
+  message:
+    'Your account does not have access. Please contact your administrator.',
+  timestamp: new Date(),
+});
+
 @Injectable()
 export class LoginUserUseCaseImpl implements LoginUserUseCase {
   constructor(
@@ -67,7 +74,9 @@ export class LoginUserUseCaseImpl implements LoginUserUseCase {
       command.password,
       user.value.password,
     );
+
     if (!passwordMatches) return err(ACCESS_DENIED());
+    if (user.value.role === 'No Access') return err(USER_NO_ACCESS());
     if (user.value.status === 'inactive') return err(USER_INACTIVE());
     if (user.value.status === 'suspended' && user.value.suspendedReason)
       return err(USER_SUSPENDED(user.value.suspendedReason));

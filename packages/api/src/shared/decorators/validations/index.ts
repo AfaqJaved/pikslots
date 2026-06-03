@@ -7,3 +7,4 @@ export * from './phone.validations';
 export * from './timezone.validations';
 export * from './url.validations';
 export * from './enum.validations';
+export * from './uuid.validations';

@@ -6,6 +6,7 @@ import {
   type BusinessNotFoundError,
   type BusinessSuspendedError,
   type InfrastructureError,
+  type UnauthorizedError,
 } from '@pikslots/domain';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
@@ -14,6 +15,7 @@ type BusinessError =
   | BusinessNotFoundError
   | BusinessSuspendedError
   | BusinessInactiveError
+  | UnauthorizedError
   | InfrastructureError;
 
 const businessErrorMap: Record<
@@ -28,6 +30,8 @@ const businessErrorMap: Record<
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   business_inactive: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
+  unauthorized: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
   infrastructure: (error) => {
     //@ts-ignore
     console.log(error.cause);

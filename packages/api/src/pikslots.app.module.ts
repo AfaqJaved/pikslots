@@ -7,6 +7,7 @@ import { JwtVerificationMiddleware } from './shared/security/middleware/jwt.verf
 import { BusinessModule } from './modules/business/business.module';
 import { PikslotsQueueModule } from './shared/queue/pikslots.queue.module';
 import { PikslotEmailModule } from './shared/email/pikslot.email.module';
+import { PikslotCacheModule } from './shared/cache/pikslot.cache.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PikslotEmailModule } from './shared/email/pikslot.email.module';
     PikslotsDatabaseModule, // also runs the migrations
     PikslotsQueueModule,
     PikslotEmailModule,
+    PikslotCacheModule,
 
     // domain modules
     UserModule,

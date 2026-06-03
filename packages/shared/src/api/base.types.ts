@@ -15,5 +15,10 @@ export interface BaseErrorResponse {
 export interface LoginJwtPayload {
   userId: string;
   role: UserRole;
-  businessId: string | null;
+  businessId: string | null; // incase of platfrom owner no businessId
+}
+
+export interface InviteJwtPayload {
+  userId: string;
+  businessId: string;
 }

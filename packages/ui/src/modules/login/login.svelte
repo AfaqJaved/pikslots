@@ -48,6 +48,8 @@
 	);
 
 	$effect(() => {
+		if (authStore.isAuthenticated) goto('/home');
+
 		if (loginMutation.data) {
 			authStore.setAccessToken(loginMutation.data.accessToken);
 			goto('/home');

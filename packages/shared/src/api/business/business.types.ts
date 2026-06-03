@@ -32,6 +32,8 @@ import type {
 
 export interface RegisterBusinessInput {
   ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
   slug: string;
   name: string;
   industry: BusinessIndustry;
@@ -206,6 +208,7 @@ export interface BusinessResponse {
 }
 
 export type GetAllBusinessesResponse = BusinessResponse[];
+export type GetBusinessByIdResponse = BusinessResponse;
 
 export type UpdateBusinessBrandDetailsResponse = BusinessResponse;
 export type UpdateBusinessLocationResponse = BusinessResponse;

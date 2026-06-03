@@ -8,6 +8,7 @@ export interface UserRepository {
   save(user: User): Promise<Result<void, UserAlreadyExistsError | InfrastructureError>>;
   findById(id: string): Promise<Result<User | null, UserNotFoundError | InfrastructureError>>;
   findByEmail(email: string): Promise<Result<User | null, UserNotFoundError | InfrastructureError>>;
+  findAllByBusiness(businessId: string): Promise<Result<User[], InfrastructureError>>;
   findByUsername(
     username: string,
   ): Promise<Result<User | null, UserNotFoundError | InfrastructureError>>;

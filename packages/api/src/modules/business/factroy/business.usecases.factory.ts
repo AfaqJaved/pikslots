@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   IFindAllRegisteredBusinessesUseCase,
+  IFindBusinessByIdUseCase,
   IRegisterBusinessUseCase,
   IUpdateBusinessAppearanceUseCase,
   IUpdateBusinessBrandDetailsUseCase,
@@ -19,6 +20,7 @@ import {
 } from '@pikslots/domain';
 import type {
   FindAllRegisteredBusinessesUseCase,
+  FindBusinessByIdUseCase,
   RegisterBusinessUseCase,
   UpdateBusinessAppearanceUseCase,
   UpdateBusinessBookingPoliciesUseCase,
@@ -43,6 +45,9 @@ export class BusinessUseCaseFactory {
 
   @Inject(IFindAllRegisteredBusinessesUseCase)
   public readonly findAllRegisteredBusinessesUseCase: FindAllRegisteredBusinessesUseCase;
+
+  @Inject(IFindBusinessByIdUseCase)
+  public readonly findBusinessByIdUseCase: FindBusinessByIdUseCase;
 
   @Inject(IUpdateBusinessBrandDetailsUseCase)
   public readonly updateBusinessBrandDetailsUseCase: UpdateBusinessBrandDetailsUseCase;

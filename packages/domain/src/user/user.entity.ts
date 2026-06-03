@@ -243,6 +243,21 @@ export class User {
     return this.props.isDeleted;
   }
 
+  acceptInvite(hashedPassword: string, updatedBy: string): User {
+    return new User({
+      ...this.props,
+      password: hashedPassword,
+      status: 'active',
+      emailVerified: true,
+      updatedAt: new Date(),
+      updatedBy,
+    });
+  }
+
+  assignBusiness(businessId: string, updatedBy: string): User {
+    return new User({ ...this.props, businessId, updatedAt: new Date(), updatedBy });
+  }
+
   updateWorkingHours({
     userWorkingHours,
     updatedBy,

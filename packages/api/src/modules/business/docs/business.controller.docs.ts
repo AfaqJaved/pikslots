@@ -17,6 +17,20 @@ import { UpdateBusinessHoursDto } from '../dto/update.business.hours.dto';
 import { UpdateBusinessLinksDto } from '../dto/update.business.links.dto';
 import { UpdateBusinessContactDetailsDto } from '../dto/update.business.contact.details.dto';
 
+export const GetBusinessByIdDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Get a business by ID' }),
+    ApiParam({ name: 'id', description: 'Business UUID', example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7b' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Business returned successfully',
+      schema: { example: { data: { id: 'uuid', name: "Joe's Barbershop", slug: 'joes-barbershop', status: 'active' } } },
+    }),
+    ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Business not found', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Business suspended or inactive', type: PikslotsBaseErrorResponse }),
+    ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized', type: PikslotsBaseErrorResponse }),
+  );
+
 export const GetAllBusinessesDocs = () =>
   applyDecorators(
     ApiOperation({

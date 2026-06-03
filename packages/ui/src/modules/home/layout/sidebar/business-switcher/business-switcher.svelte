@@ -4,7 +4,7 @@
 	import { useSidebar } from '$lib/components/ui/sidebar/index.js';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import type { BusinessResponse, GetAllBusinessesResponse } from '@pikslots/shared';
+	import type { BusinessResponse } from '@pikslots/shared';
 	import { authStore } from '$stores/auth.svelte';
 	import { businessStore } from '$stores/business.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -13,7 +13,9 @@
 	import { getAllBusinessesQueryOptions } from '../../../../api/business/get.all.businesses.query';
 
 	let newBusinessDialogOpen = $state(false);
-	const businessesQuery = createQuery(() => getAllBusinessesQueryOptions());
+	let callToGetAllBusinesses = $state(false);
+
+	const businessesQuery = createQuery(() => getAllBusinessesQueryOptions(callToGetAllBusinesses));
 	const sidebar = useSidebar();
 	let activeBusiness = $derived(businessStore.selectedBusiness);
 
@@ -26,20 +28,22 @@
 	};
 
 	$effect(() => {
+		if (authStore.getPayloadData()?.role === 'Platform Owner') callToGetAllBusinesses = true;
+
 		if (!businessStore.hasSelectedBusiness && businessesQuery.data.length > 0)
 			businessStore.setSelectedBusiness(businessesQuery.data[0]);
-
-		// refetch all the new business when dialog closses
-		if (!newBusinessDialogOpen) businessesQuery.refetch();
 	});
 </script>
 
-<NewBusinessDialog bind:open={newBusinessDialogOpen} />
+<NewBusinessDialog bind:open={newBusinessDialogOpen} refetchAllBusiness={businessesQuery.refetch} />
 
 {#if authStore.getPayloadData()?.role === 'Platform Owner'}
 	<Sidebar.Menu>
 		<Sidebar.MenuItem>
-			<DropdownMenu.Root onOpenChange={() => businessesQuery.refetch()}>
+			<DropdownMenu.Root
+				onOpenChange={() =>
+					authStore.getPayloadData()?.role === 'Platform Owner' && businessesQuery.refetch()}
+			>
 				<DropdownMenu.Trigger>
 					{#snippet child({ props })}
 						<Sidebar.MenuButton

@@ -56,7 +56,7 @@
 	},
 	"dependencies": {
 		"@fontsource-variable/fira-code": "^5.2.7",
-		"@lucide/svelte": "^1.14.0",
+		"@lucide/svelte": "^1.17.0",
 		"@pikslots/shared": "workspace:*",
 		"@tanstack/svelte-query": "^6.1.29",
 		"@tanstack/svelte-query-devtools": "^6.1.33",

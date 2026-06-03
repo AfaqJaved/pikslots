@@ -7,4 +7,7 @@ export const USER_ENDPOINTS = {
   BUSINESS_OWNERS: '/users/business-owners',
   BY_ROLE: '/users/by-role',
   UPDATE_WORKING_HOURS: '/users/:userId/working-hours',
+  BUSINESS_USERS: '/users/business/:businessId',
+  REQUEST_INVITE_OTP: '/users/invite/request-otp',
+  ACCEPT_INVITE: '/users/invite/accept',
 } as const;

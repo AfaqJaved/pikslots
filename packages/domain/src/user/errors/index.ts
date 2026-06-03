@@ -1,4 +1,5 @@
 import type { ErrorShape } from '../../shared';
+import type { UserStatus } from '../types';
 
 /** A user with the same email or username already exists. @example { kind: 'user_already_exists', message: 'Email already registered', timestamp, field: 'email' } */
 export type UserAlreadyExistsError = ErrorShape & {
@@ -73,4 +74,16 @@ export type WorkingHoursUpdateNotAuthorizedError = ErrorShape & {
   kind: 'working_hours_update_not_authorized';
   updaterRole: string;
   targetRole: string;
+};
+
+/** User account has role 'No Access' and is not permitted to log in. */
+export type UserNoAccessError = ErrorShape & { kind: 'user_no_access' };
+
+/** The OTP provided does not match or has expired. */
+export type InvalidOtpError = ErrorShape & { kind: 'invalid_otp' };
+
+/** The invite has already been accepted — the user is no longer in 'invited' status. */
+export type InviteAlreadyAcceptedError = ErrorShape & {
+  kind: 'invite_already_accepted';
+  status: UserStatus;
 };

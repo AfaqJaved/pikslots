@@ -19,6 +19,8 @@ export interface InviteUserInput {
   name: FullNameInput;
   role: UserRole;
   phone?: string;
+  businessId?: string;
+  businessName?: string;
 }
 
 export interface LoginUserInput {
@@ -74,6 +76,19 @@ export interface GetUsersByRoleInput {
 
 export type GetUsersByRoleResponse = UserSummary[];
 
+export interface BusinessUserSummary {
+  id: string;
+  username: string;
+  email: string;
+  name: FullNameInput;
+  role: UserRole;
+  phone: string | null;
+  bookingUrl: string;
+  status: 'invited' | 'active' | 'inactive' | 'suspended';
+}
+
+export type GetBusinessUsersResponse = BusinessUserSummary[];
+
 // --- Working Hours ---
 
 export interface UserDayHours {
@@ -93,3 +108,18 @@ export interface UpdateUserWorkingHoursInput {
 }
 
 export type UpdateUserWorkingHoursResponse = UpdateUserWorkingHoursInput;
+
+// --- Invite acceptance ---
+
+export interface RequestInviteOtpInput {
+  token: string;
+}
+
+export interface AcceptInviteInput {
+  token: string;
+  otp: string;
+  newPassword: string;
+}
+
+export type RequestInviteOtpResponse = { message: 'success' };
+export type AcceptInviteResponse = { message: 'success' };

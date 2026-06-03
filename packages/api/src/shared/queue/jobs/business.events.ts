@@ -1,11 +1,6 @@
 import { BusinessRegistrationInviteEvent } from '@pikslots/domain';
 import { Job } from 'bullmq';
-
-export const PIKSLOT_EVENTS = {
-  BUSINESS: {
-    BUSINESS_REGISTRATION_INVITE: 'business.registration.invite',
-  },
-} as const;
+import { PIKSLOT_EVENTS } from './pikslot.events';
 
 // ── Job name type ─────────────────────────────────────────────────────────────
 export type BusinessJobName =

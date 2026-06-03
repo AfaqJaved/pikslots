@@ -28,6 +28,12 @@ export class Env {
   DATABASE_URL: string;
 
   @IsString()
+  BACKEND_PUBLIC_URL: string;
+
+  @IsString()
+  FRONTEND_PUBLIC_URL: string;
+
+  @IsString()
   JWT_SECRET: string;
 
   @IsString()
@@ -38,6 +44,12 @@ export class Env {
 
   @IsString()
   JWT_REFRESH_EXPIRES_IN: string = '7d';
+
+  @IsString()
+  INVITE_JWT_SECRET: string;
+
+  @IsString()
+  INVITE_JWT_EXPIRES_IN: string = '7d';
 
   @IsArray()
   @IsString({ each: true })

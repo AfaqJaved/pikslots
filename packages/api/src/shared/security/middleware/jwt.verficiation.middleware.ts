@@ -10,6 +10,8 @@ const PUBLIC_ROUTES: string[] = [
   '/users/register',
   '/users/login',
   '/users/refresh',
+  '/users/invite/request-otp',
+  '/users/invite/accept',
   '/businesses/register',
 ];
 

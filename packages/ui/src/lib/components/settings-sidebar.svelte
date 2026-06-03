@@ -17,6 +17,7 @@
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import LayoutSidebarLeftCollapse from '@tabler/icons-svelte/icons/layout-sidebar-left-collapse';
 	import { settingsStore } from '$stores/settings.svelte.js';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
 	type SubItem = { label: string; href: string };
 
@@ -147,9 +148,9 @@
 </script>
 
 <aside
-	class="flex h-svh w-64 shrink-0 flex-col overflow-y-auto border-r border-l bg-sidebar text-sidebar-foreground"
+	class="flex h-svh w-64 shrink-0 flex-col border-r border-l bg-sidebar text-sidebar-foreground"
 >
-	<div class="flex items-center gap-2 border-b px-4 py-3" style="height: var(--header-height)">
+	<div class="flex shrink-0 items-center gap-2 border-b px-4 py-3" style="height: var(--header-height)">
 		<button
 			onclick={() => settingsStore.toggle()}
 			class="-ms-1 inline-flex size-7 items-center justify-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -159,6 +160,7 @@
 		<span class="text-sm font-semibold">Settings</span>
 	</div>
 
+	<ScrollArea class="min-h-0 flex-1">
 	<div class="flex flex-col gap-1 py-2">
 		{#each menuGroups as group (group.label ?? '__default')}
 			<Sidebar.Group>
@@ -209,4 +211,5 @@
 			</Sidebar.Group>
 		{/each}
 	</div>
+	</ScrollArea>
 </aside>

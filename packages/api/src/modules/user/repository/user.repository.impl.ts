@@ -128,6 +128,25 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
+  async findAllByBusiness(businessId: string): Promise<Result<User[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('users')
+        .selectAll()
+        .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
+        .execute();
+      return ok(rows.map((row) => this.mapper.persistenceToDomain(row)));
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find users by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async findAllByRole(role: UserRole): Promise<Result<User[], InfrastructureError>> {
     try {
       const rows = await this.db

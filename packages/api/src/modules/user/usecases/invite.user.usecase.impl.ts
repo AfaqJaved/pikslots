@@ -1,5 +1,5 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   err,
   InfrastructureError,
@@ -13,9 +13,11 @@ import {
   UserAlreadyExistsError,
 } from '@pikslots/domain';
 import type { UserRepository } from '@pikslots/domain';
-import { Queue } from 'bullmq';
-import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs';
+import { InviteJwtPayload } from '@pikslots/shared';
+import { Env } from 'src/shared/config/env';
+import { PikslotEmailService } from 'src/shared/email/pikslot.email.service';
 import { SecurityContext } from 'src/shared/security/context/security.context';
+import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
 import { v7 as uuidv7 } from 'uuid';
 
 @Injectable()
@@ -23,7 +25,9 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
   constructor(
     @Inject(IUserRepository) private readonly userRepository: UserRepository,
     private readonly securityContext: SecurityContext,
-    // @InjectQueue(PIKSLOT_EVENTS.USER.USER_INVITED) private events: Queue,
+    private readonly emailService: PikslotEmailService,
+    private readonly jwtInviteService: JwtInviteService,
+    private readonly configService: ConfigService<Env, true>,
   ) {}
 
   async execute(
@@ -78,21 +82,49 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
       email: command.email,
       phone: command.phone,
       role: command.role,
-      businessId: null,
-      bookingUrl: '', // TODO: generate booking url
+      businessId: command.businessId ?? null,
+      bookingUrl: '', // contruct the booking url later
       createdBy: this.securityContext.userId, // the id of the logged in user acting as inviter
     });
 
     const saved = await this.userRepository.save(user);
+
     if (!saved.ok) return err(saved.error);
 
-    // await this.events.add(PIKSLOT_EVENTS.USER.USER_INVITED, {
-    //   userId: user.id,
-    //   userEmail: user.email,
-    //   firstName: user.name.firstName,
-    //   lastName: user.name.lastName,
-    //   role: user.role,
-    // });
+    // send invite only when not following roles : business owner ,no access
+    if (
+      command.businessId &&
+      command.businessName &&
+      (user.role === 'Enhanced' ||
+        user.role === 'Admin' ||
+        user.role === 'Standard')
+    ) {
+      const result = await this.emailService.sendEmail({
+        to: user.email,
+        subject: 'Welcome to Pikslots',
+        template: 'user-invite',
+        context: {
+          firstName: user.name.firstName,
+          businessName: command.businessName,
+          acceptUrl: this.buildInviteUrl(user.id, command.businessId),
+        },
+      });
+
+      if (!result.ok) throw new Error(result.error.message);
+    }
+
     return ok({ message: 'success' });
+  }
+
+  private buildInviteUrl(userId: string, businessId: string): string {
+    const token = this.jwtInviteService.signInviteToken<InviteJwtPayload>({
+      userId,
+      businessId,
+    });
+
+    const frontendUrl = this.configService.getOrThrow('FRONTEND_PUBLIC_URL', {
+      infer: true,
+    });
+    return `${frontendUrl}/user-invite?jid=${token}`;
   }
 }

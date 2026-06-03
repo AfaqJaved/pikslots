@@ -1,5 +1,5 @@
 import type { InfrastructureError, UnauthorizedError, Result } from '../../shared';
-import type { UserInactiveError, UserSuspendedError } from '../errors';
+import type { UserInactiveError, UserNoAccessError, UserSuspendedError } from '../errors';
 
 export interface LoginUserCommand {
   usernameOrEmail: string;
@@ -14,7 +14,7 @@ export interface LoginUserUseCase {
   ): Promise<
     Result<
       { accessToken: string; refreshToken: string },
-      UnauthorizedError | UserSuspendedError | UserInactiveError | InfrastructureError
+      UnauthorizedError | UserSuspendedError | UserInactiveError | UserNoAccessError | InfrastructureError
     >
   >;
 }

@@ -1,4 +1,6 @@
 import type {
+	BusinessUserSummary,
+	GetBusinessUsersResponse,
 	GetUserProfileResponse,
 	GetUsersByRoleInput,
 	GetUsersByRoleResponse,
@@ -7,7 +9,8 @@ import type {
 	LoginUserInput,
 	LoginUserResponse,
 	LogoutUserResponse,
-	RefreshUserSessionResponse
+	RefreshUserSessionResponse,
+	UserSummary
 } from '@pikslots/shared';
 
 export type UserProfileModel = GetUserProfileResponse;
@@ -19,3 +22,6 @@ export type UserLogoutResult = LogoutUserResponse;
 export type UserRefreshSessionResult = RefreshUserSessionResponse;
 export type UserByRoleInput = GetUsersByRoleInput;
 export type UserByRoleResult = GetUsersByRoleResponse;
+export type UserModel = UserSummary;
+export type BusinessUserModel = BusinessUserSummary;
+export type BusinessUsersResult = GetBusinessUsersResponse;

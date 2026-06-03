@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  IAcceptInviteUseCase,
+  IFindAllUsersInsideBusinessUseCase,
   IFindUserByIdUseCase,
   IGetAllBusinessOwnersUseCase,
   IGetAllUsersByRole,
@@ -7,9 +9,12 @@ import {
   IInviteUserUseCase,
   ILoginUserUseCase,
   IRefreshUserSessionUseCase,
+  IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 import type {
+  AcceptInviteUseCase,
+  FindAllUsersInsideBusinessUseCase,
   FindUserByIdUseCase,
   GetAllBusinessOwnersUseCase,
   GetAllUsersByRoleUseCase,
@@ -17,6 +22,7 @@ import type {
   InviteUserUseCase,
   LoginUserUseCase,
   RefreshUserSessionUseCase,
+  RequestInviteOtpUseCase,
   UpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 
@@ -45,4 +51,13 @@ export class UserUsecasesFactory {
 
   @Inject(IUpdateUserWorkingHoursUseCase)
   public readonly updateUserWorkingHoursUseCase: UpdateUserWorkingHoursUseCase;
+
+  @Inject(IRequestInviteOtpUseCase)
+  public readonly requestInviteOtpUseCase: RequestInviteOtpUseCase;
+
+  @Inject(IAcceptInviteUseCase)
+  public readonly acceptInviteUseCase: AcceptInviteUseCase;
+
+  @Inject(IFindAllUsersInsideBusinessUseCase)
+  public readonly findAllUsersInsideBusinessUseCase: FindAllUsersInsideBusinessUseCase;
 }

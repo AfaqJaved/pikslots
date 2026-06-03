@@ -7,6 +7,8 @@ export interface InviteUserCommand {
   username: string;
   name: { firstName: string; lastName: string };
   role: UserRole;
+  businessId?: string;
+  businessName?: string;
   phone?: string;
 }
 

@@ -7,11 +7,25 @@
 	import { page } from '$app/stores';
 	import PikslotHeader from './header/pikslot-header.svelte';
 	import PikslotsSidebar from './sidebar/pikslots-sidebar.svelte';
+	import { getBusinessByIdQueryOptions } from '../../api/business/get.business.by.id.query';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { businessStore } from '$stores/business.svelte';
 
 	let { children } = $props();
+	let callGetBusinessById = $state<boolean>(false);
+	const businessFindByIdQuery = createQuery(() =>
+		getBusinessByIdQueryOptions(callGetBusinessById, authStore.getPayloadData()?.businessId ?? '')
+	);
 
 	$effect(() => {
 		if (!authStore.isInitializing && !authStore.isAuthenticated) goto('/login');
+		if (
+			authStore.getPayloadData()?.role === 'Business Owner' ||
+			authStore.getPayloadData()?.role === 'Admin'
+		)
+			callGetBusinessById = true;
+
+		if (businessFindByIdQuery.data) businessStore.setSelectedBusiness(businessFindByIdQuery.data);
 	});
 
 	$effect(() => {

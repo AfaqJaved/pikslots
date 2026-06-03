@@ -21,6 +21,7 @@ import { InviteUserDto } from './dto/invite.user.dto';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
 import {
   GetAllBusinessOwnersDocs,
+  GetBusinessUsersDocs,
   GetUsersByRoleDocs,
   GetUserProfileDocs,
   InviteUserDocs,
@@ -33,18 +34,26 @@ import { GetUsersByRoleDto } from './dto/get.users.by.role.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
+  AcceptInviteResponse,
+  BusinessUserSummary,
   GetAllBusinessOwnersResponse,
+  GetBusinessUsersResponse,
   GetUsersByRoleResponse,
   GetUserProfileResponse,
   InviteUserResponse,
   LoginUserResponse,
   LogoutUserResponse,
   RefreshUserSessionResponse,
+  RequestInviteOtpResponse,
   UpdateUserWorkingHoursResponse,
   UserSummary,
 } from '@pikslots/shared';
 import { UpdateUserWorkingHoursDto } from './dto/update.user.working.hours.dto';
+import { RequestInviteOtpDto } from './dto/request.invite.otp.dto';
+import { AcceptInviteDto } from './dto/accept.invite.dto';
 import { SecurityContext } from 'src/shared/security/context/security.context';
+import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
+import { InviteJwtPayload } from '@pikslots/shared';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/shared/config/env';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
@@ -57,6 +66,7 @@ export class UserController {
     private readonly userUseCaseFactory: UserUsecasesFactory,
     private readonly configService: ConfigService<Env, true>,
     private readonly securityContext: SecurityContext,
+    private readonly jwtInviteService: JwtInviteService,
   ) {}
 
   @GetAllBusinessOwnersDocs()
@@ -125,6 +135,42 @@ export class UserController {
     return new PikslotsBaseResponse(users, HttpStatus.OK);
   }
 
+  @GetBusinessUsersDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Get('/business/:businessId')
+  async getBusinessUsers(
+    @Param('businessId') businessId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetBusinessUsersResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.findAllUsersInsideBusinessUseCase.execute(
+        businessId,
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const users: BusinessUserSummary[] = result.value.map((u) => ({
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      name: { firstName: u.name.firstName, lastName: u.name.lastName },
+      role: u.role,
+      phone: u.phone,
+      bookingUrl: u.bookingUrl,
+      status: u.status,
+    }));
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse(users, HttpStatus.OK);
+  }
+
   @GetUserProfileDocs()
   @Get('/me')
   async getUserProfile(
@@ -162,6 +208,7 @@ export class UserController {
 
   @InviteUserDocs()
   @Post('/invite')
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
   async inviteUser(
     @Res({ passthrough: true }) res: Response,
     @Body() inviteUserDto: InviteUserDto,
@@ -255,12 +302,14 @@ export class UserController {
     @Param('userId') userId: string,
     @Body() dto: UpdateUserWorkingHoursDto,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<UpdateUserWorkingHoursResponse>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<UpdateUserWorkingHoursResponse>
   > {
-    const result = await this.userUseCaseFactory.updateUserWorkingHoursUseCase.execute({
-      userId,
-      userWorkingHours: dto,
-    });
+    const result =
+      await this.userUseCaseFactory.updateUserWorkingHoursUseCase.execute({
+        userId,
+        userWorkingHours: dto,
+      });
 
     if (!result.ok) {
       const errorResponse = mapUserError(result.error);
@@ -281,6 +330,66 @@ export class UserController {
         saturday: wh.saturday,
         sunday: wh.sunday,
       },
+      HttpStatus.OK,
+    );
+  }
+
+  @Post('/invite/request-otp')
+  async requestInviteOtp(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: RequestInviteOtpDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<RequestInviteOtpResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.requestInviteOtpUseCase.execute({
+        token: dto.token,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<RequestInviteOtpResponse>(
+      result.value,
+      HttpStatus.OK,
+    );
+  }
+
+  @Post('/invite/accept')
+  async acceptInvite(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: AcceptInviteDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<AcceptInviteResponse>
+  > {
+    const tokenResult =
+      this.jwtInviteService.verifyInviteToken<InviteJwtPayload>(dto.token);
+    if (!tokenResult.ok) {
+      const errorResponse = mapUserError(tokenResult.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const result = await this.userUseCaseFactory.acceptInviteUseCase.execute({
+      userId: tokenResult.value.userId,
+      businessId: tokenResult.value.businessId,
+      otp: dto.otp,
+      newPassword: dto.newPassword,
+    });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<AcceptInviteResponse>(
+      result.value,
       HttpStatus.OK,
     );
   }

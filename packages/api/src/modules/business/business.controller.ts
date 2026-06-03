@@ -29,6 +29,7 @@ import { UpdateBusinessLinksDto } from './dto/update.business.links.dto';
 import { UpdateBusinessContactDetailsDto } from './dto/update.business.contact.details.dto';
 import {
   GetAllBusinessesDocs,
+  GetBusinessByIdDocs,
   RegisterBusinessDocs,
   UpdateBusinessAppearanceDocs,
   UpdateBusinessBookingCustomizationDocs,
@@ -49,6 +50,7 @@ import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response'
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
   GetAllBusinessesResponse,
+  GetBusinessByIdResponse,
   RegisterBusinessResponse,
   UpdateBusinessAppearanceResponse,
   UpdateBusinessBookingCustomizationResponse,
@@ -99,6 +101,63 @@ export class BusinessController {
 
     res.status(HttpStatus.CREATED);
     return new PikslotsBaseResponse(result.value, HttpStatus.CREATED);
+  }
+
+  @GetBusinessByIdDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Get(':id')
+  async getBusinessById(
+    @Res({ passthrough: true }) res: Response,
+    @Param('id') id: string,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetBusinessByIdResponse>
+  > {
+    const result =
+      await this.businessUseCaseFactory.findBusinessByIdUseCase.execute(id);
+
+    if (!result.ok) {
+      const errorResponse = mapBusinessError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const b = result.value;
+    const response: GetBusinessByIdResponse = {
+      id: b.id,
+      ownerId: b.ownerId,
+      slug: b.slug,
+      name: b.name,
+      industry: b.industry,
+      about: b.about,
+      appearInSearchResults: b.appearInSearchResults,
+      status: b.status,
+      suspendedReason: b.suspendedReason,
+      brandDetail: b.brandDetail,
+      brandAppearanceDetails: b.brandApperanceDetails,
+      locationDetails: b.locationDetails,
+      bookingPolicies: b.bookingPolicies,
+      bookingSetup: b.bookingSetup,
+      bookingContactFields: b.bookingContactFields,
+      bookingCustomization: b.bookingCustomization,
+      bookingLabelOverrides: b.bookingLabelOverrides,
+      businessHours: b.businessHours,
+      businessLinks: b.businessLinks,
+      contactDetails: b.contactDetails,
+      teamNotifications: b.teamNotifications,
+      customerNotifications: b.customerNotifications,
+      notificationCustomization: b.notificationCustomization,
+      subscriptionPlan: b.subscriptionPlan,
+      subscriptionStatus: b.subscriptionStatus,
+      trialEndsAt: b.trialEndsAt,
+      createdAt: b.createdAt,
+      createdBy: b.createdBy,
+      updatedAt: b.updatedAt,
+      updatedBy: b.updatedBy,
+    };
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse(response, HttpStatus.OK);
   }
 
   @GetAllBusinessesDocs()

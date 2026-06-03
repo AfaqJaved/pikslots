@@ -5,6 +5,8 @@ import { GetUserProfileUseCaseImpl } from './get.user.profile.usecase.impl';
 import { GetAllBusinessOwnersUseCaseImpl } from './get.all.business.owners.usecase.impl';
 import { GetAllUsersByRoleUseCaseImpl } from './get.all.users.by.role.usecase.impl';
 import {
+  IAcceptInviteUseCase,
+  IFindAllUsersInsideBusinessUseCase,
   IFindUserByIdUseCase,
   IGetAllBusinessOwnersUseCase,
   IGetAllUsersByRole,
@@ -12,19 +14,38 @@ import {
   IInviteUserUseCase,
   ILoginUserUseCase,
   IRefreshUserSessionUseCase,
+  IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
 import { LoginUserUseCaseImpl } from './login.user.usecase.impl';
 import { RefreshUserSessionUseCaseImpl } from './refresh.user.session.usecase.impl';
 import { UpdateUserWorkingHoursUseCaseImpl } from './update.user.working.hours.usecase.impl';
+import { RequestInviteOtpUseCaseImpl } from './request.invite.otp.usecase.impl';
+import { AcceptInviteUseCaseImpl } from './accept.invite.usecase.impl';
+import { FindAllUsersInsideBusinessUseCaseImpl } from './find.all.users.inside.business.usecase.impl';
 
 export const USER_USECASES: Provider[] = [
   { useClass: InviteUserUsecaseImpl, provide: IInviteUserUseCase },
   { useClass: FindUserByIdUseCaseImpl, provide: IFindUserByIdUseCase },
   { useClass: GetUserProfileUseCaseImpl, provide: IGetUserProfileUseCase },
-  { useClass: GetAllBusinessOwnersUseCaseImpl, provide: IGetAllBusinessOwnersUseCase },
+  {
+    useClass: GetAllBusinessOwnersUseCaseImpl,
+    provide: IGetAllBusinessOwnersUseCase,
+  },
   { useClass: GetAllUsersByRoleUseCaseImpl, provide: IGetAllUsersByRole },
   { useClass: LoginUserUseCaseImpl, provide: ILoginUserUseCase },
-  { useClass: RefreshUserSessionUseCaseImpl, provide: IRefreshUserSessionUseCase },
-  { useClass: UpdateUserWorkingHoursUseCaseImpl, provide: IUpdateUserWorkingHoursUseCase },
+  {
+    useClass: RefreshUserSessionUseCaseImpl,
+    provide: IRefreshUserSessionUseCase,
+  },
+  {
+    useClass: UpdateUserWorkingHoursUseCaseImpl,
+    provide: IUpdateUserWorkingHoursUseCase,
+  },
+  { useClass: RequestInviteOtpUseCaseImpl, provide: IRequestInviteOtpUseCase },
+  { useClass: AcceptInviteUseCaseImpl, provide: IAcceptInviteUseCase },
+  {
+    useClass: FindAllUsersInsideBusinessUseCaseImpl,
+    provide: IFindAllUsersInsideBusinessUseCase,
+  },
 ];

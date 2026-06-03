@@ -4,16 +4,21 @@ import { err, ok, Result } from '@pikslots/domain';
 import type { EmailSendingFailedError } from './errors';
 
 export type EmailTemplateContextMap = {
-  'welcome': {
+  welcome: {
     firstName: string;
     email: string;
     role: string;
     acceptUrl: string;
   };
-  'business-invite': {
+  'user-invite': {
     firstName: string;
     businessName: string;
     acceptUrl: string;
+  };
+  otp: {
+    firstName: string;
+    otp: string;
+    otpExpiryInMins: number;
   };
 };
 

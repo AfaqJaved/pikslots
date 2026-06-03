@@ -1,5 +1,6 @@
 import {
   IFindAllRegisteredBusinessesUseCase,
+  IFindBusinessByIdUseCase,
   IRegisterBusinessUseCase,
   IUpdateBusinessAppearanceUseCase,
   IUpdateBusinessBrandDetailsUseCase,
@@ -19,6 +20,7 @@ import {
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
 import { Provider } from '@nestjs/common';
 import { FindAllRegisteredBusinessesUseCaseImpl } from './find.all.registered.businesses.usecase.impl';
+import { FindBusinessByIdUseCaseImpl } from './find.business.by.id.usecase.impl';
 import { UpdateBusinessBrandDetailsUseCaseImpl } from './update.business.brand.details.usecase.impl';
 import { UpdateBusinessAppearanceUseCaseImpl } from './update.business.appearance.usecase.impl';
 import { UpdateBusinessLocationUseCaseImpl } from './update.business.location.usecase.impl';
@@ -42,6 +44,10 @@ export const BUSINESS_USECASES: Provider[] = [
   {
     useClass: FindAllRegisteredBusinessesUseCaseImpl,
     provide: IFindAllRegisteredBusinessesUseCase,
+  },
+  {
+    useClass: FindBusinessByIdUseCaseImpl,
+    provide: IFindBusinessByIdUseCase,
   },
   {
     useClass: UpdateBusinessBrandDetailsUseCaseImpl,

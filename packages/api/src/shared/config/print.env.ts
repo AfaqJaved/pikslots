@@ -9,6 +9,8 @@ export class PrintLoadedEnv {
     'DATABASE_URL',
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
+    'INVITE_JWT_SECRET',
+    'INVITE_JWT_EXPIRES_IN',
     'REDIS_PASSWORD',
     'MAIL_HOST',
     'MAIL_PORT',
@@ -24,6 +26,8 @@ export class PrintLoadedEnv {
     'JWT_EXPIRES_IN',
     'JWT_REFRESH_EXPIRES_IN',
     'JWT_REFRESH_SECRET',
+    'INVITE_JWT_SECRET',
+    'INVITE_JWT_EXPIRES_IN',
     'CORS_ORIGINS',
     'REDIS_HOST',
     'REDIS_PORT',
@@ -32,6 +36,8 @@ export class PrintLoadedEnv {
     'MAIL_USER',
     'MAIL_PASS',
     'MAIL_FROM',
+    'FRONTEND_PUBLIC_URL',
+    'BACKEND_PUBLIC_URL',
   ];
 
   constructor(private readonly configService: ConfigService<Env, true>) {}

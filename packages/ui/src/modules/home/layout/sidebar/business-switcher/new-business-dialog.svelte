@@ -15,7 +15,10 @@
 	import { getUsersByRoleQueryOptions } from '../../../../api/user/get.users.by.role.query';
 	import { InviteOwnerFormSchema, CreateBusinessFormSchema } from './validations/schema';
 
-	let { open = $bindable(false) }: { open: boolean } = $props();
+	let {
+		refetchAllBusiness,
+		open = $bindable(false)
+	}: { open: boolean; refetchAllBusiness: () => void } = $props();
 
 	let step = $state<1 | 2>(1);
 
@@ -90,6 +93,8 @@
 					console.log(form.data);
 					registerMutation.mutate({
 						ownerId: form.data.ownerId,
+						ownerName: `${$inviteForm.firstName} ${$inviteForm.lastName}`,
+						ownerEmail: $inviteForm.email,
 						slug: form.data.slug,
 						name: form.data.businessName,
 						industry: form.data.industry,
@@ -116,6 +121,7 @@
 			toast.success('Business created successfully');
 			open = false;
 			resetForm();
+			refetchAllBusiness();
 		}
 		if (registerMutation.isError) {
 			toast.error(registerMutation.error?.message ?? 'Failed to create business');
@@ -143,7 +149,12 @@
 		if (!v) resetForm();
 	}}
 >
-	<Sheet.Content side="top" class="mx-auto my-12 flex w-full flex-col gap-0 sm:max-w-lg" interactOutsideBehavior="ignore" escapeKeydownBehavior="ignore">
+	<Sheet.Content
+		side="top"
+		class="mx-auto my-12 flex w-full flex-col gap-0 sm:max-w-lg"
+		interactOutsideBehavior="ignore"
+		escapeKeydownBehavior="ignore"
+	>
 		<Sheet.Header class="px-6 pt-6">
 			<Sheet.Title>New Business</Sheet.Title>
 			<Sheet.Description>

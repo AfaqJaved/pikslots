@@ -11,11 +11,12 @@ export const getAllBusinesses = async (): Promise<BusinessModel[]> => {
 	return data.data;
 };
 
-export const getAllBusinessesQueryOptions = () =>
+export const getAllBusinessesQueryOptions = (enabled: boolean) =>
 	queryOptions({
 		queryKey: ['businesses'],
 		queryFn: getAllBusinesses,
 		staleTime: 0,
+		enabled,
 		gcTime: 0,
 		initialData: []
 	});

@@ -1,0 +1,154 @@
+<html lang='en'>
+  <head>
+    <meta name='viewport' content='width=device-width' />
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Your verification code</title>
+    <link
+      href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Roboto:wght@400;500&display=swap'
+      rel='stylesheet'
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f5f0f5;
+        font-family:
+          'Roboto',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #1a1523;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrapper {
+        width: 100%;
+        padding: 40px 16px;
+        background-color: #f5f0f5;
+      }
+
+      .container {
+        max-width: 520px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e8e0e8;
+      }
+
+      .header {
+        padding: 32px 40px 28px;
+        border-bottom: 1px solid #e8e0e8;
+      }
+
+      .logo {
+        font-family: 'Fira Code', 'Roboto', monospace;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1523;
+        letter-spacing: -0.02em;
+      }
+
+      .body {
+        padding: 40px 40px 44px;
+      }
+
+      .greeting {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a1523;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+
+      .intro {
+        color: #6b6075;
+        font-size: 14px;
+        margin-bottom: 32px;
+        line-height: 1.7;
+      }
+
+      .otp-box {
+        display: inline-block;
+        background-color: #f5f0f5;
+        border: 1px solid #e8e0e8;
+        padding: 16px 32px;
+        font-family: 'Fira Code', monospace;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        color: #1a1523;
+        margin-bottom: 28px;
+      }
+
+      .expiry {
+        font-size: 12px;
+        color: #6b6075;
+        margin-top: 16px;
+      }
+
+      .footer {
+        padding: 20px 40px 28px;
+        border-top: 1px solid #e8e0e8;
+      }
+
+      .footer-text {
+        font-size: 12px;
+        color: #6b6075;
+        line-height: 1.6;
+      }
+
+      @media only screen and (max-width: 560px) {
+        .header,
+        .body,
+        .footer {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+        .greeting {
+          font-size: 18px;
+        }
+        .otp-box {
+          font-size: 24px;
+          padding: 14px 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class='wrapper'>
+      <div class='container'>
+
+        <div class='header'>
+          <span class='logo'>Pikslots</span>
+        </div>
+
+        <div class='body'>
+          <p class='greeting'>Hi {{firstName}},</p>
+          <p class='intro'>
+            Use the code below to verify your identity and complete your account
+            setup.
+          </p>
+          <div class='otp-box'>{{otp}}</div>
+          <p class='expiry'>This code expires in
+            {{otpExpiryInMins}}
+            minutes. Do not share it with anyone.</p>
+        </div>
+
+        <div class='footer'>
+          <p class='footer-text'>
+            © 2026 Pikslots. All rights reserved.<br />
+            If you didn't request this code, you can safely ignore this email.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>

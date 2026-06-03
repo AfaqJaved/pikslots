@@ -17,6 +17,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUserProfileQueryOptions } from '../../api/user/get.user.profile.query';
+	import { authStore } from '$stores/auth.svelte';
 
 	const userQuery = createQuery(() => getUserProfileQueryOptions());
 
@@ -28,14 +29,54 @@
 
 	// ── Working hours ──────────────────────────────────────────────
 	const workingHoursTimes = [
-		'12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
-		'3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM',
-		'6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM',
-		'9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-		'12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-		'3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM',
-		'6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM',
-		'9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'
+		'12:00 AM',
+		'12:30 AM',
+		'1:00 AM',
+		'1:30 AM',
+		'2:00 AM',
+		'2:30 AM',
+		'3:00 AM',
+		'3:30 AM',
+		'4:00 AM',
+		'4:30 AM',
+		'5:00 AM',
+		'5:30 AM',
+		'6:00 AM',
+		'6:30 AM',
+		'7:00 AM',
+		'7:30 AM',
+		'8:00 AM',
+		'8:30 AM',
+		'9:00 AM',
+		'9:30 AM',
+		'10:00 AM',
+		'10:30 AM',
+		'11:00 AM',
+		'11:30 AM',
+		'12:00 PM',
+		'12:30 PM',
+		'1:00 PM',
+		'1:30 PM',
+		'2:00 PM',
+		'2:30 PM',
+		'3:00 PM',
+		'3:30 PM',
+		'4:00 PM',
+		'4:30 PM',
+		'5:00 PM',
+		'5:30 PM',
+		'6:00 PM',
+		'6:30 PM',
+		'7:00 PM',
+		'7:30 PM',
+		'8:00 PM',
+		'8:30 PM',
+		'9:00 PM',
+		'9:30 PM',
+		'10:00 PM',
+		'10:30 PM',
+		'11:00 PM',
+		'11:30 PM'
 	];
 
 	type DaySchedule = { label: string; enabled: boolean; start: string; end: string };
@@ -57,30 +98,102 @@
 
 	// ── Breaks ─────────────────────────────────────────────────────
 	const breakTimes = [
-		'12:00 AM', '12:15 AM', '12:30 AM', '12:45 AM',
-		'1:00 AM', '1:15 AM', '1:30 AM', '1:45 AM',
-		'2:00 AM', '2:15 AM', '2:30 AM', '2:45 AM',
-		'3:00 AM', '3:15 AM', '3:30 AM', '3:45 AM',
-		'4:00 AM', '4:15 AM', '4:30 AM', '4:45 AM',
-		'5:00 AM', '5:15 AM', '5:30 AM', '5:45 AM',
-		'6:00 AM', '6:15 AM', '6:30 AM', '6:45 AM',
-		'7:00 AM', '7:15 AM', '7:30 AM', '7:45 AM',
-		'8:00 AM', '8:15 AM', '8:30 AM', '8:45 AM',
-		'9:00 AM', '9:15 AM', '9:30 AM', '9:45 AM',
-		'10:00 AM', '10:15 AM', '10:30 AM', '10:45 AM',
-		'11:00 AM', '11:15 AM', '11:30 AM', '11:45 AM',
-		'12:00 PM', '12:15 PM', '12:30 PM', '12:45 PM',
-		'1:00 PM', '1:15 PM', '1:30 PM', '1:45 PM',
-		'2:00 PM', '2:15 PM', '2:30 PM', '2:45 PM',
-		'3:00 PM', '3:15 PM', '3:30 PM', '3:45 PM',
-		'4:00 PM', '4:15 PM', '4:30 PM', '4:45 PM',
-		'5:00 PM', '5:15 PM', '5:30 PM', '5:45 PM',
-		'6:00 PM', '6:15 PM', '6:30 PM', '6:45 PM',
-		'7:00 PM', '7:15 PM', '7:30 PM', '7:45 PM',
-		'8:00 PM', '8:15 PM', '8:30 PM', '8:45 PM',
-		'9:00 PM', '9:15 PM', '9:30 PM', '9:45 PM',
-		'10:00 PM', '10:15 PM', '10:30 PM', '10:45 PM',
-		'11:00 PM', '11:15 PM', '11:30 PM', '11:45 PM'
+		'12:00 AM',
+		'12:15 AM',
+		'12:30 AM',
+		'12:45 AM',
+		'1:00 AM',
+		'1:15 AM',
+		'1:30 AM',
+		'1:45 AM',
+		'2:00 AM',
+		'2:15 AM',
+		'2:30 AM',
+		'2:45 AM',
+		'3:00 AM',
+		'3:15 AM',
+		'3:30 AM',
+		'3:45 AM',
+		'4:00 AM',
+		'4:15 AM',
+		'4:30 AM',
+		'4:45 AM',
+		'5:00 AM',
+		'5:15 AM',
+		'5:30 AM',
+		'5:45 AM',
+		'6:00 AM',
+		'6:15 AM',
+		'6:30 AM',
+		'6:45 AM',
+		'7:00 AM',
+		'7:15 AM',
+		'7:30 AM',
+		'7:45 AM',
+		'8:00 AM',
+		'8:15 AM',
+		'8:30 AM',
+		'8:45 AM',
+		'9:00 AM',
+		'9:15 AM',
+		'9:30 AM',
+		'9:45 AM',
+		'10:00 AM',
+		'10:15 AM',
+		'10:30 AM',
+		'10:45 AM',
+		'11:00 AM',
+		'11:15 AM',
+		'11:30 AM',
+		'11:45 AM',
+		'12:00 PM',
+		'12:15 PM',
+		'12:30 PM',
+		'12:45 PM',
+		'1:00 PM',
+		'1:15 PM',
+		'1:30 PM',
+		'1:45 PM',
+		'2:00 PM',
+		'2:15 PM',
+		'2:30 PM',
+		'2:45 PM',
+		'3:00 PM',
+		'3:15 PM',
+		'3:30 PM',
+		'3:45 PM',
+		'4:00 PM',
+		'4:15 PM',
+		'4:30 PM',
+		'4:45 PM',
+		'5:00 PM',
+		'5:15 PM',
+		'5:30 PM',
+		'5:45 PM',
+		'6:00 PM',
+		'6:15 PM',
+		'6:30 PM',
+		'6:45 PM',
+		'7:00 PM',
+		'7:15 PM',
+		'7:30 PM',
+		'7:45 PM',
+		'8:00 PM',
+		'8:15 PM',
+		'8:30 PM',
+		'8:45 PM',
+		'9:00 PM',
+		'9:15 PM',
+		'9:30 PM',
+		'9:45 PM',
+		'10:00 PM',
+		'10:15 PM',
+		'10:30 PM',
+		'10:45 PM',
+		'11:00 PM',
+		'11:15 PM',
+		'11:30 PM',
+		'11:45 PM'
 	];
 
 	type Break = { start: string; end: string };
@@ -153,50 +266,52 @@
 
 	<!-- Tabs -->
 	<Tabs.Root value="about" class="flex flex-col">
-		<Tabs.List class="h-auto justify-start rounded-none border-b bg-transparent px-6 pb-0">
-			<Tabs.Trigger
-				value="about"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				About
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="integrations"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Integrations
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="services"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Services
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="working-hours"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Working hours
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="breaks"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Breaks
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="time-off"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Time off
-			</Tabs.Trigger>
-			<Tabs.Trigger
-				value="updates"
-				class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-			>
-				Updates
-			</Tabs.Trigger>
-		</Tabs.List>
+		{#if authStore.getPayloadData()?.role !== 'Platform Owner'}
+			<Tabs.List class="h-auto justify-start rounded-none border-b bg-transparent px-6 pb-0">
+				<Tabs.Trigger
+					value="about"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					About
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="integrations"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Integrations
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="services"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Services
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="working-hours"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Working hours
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="breaks"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Breaks
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="time-off"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Time off
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="updates"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+				>
+					Updates
+				</Tabs.Trigger>
+			</Tabs.List>
+		{/if}
 
 		<!-- About -->
 		<Tabs.Content value="about" class="mt-0">
@@ -223,9 +338,7 @@
 					<!-- Hours today -->
 					<div class="flex items-center gap-3 py-2">
 						<Clock size={16} class="shrink-0 text-muted-foreground" />
-						<span class="text-xs">
-							Today &bull; Closed
-						</span>
+						<span class="text-xs"> Today &bull; Closed </span>
 						<div class="ml-1 flex items-center gap-1">
 							<Button variant="ghost" size="icon-sm" class="size-6">
 								<ChevronDown size={14} />
@@ -280,9 +393,10 @@
 
 		<!-- Working hours -->
 		<Tabs.Content value="working-hours" class="mt-0">
-			<div class="w-[60%] flex flex-col px-6">
+			<div class="flex w-[60%] flex-col px-6">
 				<p class="pt-4 pb-2 text-xs text-muted-foreground">
-					What days and hours does your business operate? This determines your business availability.
+					What days and hours does your business operate? This determines your business
+					availability.
 				</p>
 				<div class="flex flex-col divide-y divide-border/90">
 					{#each days as day, i (day.label)}
@@ -344,7 +458,7 @@
 
 		<!-- Breaks -->
 		<Tabs.Content value="breaks" class="mt-0">
-			<div class="w-[60%] flex flex-col px-6">
+			<div class="flex w-[60%] flex-col px-6">
 				<div class="flex flex-col divide-y divide-border/90 pt-4 pb-2">
 					{#each breakDays as day, di (day.label)}
 						<div class="flex flex-col py-2">
@@ -355,7 +469,9 @@
 									class={!day.workday ? 'opacity-40' : ''}
 								/>
 
-								<span class="w-28 text-xs font-medium {!day.workday ? 'text-muted-foreground' : ''}">
+								<span
+									class="w-28 text-xs font-medium {!day.workday ? 'text-muted-foreground' : ''}"
+								>
 									{day.label}
 								</span>
 
@@ -430,7 +546,7 @@
 
 		<!-- Time off -->
 		<Tabs.Content value="time-off" class="mt-0">
-			<div class="w-[60%] flex flex-col px-6">
+			<div class="flex w-[60%] flex-col px-6">
 				<div class="pt-4 pb-2">
 					<Button variant="link" class="h-auto gap-1.5 p-0 text-xs font-medium">
 						<Plus size={14} />

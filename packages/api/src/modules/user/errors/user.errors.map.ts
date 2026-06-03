@@ -1,11 +1,14 @@
 import { HttpStatus } from '@nestjs/common';
 import type {
   InfrastructureError,
+  InviteAlreadyAcceptedError,
+  InvalidOtpError,
   InviterNotAuthorizedError,
   RoleQueryNotAuthorizedError,
   UnauthorizedError,
   UserAlreadyExistsError,
   UserNotFoundError,
+  UserNoAccessError,
   UserSuspendedError,
   UserInactiveError,
   ValidationError,
@@ -20,8 +23,11 @@ type UserError =
   | UnauthorizedError
   | UserNotFoundError
   | UserInactiveError
+  | UserNoAccessError
   | UserSuspendedError
   | WorkingHoursUpdateNotAuthorizedError
+  | InvalidOtpError
+  | InviteAlreadyAcceptedError
   | InfrastructureError
   | ValidationError;
 
@@ -43,10 +49,16 @@ const userErrorMap: Record<
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   user_inactive: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
+  user_no_access: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   unauthorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
   validation: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.BAD_REQUEST),
+  invalid_otp: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.UNPROCESSABLE_ENTITY),
+  invite_already_accepted: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.CONFLICT),
   infrastructure: () =>
     new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',

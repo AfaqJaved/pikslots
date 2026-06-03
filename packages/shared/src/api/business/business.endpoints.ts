@@ -1,6 +1,7 @@
 export const BUSINESS_ENDPOINTS = {
   REGISTER: '/businesses/register',
   GET_ALL: '/businesses',
+  GET_BY_ID: '/businesses/:id',
   UPDATE_BRAND_DETAILS: '/businesses/:id/brand-details',
   UPDATE_APPEARANCE: '/businesses/:id/appearance',
   UPDATE_LOCATION: '/businesses/:id/location',

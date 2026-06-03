@@ -4,6 +4,8 @@ import type { BusinessIndustry } from '../types/';
 
 export interface CreateBusinessCommand {
   ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
   slug: string;
   name: string;
   industry: BusinessIndustry;

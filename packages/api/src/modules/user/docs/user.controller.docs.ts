@@ -242,6 +242,44 @@ export const LogoutUserDocs = () =>
     }),
   );
 
+export const GetBusinessUsersDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Get all users belonging to a business' }),
+    ApiParam({ name: 'businessId', description: 'Business ID', example: 'uuid' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'List of users in the business returned successfully',
+      schema: {
+        example: {
+          data: [
+            {
+              id: 'uuid',
+              username: 'john_doe',
+              email: 'john@example.com',
+              name: { firstName: 'John', lastName: 'Doe' },
+              role: 'Standard',
+              phone: '+12025551234',
+              bookingUrl: 'https://pikslots.com/john_doe',
+              status: 'active',
+            },
+          ],
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Caller does not have permission to list business users',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
 export const UpdateUserWorkingHoursDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Update working hours for a user' }),

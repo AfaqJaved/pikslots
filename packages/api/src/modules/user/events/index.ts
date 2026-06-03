@@ -1,4 +1,4 @@
-// import { Provider } from '@nestjs/common';
-// import { UserInvitedEvent } from './user.invited.event';
-//
-// export const USER_EVENTS: Provider[] = [UserInvitedEvent];
+import { Provider } from '@nestjs/common';
+import { UserAssignedToBusinessEventImpl } from './user.assigned.to.business.event';
+
+export const USER_EVENTS: Provider[] = [UserAssignedToBusinessEventImpl];
