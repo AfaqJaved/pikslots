@@ -5,7 +5,7 @@
 
 <PikslotEmpty
 	icon={Briefcase}
-	title="No services yet — add what you offer! Test"
+	title="No services yet — add what you offer!"
 	description="Define the services your business provides so customers can start booking them."
 	buttonLabel="Add Service"
 />
