@@ -3,6 +3,7 @@
 @import 'shadcn-svelte/tailwind.css';
 @import '@fontsource-variable/roboto';
 @import '@fontsource-variable/fira-code';
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -35,11 +35,6 @@ import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response'
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
   AcceptInviteResponse,
-  BusinessUserSummary,
-  GetAllBusinessOwnersResponse,
-  GetBusinessUsersResponse,
-  GetUsersByRoleResponse,
-  GetUserProfileResponse,
   InviteUserResponse,
   LoginUserResponse,
   LogoutUserResponse,
@@ -48,6 +43,7 @@ import type {
   UpdateUserWorkingHoursResponse,
   UserSummary,
 } from '@pikslots/shared';
+import { UserResponseMapper } from './mappers/user.response.mapper';
 import { UpdateUserWorkingHoursDto } from './dto/update.user.working.hours.dto';
 import { RequestInviteOtpDto } from './dto/request.invite.otp.dto';
 import { AcceptInviteDto } from './dto/accept.invite.dto';
@@ -75,10 +71,7 @@ export class UserController {
   @Get('/business-owners')
   async getAllBusinessOwners(
     @Res({ passthrough: true }) res: Response,
-  ): Promise<
-    | PikslotsBaseErrorResponse
-    | PikslotsBaseResponse<GetAllBusinessOwnersResponse>
-  > {
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>> {
     const result =
       await this.userUseCaseFactory.getAllUsersByRoleUseCase.execute(
         this.securityContext.role,
@@ -91,15 +84,11 @@ export class UserController {
       return errorResponse;
     }
 
-    const users: UserSummary[] = result.value.map((u) => ({
-      id: u.id,
-      username: u.username,
-      email: u.email,
-      name: { firstName: u.name.firstName, lastName: u.name.lastName },
-    }));
-
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse(users, HttpStatus.OK);
+    return new PikslotsBaseResponse(
+      result.value.map(UserResponseMapper.toUserSummary),
+      HttpStatus.OK,
+    );
   }
 
   @GetUsersByRoleDocs()
@@ -110,7 +99,7 @@ export class UserController {
     @Query() query: GetUsersByRoleDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetUsersByRoleResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>
   > {
     const result =
       await this.userUseCaseFactory.getAllUsersByRoleUseCase.execute(
@@ -124,15 +113,11 @@ export class UserController {
       return errorResponse;
     }
 
-    const users: UserSummary[] = result.value.map((u) => ({
-      id: u.id,
-      username: u.username,
-      email: u.email,
-      name: { firstName: u.name.firstName, lastName: u.name.lastName },
-    }));
-
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse(users, HttpStatus.OK);
+    return new PikslotsBaseResponse(
+      result.value.map(UserResponseMapper.toUserSummary),
+      HttpStatus.OK,
+    );
   }
 
   @GetBusinessUsersDocs()
@@ -143,7 +128,7 @@ export class UserController {
     @Param('businessId') businessId: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetBusinessUsersResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>
   > {
     const result =
       await this.userUseCaseFactory.findAllUsersInsideBusinessUseCase.execute(
@@ -156,19 +141,11 @@ export class UserController {
       return errorResponse;
     }
 
-    const users: BusinessUserSummary[] = result.value.map((u) => ({
-      id: u.id,
-      username: u.username,
-      email: u.email,
-      name: { firstName: u.name.firstName, lastName: u.name.lastName },
-      role: u.role,
-      phone: u.phone,
-      bookingUrl: u.bookingUrl,
-      status: u.status,
-    }));
-
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse(users, HttpStatus.OK);
+    return new PikslotsBaseResponse(
+      result.value.map(UserResponseMapper.toUserSummary),
+      HttpStatus.OK,
+    );
   }
 
   @GetUserProfileDocs()
@@ -176,7 +153,7 @@ export class UserController {
   async getUserProfile(
     @Res({ passthrough: true }) res: Response,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<GetUserProfileResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary>
   > {
     const result = await this.userUseCaseFactory.getUserProfileUseCase.execute(
       this.securityContext.userId,
@@ -188,20 +165,9 @@ export class UserController {
       return errorResponse;
     }
 
-    const user = result.value;
     res.status(HttpStatus.OK);
-
-    return new PikslotsBaseResponse<GetUserProfileResponse>(
-      {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        name: { firstName: user.name.firstName, lastName: user.name.lastName },
-        role: user.role,
-        avatarUrl: user.avatarUrl,
-        bookingUrl: user.bookingUrl,
-      },
+    return new PikslotsBaseResponse<UserSummary>(
+      UserResponseMapper.toUserSummary(result.value),
       HttpStatus.OK,
     );
   }

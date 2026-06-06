@@ -27,13 +27,13 @@
 			<Tabs.List class="h-auto justify-start rounded-none border-b bg-transparent pb-0">
 				<Tabs.Trigger
 					value="reviews"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
 				>
 					Reviews
 				</Tabs.Trigger>
 				<Tabs.Trigger
 					value="preferences"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pb-2 pt-0 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
 				>
 					Preferences
 				</Tabs.Trigger>

@@ -14,87 +14,11 @@
 	import type { BaseErrorResponse } from '@pikslots/shared';
 	import type { AxiosError } from 'axios';
 	import { toast } from 'svelte-sonner';
+	import { DAYS, halfHourTimes, fromHHmm, toHHmm } from '$utils/working-hours';
 
 	const business = $derived(businessStore.selectedBusiness);
 
-	// ── Time conversion helpers ─────────────────────────────────────
-	// '09:00' → '9:00 AM' / '17:00' → '5:00 PM'
-	function fromHHmm(hhmm: string): string {
-		const [h, m] = hhmm.split(':').map(Number);
-		const period = h < 12 ? 'AM' : 'PM';
-		const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-		return `${hour}:${String(m).padStart(2, '0')} ${period}`;
-	}
-
-	// '9:00 AM' → '09:00' / '5:00 PM' → '17:00'
-	function toHHmm(display: string): string {
-		const [time, period] = display.split(' ');
-		let [h, m] = time.split(':').map(Number);
-		if (period === 'AM' && h === 12) h = 0;
-		if (period === 'PM' && h !== 12) h += 12;
-		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-	}
-
-	const times = [
-		'12:00 AM',
-		'12:30 AM',
-		'1:00 AM',
-		'1:30 AM',
-		'2:00 AM',
-		'2:30 AM',
-		'3:00 AM',
-		'3:30 AM',
-		'4:00 AM',
-		'4:30 AM',
-		'5:00 AM',
-		'5:30 AM',
-		'6:00 AM',
-		'6:30 AM',
-		'7:00 AM',
-		'7:30 AM',
-		'8:00 AM',
-		'8:30 AM',
-		'9:00 AM',
-		'9:30 AM',
-		'10:00 AM',
-		'10:30 AM',
-		'11:00 AM',
-		'11:30 AM',
-		'12:00 PM',
-		'12:30 PM',
-		'1:00 PM',
-		'1:30 PM',
-		'2:00 PM',
-		'2:30 PM',
-		'3:00 PM',
-		'3:30 PM',
-		'4:00 PM',
-		'4:30 PM',
-		'5:00 PM',
-		'5:30 PM',
-		'6:00 PM',
-		'6:30 PM',
-		'7:00 PM',
-		'7:30 PM',
-		'8:00 PM',
-		'8:30 PM',
-		'9:00 PM',
-		'9:30 PM',
-		'10:00 PM',
-		'10:30 PM',
-		'11:00 PM',
-		'11:30 PM'
-	];
-
-	const DAYS: { key: WeekDay; label: string }[] = [
-		{ key: 'monday', label: 'Monday' },
-		{ key: 'tuesday', label: 'Tuesday' },
-		{ key: 'wednesday', label: 'Wednesday' },
-		{ key: 'thursday', label: 'Thursday' },
-		{ key: 'friday', label: 'Friday' },
-		{ key: 'saturday', label: 'Saturday' },
-		{ key: 'sunday', label: 'Sunday' }
-	];
+	const times = halfHourTimes;
 
 	type DayState = { enabled: boolean; start: string; end: string };
 

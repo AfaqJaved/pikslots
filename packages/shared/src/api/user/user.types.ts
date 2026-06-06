@@ -50,15 +50,30 @@ export interface RefreshUserSessionResponse {
   accessToken: string;
 }
 
-export interface GetUserProfileResponse {
-  id: string;
-  username: string;
-  email: string;
-  phone: string | null;
-  name: FullNameInput;
-  role: UserRole;
-  avatarUrl: string | null;
-  bookingUrl: string;
+export type UserStatus = 'invited' | 'active' | 'inactive' | 'suspended';
+
+export type SupportedSoundTypes = 'chime' | 'whistle';
+
+export interface UserNotificationPreferences {
+  notificationMode: 'all' | 'focus' | 'none';
+  soundEnabled: boolean;
+  soundType: SupportedSoundTypes;
+}
+
+export interface UserAppointmentReminders {
+  reminderEnabled: boolean;
+  reminderMinutesBefore: number;
+  reminderSoundType: SupportedSoundTypes;
+}
+
+export interface UserWorkingHoursResponse {
+  monday: UserDayHours;
+  tuesday: UserDayHours;
+  wednesday: UserDayHours;
+  thursday: UserDayHours;
+  friday: UserDayHours;
+  saturday: UserDayHours;
+  sunday: UserDayHours;
 }
 
 export interface UserSummary {
@@ -66,28 +81,23 @@ export interface UserSummary {
   username: string;
   email: string;
   name: FullNameInput;
+  phone: string | null;
+  role: UserRole;
+  status: UserStatus;
+  avatarUrl: string | null;
+  emailVerified: boolean;
+  bookingUrl: string;
+  businessId: string | null;
+  lastLoginAt: string | null;
+  suspendedReason: string | null;
+  notificationPreferences: UserNotificationPreferences;
+  appointmentReminders: UserAppointmentReminders;
+  userWorkingHours: UserWorkingHoursResponse;
 }
-
-export type GetAllBusinessOwnersResponse = UserSummary[];
 
 export interface GetUsersByRoleInput {
   role: UserRole;
 }
-
-export type GetUsersByRoleResponse = UserSummary[];
-
-export interface BusinessUserSummary {
-  id: string;
-  username: string;
-  email: string;
-  name: FullNameInput;
-  role: UserRole;
-  phone: string | null;
-  bookingUrl: string;
-  status: 'invited' | 'active' | 'inactive' | 'suspended';
-}
-
-export type GetBusinessUsersResponse = BusinessUserSummary[];
 
 // --- Working Hours ---
 

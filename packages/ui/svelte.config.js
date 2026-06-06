@@ -8,7 +8,8 @@ const config = {
 	},
 	kit: {
 		alias: {
-			$stores: './src/modules/core/store'
+			$stores: './src/modules/core/store',
+			$utils: './src/utils'
 		},
 		adapter: adapter({ fallback: 'index.html' })
 	}
