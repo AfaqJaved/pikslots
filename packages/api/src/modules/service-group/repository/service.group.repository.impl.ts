@@ -4,34 +4,50 @@ import {
   ok,
   InfrastructureError,
   Result,
-  Service,
-  ServiceNotFoundError,
-  ServiceRepository,
+  ServiceGroup,
+  ServiceGroupAlreadyExistsInBusinessError,
+  ServiceGroupNotFoundError,
+  ServiceGroupRepository,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
+import { isUniqueViolation } from 'src/shared/database/helpers/postgres.errors';
 import { PikSlotsDatabase } from 'src/shared/database/schema';
-import { ServicePersistenceMapper } from '../mappers/service.database.mapper';
+import { ServiceGroupPersistenceMapper } from '../mappers/service.group.database.mapper';
 
 @Injectable()
-export class ServiceRepositoryImpl implements ServiceRepository {
-  private readonly mapper = new ServicePersistenceMapper();
+export class ServiceGroupRepositoryImpl implements ServiceGroupRepository {
+  private readonly mapper = new ServiceGroupPersistenceMapper();
 
   constructor(
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
-  async save(service: Service): Promise<Result<void, InfrastructureError>> {
+  async save(
+    group: ServiceGroup,
+  ): Promise<
+    Result<void, ServiceGroupAlreadyExistsInBusinessError | InfrastructureError>
+  > {
     try {
       await this.db
-        .insertInto('services')
-        .values(this.mapper.domainToPersistence(service))
+        .insertInto('service_groups')
+        .values(this.mapper.domainToPersistence(group))
         .execute();
       return ok(undefined);
     } catch (cause) {
+      if (isUniqueViolation(cause)) {
+        return err<ServiceGroupAlreadyExistsInBusinessError>({
+          kind: 'service_group_already_exists',
+          name: group.name,
+          businessId: group.businessId,
+          message: `A service group named '${group.name}' already exists for this business`,
+          timestamp: new Date(),
+        });
+      }
+
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to save service',
+        message: 'Failed to save service group',
         timestamp: new Date(),
         cause,
       });
@@ -41,11 +57,11 @@ export class ServiceRepositoryImpl implements ServiceRepository {
   async findById(
     id: string,
   ): Promise<
-    Result<Service | null, ServiceNotFoundError | InfrastructureError>
+    Result<ServiceGroup | null, ServiceGroupNotFoundError | InfrastructureError>
   > {
     try {
       const row = await this.db
-        .selectFrom('services')
+        .selectFrom('service_groups')
         .selectAll()
         .where('id', '=', id)
         .where('is_deleted', '=', false)
@@ -57,7 +73,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to find service by id',
+        message: 'Failed to find service group by id',
         timestamp: new Date(),
         cause,
       });
@@ -66,10 +82,10 @@ export class ServiceRepositoryImpl implements ServiceRepository {
 
   async findAllByBusiness(
     businessId: string,
-  ): Promise<Result<Service[], InfrastructureError>> {
+  ): Promise<Result<ServiceGroup[], InfrastructureError>> {
     try {
       const rows = await this.db
-        .selectFrom('services')
+        .selectFrom('service_groups')
         .selectAll()
         .where('business_id', '=', businessId)
         .where('is_deleted', '=', false)
@@ -79,7 +95,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to find services by business',
+        message: 'Failed to find service groups by business',
         timestamp: new Date(),
         cause,
       });
@@ -87,22 +103,22 @@ export class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   async update(
-    service: Service,
-  ): Promise<Result<void, ServiceNotFoundError | InfrastructureError>> {
+    group: ServiceGroup,
+  ): Promise<Result<void, ServiceGroupNotFoundError | InfrastructureError>> {
     try {
       const result = await this.db
-        .updateTable('services')
-        .set(this.mapper.domainToPersistence(service))
-        .where('id', '=', service.id)
+        .updateTable('service_groups')
+        .set(this.mapper.domainToPersistence(group))
+        .where('id', '=', group.id)
         .where('is_deleted', '=', false)
         .executeTakeFirst();
 
       if (!result.numUpdatedRows || result.numUpdatedRows === BigInt(0)) {
-        return err<ServiceNotFoundError>({
-          kind: 'service_not_found',
+        return err<ServiceGroupNotFoundError>({
+          kind: 'service_group_not_found',
           by: 'id',
-          value: service.id,
-          message: `Service not found against ${service.id}`,
+          value: group.id,
+          message: `Service group not found against ${group.id}`,
           timestamp: new Date(),
         });
       }
@@ -111,22 +127,22 @@ export class ServiceRepositoryImpl implements ServiceRepository {
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to update service',
+        message: 'Failed to update service group',
         timestamp: new Date(),
         cause,
       });
     }
   }
 
-  async existsByTitle(
-    title: string,
+  async existsByName(
+    name: string,
     businessId: string,
   ): Promise<Result<boolean, InfrastructureError>> {
     try {
       const row = await this.db
-        .selectFrom('services')
+        .selectFrom('service_groups')
         .select('id')
-        .where('title', '=', title)
+        .where('name', '=', name)
         .where('business_id', '=', businessId)
         .where('is_deleted', '=', false)
         .executeTakeFirst();
@@ -135,7 +151,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to check service existence by title',
+        message: 'Failed to check service group existence by name',
         timestamp: new Date(),
         cause,
       });

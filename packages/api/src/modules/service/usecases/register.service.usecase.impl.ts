@@ -8,35 +8,34 @@ import {
   RegisterServiceUseCase,
   Result,
   Service,
-  ServiceAlreadyExistsError,
 } from '@pikslots/domain';
-import type { ServiceRepository } from '@pikslots/domain';
+import type { ServiceRepository, UnauthorizedError } from '@pikslots/domain';
+import { SecurityContext } from 'src/shared/security/context/security.context';
 import { v7 as uuidv7 } from 'uuid';
+
+const UNAUTHORIZED_ERROR: UnauthorizedError = {
+  kind: 'unauthorized',
+  message: 'Can not register service : unauthorized!!!',
+  timestamp: new Date(),
+};
 
 @Injectable()
 export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
   constructor(
     @Inject(IServiceRepository)
     private readonly serviceRepository: ServiceRepository,
+    private readonly securityContext: SecurityContext,
   ) {}
 
   async execute(
     command: RegisterServiceCommand,
-  ): Promise<Result<Service, ServiceAlreadyExistsError | InfrastructureError>> {
-    const titleExists = await this.serviceRepository.existsByTitle(
-      command.title,
-      command.businessId,
-    );
+  ): Promise<Result<Service, UnauthorizedError | InfrastructureError>> {
+    const callerRole = this.securityContext.role;
+    const callerBusinessId = this.securityContext.businessId;
+    const isPartOfSameBusiness = callerBusinessId === command.businessId;
 
-    if (!titleExists.ok) return err(titleExists.error);
-    if (titleExists.value) {
-      return err<ServiceAlreadyExistsError>({
-        kind: 'service_already_exists',
-        field: 'title',
-        message: `A service named '${command.title}' already exists for this business`,
-        timestamp: new Date(),
-      });
-    }
+    if (!Service.canRegisterService(callerRole, isPartOfSameBusiness))
+      return err(UNAUTHORIZED_ERROR);
 
     const service = Service.create({
       id: uuidv7(),
@@ -51,6 +50,7 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     });
 
     const saved = await this.serviceRepository.save(service);
+
     if (!saved.ok) return err(saved.error);
 
     return ok(service);

@@ -1,9 +1,7 @@
-import type { InfrastructureError, Result } from '../../shared';
-import type { ServiceAlreadyExistsError } from '../errors';
+import type { InfrastructureError, Result, UnauthorizedError } from '../../shared';
 import type { Service } from '../service.entity';
 
 export interface RegisterServiceCommand {
-  id: string;
   title: string;
   description: string;
   imagesUrls: string[];
@@ -19,5 +17,5 @@ export const IRegisterServiceUseCase = Symbol('IRegisterServiceUseCase');
 export interface RegisterServiceUseCase {
   execute(
     command: RegisterServiceCommand,
-  ): Promise<Result<Service, ServiceAlreadyExistsError | InfrastructureError>>;
+  ): Promise<Result<Service, UnauthorizedError | InfrastructureError>>;
 }

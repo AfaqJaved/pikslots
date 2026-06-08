@@ -2,16 +2,11 @@
 
 import type { UserRole } from '../user';
 
-export interface ServiceProps {
+export interface ServiceGroupProps {
   readonly id: string;
-  readonly title: string; // should be unique per business
-  readonly description: string;
-  readonly images: string[]; // only 5 images allowed
-  readonly durationInMins: number;
-  readonly bufferTimeInMins: number; // the time between two consecutive services
-  readonly cost: number;
-  readonly isHiddenFromBookingPage: boolean;
+  readonly name: string; // should be unique per business hence need to create custom uniqueness with (name + businessId)
   readonly businessId: string;
+
   // audit
   readonly createdAt: Date;
   readonly createdBy: string;
@@ -24,24 +19,19 @@ export interface ServiceProps {
 
 // ── Create input ──────────────────────────────────────────────────────────────
 
-export interface ServiceCreateInput {
+export interface ServiceGroupCreateInput {
   id: string;
-  title: string;
-  description: string;
-  imagesUrls: string[]; // only 5 images allowed
-  durationInMins: number;
-  bufferTimeInMins: number; // the time between two consecutive services
-  cost: number;
+  name: string;
   businessId: string;
   createdBy: string;
 }
 
 // ── Entity ────────────────────────────────────────────────────────────────────
 
-export class Service {
-  private readonly props: ServiceProps;
+export class ServiceGroup {
+  private readonly props: ServiceGroupProps;
 
-  private constructor(props: ServiceProps) {
+  private constructor(props: ServiceGroupProps) {
     this.props = props;
   }
 
@@ -49,17 +39,11 @@ export class Service {
    * Creates a brand-new Service with defaults applied.
    * Use this in application use-cases, never for rehydrating persisted data.
    */
-  static create(input: ServiceCreateInput): Service {
+  static create(input: ServiceGroupCreateInput): ServiceGroup {
     const now = new Date();
-    return new Service({
+    return new ServiceGroup({
       id: input.id,
-      title: input.title,
-      description: input.description,
-      images: input.imagesUrls,
-      durationInMins: input.durationInMins,
-      bufferTimeInMins: input.bufferTimeInMins,
-      cost: input.cost,
-      isHiddenFromBookingPage: false,
+      name: input.name,
       businessId: input.businessId,
       createdAt: now,
       createdBy: input.createdBy,
@@ -71,7 +55,7 @@ export class Service {
     });
   }
 
-  static canRegisterService(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
+  static canCreateNewServiceGroup(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
     if (callerRole === 'Platform Owner') return true;
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
@@ -84,8 +68,8 @@ export class Service {
    * Reconstitutes a Service from already-validated data (e.g. a database row
    * decoded through ServiceSchema). Never call with raw untrusted input.
    */
-  static reconstitute(props: ServiceProps): Service {
-    return new Service(props);
+  static reconstitute(props: ServiceGroupProps): ServiceGroup {
+    return new ServiceGroup(props);
   }
 
   // ── Identity ───────────────────────────────────────────────────────────────
@@ -94,32 +78,14 @@ export class Service {
     return this.props.id;
   }
 
-  equals(other: Service): boolean {
+  equals(other: ServiceGroup): boolean {
     return this.props.id === other.props.id;
   }
 
   // ── Core fields ────────────────────────────────────────────────────────────
 
-  get title(): string {
-    return this.props.title;
-  }
-  get description(): string {
-    return this.props.description;
-  }
-  get images(): string[] {
-    return this.props.images;
-  }
-  get durationInMins(): number {
-    return this.props.durationInMins;
-  }
-  get bufferTimeInMins(): number {
-    return this.props.bufferTimeInMins;
-  }
-  get cost(): number {
-    return this.props.cost;
-  }
-  get isHiddenFromBookingPage(): boolean {
-    return this.props.isHiddenFromBookingPage;
+  get name(): string {
+    return this.props.name;
   }
   get businessId(): string {
     return this.props.businessId;
