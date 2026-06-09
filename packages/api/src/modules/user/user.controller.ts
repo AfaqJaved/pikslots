@@ -99,9 +99,7 @@ export class UserController {
   async getUsersByRole(
     @Query() query: GetUsersByRoleDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>
-  > {
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>> {
     const result =
       await this.userUseCaseFactory.getAllUsersByRoleUseCase.execute(
         this.securityContext.role,
@@ -128,9 +126,7 @@ export class UserController {
   async getBusinessUsers(
     @Param('businessId') businessId: string,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>
-  > {
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary[]>> {
     const result =
       await this.userUseCaseFactory.findAllUsersInsideBusinessUseCase.execute(
         businessId,
@@ -153,9 +149,7 @@ export class UserController {
   @Get(USER_ENDPOINTS.ME)
   async getUserProfile(
     @Res({ passthrough: true }) res: Response,
-  ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary>
-  > {
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<UserSummary>> {
     const result = await this.userUseCaseFactory.getUserProfileUseCase.execute(
       this.securityContext.userId,
     );
@@ -182,6 +176,8 @@ export class UserController {
   ): Promise<
     PikslotsBaseErrorResponse | PikslotsBaseResponse<InviteUserResponse>
   > {
+    console.log('called');
+
     const result =
       await this.userUseCaseFactory.inviteUserUseCase.execute(inviteUserDto);
 

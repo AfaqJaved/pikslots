@@ -10,6 +10,8 @@ export interface RegisterServiceCommand {
   cost: number;
   businessId: string;
   createdBy: string;
+  serviceGroupsIds: string[];
+  associatedUsers: string[];
 }
 
 export const IRegisterServiceUseCase = Symbol('IRegisterServiceUseCase');

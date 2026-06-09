@@ -11,6 +11,10 @@
 	import Photo from '@tabler/icons-svelte/icons/photo';
 	import Upload from '@tabler/icons-svelte/icons/upload';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
+	import { businessStore } from '$stores/business.svelte';
+	import type { BusinessUserModel } from '../api/user/models/user-model';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -41,13 +45,14 @@
 		teamMemberIds: string[];
 	}
 
-	// ── Mock team data ───────────────────────────────────────────────────────────
+	// ── Queries ──────────────────────────────────────────────────────────────────
 
-	const teamMembers: TeamMember[] = [
-		{ id: '1', name: 'Afaq Javaid', initials: 'AJ' },
-		{ id: '2', name: 'Afaq Javed', initials: 'AJ' }
-	];
+	const userQuery = createQuery(() => ({
+		...getUsersInsideBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id
+	}));
 
+	const teamMembers = $derived<BusinessUserModel[]>(userQuery.data ?? []);
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let title = $state('');
@@ -69,7 +74,9 @@
 	const canCreate = $derived(title.trim().length > 0 && durationRaw.trim().length > 0);
 
 	const filteredTeam = $derived(
-		teamMembers.filter((m) => m.name.toLowerCase().includes(teamSearch.toLowerCase()))
+		teamMembers.filter((m) =>
+			`${m.name.firstName} ${m.name.lastName}`.toLowerCase().includes(teamSearch.toLowerCase())
+		)
 	);
 
 	const allSelected = $derived(selectedMemberIds.size === teamMembers.length);
@@ -198,7 +205,7 @@
 							min="1"
 							bind:value={durationRaw}
 							placeholder="Enter duration"
-							class="pr-12"
+							class="pr-12 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 						/>
 						<span
 							class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground"
@@ -220,7 +227,7 @@
 							min="0"
 							bind:value={bufferRaw}
 							placeholder="Enter buffer time"
-							class="pr-12"
+							class="pr-12 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 						/>
 						<span
 							class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground"
@@ -243,7 +250,7 @@
 							min="0"
 							bind:value={costRaw}
 							placeholder="Enter cost"
-							class="pl-8"
+							class="pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 						/>
 					</div>
 				</div>
@@ -347,10 +354,12 @@
 						/>
 						<Avatar.Root class="size-7 text-xs">
 							<Avatar.Fallback class="bg-primary text-[11px] text-primary-foreground">
-								{member.initials}
+								{member.name.firstName[0]}{member.name.lastName[0]}
 							</Avatar.Fallback>
 						</Avatar.Root>
-						<label for="member-{member.id}" class="cursor-pointer text-sm">{member.name}</label>
+						<label for="member-{member.id}" class="cursor-pointer text-sm"
+							>{member.name.firstName} {member.name.lastName}</label
+						>
 					</div>
 				{/each}
 			</div>
