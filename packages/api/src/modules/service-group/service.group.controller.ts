@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Param,
@@ -18,14 +17,14 @@ import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
 import { mapServiceGroupError } from './errors/service.group.errors.map';
 import { SERVICE_GROUP_ENDPOINTS } from '@pikslots/shared';
-import { CreateServiceGroupDto } from './dto/create.service.group.dto';
+import { RegisterServiceGroupDto } from './dto/create.service.group.dto';
 import {
   CreateServiceGroupDocs,
   FindAllServiceGroupsByBusinessDocs,
 } from './docs/service.group.controller.docs';
 import { ServiceGroupUseCasesFactory } from './factory/service.group.usecases.factory';
 import type {
-  FindAllServiceGroupsByBusinessResponse,
+  RegisterServiceGroupResponse,
   ServiceGroupResponse,
 } from '@pikslots/shared';
 
@@ -40,19 +39,23 @@ export class ServiceGroupController {
   @CreateServiceGroupDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin')
-  @Post(SERVICE_GROUP_ENDPOINTS.CREATE)
-  async createServiceGroup(
+  @Post(SERVICE_GROUP_ENDPOINTS.REGISTER)
+  async registerServiceGroup(
     @Res({ passthrough: true }) res: Response,
-    @Body() dto: CreateServiceGroupDto,
+    @Body() dto: RegisterServiceGroupDto,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<ServiceGroupResponse>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<RegisterServiceGroupResponse>
   > {
     const result =
-      await this.serviceGroupUseCasesFactory.createServiceGroupUseCase.execute({
-        name: dto.name,
-        businessId: dto.businessId,
-        createdBy: this.securityContext.userId,
-      });
+      await this.serviceGroupUseCasesFactory.registerServiceGroupUseCase.execute(
+        {
+          name: dto.name,
+          businessId: dto.businessId,
+          associatedServices: dto.associatedServices,
+          createdBy: this.securityContext.userId,
+        },
+      );
 
     if (!result.ok) {
       const errorResponse = mapServiceGroupError(result.error);
@@ -60,10 +63,9 @@ export class ServiceGroupController {
       return errorResponse;
     }
 
-    const group = result.value;
     res.status(HttpStatus.CREATED);
-    return new PikslotsBaseResponse<ServiceGroupResponse>(
-      { id: group.id, name: group.name, businessId: group.businessId },
+    return new PikslotsBaseResponse<RegisterServiceGroupResponse>(
+      result.value,
       HttpStatus.CREATED,
     );
   }
@@ -74,8 +76,7 @@ export class ServiceGroupController {
     @Res({ passthrough: true }) res: Response,
     @Param('businessId') businessId: string,
   ): Promise<
-    | PikslotsBaseErrorResponse
-    | PikslotsBaseResponse<FindAllServiceGroupsByBusinessResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<ServiceGroupResponse[]>
   > {
     const result =
       await this.serviceGroupUseCasesFactory.findAllServiceGroupsByBusinessUseCase.execute(
@@ -89,7 +90,7 @@ export class ServiceGroupController {
     }
 
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse<FindAllServiceGroupsByBusinessResponse>(
+    return new PikslotsBaseResponse<ServiceGroupResponse[]>(
       result.value.map((g) => ({
         id: g.id,
         name: g.name,

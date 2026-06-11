@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ICreateServiceGroupUseCase,
   IFindAllServiceGroupsByBusinessUseCase,
+  IRegisterServiceGroupUseCase,
 } from '@pikslots/domain';
 import type {
-  CreateServiceGroupUseCase,
   FindAllServiceGroupsByBusinessUseCase,
+  RegisterServiceGroupUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
 export class ServiceGroupUseCasesFactory {
-  @Inject(ICreateServiceGroupUseCase)
-  public readonly createServiceGroupUseCase: CreateServiceGroupUseCase;
+  @Inject(IRegisterServiceGroupUseCase)
+  public readonly registerServiceGroupUseCase: RegisterServiceGroupUseCase;
 
   @Inject(IFindAllServiceGroupsByBusinessUseCase)
   public readonly findAllServiceGroupsByBusinessUseCase: FindAllServiceGroupsByBusinessUseCase;

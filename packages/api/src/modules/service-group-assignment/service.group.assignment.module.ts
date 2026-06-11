@@ -4,13 +4,18 @@ import { ServiceGroupAssignmentUseCasesFactory } from './factory/service.group.a
 import { SERVICE_GROUP_ASSIGNMENT_USECASES } from './usecases';
 import { ServiceGroupAssignmentRepositoryImpl } from './repository/service.group.assignment.repository.impl';
 import { IServiceGroupAssignmentRepository } from '@pikslots/domain';
+import { SERVICE_GROUP_ASSIGNMENT_EVENTS } from './events';
 
 @Module({
   controllers: [ServiceGroupAssignmentController],
   providers: [
     ServiceGroupAssignmentUseCasesFactory,
     ...SERVICE_GROUP_ASSIGNMENT_USECASES,
-    { useClass: ServiceGroupAssignmentRepositoryImpl, provide: IServiceGroupAssignmentRepository },
+    ...SERVICE_GROUP_ASSIGNMENT_EVENTS,
+    {
+      useClass: ServiceGroupAssignmentRepositoryImpl,
+      provide: IServiceGroupAssignmentRepository,
+    },
   ],
 })
 export class ServiceGroupAssignmentModule {}

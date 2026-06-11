@@ -5,8 +5,8 @@ import {
   InfrastructureError,
   IServiceGroupAssignmentRepository,
   Result,
-  ServiceGroupAssignment,
   FindServicesByGroupUseCase,
+  ServiceSummary,
 } from '@pikslots/domain';
 import type { ServiceGroupAssignmentRepository } from '@pikslots/domain';
 
@@ -19,14 +19,12 @@ export class FindServicesByGroupUseCaseImpl implements FindServicesByGroupUseCas
 
   async execute(
     serviceGroupId: string,
-  ): Promise<Result<ServiceGroupAssignment[], InfrastructureError>> {
+  ): Promise<Result<ServiceSummary[], InfrastructureError>> {
     const result =
-      await this.assignmentRepository.findAllByServiceGroup(serviceGroupId);
+      await this.assignmentRepository.findServicesByGroup(serviceGroupId);
 
     if (!result.ok) return err(result.error);
 
-    const active = result.value.filter((a) => !a.isDeleted);
-
-    return ok(active);
+    return ok(result.value);
   }
 }

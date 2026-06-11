@@ -6,6 +6,7 @@ import { ServiceRepositoryImpl } from './repository/service.repository.impl';
 import { IServiceRepository } from '@pikslots/domain';
 
 @Module({
+  imports: [],
   controllers: [ServiceController],
   providers: [
     ServiceUseCasesFactory,

@@ -18,7 +18,10 @@ import { Roles } from 'src/shared/security/guards/roles.decorator';
 import { mapServiceError } from './errors/service.errors.map';
 import { SERVICE_ENDPOINTS } from '@pikslots/shared';
 import { RegisterServiceDto } from './dto/register.service.dto';
-import { RegisterServiceDocs, FindAllServicesByBusinessDocs } from './docs/service.controller.docs';
+import {
+  RegisterServiceDocs,
+  FindAllServicesByBusinessDocs,
+} from './docs/service.controller.docs';
 import { ServiceUseCasesFactory } from './factory/service.usecases.factory';
 import {
   RegisterServiceResponse,
@@ -51,7 +54,10 @@ export class ServiceController {
         durationInMins: dto.durationInMins,
         bufferTimeInMins: dto.bufferTimeInMins,
         cost: dto.cost,
-        businessId: this.securityContext.businessId!,
+        isHiddenFromBookingPage: dto.isHiddenFromBookingPage,
+        associatedServiceGroups: dto.associatedServiceGroups,
+        associatedUsers: dto.associatedUsers,
+        businessId: dto.businessId,
         createdBy: this.securityContext.userId,
       });
 
@@ -71,9 +77,14 @@ export class ServiceController {
   async findAllByBusiness(
     @Res({ passthrough: true }) res: Response,
     @Param('businessId') businessId: string,
-  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<FindAllServicesByBusinessResponse>> {
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<FindAllServicesByBusinessResponse>
+  > {
     const result =
-      await this.serviceUseCasesFactory.findAllServicesByBusinessUsecase.execute(businessId);
+      await this.serviceUseCasesFactory.findAllServicesByBusinessUsecase.execute(
+        businessId,
+      );
 
     if (!result.ok) {
       const errorResponse = mapServiceError(result.error);

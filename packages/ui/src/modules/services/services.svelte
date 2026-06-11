@@ -14,63 +14,31 @@
 	import Adjustments from '@tabler/icons-svelte/icons/adjustments';
 	import NewServiceGroupDialog from './dialog/new-service-group.svelte';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
+	import ChevronUp from '@tabler/icons-svelte/icons/chevron-up';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getServiceGroupsByBusinessQueryOptions } from '../api/service-group/get.service.groups.by.business.query';
+	import { getServicesByBusinessQueryOptions } from '../api/service/get.services.by.business.query';
+	import { getServicesByGroupQueryOptions } from '../api/service-group-assignment/get.services.by.group.query';
 	import { businessStore } from '$stores/business.svelte';
 	import { IconBriefcase } from '@tabler/icons-svelte';
 	import { goto } from '$app/navigation';
-
-	// ── Mock data ───────────────────────────────────────────────────────────────
-
-	interface ServiceItem {
-		id: string;
-		name: string;
-		durationInMins: number;
-		cost: number;
-		groupId: string;
-		staffInitials: string[];
-	}
-
-	const services: ServiceItem[] = [
-		{
-			id: '1',
-			name: '15 Minutes Meeting',
-			durationInMins: 15,
-			cost: 0,
-			groupId: '1',
-			staffInitials: ['A']
-		},
-		{
-			id: '2',
-			name: '30 Minutes Meeting',
-			durationInMins: 30,
-			cost: 0,
-			groupId: '1',
-			staffInitials: ['A']
-		},
-		{
-			id: '3',
-			name: '1 Hour Meeting',
-			durationInMins: 60,
-			cost: 0,
-			groupId: '1',
-			staffInitials: ['A', 'A']
-		},
-		{
-			id: '4',
-			name: 'Deep Clean',
-			durationInMins: 90,
-			cost: 5000,
-			groupId: '2',
-			staffInitials: ['A']
-		}
-	];
+	import Pencil from '@tabler/icons-svelte/icons/pencil';
+	import Trash from '@tabler/icons-svelte/icons/trash';
 
 	// ── State ───────────────────────────────────────────────────────────────────
 
 	let search = $state('');
 	let selectedGroupId = $state<string | null>(null);
 	let newGroupDialogOpen = $state(false);
+	let openAccordionItems = $state<string[]>(['services', 'classes']);
+
+	function toggleAccordionItem(item: string) {
+		if (openAccordionItems.includes(item)) {
+			openAccordionItems = openAccordionItems.filter((i) => i !== item);
+		} else {
+			openAccordionItems = [...openAccordionItems, item];
+		}
+	}
 
 	// ── Queries ──────────────────────────────────────────────────────────────────
 
@@ -79,18 +47,28 @@
 		enabled: !!businessStore.selectedBusiness?.id
 	}));
 
+	const servicesQuery = createQuery(() => ({
+		...getServicesByBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id
+	}));
+
 	const serviceGroups = $derived(serviceGroupsQuery.data ?? []);
+	const services = $derived(servicesQuery.data ?? []);
+
+	const servicesByGroupQuery = createQuery(() => getServicesByGroupQueryOptions(selectedGroupId));
 
 	const bookingUrl = 'solverse.pikslots.com/afaq';
 
 	// ── Derived ─────────────────────────────────────────────────────────────────
 
+	const visibleServices = $derived(() => {
+		if (!selectedGroupId) return services;
+		const groupServiceIds = new Set(servicesByGroupQuery.data?.map((s) => s.id) ?? []);
+		return services.filter((s) => groupServiceIds.has(s.id));
+	});
+
 	const filteredServices = $derived(
-		services.filter((s) => {
-			const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
-			const matchesGroup = selectedGroupId ? s.groupId === selectedGroupId : true;
-			return matchesSearch && matchesGroup;
-		})
+		visibleServices().filter((s) => s.title.toLowerCase().includes(search.toLowerCase()))
 	);
 
 	// ── Helpers ─────────────────────────────────────────────────────────────────
@@ -115,6 +93,8 @@
 	}
 </script>
 
+<NewServiceGroupDialog bind:open={newGroupDialogOpen} {services} />
+
 <div class="flex h-full min-h-0 flex-1">
 	<!-- ── Left: service groups sidebar ──────────────────────────────────────── -->
 	<div class="flex w-64 shrink-0 flex-col border-r">
@@ -123,24 +103,58 @@
 		</div>
 
 		<div class="flex flex-1 flex-col overflow-y-auto">
-			<Accordion.Root type="multiple" value={['services', 'classes']}>
+			<Accordion.Root type="multiple" bind:value={openAccordionItems}>
 				<!-- Services -->
 				<Accordion.Item value="services" class="">
-					<Accordion.Trigger
-						class="px-3 py-2 text-sm font-medium hover:bg-accent hover:no-underline"
-					>
-						Services ({serviceGroups.length})
-					</Accordion.Trigger>
+					<div class="flex items-center justify-between px-3 py-2">
+						<button
+							type="button"
+							onclick={() => (selectedGroupId = null)}
+							class="text-sm font-medium"
+						>Services ({serviceGroups.length})</button>
+						<button
+							type="button"
+							onclick={() => toggleAccordionItem('services')}
+							class="text-muted-foreground hover:text-foreground"
+						>
+							{#if openAccordionItems.includes('services')}
+								<ChevronUp size={14} />
+							{:else}
+								<ChevronDown size={14} />
+							{/if}
+						</button>
+					</div>
 					<Accordion.Content class="p-0">
 						{#each serviceGroups as group (group.id)}
-							<button
-								type="button"
-								onclick={() => (selectedGroupId = selectedGroupId === group.id ? null : group.id)}
-								class="flex w-full items-center px-6 py-1.5 text-left text-sm transition-colors hover:bg-accent
-									{selectedGroupId === group.id ? 'bg-accent font-medium' : 'text-muted-foreground'}"
-							>
-								{group.name}
-							</button>
+							<div class="group/item relative flex items-center">
+								<button
+									type="button"
+									onclick={() => (selectedGroupId = selectedGroupId === group.id ? null : group.id)}
+									class="flex flex-1 items-center py-1.5 pr-8 pl-6 text-left text-sm transition-colors hover:bg-accent
+										{selectedGroupId === group.id ? 'bg-accent font-medium' : 'text-muted-foreground'}"
+								>
+									{group.name}
+								</button>
+								<div class="absolute right-1 opacity-0 group-hover/item:opacity-100">
+									<DropdownMenu.Root>
+										<DropdownMenu.Trigger>
+											{#snippet child({ props })}
+												<Button variant="ghost" size="icon-sm" {...props}>
+													<DotsVertical size={13} />
+												</Button>
+											{/snippet}
+										</DropdownMenu.Trigger>
+										<DropdownMenu.Content align="end" class="w-36">
+											<DropdownMenu.Item class="cursor-pointer"><Pencil /> Edit</DropdownMenu.Item>
+											<DropdownMenu.Separator />
+											<DropdownMenu.Item
+												class="cursor-pointer text-destructive focus:text-destructive"
+												><Trash />Delete</DropdownMenu.Item
+											>
+										</DropdownMenu.Content>
+									</DropdownMenu.Root>
+								</div>
+							</div>
 						{/each}
 						<button
 							type="button"
@@ -157,11 +171,20 @@
 
 				<!-- Classes -->
 				<Accordion.Item value="classes" class="">
-					<Accordion.Trigger
-						class="px-3 py-2 text-sm font-medium hover:bg-accent hover:no-underline"
-					>
-						Classes (0)
-					</Accordion.Trigger>
+					<div class="flex items-center justify-between px-3 py-2">
+						<span class="text-sm font-medium">Classes (0)</span>
+						<button
+							type="button"
+							onclick={() => toggleAccordionItem('classes')}
+							class="text-muted-foreground hover:text-foreground"
+						>
+							{#if openAccordionItems.includes('classes')}
+								<ChevronUp size={14} />
+							{:else}
+								<ChevronDown size={14} />
+							{/if}
+						</button>
+					</div>
 					<Accordion.Content class="p-0">
 						<p class="px-6 py-1.5 text-xs text-muted-foreground">No classes yet.</p>
 					</Accordion.Content>
@@ -185,7 +208,10 @@
 					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" class="w-36">
-					<DropdownMenu.Item class="cursor-pointer gap-2" onclick={() => goto('/home/services/new')}>
+					<DropdownMenu.Item
+						class="cursor-pointer gap-2"
+						onclick={() => goto('/home/services/new')}
+					>
 						<IconBriefcase size={15} class="text-muted-foreground" />
 						Service
 					</DropdownMenu.Item>
@@ -259,35 +285,31 @@
 
 		<!-- Service rows -->
 		<div class="flex flex-1 flex-col overflow-y-auto">
-			{#if filteredServices.length === 0}
+			{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending)}
+				<div class="flex flex-1 items-center justify-center">
+					<p class="text-sm text-muted-foreground">Loading...</p>
+				</div>
+			{:else if filteredServices.length === 0}
 				<div class="flex flex-1 items-center justify-center">
 					<p class="text-sm text-muted-foreground">No services found.</p>
 				</div>
 			{:else}
 				{#each filteredServices as service (service.id)}
-					<div class="flex items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40">
+					<div
+						onclick={() => goto(`/home/services/${service.id}/edit`)}
+						class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
+					>
 						<!-- Icon -->
 						<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
 							<Adjustments size={16} class="text-muted-foreground" />
 						</div>
 
-						<!-- Name + meta -->
+						<!-- Title + meta -->
 						<div class="flex flex-1 flex-col">
-							<span class="text-sm font-medium">{service.name}</span>
+							<span class="text-sm font-medium">{service.title}</span>
 							<span class="text-xs text-muted-foreground">
 								{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
 							</span>
-						</div>
-
-						<!-- Staff avatars -->
-						<div class="flex items-center -space-x-1.5">
-							{#each service.staffInitials as initial, i (i)}
-								<Avatar.Root class="size-6 text-[10px] ring-2 ring-background">
-									<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground">
-										{initial}
-									</Avatar.Fallback>
-								</Avatar.Root>
-							{/each}
 						</div>
 
 						<!-- Copy link -->
@@ -311,7 +333,9 @@
 								{/snippet}
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content align="end" class="w-36">
-								<DropdownMenu.Item>Edit</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => goto(`/home/services/${service.id}/edit`)}
+									>Edit</DropdownMenu.Item
+								>
 								<DropdownMenu.Item>Duplicate</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item class="text-destructive focus:text-destructive">
@@ -325,12 +349,3 @@
 		</div>
 	</div>
 </div>
-
-<NewServiceGroupDialog
-	bind:open={newGroupDialogOpen}
-	{services}
-	onCreate={(name, serviceIds) => {
-		console.log('create group', name, serviceIds);
-		newGroupDialogOpen = false;
-	}}
-/>

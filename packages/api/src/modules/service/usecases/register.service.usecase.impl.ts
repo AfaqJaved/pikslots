@@ -9,9 +9,16 @@ import {
   Result,
   Service,
 } from '@pikslots/domain';
-import type { ServiceRepository, UnauthorizedError } from '@pikslots/domain';
+import type {
+  AssignServiceToServiceGroupsEvent,
+  ServiceRepository,
+  UnauthorizedError,
+} from '@pikslots/domain';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { v7 as uuidv7 } from 'uuid';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
@@ -25,6 +32,14 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     @Inject(IServiceRepository)
     private readonly serviceRepository: ServiceRepository,
     private readonly securityContext: SecurityContext,
+    @InjectQueue(
+      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_TO_SERVICE_GROUPS,
+    )
+    private readonly serviceGroupAssignmentQueue: Queue<
+      AssignServiceToServiceGroupsEvent,
+      void,
+      typeof PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_TO_SERVICE_GROUPS
+    >,
   ) {}
 
   async execute(
@@ -45,6 +60,7 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
       durationInMins: command.durationInMins,
       bufferTimeInMins: command.bufferTimeInMins,
       cost: command.cost,
+      isHiddenFromBookingPage: command.isHiddenFromBookingPage,
       businessId: command.businessId,
       createdBy: command.createdBy,
     });
@@ -52,6 +68,24 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     const saved = await this.serviceRepository.save(service);
 
     if (!saved.ok) return err(saved.error);
+
+    if (command.associatedServiceGroups.length > 0) {
+      // (single) service --> assing to --> service groups (multiple)
+      await this.serviceGroupAssignmentQueue.add(
+        PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
+          .ASSIGN_SERVICE_TO_SERVICE_GROUPS,
+        {
+          serviceId: service.id,
+          serviceGroupIds: command.associatedServiceGroups,
+          businessId: command.businessId,
+          assignedBy: command.createdBy,
+        },
+      );
+    }
+
+    if (command.associatedUsers.length > 0) {
+      //TODO FIRE EVENT
+    }
 
     return ok(service);
   }

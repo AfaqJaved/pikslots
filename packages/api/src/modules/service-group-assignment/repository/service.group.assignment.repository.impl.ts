@@ -6,6 +6,8 @@ import {
   Result,
   ServiceGroupAssignment,
   ServiceGroupAssignmentRepository,
+  ServiceGroupSummary,
+  ServiceSummary,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
@@ -20,6 +22,29 @@ export class ServiceGroupAssignmentRepositoryImpl implements ServiceGroupAssignm
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
+  async findServicesByGroup(
+    serviceGroupId: string,
+  ): Promise<Result<ServiceSummary[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('service_group_assignments as sga')
+        .innerJoin('services as s', 's.id', 'sga.service_id')
+        .select(['s.id', 's.title'])
+        .where('sga.service_group_id', '=', serviceGroupId)
+        .where('sga.is_deleted', '=', false)
+        .execute();
+
+      return ok(rows.map((r) => ({ id: r.id, name: r.title })));
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find services by group',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async save(
     assignment: ServiceGroupAssignment,
   ): Promise<Result<void, InfrastructureError>> {
@@ -33,6 +58,26 @@ export class ServiceGroupAssignmentRepositoryImpl implements ServiceGroupAssignm
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to save service group assignment',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async saveAll(
+    assignments: ServiceGroupAssignment[],
+  ): Promise<Result<void, InfrastructureError>> {
+    if (assignments.length === 0) return ok(undefined);
+    try {
+      await this.db
+        .insertInto('service_group_assignments')
+        .values(assignments.map((a) => this.mapper.domainToPersistence(a)))
+        .execute();
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to save service group assignments',
         timestamp: new Date(),
         cause,
       });
@@ -169,6 +214,29 @@ export class ServiceGroupAssignmentRepositoryImpl implements ServiceGroupAssignm
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to check assignment existence',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async findGroupsByService(
+    serviceId: string,
+  ): Promise<Result<ServiceGroupSummary[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('service_group_assignments as sga')
+        .innerJoin('service_groups as sg', 'sg.id', 'sga.service_group_id')
+        .select(['sg.id', 'sg.name'])
+        .where('sga.service_id', '=', serviceId)
+        .where('sga.is_deleted', '=', false)
+        .execute();
+
+      return ok(rows.map((r) => ({ id: r.id, name: r.name })));
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find groups by service',
         timestamp: new Date(),
         cause,
       });

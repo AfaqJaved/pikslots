@@ -1,10 +1,13 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { ServiceGroupAssignment } from '../service.group.assignment.entity';
+import type { ServiceGroupSummary } from '../read-models/service.group.summary';
+import type { ServiceSummary } from '../read-models';
 
 export const IServiceGroupAssignmentRepository = Symbol('IServiceGroupAssignmentRepository');
 
 export interface ServiceGroupAssignmentRepository {
   save(membership: ServiceGroupAssignment): Promise<Result<void, InfrastructureError>>;
+  saveAll(membership: ServiceGroupAssignment[]): Promise<Result<void, InfrastructureError>>;
   findById(id: string): Promise<Result<ServiceGroupAssignment | null, InfrastructureError>>;
   findAllByServiceGroup(
     serviceGroupId: string,
@@ -23,5 +26,11 @@ export interface ServiceGroupAssignmentRepository {
     serviceId: string,
     serviceGroupId: string,
   ): Promise<Result<boolean, InfrastructureError>>;
+  findGroupsByService(
+    serviceId: string,
+  ): Promise<Result<ServiceGroupSummary[], InfrastructureError>>;
+  findServicesByGroup(
+    serviceGroupId: string,
+  ): Promise<Result<ServiceSummary[], InfrastructureError>>;
   update(membership: ServiceGroupAssignment): Promise<Result<void, InfrastructureError>>;
 }

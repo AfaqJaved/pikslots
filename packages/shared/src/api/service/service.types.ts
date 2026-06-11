@@ -7,6 +7,10 @@ export interface RegisterServiceInput {
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;
+  businessId: string;
+  isHiddenFromBookingPage: boolean;
+  associatedUsers: string[];
+  associatedServiceGroups: string[];
 }
 
 // --- Responses ---
@@ -28,3 +32,20 @@ export interface ServiceResponse {
 }
 
 export type FindAllServicesByBusinessResponse = ServiceResponse[];
+
+export interface UpdateServiceInput {
+  id: string;
+  title: string;
+  description: string;
+  imagesUrls: string[];
+  durationInMins: number;
+  bufferTimeInMins: number;
+  cost: number;
+  isHiddenFromBookingPage: boolean;
+  associatedUsers: string[];
+  associatedServiceGroups: string[];
+}
+
+export interface UpdateServiceResponse {
+  message: 'success';
+}

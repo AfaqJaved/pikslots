@@ -63,21 +63,36 @@ export const RemoveServiceFromGroupDocs = () =>
 
 export const FindServicesByGroupDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Get all active service assignments for a group' }),
+    ApiOperation({ summary: 'Get all services belonging to a group' }),
     ApiParam({ name: 'serviceGroupId', description: 'Service group ID', example: 'grp_01j...' }),
     ApiResponse({
       status: HttpStatus.OK,
-      description: 'Assignments retrieved successfully',
+      description: 'Services retrieved successfully',
       schema: {
         example: {
-          data: [
-            {
-              id: 'asg_01j...',
-              serviceId: 'svc_01j...',
-              serviceGroupId: 'grp_01j...',
-              businessId: 'biz_01j...',
-            },
-          ],
+          data: [{ id: 'svc_01j...', name: 'Haircut' }],
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const FindGroupsByServiceDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Get all groups a service belongs to' }),
+    ApiParam({ name: 'serviceId', description: 'Service ID', example: 'svc_01j...' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Groups retrieved successfully',
+      schema: {
+        example: {
+          data: [{ id: 'grp_01j...', name: 'Morning Services' }],
           statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },

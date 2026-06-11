@@ -1,16 +1,18 @@
 // --- Requests ---
 
-export interface CreateServiceGroupInput {
+export interface RegisterServiceGroupInput {
   name: string;
   businessId: string;
+  associatedServices: string[];
 }
 
 // --- Responses ---
-
 export interface ServiceGroupResponse {
   id: string;
   name: string;
   businessId: string;
 }
 
-export type FindAllServiceGroupsByBusinessResponse = ServiceGroupResponse[];
+export interface RegisterServiceGroupResponse {
+  message: 'success';
+}

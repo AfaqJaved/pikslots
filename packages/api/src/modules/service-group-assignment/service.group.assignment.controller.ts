@@ -23,11 +23,14 @@ import {
   AssignServiceToGroupDocs,
   RemoveServiceFromGroupDocs,
   FindServicesByGroupDocs,
+  FindGroupsByServiceDocs,
 } from './docs/service.group.assignment.controller.docs';
 import { ServiceGroupAssignmentUseCasesFactory } from './factory/service.group.assignment.usecases.factory';
 import type {
   ServiceGroupAssignmentResponse,
   FindServicesByGroupResponse,
+  ServiceGroupNameResponse,
+  ServiceNameResponse,
 } from '@pikslots/shared';
 
 @ApiTags('Service Group Assignments')
@@ -45,13 +48,17 @@ export class ServiceGroupAssignmentController {
   async assignServiceToGroup(
     @Res({ passthrough: true }) res: Response,
     @Body() dto: AssignServiceToGroupDto,
-  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<ServiceGroupAssignmentResponse>> {
-    const result = await this.useCasesFactory.assignServiceToGroupUseCase.execute({
-      serviceId: dto.serviceId,
-      serviceGroupId: dto.serviceGroupId,
-      businessId: dto.businessId,
-      createdBy: this.securityContext.userId,
-    });
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<ServiceGroupAssignmentResponse>
+  > {
+    const result =
+      await this.useCasesFactory.assignServiceToGroupUseCase.execute({
+        serviceId: dto.serviceId,
+        serviceGroupId: dto.serviceGroupId,
+        businessId: dto.businessId,
+        createdBy: this.securityContext.userId,
+      });
 
     if (!result.ok) {
       const errorResponse = mapServiceGroupAssignmentError(result.error);
@@ -62,7 +69,12 @@ export class ServiceGroupAssignmentController {
     const a = result.value;
     res.status(HttpStatus.CREATED);
     return new PikslotsBaseResponse<ServiceGroupAssignmentResponse>(
-      { id: a.id, serviceId: a.serviceId, serviceGroupId: a.serviceGroupId, businessId: a.businessId },
+      {
+        id: a.id,
+        serviceId: a.serviceId,
+        serviceGroupId: a.serviceGroupId,
+        businessId: a.businessId,
+      },
       HttpStatus.CREATED,
     );
   }
@@ -76,11 +88,12 @@ export class ServiceGroupAssignmentController {
     @Param('serviceGroupId') serviceGroupId: string,
     @Param('serviceId') serviceId: string,
   ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<void>> {
-    const result = await this.useCasesFactory.removeServiceFromGroupUseCase.execute({
-      serviceId,
-      serviceGroupId,
-      deletedBy: this.securityContext.userId,
-    });
+    const result =
+      await this.useCasesFactory.removeServiceFromGroupUseCase.execute({
+        serviceId,
+        serviceGroupId,
+        deletedBy: this.securityContext.userId,
+      });
 
     if (!result.ok) {
       const errorResponse = mapServiceGroupAssignmentError(result.error);
@@ -92,13 +105,16 @@ export class ServiceGroupAssignmentController {
     return new PikslotsBaseResponse<void>(undefined, HttpStatus.OK);
   }
 
-  @FindServicesByGroupDocs()
-  @Get(SERVICE_GROUP_ASSIGNMENT_ENDPOINTS.FIND_BY_GROUP)
-  async findServicesByGroup(
+  @FindGroupsByServiceDocs()
+  @Get(SERVICE_GROUP_ASSIGNMENT_ENDPOINTS.FIND_GROUPS_BY_SERVICE)
+  async findGroupsByService(
     @Res({ passthrough: true }) res: Response,
-    @Param('serviceGroupId') serviceGroupId: string,
-  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<FindServicesByGroupResponse>> {
-    const result = await this.useCasesFactory.findServicesByGroupUseCase.execute(serviceGroupId);
+    @Param('serviceId') serviceId: string,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<ServiceGroupNameResponse[]>
+  > {
+    const result =
+      await this.useCasesFactory.findGroupsByServiceUseCase.execute(serviceId);
 
     if (!result.ok) {
       const errorResponse = mapServiceGroupAssignmentError(result.error);
@@ -107,13 +123,35 @@ export class ServiceGroupAssignmentController {
     }
 
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse<FindServicesByGroupResponse>(
-      result.value.map((a) => ({
-        id: a.id,
-        serviceId: a.serviceId,
-        serviceGroupId: a.serviceGroupId,
-        businessId: a.businessId,
-      })),
+    return new PikslotsBaseResponse<ServiceGroupNameResponse[]>(
+      result.value,
+      HttpStatus.OK,
+    );
+  }
+
+  @FindServicesByGroupDocs()
+  @Get(SERVICE_GROUP_ASSIGNMENT_ENDPOINTS.FIND_BY_GROUP)
+  async findServicesByGroup(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceGroupId') serviceGroupId: string,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<FindServicesByGroupResponse>
+  > {
+    const result =
+      await this.useCasesFactory.findServicesByGroupUseCase.execute(
+        serviceGroupId,
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapServiceGroupAssignmentError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<ServiceNameResponse[]>(
+      result.value.map((s) => ({ id: s.id, name: s.name })),
       HttpStatus.OK,
     );
   }

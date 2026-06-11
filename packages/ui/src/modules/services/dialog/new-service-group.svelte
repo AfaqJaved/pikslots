@@ -4,31 +4,80 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import { Field, FieldError } from '$lib/components/ui/field/index.js';
 	import X from '@tabler/icons-svelte/icons/x';
 	import Search from '@tabler/icons-svelte/icons/search';
 	import Adjustments from '@tabler/icons-svelte/icons/adjustments';
-
-	interface ServiceItem {
-		id: string;
-		name: string;
-		durationInMins: number;
-		cost: number;
-	}
+	import type { ServiceModel } from '../../api/service/models/service-model';
+	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import { registerServiceGroupMutationOptions } from '../../api/service-group/register.service.group.mutation';
+	import { businessStore } from '$stores/business.svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 as zod } from 'sveltekit-superforms/adapters';
+	import z from 'zod';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;
-		services: ServiceItem[];
-		onCreate: (name: string, serviceIds: string[]) => void;
+		services: ServiceModel[];
 	}
 
-	let { open = $bindable(false), services, onCreate }: Props = $props();
+	let { open = $bindable(false), services }: Props = $props();
 
-	let title = $state('');
+	// ── Schema ───────────────────────────────────────────────────────────────────
+
+	const NewServiceGroupSchema = z.object({
+		name: z.string().min(1, 'Title is required')
+	});
+
+	// ── Mutation ─────────────────────────────────────────────────────────────────
+
+	const queryClient = useQueryClient();
+	const registerMutation = createMutation(() => registerServiceGroupMutationOptions());
+
+	// ── Superform ────────────────────────────────────────────────────────────────
+
+	const { form, errors, enhance } = superForm(
+		{ name: '' },
+		{
+			validators: zod(NewServiceGroupSchema),
+			SPA: true,
+			resetForm: false,
+			onUpdate({ form }) {
+				if (form.valid) {
+					registerMutation.mutate({
+						name: form.data.name,
+						businessId: businessStore.selectedBusiness?.id ?? '',
+						associatedServices: [...selectedIds]
+					});
+				}
+			}
+		}
+	);
+
+	$effect(() => {
+		if (registerMutation.isSuccess) {
+			toast.success('Service group created');
+			queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+			open = false;
+			reset();
+			registerMutation.reset();
+		}
+		if (registerMutation.isError) {
+			toast.error(
+				registerMutation.error?.response?.data?.message ?? 'Failed to create service group'
+			);
+			registerMutation.reset();
+		}
+	});
+
+	// ── State ────────────────────────────────────────────────────────────────────
+
 	let serviceSearch = $state('');
 	let selectedIds = $state<Set<string>>(new Set());
 
 	const filteredServices = $derived(
-		services.filter((s) => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
+		services.filter((s) => s.title.toLowerCase().includes(serviceSearch.toLowerCase()))
 	);
 
 	const allSelected = $derived(
@@ -57,19 +106,13 @@
 		selectedIds = new Set(selectedIds);
 	}
 
-	function handleCreate() {
-		if (!title.trim()) return;
-		onCreate(title.trim(), [...selectedIds]);
-		reset();
-	}
-
 	function handleCancel() {
 		reset();
 		open = false;
 	}
 
 	function reset() {
-		title = '';
+		$form.name = '';
 		serviceSearch = '';
 		selectedIds = new Set();
 	}
@@ -108,88 +151,95 @@
 		<Dialog.Content
 			class="fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-2xl bg-background p-6 shadow-xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
 		>
-			<!-- Header -->
-			<div class="flex items-center justify-between">
-				<Dialog.Title class="text-xl font-semibold">New category</Dialog.Title>
-				<Dialog.Close>
-					{#snippet child({ props })}
-						<button
-							type="button"
-							class="rounded-md p-1 text-muted-foreground hover:text-foreground"
-							{...props}
-						>
-							<X size={18} />
-						</button>
-					{/snippet}
-				</Dialog.Close>
-			</div>
+			<form use:enhance class="flex flex-col gap-5">
+				<!-- Header -->
+				<div class="flex items-center justify-between">
+					<Dialog.Title class="text-xl font-semibold">New service group</Dialog.Title>
+					<Dialog.Close>
+						{#snippet child({ props })}
+							<button
+								type="button"
+								class="rounded-md p-1 text-muted-foreground hover:text-foreground"
+								{...props}
+							>
+								<X size={18} />
+							</button>
+						{/snippet}
+					</Dialog.Close>
+				</div>
 
-			<!-- Title field -->
-			<div class="flex flex-col gap-1.5">
-				<Label class="text-sm font-medium">Title <span class="text-destructive">*</span></Label>
-				<Input
-					bind:value={title}
-					placeholder="Enter category title"
-					class="h-8  border-2 focus-visible:border-foreground focus-visible:ring-0"
-				/>
-			</div>
-
-			<!-- Services section -->
-			<div class="flex min-h-0 flex-1 flex-col gap-2">
-				<Label class="text-sm font-medium">Services</Label>
-
-				<!-- Search -->
-				<div class="relative">
-					<Search
-						size={15}
-						class="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+				<!-- Title field -->
+				<Field>
+					<Label class="text-sm font-medium">Title <span class="text-destructive">*</span></Label>
+					<Input
+						bind:value={$form.name}
+						placeholder="Enter group title"
+						class="h-8 border-2 focus-visible:border-foreground focus-visible:ring-0"
 					/>
-					<Input bind:value={serviceSearch} placeholder="Search" class="h-8  pl-9" />
-				</div>
+					<FieldError errors={$errors.name?.map((e) => ({ message: e }))} />
+				</Field>
 
-				<!-- Select all row -->
-				<div class="flex items-center justify-between px-1 py-1">
-					<button type="button" class="flex items-center gap-2.5" onclick={toggleSelectAll}>
-						<Checkbox checked={allSelected} indeterminate={someSelected} class="rounded-sm" />
-						<span class="text-sm">Select all</span>
-					</button>
-					<span class="text-sm text-muted-foreground"
-						>{selectedIds.size}/{filteredServices.length}</span
-					>
-				</div>
+				<!-- Services section -->
+				<div class="flex min-h-0 flex-1 flex-col gap-2">
+					<Label class="text-sm font-medium">Services</Label>
 
-				<!-- Service list -->
-				<div class="flex flex-col gap-2 overflow-y-auto">
-					{#each filteredServices as service, i (service.id)}
-						<button
-							type="button"
-							onclick={() => toggleService(service.id)}
-							class="flex items-center gap-3 rounded-xl border border-l-4 px-3 py-3 text-left hover:bg-accent/40 {accentColors[
-								i % accentColors.length
-							]}"
-						>
-							<Checkbox checked={selectedIds.has(service.id)} class="shrink-0 rounded-sm" />
-							<div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
-								<Adjustments size={16} class="text-muted-foreground" />
-							</div>
-							<div class="flex flex-col">
-								<span class="text-sm font-medium">{service.name}</span>
-								<span class="text-xs text-muted-foreground">
-									{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
-								</span>
-							</div>
+					<!-- Search -->
+					<div class="relative">
+						<Search
+							size={15}
+							class="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+						/>
+						<Input bind:value={serviceSearch} placeholder="Search" class="h-8 pl-9" />
+					</div>
+
+					<!-- Select all row -->
+					<div class="flex items-center justify-between px-1 py-1">
+						<button type="button" class="flex items-center gap-2.5" onclick={toggleSelectAll}>
+							<Checkbox checked={allSelected} indeterminate={someSelected} class="rounded-sm" />
+							<span class="text-sm">Select all</span>
 						</button>
-					{/each}
-				</div>
-			</div>
+						<span class="text-sm text-muted-foreground"
+							>{selectedIds.size}/{filteredServices.length}</span
+						>
+					</div>
 
-			<!-- Footer -->
-			<div class="flex items-center justify-end gap-2 pt-1">
-				<Button variant="ghost" onclick={handleCancel}>Cancel</Button>
-				<Button disabled={!title.trim()} onclick={handleCreate} class="rounded-full px-5">
-					Create
-				</Button>
-			</div>
+					<!-- Service list -->
+					<div class="flex flex-col gap-2 overflow-y-auto">
+						{#each filteredServices as service, i (service.id)}
+							<button
+								type="button"
+								onclick={() => toggleService(service.id)}
+								class="flex items-center gap-3 rounded-xl border border-l-4 px-3 py-3 text-left hover:bg-accent/40 {accentColors[
+									i % accentColors.length
+								]}"
+							>
+								<Checkbox checked={selectedIds.has(service.id)} class="shrink-0 rounded-sm" />
+								<div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
+									<Adjustments size={16} class="text-muted-foreground" />
+								</div>
+								<div class="flex flex-col">
+									<span class="text-sm font-medium">{service.title}</span>
+									<span class="text-xs text-muted-foreground">
+										{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
+									</span>
+								</div>
+							</button>
+						{/each}
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div class="flex items-center justify-end gap-2 pt-1">
+					<Button type="button" variant="ghost" onclick={handleCancel}>Cancel</Button>
+					<Button
+						type="submit"
+						disabled={!$form.name.trim() || registerMutation.isPending}
+						class="rounded-full px-5"
+					>
+						{registerMutation.isPending ? 'Creating...' : 'Create'}
+					</Button>
+				</div>
+			</form>
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>

@@ -31,6 +31,7 @@ export interface ServiceCreateInput {
   imagesUrls: string[]; // only 5 images allowed
   durationInMins: number;
   bufferTimeInMins: number; // the time between two consecutive services
+  isHiddenFromBookingPage: boolean;
   cost: number;
   businessId: string;
   createdBy: string;
@@ -59,7 +60,7 @@ export class Service {
       durationInMins: input.durationInMins,
       bufferTimeInMins: input.bufferTimeInMins,
       cost: input.cost,
-      isHiddenFromBookingPage: false,
+      isHiddenFromBookingPage: input.isHiddenFromBookingPage,
       businessId: input.businessId,
       createdAt: now,
       createdBy: input.createdBy,
