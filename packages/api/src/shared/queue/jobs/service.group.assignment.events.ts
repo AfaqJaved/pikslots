@@ -1,6 +1,6 @@
 import {
-  AssignServiceToServiceGroupsEvent,
-  AssignServiceGroupToServicesEvent,
+  SyncServiceServiceGroupsEvent,
+  SyncServiceGroupServicesEvent,
 } from '@pikslots/domain';
 import { Job } from 'bullmq';
 import { PIKSLOT_EVENTS } from './pikslot.events';
@@ -13,10 +13,10 @@ export type ServiceGroupAssignmentJobName =
 
 export interface ServiceGroupAssingmentJobData {
   [PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-    .ASSIGN_SERVICE_TO_SERVICE_GROUPS]: AssignServiceToServiceGroupsEvent;
+    .SYNC_SERVICE_SERVICE_GROUPS]: SyncServiceServiceGroupsEvent;
 
   [PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-    .ASSIGN_SERVICE_GROUP_TO_SERVICES]: AssignServiceGroupToServicesEvent;
+    .SYNC_SERVICE_GROUP_SERVICES]: SyncServiceGroupServicesEvent;
 }
 
 // ── Discriminated union of all user jobs ──────────────────────────────────────

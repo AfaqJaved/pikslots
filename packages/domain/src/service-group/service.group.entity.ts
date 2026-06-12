@@ -72,6 +72,15 @@ export class ServiceGroup {
     return new ServiceGroup(props);
   }
 
+  rename(newName: string, updatedBy: string): ServiceGroup {
+    return new ServiceGroup({
+      ...this.props,
+      name: newName,
+      updatedAt: new Date(),
+      updatedBy,
+    });
+  }
+
   // ── Identity ───────────────────────────────────────────────────────────────
 
   get id(): string {

@@ -2,6 +2,7 @@ import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { RegisterServiceGroupDto } from '../dto/create.service.group.dto';
+import { EditServiceGroupDto } from '../dto/edit.service.group.dto';
 
 export const CreateServiceGroupDocs = () =>
   applyDecorators(
@@ -33,6 +34,74 @@ export const CreateServiceGroupDocs = () =>
     ApiResponse({
       status: HttpStatus.BAD_REQUEST,
       description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const EditServiceGroupDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Edit a service group name and its assigned services' }),
+    ApiBody({ type: EditServiceGroupDto }),
+    ApiParam({
+      name: 'serviceGroupId',
+      description: 'Service Group ID',
+      example: 'grp_01j...',
+    }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Service group updated successfully',
+      schema: {
+        example: {
+          data: null,
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Service group not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.CONFLICT,
+      description: 'A service group with this name already exists for this business',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const DeleteServiceGroupDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Hard delete a service group by ID' }),
+    ApiParam({
+      name: 'serviceGroupId',
+      description: 'Service Group ID',
+      example: 'grp_01j...',
+    }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Service group deleted successfully',
+      schema: {
+        example: {
+          data: null,
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Service group not found',
       type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({

@@ -12,3 +12,8 @@ export type WeekDay =
   | 'friday'
   | 'saturday'
   | 'sunday';
+
+export interface ServiceSummary {
+  id: string;
+  title: string;
+}

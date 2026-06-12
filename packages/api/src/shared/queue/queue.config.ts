@@ -28,10 +28,13 @@ export const REGISTERED_QUEUES = BullModule.registerQueue(
   },
   {
     name: PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-      .ASSIGN_SERVICE_TO_SERVICE_GROUPS, //  (single) service --> assing to --> service groups (multiple)
+      .SYNC_SERVICE_SERVICE_GROUPS,
   },
   {
     name: PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-      .ASSIGN_SERVICE_GROUP_TO_SERVICES, //  (single) service group --> assing to --> services (multiple)
+      .SYNC_SERVICE_GROUP_SERVICES,
+  },
+  {
+    name: PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.ASSIGN_SERVICE_TO_USERS, //  (single) service --> assign to --> users (multiple)
   },
 );

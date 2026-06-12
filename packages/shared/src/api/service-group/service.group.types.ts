@@ -16,3 +16,9 @@ export interface ServiceGroupResponse {
 export interface RegisterServiceGroupResponse {
   message: 'success';
 }
+
+export interface EditServiceGroupInput {
+  name: string;
+  businessId: string;
+  serviceIds: string[];
+}

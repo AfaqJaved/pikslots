@@ -11,6 +11,7 @@ import { PikslotCacheModule } from './shared/cache/pikslot.cache.module';
 import { ServiceModule } from './modules/service/service.module';
 import { ServiceGroupModule } from './modules/service-group/service.group.module';
 import { ServiceGroupAssignmentModule } from './modules/service-group-assignment/service.group.assignment.module';
+import { ServiceUserAssignmentModule } from './modules/service-user-assignment/service.user.assignment.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ServiceGroupAssignmentModule } from './modules/service-group-assignment
     ServiceModule,
     ServiceGroupModule,
     ServiceGroupAssignmentModule,
+    ServiceUserAssignmentModule,
   ],
   controllers: [],
   providers: [],

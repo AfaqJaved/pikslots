@@ -106,6 +106,8 @@ export class ServiceGroupAssignmentController {
   }
 
   @FindGroupsByServiceDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Standard', 'Enhanced')
   @Get(SERVICE_GROUP_ASSIGNMENT_ENDPOINTS.FIND_GROUPS_BY_SERVICE)
   async findGroupsByService(
     @Res({ passthrough: true }) res: Response,
@@ -130,6 +132,8 @@ export class ServiceGroupAssignmentController {
   }
 
   @FindServicesByGroupDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Standard', 'Enhanced')
   @Get(SERVICE_GROUP_ASSIGNMENT_ENDPOINTS.FIND_BY_GROUP)
   async findServicesByGroup(
     @Res({ passthrough: true }) res: Response,
@@ -151,7 +155,7 @@ export class ServiceGroupAssignmentController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<ServiceNameResponse[]>(
-      result.value.map((s) => ({ id: s.id, name: s.name })),
+      result.value.map((s) => ({ id: s.id, name: s.title })),
       HttpStatus.OK,
     );
   }

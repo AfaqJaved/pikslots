@@ -1,5 +1,4 @@
-import type { InfrastructureError, Result } from '../../shared';
-import type { ServiceSummary } from '../read-models';
+import type { InfrastructureError, Result, ServiceSummary } from '../../shared';
 
 export const IFindServicesByGroupUseCase = Symbol('IFindServicesByGroupUseCase');
 

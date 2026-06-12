@@ -1,7 +1,6 @@
-import type { InfrastructureError, Result } from '../../shared';
+import type { InfrastructureError, Result, ServiceSummary } from '../../shared';
 import type { ServiceGroupAssignment } from '../service.group.assignment.entity';
 import type { ServiceGroupSummary } from '../read-models/service.group.summary';
-import type { ServiceSummary } from '../read-models';
 
 export const IServiceGroupAssignmentRepository = Symbol('IServiceGroupAssignmentRepository');
 
@@ -33,4 +32,5 @@ export interface ServiceGroupAssignmentRepository {
     serviceGroupId: string,
   ): Promise<Result<ServiceSummary[], InfrastructureError>>;
   update(membership: ServiceGroupAssignment): Promise<Result<void, InfrastructureError>>;
+  deleteById(id: string): Promise<Result<void, InfrastructureError>>;
 }

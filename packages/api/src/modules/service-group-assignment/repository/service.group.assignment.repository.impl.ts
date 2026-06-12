@@ -34,7 +34,7 @@ export class ServiceGroupAssignmentRepositoryImpl implements ServiceGroupAssignm
         .where('sga.is_deleted', '=', false)
         .execute();
 
-      return ok(rows.map((r) => ({ id: r.id, name: r.title })));
+      return ok(rows.map((r) => ({ id: r.id, title: r.title })));
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
@@ -237,6 +237,26 @@ export class ServiceGroupAssignmentRepositoryImpl implements ServiceGroupAssignm
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to find groups by service',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async deleteById(
+    id: string,
+  ): Promise<Result<void, InfrastructureError>> {
+    try {
+      await this.db
+        .deleteFrom('service_group_assignments')
+        .where('id', '=', id)
+        .execute();
+
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to delete service group assignment',
         timestamp: new Date(),
         cause,
       });

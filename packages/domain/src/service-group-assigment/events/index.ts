@@ -1,2 +1,2 @@
-export * from './assign.service.to.service.groups.event.ts';
-export * from './assign.service.group.to.services.event.ts';
+export * from './sync.service.service.groups.event.ts';
+export * from './sync.service.group.services.event.ts';

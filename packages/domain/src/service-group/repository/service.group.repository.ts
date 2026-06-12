@@ -18,6 +18,7 @@ export interface ServiceGroupRepository {
     group: ServiceGroup,
   ): Promise<Result<void, ServiceGroupNotFoundError | InfrastructureError>>;
   existsByName(name: string, businessId: string): Promise<Result<boolean, InfrastructureError>>;
+  delete(id: string): Promise<Result<void, ServiceGroupNotFoundError | InfrastructureError>>;
 }
 
 export const IServiceGroupRepository = Symbol('IServiceGroupRepository');

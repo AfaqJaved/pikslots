@@ -4,3 +4,4 @@ export * from './business/';
 export * from './service/';
 export * from './service-group/';
 export * from './service-group-assigment/';
+export * from './service-user-assignment/';

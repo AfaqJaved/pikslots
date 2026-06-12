@@ -73,6 +73,8 @@ export class ServiceController {
   }
 
   @FindAllServicesByBusinessDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Get(SERVICE_ENDPOINTS.FIND_ALL_BY_BUSINESS)
   async findAllByBusiness(
     @Res({ passthrough: true }) res: Response,

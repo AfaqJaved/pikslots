@@ -19,6 +19,7 @@
 	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
 	import { getServiceGroupsByBusinessQueryOptions } from '../api/service-group/get.service.groups.by.business.query';
 	import { getGroupsByServiceQueryOptions } from '../api/service-group/get.groups.by.service.query';
+	import { getUsersByServiceQueryOptions } from '../api/service-user-assignment/get.users.by.service.query';
 	import { getServicesByBusinessQueryOptions } from '../api/service/get.services.by.business.query';
 	import { updateServiceMutationOptions } from '../api/service/update.service.mutation';
 	import { businessStore } from '$stores/business.svelte';
@@ -67,9 +68,9 @@
 		enabled: !!businessStore.selectedBusiness?.id
 	}));
 
-	const groupsByServiceQuery = createQuery(() =>
-		getGroupsByServiceQueryOptions(serviceId)
-	);
+	const groupsByServiceQuery = createQuery(() => getGroupsByServiceQueryOptions(serviceId));
+
+	const usersByServiceQuery = createQuery(() => getUsersByServiceQueryOptions(serviceId ?? null));
 
 	const service = $derived(servicesQuery.data?.find((s) => s.id === serviceId));
 	const teamMembers = $derived<BusinessUserModel[]>(userQuery.data ?? []);
@@ -95,7 +96,7 @@
 			SPA: true,
 			resetForm: false,
 			onUpdate({ form }) {
-				if (form.valid) {
+				if (form.valid && serviceId) {
 					updateMutation.mutate({
 						id: serviceId,
 						title: form.data.title,
@@ -117,6 +118,13 @@
 	$effect(() => {
 		if (groupsByServiceQuery.data) {
 			selectedGroupIds = new Set(groupsByServiceQuery.data.map((g) => g.id));
+		}
+	});
+
+	// Pre-fill selected members when query loads
+	$effect(() => {
+		if (usersByServiceQuery.data) {
+			selectedMemberIds = new Set(usersByServiceQuery.data.map((u) => u.id));
 		}
 	});
 

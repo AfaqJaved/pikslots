@@ -134,6 +134,36 @@ export class ServiceGroupRepositoryImpl implements ServiceGroupRepository {
     }
   }
 
+  async delete(
+    id: string,
+  ): Promise<Result<void, ServiceGroupNotFoundError | InfrastructureError>> {
+    try {
+      const result = await this.db
+        .deleteFrom('service_groups')
+        .where('id', '=', id)
+        .executeTakeFirst();
+
+      if (!result.numDeletedRows || result.numDeletedRows === BigInt(0)) {
+        return err<ServiceGroupNotFoundError>({
+          kind: 'service_group_not_found',
+          by: 'id',
+          value: id,
+          message: `Service group not found against ${id}`,
+          timestamp: new Date(),
+        });
+      }
+
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to delete service group',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async existsByName(
     name: string,
     businessId: string,

@@ -13,9 +13,6 @@ const PUBLIC_ROUTES: string[] = [
   '/users/invite/request-otp',
   '/users/invite/accept',
   '/businesses/register',
-  '/service-groups/by-business/*', // service groups by business public for booking page
-  '/services/by-business/*', // services by business public for booking page
-  '/service-group-assignments/by-service/*/groups', // groups by service public for booking page
 ];
 
 function isPublicRoute(originalUrl: string): boolean {
@@ -30,7 +27,9 @@ function isPublicRoute(originalUrl: string): boolean {
     }
     // mid-path wildcard: convert to regex where * matches one path segment
     const regex = new RegExp(
-      '^' + route.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') + '$',
+      '^' +
+        route.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') +
+        '$',
     );
     return regex.test(path);
   });

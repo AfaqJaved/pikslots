@@ -127,15 +127,15 @@
 	function formatCost(cost: number): string {
 		return cost === 0 ? 'Free' : `$${(cost / 100).toFixed(2)}`;
 	}
-
-	const accentColors = [
-		'border-l-teal-400',
-		'border-l-slate-300',
-		'border-l-yellow-400',
-		'border-l-red-400',
-		'border-l-blue-400',
-		'border-l-purple-400'
-	];
+	//
+	// const accentColors = [
+	// 	'border-l-teal-400',
+	// 	'border-l-slate-300',
+	// 	'border-l-yellow-400',
+	// 	'border-l-red-400',
+	// 	'border-l-blue-400',
+	// 	'border-l-purple-400'
+	// ];
 </script>
 
 <Dialog.Root
@@ -209,9 +209,7 @@
 							<button
 								type="button"
 								onclick={() => toggleService(service.id)}
-								class="flex items-center gap-3 rounded-xl border border-l-4 px-3 py-3 text-left hover:bg-accent/40 {accentColors[
-									i % accentColors.length
-								]}"
+								class="flex items-center gap-3 border px-3 py-3 text-left hover:bg-accent/40"
 							>
 								<Checkbox checked={selectedIds.has(service.id)} class="shrink-0 rounded-sm" />
 								<div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">

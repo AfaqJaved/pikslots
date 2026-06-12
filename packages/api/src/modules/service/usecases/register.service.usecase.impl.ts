@@ -10,7 +10,8 @@ import {
   Service,
 } from '@pikslots/domain';
 import type {
-  AssignServiceToServiceGroupsEvent,
+  SyncServiceServiceGroupsEvent,
+  AssignServiceToUsersEvent,
   ServiceRepository,
   UnauthorizedError,
 } from '@pikslots/domain';
@@ -33,12 +34,18 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     private readonly serviceRepository: ServiceRepository,
     private readonly securityContext: SecurityContext,
     @InjectQueue(
-      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_TO_SERVICE_GROUPS,
+      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
     )
     private readonly serviceGroupAssignmentQueue: Queue<
-      AssignServiceToServiceGroupsEvent,
+      SyncServiceServiceGroupsEvent,
       void,
-      typeof PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_TO_SERVICE_GROUPS
+      typeof PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS
+    >,
+    @InjectQueue(PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.ASSIGN_SERVICE_TO_USERS)
+    private readonly serviceUserAssignmentQueue: Queue<
+      AssignServiceToUsersEvent,
+      void,
+      typeof PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.ASSIGN_SERVICE_TO_USERS
     >,
   ) {}
 
@@ -70,10 +77,9 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     if (!saved.ok) return err(saved.error);
 
     if (command.associatedServiceGroups.length > 0) {
-      // (single) service --> assing to --> service groups (multiple)
+      // (single) service --> sync  --> service groups (multiple)
       await this.serviceGroupAssignmentQueue.add(
-        PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-          .ASSIGN_SERVICE_TO_SERVICE_GROUPS,
+        PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
         {
           serviceId: service.id,
           serviceGroupIds: command.associatedServiceGroups,
@@ -84,7 +90,16 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
     }
 
     if (command.associatedUsers.length > 0) {
-      //TODO FIRE EVENT
+      // (single) service  --> assing to --> users (multiple)
+      await this.serviceUserAssignmentQueue.add(
+        PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.ASSIGN_SERVICE_TO_USERS,
+        {
+          serviceId: service.id,
+          userIds: command.associatedUsers,
+          businessId: command.businessId,
+          assignedBy: command.createdBy,
+        },
+      );
     }
 
     return ok(service);

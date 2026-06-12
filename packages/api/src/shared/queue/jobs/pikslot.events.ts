@@ -7,7 +7,10 @@ export const PIKSLOT_EVENTS = {
   },
   // juntion table many to many
   SERVICE_GROUP_ASSIGNMENT: {
-    ASSIGN_SERVICE_TO_SERVICE_GROUPS: 'assign.service.to.service.groups', // (single) service --> assign to --> service groups (multiple)
-    ASSIGN_SERVICE_GROUP_TO_SERVICES: 'assign.service.group.to.services', // (single) service group --> assign to --> services (multiple)
+    SYNC_SERVICE_SERVICE_GROUPS: 'sync.service.service.groups',
+    SYNC_SERVICE_GROUP_SERVICES: 'sync.service.group.services',
+  },
+  SERVICE_USER_ASSIGNMENT: {
+    ASSIGN_SERVICE_TO_USERS: 'assign.service.to.users', // (single) service --> assign to --> users (multiple)
   },
 } as const;

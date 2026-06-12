@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -18,8 +20,11 @@ import { Roles } from 'src/shared/security/guards/roles.decorator';
 import { mapServiceGroupError } from './errors/service.group.errors.map';
 import { SERVICE_GROUP_ENDPOINTS } from '@pikslots/shared';
 import { RegisterServiceGroupDto } from './dto/create.service.group.dto';
+import { EditServiceGroupDto } from './dto/edit.service.group.dto';
 import {
   CreateServiceGroupDocs,
+  DeleteServiceGroupDocs,
+  EditServiceGroupDocs,
   FindAllServiceGroupsByBusinessDocs,
 } from './docs/service.group.controller.docs';
 import { ServiceGroupUseCasesFactory } from './factory/service.group.usecases.factory';
@@ -70,7 +75,59 @@ export class ServiceGroupController {
     );
   }
 
+  @EditServiceGroupDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(SERVICE_GROUP_ENDPOINTS.EDIT)
+  async editServiceGroup(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceGroupId') serviceGroupId: string,
+    @Body() dto: EditServiceGroupDto,
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<void>> {
+    const result =
+      await this.serviceGroupUseCasesFactory.editServiceGroupUseCase.execute({
+        serviceGroupId,
+        name: dto.name,
+        businessId: dto.businessId,
+        serviceIds: dto.serviceIds,
+        updatedBy: this.securityContext.userId,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapServiceGroupError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<void>(undefined, HttpStatus.OK);
+  }
+
+  @DeleteServiceGroupDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Delete(SERVICE_GROUP_ENDPOINTS.DELETE)
+  async deleteServiceGroup(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceGroupId') serviceGroupId: string,
+  ): Promise<PikslotsBaseErrorResponse | PikslotsBaseResponse<void>> {
+    const result =
+      await this.serviceGroupUseCasesFactory.deleteServiceGroupUseCase.execute(
+        serviceGroupId,
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapServiceGroupError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<void>(undefined, HttpStatus.OK);
+  }
+
   @FindAllServiceGroupsByBusinessDocs()
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Get(SERVICE_GROUP_ENDPOINTS.FIND_ALL_BY_BUSINESS)
   async findAllByBusiness(
     @Res({ passthrough: true }) res: Response,

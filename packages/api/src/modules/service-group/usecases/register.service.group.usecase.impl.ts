@@ -10,7 +10,7 @@ import {
   ServiceGroupAlreadyExistsInBusinessError,
 } from '@pikslots/domain';
 import type {
-  AssignServiceGroupToServicesEvent,
+  SyncServiceGroupServicesEvent,
   RegisterServiceGroupCommand,
   RegisterServiceGroupUseCase,
   ServiceGroupRepository,
@@ -25,12 +25,12 @@ export class RegisterServiceGroupUseCaseImpl implements RegisterServiceGroupUseC
     @Inject(IServiceGroupRepository)
     private readonly serviceGroupRepository: ServiceGroupRepository,
     @InjectQueue(
-      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_GROUP_TO_SERVICES,
+      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_GROUP_SERVICES,
     )
     private readonly serviceGroupAssignmentQueue: Queue<
-      AssignServiceGroupToServicesEvent,
+      SyncServiceGroupServicesEvent,
       void,
-      typeof PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.ASSIGN_SERVICE_GROUP_TO_SERVICES
+      typeof PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_GROUP_SERVICES
     >,
   ) {}
 
@@ -73,7 +73,7 @@ export class RegisterServiceGroupUseCaseImpl implements RegisterServiceGroupUseC
       // (single) service group --> assing to --> services(multiple)
       await this.serviceGroupAssignmentQueue.add(
         PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-          .ASSIGN_SERVICE_GROUP_TO_SERVICES,
+          .SYNC_SERVICE_GROUP_SERVICES,
         {
           serviceGroupId: group.id,
           serviceIds: command.associatedServices,

@@ -13,12 +13,19 @@
 	import DotsVertical from '@tabler/icons-svelte/icons/dots-vertical';
 	import Adjustments from '@tabler/icons-svelte/icons/adjustments';
 	import NewServiceGroupDialog from './dialog/new-service-group.svelte';
+	import EditServiceGroupDialog from './dialog/edit-service-group.svelte';
+	import type { ServiceGroupModel } from '../api/service-group/models/service-group-model';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import ChevronUp from '@tabler/icons-svelte/icons/chevron-up';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { getServiceGroupsByBusinessQueryOptions } from '../api/service-group/get.service.groups.by.business.query';
 	import { getServicesByBusinessQueryOptions } from '../api/service/get.services.by.business.query';
 	import { getServicesByGroupQueryOptions } from '../api/service-group-assignment/get.services.by.group.query';
+	import { getServicesByUserQueryOptions } from '../api/service-user-assignment/get.services.by.user.query';
+	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
+	import { deleteServiceGroupMutationOptions } from '../api/service-group/delete.service.group.mutation';
+	import { ConfirmDialog } from '$lib/components/ui/confirm-dialog/index.js';
+	import { toast } from 'svelte-sonner';
 	import { businessStore } from '$stores/business.svelte';
 	import { IconBriefcase } from '@tabler/icons-svelte';
 	import { goto } from '$app/navigation';
@@ -29,8 +36,13 @@
 
 	let search = $state('');
 	let selectedGroupId = $state<string | null>(null);
+	let selectedUserId = $state<string | null>(null);
 	let newGroupDialogOpen = $state(false);
 	let openAccordionItems = $state<string[]>(['services', 'classes']);
+	let deleteGroupId = $state<string | null>(null);
+	let deleteGroupName = $state<string>('');
+	let editGroupDialogOpen = $state(false);
+	let editingGroup = $state<ServiceGroupModel | null>(null);
 
 	function toggleAccordionItem(item: string) {
 		if (openAccordionItems.includes(item)) {
@@ -55,16 +67,46 @@
 	const serviceGroups = $derived(serviceGroupsQuery.data ?? []);
 	const services = $derived(servicesQuery.data ?? []);
 
+	const usersQuery = createQuery(() => ({
+		...getUsersInsideBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id
+	}));
+
 	const servicesByGroupQuery = createQuery(() => getServicesByGroupQueryOptions(selectedGroupId));
+	const servicesByUserQuery = createQuery(() => getServicesByUserQueryOptions(selectedUserId));
+
+	const users = $derived(usersQuery.data ?? []);
+
+	const queryClient = useQueryClient();
+
+	const deleteServiceGroupMutation = createMutation(() => ({
+		...deleteServiceGroupMutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['service-groups'] });
+			if (selectedGroupId === deleteGroupId) selectedGroupId = null;
+			deleteGroupId = null;
+			toast.success(`"${deleteGroupName}" deleted`);
+		},
+		onError: (error) => {
+			toast.error(error.response?.data?.message ?? 'Failed to delete service group');
+		}
+	}));
 
 	const bookingUrl = 'solverse.pikslots.com/afaq';
 
 	// ── Derived ─────────────────────────────────────────────────────────────────
 
 	const visibleServices = $derived(() => {
-		if (!selectedGroupId) return services;
-		const groupServiceIds = new Set(servicesByGroupQuery.data?.map((s) => s.id) ?? []);
-		return services.filter((s) => groupServiceIds.has(s.id));
+		let result = services;
+		if (selectedGroupId) {
+			const groupServiceIds = new Set(servicesByGroupQuery.data?.map((s) => s.id) ?? []);
+			result = result.filter((s) => groupServiceIds.has(s.id));
+		}
+		if (selectedUserId) {
+			const userServiceIds = new Set(servicesByUserQuery.data?.map((s) => s.id) ?? []);
+			result = result.filter((s) => userServiceIds.has(s.id));
+		}
+		return result;
 	});
 
 	const filteredServices = $derived(
@@ -94,6 +136,16 @@
 </script>
 
 <NewServiceGroupDialog bind:open={newGroupDialogOpen} {services} />
+<EditServiceGroupDialog bind:open={editGroupDialogOpen} bind:group={editingGroup} {services} />
+
+<ConfirmDialog
+	open={!!deleteGroupId}
+	title="Delete service group?"
+	description={`"${deleteGroupName}" will be permanently deleted along with all its service assignments. This cannot be undone.`}
+	loading={deleteServiceGroupMutation.isPending}
+	onConfirm={() => deleteServiceGroupMutation.mutate(deleteGroupId!)}
+	onCancel={() => (deleteGroupId = null)}
+/>
 
 <div class="flex h-full min-h-0 flex-1">
 	<!-- ── Left: service groups sidebar ──────────────────────────────────────── -->
@@ -110,8 +162,8 @@
 						<button
 							type="button"
 							onclick={() => (selectedGroupId = null)}
-							class="text-sm font-medium"
-						>Services ({serviceGroups.length})</button>
+							class="text-sm font-medium">Services ({serviceGroups.length})</button
+						>
 						<button
 							type="button"
 							onclick={() => toggleAccordionItem('services')}
@@ -145,11 +197,17 @@
 											{/snippet}
 										</DropdownMenu.Trigger>
 										<DropdownMenu.Content align="end" class="w-36">
-											<DropdownMenu.Item class="cursor-pointer"><Pencil /> Edit</DropdownMenu.Item>
+											<DropdownMenu.Item
+									class="cursor-pointer"
+									onclick={() => { editingGroup = group; editGroupDialogOpen = true; }}
+									><Pencil /> Edit</DropdownMenu.Item>
 											<DropdownMenu.Separator />
 											<DropdownMenu.Item
 												class="cursor-pointer text-destructive focus:text-destructive"
-												><Trash />Delete</DropdownMenu.Item
+												onclick={() => {
+													deleteGroupId = group.id;
+													deleteGroupName = group.name;
+												}}><Trash />Delete</DropdownMenu.Item
 											>
 										</DropdownMenu.Content>
 									</DropdownMenu.Root>
@@ -231,18 +289,33 @@
 					{#snippet child({ props })}
 						<Button variant="outline" size="sm" class="gap-2 text-xs" {...props}>
 							<Avatar.Root class="size-5 text-[10px]">
-								<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground"
-									>A</Avatar.Fallback
-								>
+								<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground">
+									{#if selectedUserId}
+										{@const u = users.find((m) => m.id === selectedUserId)}
+										{u ? u.name.firstName[0] + u.name.lastName[0] : '?'}
+									{:else}
+										All
+									{/if}
+								</Avatar.Fallback>
 							</Avatar.Root>
-							Afaq
+							{#if selectedUserId}
+								{@const u = users.find((m) => m.id === selectedUserId)}
+								{u ? u.name.firstName + ' ' + u.name.lastName : 'Staff'}
+							{:else}
+								All staff
+							{/if}
 							<ChevronDown size={12} class="text-muted-foreground" />
 						</Button>
 					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="start" class="w-44">
-					<DropdownMenu.Item>All staff</DropdownMenu.Item>
-					<DropdownMenu.Item>Afaq Javed</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={() => (selectedUserId = null)}>All staff</DropdownMenu.Item>
+					{#each users as user (user.id)}
+						<DropdownMenu.Item onclick={() => (selectedUserId = user.id)}>
+							{user.name.firstName}
+							{user.name.lastName}
+						</DropdownMenu.Item>
+					{/each}
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 
@@ -285,7 +358,7 @@
 
 		<!-- Service rows -->
 		<div class="flex flex-1 flex-col overflow-y-auto">
-			{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending)}
+			{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending) || (selectedUserId && servicesByUserQuery.isPending)}
 				<div class="flex flex-1 items-center justify-center">
 					<p class="text-sm text-muted-foreground">Loading...</p>
 				</div>
