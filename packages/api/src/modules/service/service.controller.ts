@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -21,12 +22,15 @@ import { RegisterServiceDto } from './dto/register.service.dto';
 import {
   RegisterServiceDocs,
   FindAllServicesByBusinessDocs,
+  EditServiceDocs,
 } from './docs/service.controller.docs';
 import { ServiceUseCasesFactory } from './factory/service.usecases.factory';
 import {
   RegisterServiceResponse,
   FindAllServicesByBusinessResponse,
+  UpdateServiceResponse,
 } from '@pikslots/shared';
+import { EditServiceDto } from './dto/edit.service.dto';
 
 @ApiTags('Services')
 @Controller('')
@@ -70,6 +74,47 @@ export class ServiceController {
     res.status(HttpStatus.CREATED);
 
     return new PikslotsBaseResponse({ message: 'success' }, HttpStatus.CREATED);
+  }
+
+  @EditServiceDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(SERVICE_ENDPOINTS.UPDATE)
+  async editService(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceId') serviceId: string,
+    @Body() dto: EditServiceDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UpdateServiceResponse>
+  > {
+    const result = await this.serviceUseCasesFactory.editServiceUseCase.execute(
+      {
+        id: serviceId,
+        title: dto.title,
+        description: dto.description,
+        imagesUrls: dto.imagesUrls,
+        durationInMins: dto.durationInMins,
+        bufferTimeInMins: dto.bufferTimeInMins,
+        cost: dto.cost,
+        isHiddenFromBookingPage: dto.isHiddenFromBookingPage,
+        associatedServiceGroups: dto.associatedServiceGroups,
+        associatedUsers: dto.associatedUsers,
+        businessId: dto.businessId,
+        updatedBy: this.securityContext.userId,
+      },
+    );
+
+    if (!result.ok) {
+      const errorResponse = mapServiceError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<UpdateServiceResponse>(
+      { message: 'success' },
+      HttpStatus.OK,
+    );
   }
 
   @FindAllServicesByBusinessDocs()

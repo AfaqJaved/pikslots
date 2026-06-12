@@ -263,4 +263,22 @@ export class ServiceUserAssignmentRepositoryImpl implements ServiceUserAssignmen
       });
     }
   }
+
+  async deleteById(id: string): Promise<Result<void, InfrastructureError>> {
+    try {
+      await this.db
+        .deleteFrom('service_user_assignments')
+        .where('id', '=', id)
+        .execute();
+
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to delete service user assignment',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
 }

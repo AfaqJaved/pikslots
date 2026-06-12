@@ -11,6 +11,6 @@ export const PIKSLOT_EVENTS = {
     SYNC_SERVICE_GROUP_SERVICES: 'sync.service.group.services',
   },
   SERVICE_USER_ASSIGNMENT: {
-    ASSIGN_SERVICE_TO_USERS: 'assign.service.to.users', // (single) service --> assign to --> users (multiple)
+    SYNC_SERVICE_TO_USERS: 'sync.service.to.users', // (single) service --> sync --> users (multiple)
   },
 } as const;

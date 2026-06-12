@@ -1,1 +1,1 @@
-export * from './assign.service.to.users.event';
+export * from './sync.service.to.users.event'; // SyncServiceToUsersEvent

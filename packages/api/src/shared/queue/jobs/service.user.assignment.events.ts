@@ -1,4 +1,4 @@
-import { AssignServiceToUsersEvent } from '@pikslots/domain';
+import { SyncServiceToUsersEvent } from '@pikslots/domain';
 import { Job } from 'bullmq';
 import { PIKSLOT_EVENTS } from './pikslot.events';
 
@@ -10,7 +10,7 @@ export type ServiceUserAssignmentJobName =
 
 export interface ServiceUserAssignmentJobData {
   [PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT
-    .ASSIGN_SERVICE_TO_USERS]: AssignServiceToUsersEvent;
+    .SYNC_SERVICE_TO_USERS]: SyncServiceToUsersEvent;
 }
 
 // ── Discriminated union of all service-user-assignment jobs ──────────────────

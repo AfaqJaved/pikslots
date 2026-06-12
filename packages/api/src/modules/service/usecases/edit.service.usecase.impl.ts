@@ -4,8 +4,8 @@ import {
   InfrastructureError,
   IServiceRepository,
   ok,
-  RegisterServiceCommand,
-  RegisterServiceUseCase,
+  EditServiceCommand,
+  EditServiceUseCase,
   Result,
   Service,
 } from '@pikslots/domain';
@@ -13,22 +13,22 @@ import type {
   SyncServiceServiceGroupsEvent,
   SyncServiceToUsersEvent,
   ServiceRepository,
+  ServiceNotFoundError,
   UnauthorizedError,
 } from '@pikslots/domain';
 import { SecurityContext } from 'src/shared/security/context/security.context';
-import { v7 as uuidv7 } from 'uuid';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
-  message: 'Can not register service : unauthorized!!!',
+  message: 'Can not edit service : unauthorized!!!',
   timestamp: new Date(),
 };
 
 @Injectable()
-export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
+export class EditServiceUseCaseImpl implements EditServiceUseCase {
   constructor(
     @Inject(IServiceRepository)
     private readonly serviceRepository: ServiceRepository,
@@ -50,17 +50,32 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
   ) {}
 
   async execute(
-    command: RegisterServiceCommand,
-  ): Promise<Result<Service, UnauthorizedError | InfrastructureError>> {
+    command: EditServiceCommand,
+  ): Promise<
+    Result<void, ServiceNotFoundError | UnauthorizedError | InfrastructureError>
+  > {
     const callerRole = this.securityContext.role;
     const callerBusinessId = this.securityContext.businessId;
     const isPartOfSameBusiness = callerBusinessId === command.businessId;
 
-    if (!Service.canRegisterService(callerRole, isPartOfSameBusiness))
+    if (!Service.canEditService(callerRole, isPartOfSameBusiness))
       return err(UNAUTHORIZED_ERROR);
 
-    const service = Service.create({
-      id: uuidv7(),
+    const found = await this.serviceRepository.findById(command.id);
+
+    if (!found.ok) return err(found.error);
+
+    if (!found.value) {
+      return err({
+        kind: 'service_not_found',
+        message: `Service not found by id: ${command.id}`,
+        timestamp: new Date(),
+        by: 'id',
+        value: command.id,
+      } satisfies ServiceNotFoundError);
+    }
+
+    const updated = found.value.update({
       title: command.title,
       description: command.description,
       imagesUrls: command.imagesUrls,
@@ -68,40 +83,35 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
       bufferTimeInMins: command.bufferTimeInMins,
       cost: command.cost,
       isHiddenFromBookingPage: command.isHiddenFromBookingPage,
-      businessId: command.businessId,
-      createdBy: command.createdBy,
+      updatedBy: command.updatedBy,
     });
 
-    const saved = await this.serviceRepository.save(service);
+    const saved = await this.serviceRepository.update(updated);
 
     if (!saved.ok) return err(saved.error);
 
-    if (command.associatedServiceGroups.length > 0) {
-      // (single) service --> sync  --> service groups (multiple)
-      await this.serviceGroupAssignmentQueue.add(
-        PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
-        {
-          serviceId: service.id,
-          serviceGroupIds: command.associatedServiceGroups,
-          businessId: command.businessId,
-          assignedBy: command.createdBy,
-        },
-      );
-    }
+    // sync service groups (full sync — adds new, removes dropped)
+    await this.serviceGroupAssignmentQueue.add(
+      PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
+      {
+        serviceId: command.id,
+        serviceGroupIds: command.associatedServiceGroups,
+        businessId: command.businessId,
+        assignedBy: command.updatedBy,
+      },
+    );
 
-    if (command.associatedUsers.length > 0) {
-      // (single) service  --> assing to --> users (multiple)
-      await this.serviceUserAssignmentQueue.add(
-        PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.SYNC_SERVICE_TO_USERS,
-        {
-          serviceId: service.id,
-          userIds: command.associatedUsers,
-          businessId: command.businessId,
-          assignedBy: command.createdBy,
-        },
-      );
-    }
+    // sync users (full sync — adds new, removes dropped)
+    await this.serviceUserAssignmentQueue.add(
+      PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.SYNC_SERVICE_TO_USERS,
+      {
+        serviceId: command.id,
+        userIds: command.associatedUsers,
+        businessId: command.businessId,
+        assignedBy: command.updatedBy,
+      },
+    );
 
-    return ok(service);
+    return ok(undefined);
   }
 }

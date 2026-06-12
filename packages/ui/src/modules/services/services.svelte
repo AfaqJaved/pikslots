@@ -31,6 +31,11 @@
 	import { goto } from '$app/navigation';
 	import Pencil from '@tabler/icons-svelte/icons/pencil';
 	import Trash from '@tabler/icons-svelte/icons/trash';
+	import ExternalLink from '@tabler/icons-svelte/icons/external-link';
+	import Qrcode from '@tabler/icons-svelte/icons/qrcode';
+	import Share from '@tabler/icons-svelte/icons/share';
+	import EyeOff from '@tabler/icons-svelte/icons/eye-off';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 
 	// ── State ───────────────────────────────────────────────────────────────────
 
@@ -198,9 +203,12 @@
 										</DropdownMenu.Trigger>
 										<DropdownMenu.Content align="end" class="w-36">
 											<DropdownMenu.Item
-									class="cursor-pointer"
-									onclick={() => { editingGroup = group; editGroupDialogOpen = true; }}
-									><Pencil /> Edit</DropdownMenu.Item>
+												class="cursor-pointer"
+												onclick={() => {
+													editingGroup = group;
+													editGroupDialogOpen = true;
+												}}><Pencil /> Edit</DropdownMenu.Item
+											>
 											<DropdownMenu.Separator />
 											<DropdownMenu.Item
 												class="cursor-pointer text-destructive focus:text-destructive"
@@ -405,13 +413,53 @@
 									</Button>
 								{/snippet}
 							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-36">
-								<DropdownMenu.Item onclick={() => goto(`/home/services/${service.id}/edit`)}
-									>Edit</DropdownMenu.Item
+							<DropdownMenu.Content align="end" class="w-52">
+								<DropdownMenu.Item
+									class="cursor-pointer gap-2"
+									onclick={() => goto(`/home/services/${service.id}/edit`)}
 								>
-								<DropdownMenu.Item>Duplicate</DropdownMenu.Item>
+									<Pencil size={14} class="text-muted-foreground" />
+									Edit
+								</DropdownMenu.Item>
+								<DropdownMenu.Item
+									class="cursor-pointer gap-2"
+									onclick={(e) => { e.stopPropagation(); window.open(`https://${bookingUrl}/service/${service.id}`, '_blank'); }}
+								>
+									<ExternalLink size={14} class="text-muted-foreground" />
+									Preview
+								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Item class="text-destructive focus:text-destructive">
+								<DropdownMenu.Item class="cursor-pointer gap-2">
+									<Qrcode size={14} class="text-muted-foreground" />
+									QR Code
+								</DropdownMenu.Item>
+								<DropdownMenu.Item
+									class="cursor-pointer gap-2"
+									onclick={(e) => { e.stopPropagation(); navigator.share?.({ url: `https://${bookingUrl}/service/${service.id}` }); }}
+								>
+									<Share size={14} class="text-muted-foreground" />
+									Share
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item
+									class="cursor-pointer gap-2"
+									closeOnSelect={false}
+									onclick={(e) => e.stopPropagation()}
+								>
+									<EyeOff size={14} class="text-muted-foreground" />
+									<span class="flex-1">Set to hidden</span>
+									<Switch
+										checked={service.isHiddenFromBookingPage}
+										onclick={(e: MouseEvent) => e.stopPropagation()}
+									/>
+								</DropdownMenu.Item>
+								<DropdownMenu.Item class="cursor-pointer gap-2">
+									<Copy size={14} class="text-muted-foreground" />
+									Duplicate
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item class="cursor-pointer gap-2 text-destructive focus:text-destructive">
+									<Trash size={14} />
 									Delete
 								</DropdownMenu.Item>
 							</DropdownMenu.Content>

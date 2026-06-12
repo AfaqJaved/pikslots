@@ -106,7 +106,7 @@ export class BusinessController {
 
   @GetBusinessByIdDocs()
   @UseGuards(RolesGuard)
-  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Standard', 'Enhanced')
   @Get(BUSINESS_ENDPOINTS.GET_BY_ID)
   async getBusinessById(
     @Res({ passthrough: true }) res: Response,
@@ -1139,15 +1139,17 @@ export class BusinessController {
     | PikslotsBaseResponse<UpdateBusinessContactDetailsResponse>
   > {
     const result =
-      await this.businessUseCaseFactory.updateBusinessContactDetailsUseCase.execute({
-        id,
-        contactDetails: {
-          primaryEmail: dto.primaryEmail,
-          primaryPhone: dto.primaryPhone,
-          additionalEmails: dto.additionalEmails,
-          additionalPhones: dto.additionalPhones,
+      await this.businessUseCaseFactory.updateBusinessContactDetailsUseCase.execute(
+        {
+          id,
+          contactDetails: {
+            primaryEmail: dto.primaryEmail,
+            primaryPhone: dto.primaryPhone,
+            additionalEmails: dto.additionalEmails,
+            additionalPhones: dto.additionalPhones,
+          },
         },
-      });
+      );
 
     if (!result.ok) {
       const errorResponse = mapBusinessError(result.error);

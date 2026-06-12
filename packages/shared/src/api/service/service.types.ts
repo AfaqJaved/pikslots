@@ -44,6 +44,7 @@ export interface UpdateServiceInput {
   isHiddenFromBookingPage: boolean;
   associatedUsers: string[];
   associatedServiceGroups: string[];
+  businessId: string;
 }
 
 export interface UpdateServiceResponse {

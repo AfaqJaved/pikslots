@@ -15,7 +15,7 @@
 	import Photo from '@tabler/icons-svelte/icons/photo';
 	import Upload from '@tabler/icons-svelte/icons/upload';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
-	import { createQuery, createMutation } from '@tanstack/svelte-query';
+	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
 	import { getServiceGroupsByBusinessQueryOptions } from '../api/service-group/get.service.groups.by.business.query';
 	import { getGroupsByServiceQueryOptions } from '../api/service-group/get.groups.by.service.query';
@@ -78,6 +78,7 @@
 
 	// ── Mutation ─────────────────────────────────────────────────────────────────
 
+	const queryClient = useQueryClient();
 	const updateMutation = createMutation(updateServiceMutationOptions);
 
 	// ── Superform ────────────────────────────────────────────────────────────────
@@ -96,7 +97,7 @@
 			SPA: true,
 			resetForm: false,
 			onUpdate({ form }) {
-				if (form.valid && serviceId) {
+				if (form.valid && serviceId && businessStore.selectedBusiness?.id) {
 					updateMutation.mutate({
 						id: serviceId,
 						title: form.data.title,
@@ -107,7 +108,8 @@
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
 						imagesUrls: [],
 						associatedUsers: [...selectedMemberIds],
-						associatedServiceGroups: [...selectedGroupIds]
+						associatedServiceGroups: [...selectedGroupIds],
+						businessId: businessStore.selectedBusiness.id
 					});
 				}
 			}
@@ -142,6 +144,9 @@
 
 	$effect(() => {
 		if (updateMutation.isSuccess) {
+			queryClient.invalidateQueries({ queryKey: ['services'] });
+			queryClient.invalidateQueries({ queryKey: ['service-group-assignments'] });
+			queryClient.invalidateQueries({ queryKey: ['service-user-assignments'] });
 			toast.success('Service updated successfully');
 			goto('/home/services');
 		}

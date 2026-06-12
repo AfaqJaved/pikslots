@@ -19,9 +19,10 @@
 
 	$effect(() => {
 		if (!authStore.isInitializing && !authStore.isAuthenticated) goto('/login');
+
 		if (
-			authStore.getPayloadData()?.role === 'Business Owner' ||
-			authStore.getPayloadData()?.role === 'Admin'
+			authStore.getPayloadData()?.role !== 'Platform Owner' ||
+			authStore.getPayloadData()?.role === 'No Access'
 		)
 			callGetBusinessById = true;
 

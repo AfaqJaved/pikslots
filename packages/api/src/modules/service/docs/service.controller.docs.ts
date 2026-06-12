@@ -2,6 +2,7 @@ import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { RegisterServiceDto } from '../dto/register.service.dto';
+import { EditServiceDto } from '../dto/edit.service.dto';
 
 export const RegisterServiceDocs = () =>
   applyDecorators(
@@ -26,6 +27,33 @@ export const RegisterServiceDocs = () =>
     ApiResponse({
       status: HttpStatus.BAD_REQUEST,
       description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const EditServiceDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update an existing service' }),
+    ApiParam({ name: 'serviceId', description: 'Service ID', example: 'svc_01j...' }),
+    ApiBody({ type: EditServiceDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Service updated successfully',
+      schema: { example: { data: { message: 'success' }, statusCode: 200, timestamp: '2026-01-01T00:00:00.000Z' } },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Service not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Caller is not authorized to edit this service',
       type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({

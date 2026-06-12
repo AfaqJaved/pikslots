@@ -72,7 +72,40 @@ export class Service {
     });
   }
 
+  update(input: {
+    title: string;
+    description: string;
+    imagesUrls: string[];
+    durationInMins: number;
+    bufferTimeInMins: number;
+    cost: number;
+    isHiddenFromBookingPage: boolean;
+    updatedBy: string;
+  }): Service {
+    return new Service({
+      ...this.props,
+      title: input.title,
+      description: input.description,
+      images: input.imagesUrls,
+      durationInMins: input.durationInMins,
+      bufferTimeInMins: input.bufferTimeInMins,
+      cost: input.cost,
+      isHiddenFromBookingPage: input.isHiddenFromBookingPage,
+      updatedAt: new Date(),
+      updatedBy: input.updatedBy,
+    });
+  }
+
   static canRegisterService(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
+      return true;
+
+    // Enhanced , Standard , No acess can only read and shared services
+    return false;
+  }
+
+  static canEditService(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
     if (callerRole === 'Platform Owner') return true;
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;

@@ -121,7 +121,7 @@ export class UserController {
 
   @GetBusinessUsersDocs()
   @UseGuards(RolesGuard)
-  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Standard', 'Enhanced')
   @Get(USER_ENDPOINTS.BUSINESS_USERS)
   async getBusinessUsers(
     @Param('businessId') businessId: string,

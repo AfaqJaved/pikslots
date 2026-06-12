@@ -26,4 +26,5 @@ export interface ServiceUserAssignmentRepository {
   findUsersByService(serviceId: string): Promise<Result<UserSummary[], InfrastructureError>>;
   findServicesByUser(userId: string): Promise<Result<ServiceSummary[], InfrastructureError>>;
   update(assignment: ServiceUserAssignment): Promise<Result<void, InfrastructureError>>;
+  deleteById(id: string): Promise<Result<void, InfrastructureError>>;
 }

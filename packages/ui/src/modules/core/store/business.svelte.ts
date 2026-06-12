@@ -4,6 +4,8 @@ function createBusinessStore() {
 	let selectedBusiness = $state<BusinessModel | null>(null);
 
 	function setSelectedBusiness(business: BusinessModel) {
+		console.log('business selected sucessfully' + business.id);
+
 		selectedBusiness = business;
 	}
 
