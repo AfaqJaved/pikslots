@@ -12,6 +12,9 @@ import { ServiceModule } from './modules/service/service.module';
 import { ServiceGroupModule } from './modules/service-group/service.group.module';
 import { ServiceGroupAssignmentModule } from './modules/service-group-assignment/service.group.assignment.module';
 import { ServiceUserAssignmentModule } from './modules/service-user-assignment/service.user.assignment.module';
+import { ClassModule } from './modules/class/class.module';
+import { ClassGroupModule } from './modules/class-group/class.group.module';
+import { ClassGroupAssignmentModule } from './modules/class-group-assignment/class.group.assignment.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { ServiceUserAssignmentModule } from './modules/service-user-assignment/s
     ServiceGroupModule,
     ServiceGroupAssignmentModule,
     ServiceUserAssignmentModule,
+    ClassModule,
+    ClassGroupModule,
+    ClassGroupAssignmentModule,
   ],
   controllers: [],
   providers: [],

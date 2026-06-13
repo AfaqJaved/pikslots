@@ -13,4 +13,9 @@ export const PIKSLOT_EVENTS = {
   SERVICE_USER_ASSIGNMENT: {
     SYNC_SERVICE_TO_USERS: 'sync.service.to.users', // (single) service --> sync --> users (multiple)
   },
+  // juntion table many to many
+  CLASS_GROUP_ASSIGNMENT: {
+    SYNC_CLASS_CLASS_GROUPS: 'sync.class.class.groups', // (single) class --> sync --> class groups (multiple)
+    SYNC_CLASS_GROUP_CLASSES: 'sync.class.group.classes', // (single) class group --> sync --> classes (multiple)
+  },
 } as const;

@@ -14,7 +14,10 @@
 	import Adjustments from '@tabler/icons-svelte/icons/adjustments';
 	import NewServiceGroupDialog from './dialog/new-service-group.svelte';
 	import EditServiceGroupDialog from './dialog/edit-service-group.svelte';
+	import NewClassGroupDialog from './dialog/new-class-group.svelte';
+	import EditClassGroupDialog from './dialog/edit-class-group.svelte';
 	import type { ServiceGroupModel } from '../api/service-group/models/service-group-model';
+	import type { ClassGroupModel } from '../api/class-group/models/class-group-model';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import ChevronUp from '@tabler/icons-svelte/icons/chevron-up';
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
@@ -25,6 +28,11 @@
 	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
 	import { deleteServiceGroupMutationOptions } from '../api/service-group/delete.service.group.mutation';
 	import { deleteServiceMutationOptions } from '../api/service/delete.service.mutation';
+	import { getClassGroupsByBusinessQueryOptions } from '../api/class-group/get.class.groups.by.business.query';
+	import { getClassesByBusinessQueryOptions } from '../api/class/get.classes.by.business.query';
+	import { getClassesByGroupQueryOptions } from '../api/class-group-assignment/get.classes.by.group.query';
+	import { deleteClassGroupMutationOptions } from '../api/class-group/delete.class.group.mutation';
+	import { deleteClassMutationOptions } from '../api/class/delete.class.mutation';
 	import { ConfirmDialog } from '$lib/components/ui/confirm-dialog/index.js';
 	import { toast } from 'svelte-sonner';
 	import { businessStore } from '$stores/business.svelte';
@@ -46,6 +54,8 @@
 	let search = $state('');
 	let selectedGroupId = $state<string | null>(null);
 	let selectedUserId = $state<string | null>(null);
+	let selectedClassGroupId = $state<string | null>(null);
+	let rightPanelView = $state<'services' | 'classes'>('services');
 	let newGroupDialogOpen = $state(false);
 	let openAccordionItems = $state<string[]>(['services', 'classes']);
 	let deleteGroupId = $state<string | null>(null);
@@ -54,6 +64,13 @@
 	let deleteServiceTitle = $state<string>('');
 	let editGroupDialogOpen = $state(false);
 	let editingGroup = $state<ServiceGroupModel | null>(null);
+	let newClassGroupDialogOpen = $state(false);
+	let editClassGroupDialogOpen = $state(false);
+	let editingClassGroup = $state<ClassGroupModel | null>(null);
+	let deleteClassGroupId = $state<string | null>(null);
+	let deleteClassGroupName = $state<string>('');
+	let deleteClassId = $state<string | null>(null);
+	let deleteClassTitle = $state<string>('');
 
 	function toggleAccordionItem(item: string) {
 		if (openAccordionItems.includes(item)) {
@@ -75,8 +92,20 @@
 		enabled: !!businessStore.selectedBusiness?.id
 	}));
 
+	const classGroupsQuery = createQuery(() => ({
+		...getClassGroupsByBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id
+	}));
+
+	const classesQuery = createQuery(() => ({
+		...getClassesByBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id
+	}));
+
 	const serviceGroups = $derived(serviceGroupsQuery.data ?? []);
 	const services = $derived(servicesQuery.data ?? []);
+	const classGroups = $derived(classGroupsQuery.data ?? []);
+	const classes = $derived(classesQuery.data ?? []);
 
 	const usersQuery = createQuery(() => ({
 		...getUsersInsideBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
@@ -85,10 +114,13 @@
 
 	const servicesByGroupQuery = createQuery(() => getServicesByGroupQueryOptions(selectedGroupId));
 	const servicesByUserQuery = createQuery(() => getServicesByUserQueryOptions(selectedUserId));
+	const classesByGroupQuery = createQuery(() => getClassesByGroupQueryOptions(selectedClassGroupId));
 
 	const users = $derived(usersQuery.data ?? []);
 
 	const queryClient = useQueryClient();
+
+	// ── Mutations ────────────────────────────────────────────────────────────────
 
 	const deleteServiceGroupMutation = createMutation(() => ({
 		...deleteServiceGroupMutationOptions(),
@@ -115,6 +147,31 @@
 		}
 	}));
 
+	const deleteClassGroupMutation = createMutation(() => ({
+		...deleteClassGroupMutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['class-groups'] });
+			if (selectedClassGroupId === deleteClassGroupId) selectedClassGroupId = null;
+			deleteClassGroupId = null;
+			toast.success(`"${deleteClassGroupName}" deleted`);
+		},
+		onError: (error) => {
+			toast.error(error.response?.data?.message ?? 'Failed to delete class group');
+		}
+	}));
+
+	const deleteClassMutation = createMutation(() => ({
+		...deleteClassMutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['classes'] });
+			deleteClassId = null;
+			toast.success(`"${deleteClassTitle}" deleted`);
+		},
+		onError: (error) => {
+			toast.error(error.response?.data?.message ?? 'Failed to delete class');
+		}
+	}));
+
 	const bookingUrl = 'solverse.pikslots.com/afaq';
 
 	// ── Derived ─────────────────────────────────────────────────────────────────
@@ -134,6 +191,19 @@
 
 	const filteredServices = $derived(
 		visibleServices().filter((s) => s.title.toLowerCase().includes(search.toLowerCase()))
+	);
+
+	const visibleClasses = $derived(() => {
+		let result = classes;
+		if (selectedClassGroupId) {
+			const groupClassIds = new Set(classesByGroupQuery.data?.map((c) => c.id) ?? []);
+			result = result.filter((c) => groupClassIds.has(c.id));
+		}
+		return result;
+	});
+
+	const filteredClasses = $derived(
+		visibleClasses().filter((c) => c.title.toLowerCase().includes(search.toLowerCase()))
 	);
 
 	// ── Helpers ─────────────────────────────────────────────────────────────────
@@ -160,6 +230,8 @@
 
 <NewServiceGroupDialog bind:open={newGroupDialogOpen} {services} />
 <EditServiceGroupDialog bind:open={editGroupDialogOpen} bind:group={editingGroup} {services} />
+<NewClassGroupDialog bind:open={newClassGroupDialogOpen} {classes} />
+<EditClassGroupDialog bind:open={editClassGroupDialogOpen} bind:group={editingClassGroup} {classes} />
 
 <ConfirmDialog
 	open={!!deleteGroupId}
@@ -179,7 +251,25 @@
 	onCancel={() => (deleteServiceId = null)}
 />
 
-{#if !servicesQuery.isPending && services.length === 0}
+<ConfirmDialog
+	open={!!deleteClassGroupId}
+	title="Delete class group?"
+	description={`"${deleteClassGroupName}" will be permanently deleted along with all its class assignments. This cannot be undone.`}
+	loading={deleteClassGroupMutation.isPending}
+	onConfirm={() => deleteClassGroupMutation.mutate(deleteClassGroupId!)}
+	onCancel={() => (deleteClassGroupId = null)}
+/>
+
+<ConfirmDialog
+	open={!!deleteClassId}
+	title="Delete class?"
+	description={`"${deleteClassTitle}" will be permanently deleted. This cannot be undone.`}
+	loading={deleteClassMutation.isPending}
+	onConfirm={() => deleteClassMutation.mutate(deleteClassId!)}
+	onCancel={() => (deleteClassId = null)}
+/>
+
+{#if !servicesQuery.isPending && services.length === 0 && !classesQuery.isPending && classes.length === 0}
 	<div class="flex h-full min-h-0 flex-1 items-center justify-center">
 		<PikslotEmpty
 			icon={Briefcase}
@@ -191,7 +281,7 @@
 	</div>
 {:else}
 	<div class="flex h-full min-h-0 flex-1">
-		<!-- ── Left: service groups sidebar ──────────────────────────────────────── -->
+		<!-- ── Left: groups sidebar ──────────────────────────────────────────── -->
 		<div class="flex w-64 shrink-0 flex-col border-r">
 			<div class="flex items-center justify-between border-b px-4 py-3">
 				<span class="text-sm font-semibold">Groups</span>
@@ -204,8 +294,11 @@
 						<div class="flex items-center justify-between px-3 py-2">
 							<button
 								type="button"
-								onclick={() => (selectedGroupId = null)}
-								class="text-sm font-medium">Services ({servicesQuery.data?.length})</button
+								onclick={() => {
+									selectedGroupId = null;
+									rightPanelView = 'services';
+								}}
+								class="text-sm font-medium">Services ({servicesQuery.data?.length ?? 0})</button
 							>
 							<button
 								type="button"
@@ -224,8 +317,10 @@
 								<div class="group/item relative flex items-center">
 									<button
 										type="button"
-										onclick={() =>
-											(selectedGroupId = selectedGroupId === group.id ? null : group.id)}
+										onclick={() => {
+											selectedGroupId = selectedGroupId === group.id ? null : group.id;
+											rightPanelView = 'services';
+										}}
 										class="flex flex-1 items-center py-1.5 pr-8 pl-6 text-left text-sm transition-colors hover:bg-accent
 										{selectedGroupId === group.id ? 'bg-accent font-medium' : 'text-muted-foreground'}"
 									>
@@ -272,12 +367,17 @@
 						</Accordion.Content>
 					</Accordion.Item>
 
-					<!-- <Separator class="my-1" /> -->
-
 					<!-- Classes -->
 					<Accordion.Item value="classes" class="">
 						<div class="flex items-center justify-between px-3 py-2">
-							<span class="text-sm font-medium">Classes (0)</span>
+							<button
+								type="button"
+								onclick={() => {
+									selectedClassGroupId = null;
+									rightPanelView = 'classes';
+								}}
+								class="text-sm font-medium">Classes ({classesQuery.data?.length ?? 0})</button
+							>
 							<button
 								type="button"
 								onclick={() => toggleAccordionItem('classes')}
@@ -291,18 +391,71 @@
 							</button>
 						</div>
 						<Accordion.Content class="p-0">
-							<p class="px-6 py-1.5 text-xs text-muted-foreground">No classes yet.</p>
+							{#each classGroups as group (group.id)}
+								<div class="group/item relative flex items-center">
+									<button
+										type="button"
+										onclick={() => {
+											selectedClassGroupId =
+												selectedClassGroupId === group.id ? null : group.id;
+											rightPanelView = 'classes';
+										}}
+										class="flex flex-1 items-center py-1.5 pr-8 pl-6 text-left text-sm transition-colors hover:bg-accent
+										{selectedClassGroupId === group.id ? 'bg-accent font-medium' : 'text-muted-foreground'}"
+									>
+										{group.name}
+									</button>
+									<div class="absolute right-1 opacity-0 group-hover/item:opacity-100">
+										<DropdownMenu.Root>
+											<DropdownMenu.Trigger>
+												{#snippet child({ props })}
+													<Button variant="ghost" size="icon-sm" {...props}>
+														<DotsVertical size={13} />
+													</Button>
+												{/snippet}
+											</DropdownMenu.Trigger>
+											<DropdownMenu.Content align="end" class="w-36">
+												<DropdownMenu.Item
+													class="cursor-pointer"
+													onclick={() => {
+														editingClassGroup = group;
+														editClassGroupDialogOpen = true;
+													}}><Pencil /> Edit</DropdownMenu.Item
+												>
+												<DropdownMenu.Separator />
+												<DropdownMenu.Item
+													class="cursor-pointer text-destructive focus:text-destructive"
+													onclick={() => {
+														deleteClassGroupId = group.id;
+														deleteClassGroupName = group.name;
+													}}><Trash />Delete</DropdownMenu.Item
+												>
+											</DropdownMenu.Content>
+										</DropdownMenu.Root>
+									</div>
+								</div>
+							{/each}
+							<button
+								type="button"
+								onclick={() => (newClassGroupDialogOpen = true)}
+								class="flex w-full items-center gap-1.5 px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground"
+							>
+								<Plus size={13} />
+								New class group
+							</button>
 						</Accordion.Content>
 					</Accordion.Item>
 				</Accordion.Root>
 			</div>
 		</div>
 
-		<!-- ── Right: services list ───────────────────────────────────────────────── -->
+		<!-- ── Right: content panel ────────────────────────────────────────────── -->
 		<div class="flex flex-1 flex-col overflow-hidden">
 			<!-- Header -->
 			<div class="flex items-center justify-between border-b px-5 py-3">
-				<h2 class="text-base font-semibold">Services</h2>
+				<h2 class="text-base font-semibold">
+					{rightPanelView === 'services' ? 'Services' : 'Classes'}
+				</h2>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
@@ -320,7 +473,10 @@
 							<IconBriefcase size={15} class="text-muted-foreground" />
 							Service
 						</DropdownMenu.Item>
-						<DropdownMenu.Item class="cursor-pointer gap-2" onclick={() => {}}>
+						<DropdownMenu.Item
+							class="cursor-pointer gap-2"
+							onclick={() => goto('/home/services/classes/new')}
+						>
 							<School size={15} class="text-muted-foreground" />
 							Class
 						</DropdownMenu.Item>
@@ -330,41 +486,43 @@
 
 			<!-- Toolbar -->
 			<div class="flex items-center gap-3 border-b px-5 py-2.5">
-				<!-- Staff filter dropdown -->
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<Button variant="outline" size="sm" class="gap-2 text-xs" {...props}>
-								<Avatar.Root class="size-5 text-[10px]">
-									<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground">
-										{#if selectedUserId}
-											{@const u = users.find((m) => m.id === selectedUserId)}
-											{u ? u.name.firstName[0] + u.name.lastName[0] : '?'}
-										{:else}
-											All
-										{/if}
-									</Avatar.Fallback>
-								</Avatar.Root>
-								{#if selectedUserId}
-									{@const u = users.find((m) => m.id === selectedUserId)}
-									{u ? u.name.firstName + ' ' + u.name.lastName : 'Staff'}
-								{:else}
-									All staff
-								{/if}
-								<ChevronDown size={12} class="text-muted-foreground" />
-							</Button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content align="start" class="w-44">
-						<DropdownMenu.Item onclick={() => (selectedUserId = null)}>All staff</DropdownMenu.Item>
-						{#each users as user (user.id)}
-							<DropdownMenu.Item onclick={() => (selectedUserId = user.id)}>
-								{user.name.firstName}
-								{user.name.lastName}
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
+				<!-- Staff filter dropdown (services only) -->
+				{#if rightPanelView === 'services'}
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button variant="outline" size="sm" class="gap-2 text-xs" {...props}>
+									<Avatar.Root class="size-5 text-[10px]">
+										<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground">
+											{#if selectedUserId}
+												{@const u = users.find((m) => m.id === selectedUserId)}
+												{u ? u.name.firstName[0] + u.name.lastName[0] : '?'}
+											{:else}
+												All
+											{/if}
+										</Avatar.Fallback>
+									</Avatar.Root>
+									{#if selectedUserId}
+										{@const u = users.find((m) => m.id === selectedUserId)}
+										{u ? u.name.firstName + ' ' + u.name.lastName : 'Staff'}
+									{:else}
+										All staff
+									{/if}
+									<ChevronDown size={12} class="text-muted-foreground" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="start" class="w-44">
+							<DropdownMenu.Item onclick={() => (selectedUserId = null)}>All staff</DropdownMenu.Item>
+							{#each users as user (user.id)}
+								<DropdownMenu.Item onclick={() => (selectedUserId = user.id)}>
+									{user.name.firstName}
+									{user.name.lastName}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				{/if}
 
 				<!-- Search -->
 				<div class="relative flex-1">
@@ -372,7 +530,11 @@
 						size={13}
 						class="absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground"
 					/>
-					<Input bind:value={search} placeholder="Services" class="h-8 pl-8 text-xs" />
+					<Input
+						bind:value={search}
+						placeholder={rightPanelView === 'services' ? 'Services' : 'Classes'}
+						class="h-8 pl-8 text-xs"
+					/>
 				</div>
 
 				<!-- Booking URL -->
@@ -405,136 +567,272 @@
 				</div>
 			</div>
 
-			<!-- Service rows -->
+			<!-- Content rows -->
 			<div class="flex flex-1 flex-col overflow-y-auto">
-				{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending) || (selectedUserId && servicesByUserQuery.isPending)}
-					<div class="flex flex-1 items-center justify-center">
-						<p class="text-sm text-muted-foreground">Loading...</p>
-					</div>
-				{:else if selectedGroupId && filteredServices.length === 0}
-					<PikslotEmpty
-						icon={InfoCircle}
-						title="No services in this group"
-						description="This group has no services yet. Assign services to this group to see them here."
-						buttonLabel="Assing Services"
-						onclick={() => {
-							if (serviceGroupsQuery.isSuccess) {
-								editingGroup = serviceGroupsQuery.data?.filter(
-									(item) => item.id === selectedGroupId
-								)[0];
-								editGroupDialogOpen = true;
-							}
-						}}
-					/>
-				{:else if filteredServices.length === 0}
-					<div class="flex flex-1 items-center justify-center">
-						<p class="text-sm text-muted-foreground">No services found.</p>
-					</div>
-				{:else}
-					{#each filteredServices as service (service.id)}
-						<div
-							onclick={() => goto(`/home/services/${service.id}/edit`)}
-							class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
-						>
-							<!-- Icon -->
-							<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-								<Adjustments size={16} class="text-muted-foreground" />
-							</div>
-
-							<!-- Title + meta -->
-							<div class="flex flex-1 flex-col">
-								<span class="text-sm font-medium">{service.title}</span>
-								<span class="text-xs text-muted-foreground">
-									{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
-								</span>
-							</div>
-
-							<!-- Copy link -->
-							<Button
-								variant="outline"
-								size="sm"
-								class="h-7 gap-1.5 text-xs"
-								onclick={() => copyLink(service.id)}
-							>
-								<Link size={12} />
-								Copy link
-							</Button>
-
-							<!-- More options -->
-							<DropdownMenu.Root>
-								<DropdownMenu.Trigger>
-									{#snippet child({ props })}
-										<Button variant="ghost" size="icon-sm" {...props}>
-											<DotsVertical size={15} />
-										</Button>
-									{/snippet}
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Content align="end" class="w-52">
-									<DropdownMenu.Item
-										class="cursor-pointer gap-2"
-										onclick={() => goto(`/home/services/${service.id}/edit`)}
-									>
-										<Pencil size={14} class="text-muted-foreground" />
-										Edit
-									</DropdownMenu.Item>
-									<DropdownMenu.Item
-										class="cursor-pointer gap-2"
-										onclick={(e) => {
-											e.stopPropagation();
-											window.open(`https://${bookingUrl}/service/${service.id}`, '_blank');
-										}}
-									>
-										<ExternalLink size={14} class="text-muted-foreground" />
-										Preview
-									</DropdownMenu.Item>
-									<DropdownMenu.Separator />
-									<DropdownMenu.Item class="cursor-pointer gap-2">
-										<Qrcode size={14} class="text-muted-foreground" />
-										QR Code
-									</DropdownMenu.Item>
-									<DropdownMenu.Item
-										class="cursor-pointer gap-2"
-										onclick={(e) => {
-											e.stopPropagation();
-											navigator.share?.({ url: `https://${bookingUrl}/service/${service.id}` });
-										}}
-									>
-										<Share size={14} class="text-muted-foreground" />
-										Share
-									</DropdownMenu.Item>
-									<DropdownMenu.Separator />
-									<DropdownMenu.Item
-										class="cursor-pointer gap-2"
-										closeOnSelect={false}
-										onclick={(e) => e.stopPropagation()}
-									>
-										<EyeOff size={14} class="text-muted-foreground" />
-										<span class="flex-1">Set to hidden</span>
-										<Switch
-											checked={service.isHiddenFromBookingPage}
-											onclick={(e: MouseEvent) => e.stopPropagation()}
-										/>
-									</DropdownMenu.Item>
-									<DropdownMenu.Item class="cursor-pointer gap-2">
-										<Copy size={14} class="text-muted-foreground" />
-										Duplicate
-									</DropdownMenu.Item>
-									<DropdownMenu.Separator />
-									<DropdownMenu.Item
-										class="cursor-pointer gap-2 text-destructive focus:text-destructive"
-										onclick={(e) => {
-											e.stopPropagation();
-											deleteServiceId = service.id;
-											deleteServiceTitle = service.title;
-										}}
-									>
-										<Trash size={14} />
-										Delete
-									</DropdownMenu.Item>
-								</DropdownMenu.Content>
-							</DropdownMenu.Root>
+				{#if rightPanelView === 'services'}
+					{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending) || (selectedUserId && servicesByUserQuery.isPending)}
+						<div class="flex flex-1 items-center justify-center">
+							<p class="text-sm text-muted-foreground">Loading...</p>
 						</div>
-					{/each}
+					{:else if selectedGroupId && filteredServices.length === 0}
+						<PikslotEmpty
+							icon={InfoCircle}
+							title="No services in this group"
+							description="This group has no services yet. Assign services to this group to see them here."
+							buttonLabel="Assign Services"
+							onclick={() => {
+								if (serviceGroupsQuery.isSuccess) {
+									editingGroup = serviceGroupsQuery.data?.filter(
+										(item) => item.id === selectedGroupId
+									)[0];
+									editGroupDialogOpen = true;
+								}
+							}}
+						/>
+					{:else if filteredServices.length === 0}
+						<div class="flex flex-1 items-center justify-center">
+							<p class="text-sm text-muted-foreground">No services found.</p>
+						</div>
+					{:else}
+						{#each filteredServices as service (service.id)}
+							<div
+								onclick={() => goto(`/home/services/${service.id}/edit`)}
+								class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
+							>
+								<!-- Icon -->
+								<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+									<Adjustments size={16} class="text-muted-foreground" />
+								</div>
+
+								<!-- Title + meta -->
+								<div class="flex flex-1 flex-col">
+									<span class="text-sm font-medium">{service.title}</span>
+									<span class="text-xs text-muted-foreground">
+										{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
+									</span>
+								</div>
+
+								<!-- Copy link -->
+								<Button
+									variant="outline"
+									size="sm"
+									class="h-7 gap-1.5 text-xs"
+									onclick={() => copyLink(service.id)}
+								>
+									<Link size={12} />
+									Copy link
+								</Button>
+
+								<!-- More options -->
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props })}
+											<Button variant="ghost" size="icon-sm" {...props}>
+												<DotsVertical size={15} />
+											</Button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content align="end" class="w-52">
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={() => goto(`/home/services/${service.id}/edit`)}
+										>
+											<Pencil size={14} class="text-muted-foreground" />
+											Edit
+										</DropdownMenu.Item>
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={(e) => {
+												e.stopPropagation();
+												window.open(`https://${bookingUrl}/service/${service.id}`, '_blank');
+											}}
+										>
+											<ExternalLink size={14} class="text-muted-foreground" />
+											Preview
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item class="cursor-pointer gap-2">
+											<Qrcode size={14} class="text-muted-foreground" />
+											QR Code
+										</DropdownMenu.Item>
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={(e) => {
+												e.stopPropagation();
+												navigator.share?.({ url: `https://${bookingUrl}/service/${service.id}` });
+											}}
+										>
+											<Share size={14} class="text-muted-foreground" />
+											Share
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											closeOnSelect={false}
+											onclick={(e) => e.stopPropagation()}
+										>
+											<EyeOff size={14} class="text-muted-foreground" />
+											<span class="flex-1">Set to hidden</span>
+											<Switch
+												checked={service.isHiddenFromBookingPage}
+												onclick={(e: MouseEvent) => e.stopPropagation()}
+											/>
+										</DropdownMenu.Item>
+										<DropdownMenu.Item class="cursor-pointer gap-2">
+											<Copy size={14} class="text-muted-foreground" />
+											Duplicate
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2 text-destructive focus:text-destructive"
+											onclick={(e) => {
+												e.stopPropagation();
+												deleteServiceId = service.id;
+												deleteServiceTitle = service.title;
+											}}
+										>
+											<Trash size={14} />
+											Delete
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+							</div>
+						{/each}
+					{/if}
+				{:else}
+					<!-- Classes view -->
+					{#if classesQuery.isPending || (selectedClassGroupId && classesByGroupQuery.isPending)}
+						<div class="flex flex-1 items-center justify-center">
+							<p class="text-sm text-muted-foreground">Loading...</p>
+						</div>
+					{:else if selectedClassGroupId && filteredClasses.length === 0}
+						<PikslotEmpty
+							icon={InfoCircle}
+							title="No classes in this group"
+							description="This group has no classes yet. Assign classes to this group to see them here."
+							buttonLabel="Assign Classes"
+							onclick={() => {
+								if (classGroupsQuery.isSuccess) {
+									editingClassGroup = classGroupsQuery.data?.filter(
+										(item) => item.id === selectedClassGroupId
+									)[0];
+									editClassGroupDialogOpen = true;
+								}
+							}}
+						/>
+					{:else if filteredClasses.length === 0}
+						<div class="flex flex-1 items-center justify-center">
+							<p class="text-sm text-muted-foreground">No classes found.</p>
+						</div>
+					{:else}
+						{#each filteredClasses as cls (cls.id)}
+							<div
+								onclick={() => goto(`/home/services/classes/${cls.id}/edit`)}
+								class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
+							>
+								<!-- Icon -->
+								<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+									<School size={16} class="text-muted-foreground" />
+								</div>
+
+								<!-- Title + meta -->
+								<div class="flex flex-1 flex-col">
+									<span class="text-sm font-medium">{cls.title}</span>
+									<span class="text-xs text-muted-foreground">
+										{formatDuration(cls.durationInMins)} · {formatCost(cls.cost)} · {cls.seats} seats
+									</span>
+								</div>
+
+								<!-- Copy link -->
+								<Button
+									variant="outline"
+									size="sm"
+									class="h-7 gap-1.5 text-xs"
+									onclick={(e) => {
+										e.stopPropagation();
+										navigator.clipboard.writeText(`https://${bookingUrl}/class/${cls.id}`);
+									}}
+								>
+									<Link size={12} />
+									Copy link
+								</Button>
+
+								<!-- More options -->
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props })}
+											<Button variant="ghost" size="icon-sm" {...props}>
+												<DotsVertical size={15} />
+											</Button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content align="end" class="w-52">
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={() => goto(`/home/services/classes/${cls.id}/edit`)}
+										>
+											<Pencil size={14} class="text-muted-foreground" />
+											Edit
+										</DropdownMenu.Item>
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={(e) => {
+												e.stopPropagation();
+												window.open(`https://${bookingUrl}/class/${cls.id}`, '_blank');
+											}}
+										>
+											<ExternalLink size={14} class="text-muted-foreground" />
+											Preview
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item class="cursor-pointer gap-2">
+											<Qrcode size={14} class="text-muted-foreground" />
+											QR Code
+										</DropdownMenu.Item>
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											onclick={(e) => {
+												e.stopPropagation();
+												navigator.share?.({ url: `https://${bookingUrl}/class/${cls.id}` });
+											}}
+										>
+											<Share size={14} class="text-muted-foreground" />
+											Share
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2"
+											closeOnSelect={false}
+											onclick={(e) => e.stopPropagation()}
+										>
+											<EyeOff size={14} class="text-muted-foreground" />
+											<span class="flex-1">Set to hidden</span>
+											<Switch
+												checked={cls.isHiddenFromBookingPage}
+												onclick={(e: MouseEvent) => e.stopPropagation()}
+											/>
+										</DropdownMenu.Item>
+										<DropdownMenu.Item class="cursor-pointer gap-2">
+											<Copy size={14} class="text-muted-foreground" />
+											Duplicate
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											class="cursor-pointer gap-2 text-destructive focus:text-destructive"
+											onclick={(e) => {
+												e.stopPropagation();
+												deleteClassId = cls.id;
+												deleteClassTitle = cls.title;
+											}}
+										>
+											<Trash size={14} />
+											Delete
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+							</div>
+						{/each}
+					{/if}
 				{/if}
 			</div>
 		</div>
