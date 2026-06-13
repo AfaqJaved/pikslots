@@ -50,3 +50,7 @@ export interface UpdateServiceInput {
 export interface UpdateServiceResponse {
   message: 'success';
 }
+
+export interface DeleteServiceResponse {
+  message: 'success';
+}

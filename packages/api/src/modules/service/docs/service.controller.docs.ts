@@ -36,6 +36,27 @@ export const RegisterServiceDocs = () =>
     }),
   );
 
+export const DeleteServiceDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Delete a service by ID' }),
+    ApiParam({ name: 'serviceId', description: 'Service ID', example: 'svc_01j...' }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Service deleted successfully',
+      schema: { example: { data: { message: 'success' }, statusCode: 200, timestamp: '2026-01-01T00:00:00.000Z' } },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Service not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
 export const EditServiceDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Update an existing service' }),

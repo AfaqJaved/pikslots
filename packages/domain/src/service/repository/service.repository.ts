@@ -9,6 +9,7 @@ export interface ServiceRepository {
   findAllByBusiness(businessId: string): Promise<Result<Service[], InfrastructureError>>;
   update(service: Service): Promise<Result<void, ServiceNotFoundError | InfrastructureError>>;
   existsByTitle(title: string, businessId: string): Promise<Result<boolean, InfrastructureError>>;
+  delete(id: string): Promise<Result<void, ServiceNotFoundError | InfrastructureError>>;
 }
 
 export const IServiceRepository = Symbol('IServiceRepository');

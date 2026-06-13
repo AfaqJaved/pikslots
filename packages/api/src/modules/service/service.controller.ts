@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -23,12 +24,14 @@ import {
   RegisterServiceDocs,
   FindAllServicesByBusinessDocs,
   EditServiceDocs,
+  DeleteServiceDocs,
 } from './docs/service.controller.docs';
 import { ServiceUseCasesFactory } from './factory/service.usecases.factory';
 import {
   RegisterServiceResponse,
   FindAllServicesByBusinessResponse,
   UpdateServiceResponse,
+  DeleteServiceResponse,
 } from '@pikslots/shared';
 import { EditServiceDto } from './dto/edit.service.dto';
 
@@ -112,6 +115,33 @@ export class ServiceController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<UpdateServiceResponse>(
+      { message: 'success' },
+      HttpStatus.OK,
+    );
+  }
+
+  @DeleteServiceDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Delete(SERVICE_ENDPOINTS.DELETE)
+  async deleteService(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceId') serviceId: string,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<DeleteServiceResponse>
+  > {
+    const result =
+      await this.serviceUseCasesFactory.deleteServiceUseCase.execute(serviceId);
+
+    if (!result.ok) {
+      const errorResponse = mapServiceError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+
+    return new PikslotsBaseResponse<DeleteServiceResponse>(
       { message: 'success' },
       HttpStatus.OK,
     );

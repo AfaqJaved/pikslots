@@ -118,6 +118,36 @@ export class ServiceRepositoryImpl implements ServiceRepository {
     }
   }
 
+  async delete(
+    id: string,
+  ): Promise<Result<void, ServiceNotFoundError | InfrastructureError>> {
+    try {
+      const result = await this.db
+        .deleteFrom('services')
+        .where('id', '=', id)
+        .executeTakeFirst();
+
+      if (!result.numDeletedRows || result.numDeletedRows === BigInt(0)) {
+        return err<ServiceNotFoundError>({
+          kind: 'service_not_found',
+          by: 'id',
+          value: id,
+          message: `Service not found against ${id}`,
+          timestamp: new Date(),
+        });
+      }
+
+      return ok(undefined);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to delete service',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async existsByTitle(
     title: string,
     businessId: string,
