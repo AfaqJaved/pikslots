@@ -101,7 +101,7 @@ export class Class {
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
 
-    // Enhanced , Standard , No acess can only read and shared services
+    // Enhanced , Standard , No acess
     return false;
   }
 
@@ -110,10 +110,18 @@ export class Class {
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
 
-    // Enhanced , Standard , No acess can only read and shared services
+    // Enhanced , Standard , No acess
     return false;
   }
 
+  static canDeleteClass(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
+      return true;
+
+    // Enhanced , Standard , No acess
+    return false;
+  }
   /**
    * Reconstitutes a Class from already-validated data (e.g. a database row
    * decoded through ServiceSchema). Never call with raw untrusted input.

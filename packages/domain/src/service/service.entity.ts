@@ -101,7 +101,7 @@ export class Service {
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
 
-    // Enhanced , Standard , No acess can only read and shared services
+    // Enhanced , Standard , No acess
     return false;
   }
 
@@ -110,7 +110,16 @@ export class Service {
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
 
-    // Enhanced , Standard , No acess can only read and shared services
+    // Enhanced , Standard , No acess
+    return false;
+  }
+
+  static canDeleteService(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
+      return true;
+
+    // Enhanced , Standard , No acess
     return false;
   }
 
