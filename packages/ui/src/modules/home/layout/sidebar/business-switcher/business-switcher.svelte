@@ -11,6 +11,7 @@
 	import NewBusinessDialog from './new-business-dialog.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getAllBusinessesQueryOptions } from '../../../../api/business/get.all.businesses.query';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let newBusinessDialogOpen = $state(false);
 	let callToGetAllBusinesses = $state(false);
@@ -21,10 +22,6 @@
 
 	const onBusinessChange = (business: BusinessResponse) => {
 		businessStore.setSelectedBusiness(business);
-	};
-
-	const newBusinessDialog = () => {
-		newBusinessDialogOpen = true;
 	};
 
 	$effect(() => {
@@ -48,7 +45,7 @@
 					{#snippet child({ props })}
 						<Sidebar.MenuButton
 							{...props}
-							class=" cursor-pointer   data-[state=open]:bg-sidebar-accent data-[state=open]:font-extrabold data-[state=open]:text-sidebar-accent-foreground"
+							class="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:font-extrabold data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<div
 								class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground"
@@ -56,9 +53,7 @@
 								{activeBusiness?.name[0].toUpperCase()}
 							</div>
 							<div class="grid flex-1 text-start text-xs leading-tight">
-								<span class="truncate font-medium">
-									{activeBusiness?.name}
-								</span>
+								<span class="truncate font-medium">{activeBusiness?.name}</span>
 								<span class="truncate text-xs">{activeBusiness?.industry}</span>
 							</div>
 							<ChevronsUpDownIcon class="ms-auto" />
@@ -71,8 +66,10 @@
 					side={sidebar.isMobile ? 'bottom' : 'right'}
 					sideOffset={4}
 				>
-					<DropdownMenu.Label class="text-xs text-muted-foreground">Businesses</DropdownMenu.Label>
-					{#each businessesQuery.data as business, index (business.name)}
+					<DropdownMenu.Label class="text-xs text-muted-foreground">
+						{m.business_list_label()}
+					</DropdownMenu.Label>
+					{#each businessesQuery.data as business (business.name)}
 						<DropdownMenu.Item
 							onSelect={() => onBusinessChange(business)}
 							class="cursor-pointer gap-2 p-2"
@@ -87,17 +84,20 @@
 								class="ml-auto size-6 shrink-0 cursor-pointer text-muted-foreground hover:text-foreground"
 								variant="ghost"
 								size="icon"
-								title="Edit business"
+								title={m.business_edit()}
 								onclick={(e) => e.stopPropagation()}
 							></Button>
 						</DropdownMenu.Item>
 					{/each}
 					<DropdownMenu.Separator />
-					<DropdownMenu.Item onclick={newBusinessDialog} class="cursor-pointer gap-2 p-2">
+					<DropdownMenu.Item
+						onclick={() => (newBusinessDialogOpen = true)}
+						class="cursor-pointer gap-2 p-2"
+					>
 						<div class="flex size-6 items-center justify-center rounded-md border bg-transparent">
 							<PlusIcon class="size-4" />
 						</div>
-						<div class="font-medium text-muted-foreground">New Business</div>
+						<div class="font-medium text-muted-foreground">{m.business_new()}</div>
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>

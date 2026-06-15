@@ -9,7 +9,7 @@
 		items,
 		...restProps
 	}: {
-		items: { title: string; url: string; icon: Icon; onclick?: () => void }[];
+		items: { key: string; title: () => string; url: string; icon: Icon; onclick?: () => void }[];
 	} & WithoutChildren<ComponentProps<typeof Sidebar.Group>> = $props();
 
 	function isActive(url: string): boolean {
@@ -20,15 +20,14 @@
 <Sidebar.Group {...restProps}>
 	<Sidebar.GroupContent>
 		<Sidebar.Menu>
-			{#each items as item (item.title)}
+			{#each items as item (item.key)}
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton isActive={isActive(item.url)}
-						>>
+					<Sidebar.MenuButton isActive={isActive(item.url)}>
 						{#snippet child({ props })}
-							<div on:click={item.onclick}>
+							<div onclick={item.onclick}>
 								<a href={item.url} {...props}>
 									<item.icon />
-									<span>{item.title}</span>
+									<span>{item.title()}</span>
 								</a>
 							</div>
 						{/snippet}

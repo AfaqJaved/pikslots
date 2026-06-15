@@ -8,6 +8,9 @@
 	import { refreshUserToken } from '../modules/api/user/refresh.user.mutation';
 	import { browser } from '$app/environment';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
+	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
+	import { i18n } from '$lib/i18n.js';
+	import { localeStore } from '$lib/locale.svelte.js';
 
 	let { children } = $props();
 
@@ -32,11 +35,17 @@
 			.catch(() => {})
 			.finally(() => authStore.setInitialized());
 	});
+
+	$effect(() => {
+		localeStore.init();
+	});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <Toaster position="top-right" title="Notification" theme={themeStore.current} richColors={true} />
-<QueryClientProvider client={query}
-	>{@render children()}
-	<SvelteQueryDevtools />
-</QueryClientProvider>
+<ParaglideJS {i18n} languageTag={localeStore.value}>
+	<QueryClientProvider client={query}
+		>{@render children()}
+		<SvelteQueryDevtools />
+	</QueryClientProvider>
+</ParaglideJS>
