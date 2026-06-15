@@ -1,4 +1,4 @@
-import type { InfrastructureError, Result } from '../../shared';
+import type { InfrastructureError, Result, UnauthorizedError } from '../../shared';
 import type {
   BusinessInactiveError,
   BusinessNotFoundError,
