@@ -1,8 +1,14 @@
-import type { InfrastructureError, Result } from '../../shared';
-import type { Customer } from '../customer.entity';
+import type { FullName, InfrastructureError, Result, UnauthorizedError } from '../../shared';
 
 export const IFindAllCustomersByBusinessUseCase = Symbol('IFindAllCustomersByBusinessUseCase');
 
 export interface FindAllCustomersByBusinessUseCase {
-  execute(businessId: string): Promise<Result<Customer[], InfrastructureError>>;
+  execute(
+    businessId: string,
+  ): Promise<
+    Result<
+      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      UnauthorizedError | InfrastructureError
+    >
+  >;
 }

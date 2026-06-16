@@ -1,3 +1,5 @@
-import type { CustomerResponse } from '@pikslots/shared';
+import type { FullCustomerResponse, PartialCustomerResponse } from '@pikslots/shared';
 
-export type CustomerModel = CustomerResponse;
+export type PartialCustomerModel = PartialCustomerResponse;
+export type FullCustomerModel = FullCustomerResponse;
+export type CustomerModel = FullCustomerResponse;

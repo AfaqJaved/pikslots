@@ -44,8 +44,14 @@ export interface EditCustomerInput {
 }
 
 // --- Responses ---
+export interface PartialCustomerResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImageUrl: string | null;
+}
 
-export interface CustomerResponse {
+export interface FullCustomerResponse {
   id: string;
   firstName: string;
   lastName: string;
@@ -69,7 +75,7 @@ export interface RegisterCustomerResponse {
   message: 'success';
 }
 
-export type FindAllCustomersByBusinessResponse = CustomerResponse[];
+export type FindAllCustomersByBusinessResponse = PartialCustomerResponse[];
 
 export interface EditCustomerResponse {
   message: 'success';
@@ -78,3 +84,5 @@ export interface EditCustomerResponse {
 export interface DeleteCustomerResponse {
   message: 'success';
 }
+
+export type FindCustomerByIdResponse = FullCustomerResponse;

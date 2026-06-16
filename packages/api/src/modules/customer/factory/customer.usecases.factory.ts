@@ -4,12 +4,14 @@ import {
   IEditCustomerUseCase,
   IDeleteCustomerUseCase,
   IFindAllCustomersByBusinessUseCase,
+  IFindCustomerByIdUseCase,
 } from '@pikslots/domain';
 import type {
   RegisterCustomerUseCase,
   EditCustomerUseCase,
   DeleteCustomerUseCase,
   FindAllCustomersByBusinessUseCase,
+  FindCustomerByIdUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -25,4 +27,7 @@ export class CustomerUseCasesFactory {
 
   @Inject(IFindAllCustomersByBusinessUseCase)
   public readonly findAllCustomersByBusinessUseCase: FindAllCustomersByBusinessUseCase;
+
+  @Inject(IFindCustomerByIdUseCase)
+  public readonly findCustomerByIdUseCase: FindCustomerByIdUseCase;
 }

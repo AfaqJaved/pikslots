@@ -132,6 +132,19 @@ export class Customer {
     return false;
   }
 
+  static canViewCustomer(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if (
+      (callerRole === 'Business Owner' ||
+        callerRole === 'Admin' ||
+        callerRole === 'Enhanced' ||
+        callerRole === 'Standard') &&
+      isPartOfSameBusiness
+    )
+      return true;
+    return false;
+  }
+
   static canDeleteCustomer(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
     if (callerRole === 'Platform Owner') return true;
     if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
@@ -188,6 +201,12 @@ export class Customer {
       updatedAt: new Date(),
       updatedBy: deletedBy,
     });
+  }
+
+  // ── Snapshot ─────────────────────────────────────────────────────────────────
+
+  toProps(): CustomerProps {
+    return this.props;
   }
 
   // ── Identity ────────────────────────────────────────────────────────────────

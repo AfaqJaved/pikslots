@@ -8,6 +8,7 @@ import {
   CustomerRepository,
   InfrastructureError,
   Result,
+  FullName,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
@@ -21,6 +22,41 @@ export class CustomerRepositoryImpl implements CustomerRepository {
   constructor(
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
+
+  async findCustomerListByBusiness(
+    businessId: string,
+  ): Promise<
+    Result<
+      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      InfrastructureError
+    >
+  > {
+    try {
+      const rows = await this.db
+        .selectFrom('customers')
+        .select(['id', 'first_name', 'last_name', 'profile_image_url'])
+        .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
+        .execute();
+
+      return ok(
+        rows.map((row) => {
+          return {
+            id: row.id,
+            fullName: { firstName: row.first_name, lastName: row.last_name },
+            profileImageUrl: row.profile_image_url,
+          };
+        }),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find customers by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
 
   async save(
     customer: Customer,

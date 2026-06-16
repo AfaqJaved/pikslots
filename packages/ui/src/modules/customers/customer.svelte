@@ -6,35 +6,26 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { ConfirmDialog } from '$lib/components/ui/confirm-dialog/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { businessStore } from '$stores/business.svelte';
 	import { getCustomersByBusinessQueryOptions } from '../api/customer/get.customers.by.business.query';
+	import { getCustomerByIdQueryOptions } from '../api/customer/get.customer.by.id.query';
 	import { deleteCustomerMutationOptions } from '../api/customer/delete.customer.mutation';
-	import { editCustomerMutationOptions } from '../api/customer/edit.customer.mutation';
-	import type { CustomerModel } from '../api/customer/models/customer-model';
+	import type { PartialCustomerModel } from '../api/customer/models/customer-model';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import Search from '@tabler/icons-svelte/icons/search';
 	import Pencil from '@tabler/icons-svelte/icons/pencil';
 	import DotsVertical from '@tabler/icons-svelte/icons/dots-vertical';
-	import Phone from '@tabler/icons-svelte/icons/phone';
-	import Mail from '@tabler/icons-svelte/icons/mail';
-	import BuildingStore from '@tabler/icons-svelte/icons/building-store';
-	import MapPin from '@tabler/icons-svelte/icons/map-pin';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import Trash from '@tabler/icons-svelte/icons/trash';
 	import CalendarPlus from '@tabler/icons-svelte/icons/calendar-plus';
 	import { IconFileExport, IconFileImport } from '@tabler/icons-svelte';
 	import AddNewCustomer from './dialog/add-new-customer.svelte';
 	import EditCustomer from './dialog/edit-customer.svelte';
-	import Copy from '@tabler/icons-svelte/icons/copy';
-	import World from '@tabler/icons-svelte/icons/world';
-	import BrandInstagram from '@tabler/icons-svelte/icons/brand-instagram';
-	import BrandFacebook from '@tabler/icons-svelte/icons/brand-facebook';
-	import BrandX from '@tabler/icons-svelte/icons/brand-x';
-	import BrandYoutube from '@tabler/icons-svelte/icons/brand-youtube';
-	import BrandLinkedin from '@tabler/icons-svelte/icons/brand-linkedin';
+	import CustomerAboutTab from './tabs/customer-about-tab.svelte';
+	import CustomerNotesTab from './tabs/customer-notes-tab.svelte';
+	import CustomerAppointmentsTab from './tabs/customer-appointments-tab.svelte';
+	import CustomerUpdatesTab from './tabs/customer-updates-tab.svelte';
 
 	// ── State ─────────────────────────────────────────────────────────────────
 
@@ -43,21 +34,19 @@
 	let activeTab = $state('about');
 	let addCustomerOpen = $state(false);
 	let editCustomerOpen = $state(false);
-	let notesValue = $state('');
-	let editingNotes = $state(false);
-
-	$effect(() => {
-		notesValue = selectedCustomer?.notes ?? '';
-		editingNotes = false;
-	});
 	let deleteCustomerId = $state<string | null>(null);
 	let deleteCustomerName = $state<string>('');
 
-	// ── Query ─────────────────────────────────────────────────────────────────
+	// ── Queries ───────────────────────────────────────────────────────────────
 
 	const customersQuery = createQuery(() => ({
 		...getCustomersByBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
 		enabled: !!businessStore.selectedBusiness?.id
+	}));
+
+	const selectedCustomerQuery = createQuery(() => ({
+		...getCustomerByIdQueryOptions(selectedCustomerId ?? ''),
+		enabled: !!selectedCustomerId
 	}));
 
 	// ── Derived ───────────────────────────────────────────────────────────────
@@ -68,9 +57,7 @@
 		)
 	);
 
-	const selectedCustomer = $derived(
-		(customersQuery.data ?? []).find((c) => c.id === selectedCustomerId) ?? null
-	);
+	const selectedCustomer = $derived(selectedCustomerQuery.data ?? null);
 
 	// ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -82,6 +69,9 @@
 			queryClient.invalidateQueries({
 				queryKey: ['customers', businessStore.selectedBusiness?.id]
 			});
+			if (deleteCustomerId) {
+				queryClient.removeQueries({ queryKey: ['customer', deleteCustomerId] });
+			}
 			if (selectedCustomerId === deleteCustomerId) selectedCustomerId = null;
 			deleteCustomerId = null;
 			deleteCustomerName = '';
@@ -90,48 +80,13 @@
 		onError: () => toast.error('Failed to delete customer')
 	}));
 
-	const saveNotesMutation = createMutation(() => ({
-		...editCustomerMutationOptions(),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['customers', businessStore.selectedBusiness?.id]
-			});
-			toast.success('Notes saved');
-			editingNotes = false;
-		},
-		onError: () => toast.error('Failed to save notes')
-	}));
-
 	// ── Helpers ───────────────────────────────────────────────────────────────
 
-	function getInitial(customer: CustomerModel): string {
+	function getInitial(customer: PartialCustomerModel): string {
 		return customer.firstName.charAt(0).toUpperCase();
 	}
 
-	function formatAddress(customer: CustomerModel): string | null {
-		const parts = [customer.address, customer.city, customer.state, customer.country].filter(
-			Boolean
-		);
-		if (!parts.length) return null;
-		const base = parts.join(', ');
-		return customer.zipCode ? `${base} - ${customer.zipCode}` : base;
-	}
-
-	const SOCIAL_ICONS: Record<string, typeof World> = {
-		website: World,
-		instagram: BrandInstagram,
-		facebook: BrandFacebook,
-		x: BrandX,
-		youtube: BrandYoutube,
-		linkedin: BrandLinkedin
-	};
-
-	function copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text);
-		toast.success('Copied to clipboard');
-	}
-
-	function confirmDelete(customer: CustomerModel) {
+	function confirmDelete(customer: PartialCustomerModel) {
 		deleteCustomerId = customer.id;
 		deleteCustomerName = `${customer.firstName} ${customer.lastName}`;
 	}
@@ -218,7 +173,11 @@
 	</div>
 
 	<!-- ── Right panel ─────────────────────────────────────────────────────── -->
-	{#if selectedCustomer}
+	{#if selectedCustomerId && selectedCustomerQuery.isPending}
+		<div class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+			Loading...
+		</div>
+	{:else if selectedCustomer}
 		{@const customer = selectedCustomer}
 		<div class="flex flex-1 flex-col overflow-hidden">
 			<!-- Detail header -->
@@ -272,153 +231,27 @@
 
 			<!-- Tabs -->
 			<Tabs.Root bind:value={activeTab} class="flex flex-1 flex-col overflow-hidden">
-				<Tabs.List variant="line" class="h-auto  justify-start rounded-none  px-6 ">
+				<Tabs.List variant="line" class="h-auto justify-start rounded-none px-6">
 					<Tabs.Trigger value="about" class="pb-2">About</Tabs.Trigger>
 					<Tabs.Trigger value="notes" class="pb-2">Notes</Tabs.Trigger>
 					<Tabs.Trigger value="appointments" class="pb-2">Appointments</Tabs.Trigger>
 					<Tabs.Trigger value="updates" class="pb-2">Updates</Tabs.Trigger>
 				</Tabs.List>
 
-				<!-- About tab -->
 				<Tabs.Content value="about" class="flex-1 overflow-y-auto px-6 py-4">
-					<div class="flex flex-col gap-0.5">
-						<!-- Phone -->
-						<div class="flex items-center gap-3 py-2.5">
-							<Phone class="size-4 shrink-0 text-muted-foreground" />
-							{#if customer.primaryPhone}
-								<span class="text-sm">{customer.primaryPhone}</span>
-							{:else}
-								<button
-									class="text-sm text-primary underline underline-offset-2"
-									onclick={() => goto(`/home/customers/${customer.id}/edit`)}
-								>
-									Add phone
-								</button>
-							{/if}
-						</div>
-
-						<!-- Email -->
-						{#if customer.email}
-							<div class="flex items-center gap-3 py-2.5">
-								<Mail class="size-4 shrink-0 text-muted-foreground" />
-								<span class="text-sm">{customer.email}</span>
-							</div>
-						{/if}
-
-						<!-- Company -->
-						{#if customer.company}
-							<div class="flex items-center gap-3 py-2.5">
-								<BuildingStore class="size-4 shrink-0 text-muted-foreground" />
-								<span class="text-sm">{customer.company}</span>
-							</div>
-						{/if}
-
-						<!-- Address -->
-						{#if formatAddress(customer)}
-							<div class="flex items-center gap-3 py-2.5">
-								<MapPin class="size-4 shrink-0 text-muted-foreground" />
-								<span class="text-sm">{formatAddress(customer)}</span>
-							</div>
-						{/if}
-
-						<!-- Social links -->
-						{#each Object.entries(customer.customerSocialLinks ?? {}) as [key, value] (key)}
-							{@const Icon = SOCIAL_ICONS[key] ?? World}
-							<div class="group flex items-center justify-start gap-3 py-2.5">
-								<Icon class="size-4 shrink-0 text-muted-foreground" />
-								<button
-									class="truncate text-left text-sm underline underline-offset-2"
-									onclick={() => copyToClipboard(value as string)}
-									type="button">{value}</button
-								>
-								<Copy
-									class="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-								/>
-							</div>
-						{/each}
-					</div>
+					<CustomerAboutTab {customer} />
 				</Tabs.Content>
 
-				<!-- Notes tab -->
 				<Tabs.Content value="notes" class="flex-1 overflow-y-auto px-6 py-4">
-					{#if customer.notes && !editingNotes}
-						<!-- View mode -->
-						<div class="group flex items-center justify-start gap-3">
-							<p class="text-sm">{customer.notes}</p>
-							<div class="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-								<Button
-									variant="ghost"
-									size="icon"
-									class="size-7"
-									onclick={() => {
-										notesValue = customer.notes ?? '';
-										editingNotes = true;
-									}}
-								>
-									<Pencil class="size-3.5" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									class="size-7 text-destructive hover:text-destructive"
-									disabled={saveNotesMutation.isPending}
-									onclick={() => {
-										if (!businessStore.selectedBusiness?.id) return;
-										saveNotesMutation.mutate({
-											...customer,
-											notes: null,
-											businessId: businessStore.selectedBusiness.id
-										});
-									}}
-								>
-									<Trash class="size-3.5" />
-								</Button>
-							</div>
-						</div>
-					{:else}
-						<!-- Edit mode -->
-						<Textarea
-							bind:value={notesValue}
-							placeholder="Add a note"
-							class="min-h-40 resize-none"
-						/>
-						<div class="mt-3 flex justify-end gap-2">
-							<Button
-								variant="ghost"
-								size="sm"
-								onclick={() => {
-									notesValue = customer.notes ?? '';
-									editingNotes = false;
-								}}
-							>
-								Cancel
-							</Button>
-							<Button
-								size="sm"
-								disabled={saveNotesMutation.isPending}
-								onclick={() => {
-									if (!businessStore.selectedBusiness?.id) return;
-									saveNotesMutation.mutate({
-										...customer,
-										notes: notesValue || null,
-										businessId: businessStore.selectedBusiness.id
-									});
-								}}
-							>
-								{saveNotesMutation.isPending ? 'Saving...' : 'Save'}
-							</Button>
-						</div>
-					{/if}
+					<CustomerNotesTab {customer} />
 				</Tabs.Content>
 
-				<!-- Appointments tab -->
 				<Tabs.Content value="appointments" class="flex-1 overflow-y-auto px-6 py-4">
-					<p class="text-sm text-muted-foreground">No appointments yet.</p>
+					<CustomerAppointmentsTab {customer} />
 				</Tabs.Content>
 
-				<!-- Updates tab -->
 				<Tabs.Content value="updates" class="flex-1 overflow-y-auto px-6 py-4">
-					<p class="text-sm text-muted-foreground">No updates yet.</p>
+					<CustomerUpdatesTab {customer} />
 				</Tabs.Content>
 			</Tabs.Root>
 		</div>

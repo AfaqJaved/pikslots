@@ -115,6 +115,60 @@ export const DeleteCustomerDocs = () =>
     }),
   );
 
+export const FindCustomerByIdDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Get a customer by ID' }),
+    ApiParam({
+      name: 'customerId',
+      description: 'Customer ID',
+      example: 'cus_01j...',
+    }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Customer retrieved successfully',
+      schema: {
+        example: {
+          data: {
+            id: 'cus_01j...',
+            firstName: 'John',
+            lastName: 'Doe',
+            profileImageUrl: null,
+            email: 'john@example.com',
+            additionalEmail: null,
+            primaryPhone: '+15551234567',
+            additionalPhone: null,
+            company: 'Acme Corp',
+            country: 'United States',
+            address: '123 Main St',
+            city: 'New York',
+            state: 'NY',
+            zipCode: '10001',
+            notes: null,
+            customerSocialLinks: {},
+            businessId: 'biz_01j...',
+          },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Customer not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Caller is not authorized to view this customer',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
 export const FindAllCustomersByBusinessDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Get all customers for a business' }),

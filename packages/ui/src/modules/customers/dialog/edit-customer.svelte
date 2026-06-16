@@ -232,6 +232,7 @@
 			queryClient.invalidateQueries({
 				queryKey: ['customers', businessStore.selectedBusiness?.id]
 			});
+			queryClient.invalidateQueries({ queryKey: ['customer', customer.id] });
 			open = false;
 		}
 

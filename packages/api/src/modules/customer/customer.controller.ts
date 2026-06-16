@@ -26,6 +26,7 @@ import {
   EditCustomerDocs,
   DeleteCustomerDocs,
   FindAllCustomersByBusinessDocs,
+  FindCustomerByIdDocs,
 } from './docs/customer.controller.docs';
 import { CustomerUseCasesFactory } from './factory/customer.usecases.factory';
 import type {
@@ -33,6 +34,7 @@ import type {
   FindAllCustomersByBusinessResponse,
   EditCustomerResponse,
   DeleteCustomerResponse,
+  FindCustomerByIdResponse,
 } from '@pikslots/shared';
 
 @ApiTags('Customers')
@@ -162,6 +164,53 @@ export class CustomerController {
     );
   }
 
+  @FindCustomerByIdDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Get(CUSTOMER_ENDPOINTS.FIND_BY_ID)
+  async findCustomerById(
+    @Res({ passthrough: true }) res: Response,
+    @Param('customerId') customerId: string,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<FindCustomerByIdResponse>
+  > {
+    const result =
+      await this.customerUseCasesFactory.findCustomerByIdUseCase.execute({
+        customerId,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapCustomerError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const c = result.value;
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<FindCustomerByIdResponse>(
+      {
+        id: c.id,
+        firstName: c.name.firstName,
+        lastName: c.name.lastName,
+        profileImageUrl: c.profileImageUrl,
+        email: c.email,
+        additionalEmail: c.additionalEmail,
+        primaryPhone: c.primaryPhone,
+        additionalPhone: c.additionalPhone,
+        company: c.company,
+        country: c.country,
+        address: c.address,
+        city: c.city,
+        state: c.state,
+        zipCode: c.zipCode,
+        notes: c.notes,
+        customerSocialLinks: c.customerSocialLinks,
+        businessId: c.businessId,
+      },
+      HttpStatus.OK,
+    );
+  }
+
   @FindAllCustomersByBusinessDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
@@ -188,22 +237,9 @@ export class CustomerController {
     return new PikslotsBaseResponse<FindAllCustomersByBusinessResponse>(
       result.value.map((c) => ({
         id: c.id,
-        firstName: c.name.firstName,
-        lastName: c.name.lastName,
+        firstName: c.fullName.firstName,
+        lastName: c.fullName.lastName,
         profileImageUrl: c.profileImageUrl,
-        email: c.email,
-        additionalEmail: c.additionalEmail,
-        primaryPhone: c.primaryPhone,
-        additionalPhone: c.additionalPhone,
-        company: c.company,
-        country: c.country,
-        address: c.address,
-        city: c.city,
-        state: c.state,
-        zipCode: c.zipCode,
-        notes: c.notes,
-        customerSocialLinks: c.customerSocialLinks,
-        businessId: c.businessId,
       })),
       HttpStatus.OK,
     );
