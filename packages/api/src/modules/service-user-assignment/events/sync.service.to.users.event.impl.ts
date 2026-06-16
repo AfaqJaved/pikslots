@@ -23,7 +23,7 @@ export class SyncServiceToUsersEventImpl extends WorkerHost {
   }
 
   async process(job: ServiceUserAssignmentJob): Promise<void> {
-    const data = job.data as SyncServiceToUsersEvent;
+    const data = job.data;
 
     const existingResult =
       await this.serviceUserAssignmentRepository.findAllByService(
