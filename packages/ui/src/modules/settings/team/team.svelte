@@ -30,11 +30,6 @@
 	const members = $derived(usersQuery.data ?? []);
 	const currentUserId = $derived(authStore.getPayloadData()?.userId);
 
-	$effect(() => {
-		businessStore.selectedBusiness?.id;
-		selectedId = null;
-	});
-
 	let search = $state('');
 	let selectedId = $state<string | null>(null);
 
@@ -45,6 +40,14 @@
 			`${m.name.firstName} ${m.name.lastName}`.toLowerCase().includes(search.toLowerCase())
 		)
 	);
+
+	$effect(() => {
+		businessStore.selectedBusiness?.id;
+		selectedId = null;
+		if (usersQuery.data) {
+			selectedId = usersQuery.data[0].id;
+		}
+	});
 </script>
 
 <InviteTeamMemberDialog bind:open={inviteOpen} />
