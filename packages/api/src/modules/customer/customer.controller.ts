@@ -140,14 +140,12 @@ export class CustomerController {
   async deleteCustomer(
     @Res({ passthrough: true }) res: Response,
     @Param('customerId') customerId: string,
-    @Body('businessId') businessId: string,
   ): Promise<
     PikslotsBaseErrorResponse | PikslotsBaseResponse<DeleteCustomerResponse>
   > {
     const result =
       await this.customerUseCasesFactory.deleteCustomerUseCase.execute({
         id: customerId,
-        businessId,
         deletedBy: this.securityContext.userId,
       });
 

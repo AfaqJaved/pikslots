@@ -3,7 +3,6 @@ import type { CustomerNotFoundError } from '../errors';
 
 export interface DeleteCustomerCommand {
   id: string;
-  businessId: string;
   deletedBy: string;
 }
 

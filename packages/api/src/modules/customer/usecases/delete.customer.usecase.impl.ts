@@ -36,13 +36,6 @@ export class DeleteCustomerUseCaseImpl implements DeleteCustomerUseCase {
       CustomerNotFoundError | UnauthorizedError | InfrastructureError
     >
   > {
-    const callerRole = this.securityContext.role;
-    const callerBusinessId = this.securityContext.businessId;
-    const isPartOfSameBusiness = callerBusinessId === command.businessId;
-
-    if (!Customer.canDeleteCustomer(callerRole, isPartOfSameBusiness))
-      return err(UNAUTHORIZED_ERROR);
-
     const found = await this.customerRepository.findById(command.id);
 
     if (!found.ok) return err(found.error);
@@ -56,6 +49,13 @@ export class DeleteCustomerUseCaseImpl implements DeleteCustomerUseCase {
         value: command.id,
       } satisfies CustomerNotFoundError);
     }
+
+    const callerRole = this.securityContext.role;
+    const callerBusinessId = this.securityContext.businessId;
+    const isPartOfSameBusiness = callerBusinessId === found.value.businessId;
+
+    if (!Customer.canDeleteCustomer(callerRole, isPartOfSameBusiness))
+      return err(UNAUTHORIZED_ERROR);
 
     const softDeleted = found.value.softDelete(command.deletedBy);
 
