@@ -71,8 +71,7 @@ export class UpdateUserWorkingHoursUseCaseImpl implements UpdateUserWorkingHours
     });
 
     const updateResult = await this.userRepository.update(updated);
-    if (!updateResult.ok)
-      return err(updateResult.error as UserNotFoundError | InfrastructureError);
+    if (!updateResult.ok) return err(updateResult.error);
 
     return ok(updated);
   }

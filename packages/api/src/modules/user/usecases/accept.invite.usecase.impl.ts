@@ -82,8 +82,7 @@ export class AcceptInviteUseCaseImpl implements AcceptInviteUseCase {
 
     const updateResult = await this.userRepository.update(activated);
 
-    if (!updateResult.ok)
-      return err(updateResult.error as UserNotFoundError | InfrastructureError);
+    if (!updateResult.ok) return err(updateResult.error);
 
     return ok({ message: 'success' });
   }
