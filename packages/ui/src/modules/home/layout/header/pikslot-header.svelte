@@ -2,7 +2,6 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/stores';
-	import LocaleSwitcher from '$lib/components/locale-switcher.svelte';
 
 	const pageTitle = $derived(
 		$page.url.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') ?? 'Home'
@@ -16,8 +15,5 @@
 		<Sidebar.Trigger class="-ms-1" />
 		<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
 		<h1 class="text-base font-medium capitalize">{pageTitle}</h1>
-		<div class="ms-auto">
-			<LocaleSwitcher />
-		</div>
 	</div>
 </header>

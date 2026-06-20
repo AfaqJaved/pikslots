@@ -10,7 +10,7 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import { i18n } from '$lib/i18n.js';
-	import { localeStore } from '$lib/locale.svelte.js';
+	import { localeStore } from '$stores/locale.svelte.js';
 
 	let { children } = $props();
 
@@ -34,10 +34,6 @@
 			.then((res) => authStore.setAccessToken(res.accessToken))
 			.catch(() => {})
 			.finally(() => authStore.setInitialized());
-	});
-
-	$effect(() => {
-		localeStore.init();
 	});
 </script>
 

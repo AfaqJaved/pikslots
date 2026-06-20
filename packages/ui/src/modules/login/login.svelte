@@ -22,7 +22,6 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { LoginUserFormSchema } from './validations/schema';
 	import * as m from '$lib/paraglide/messages.js';
-	import LocaleSwitcher from '$lib/components/locale-switcher.svelte';
 
 	const loginMutation = createMutation<
 		LoginUserResponse,
@@ -69,7 +68,6 @@
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-between gap-2">
 			<a href="##" class="font-code flex items-center gap-2 text-2xl">{m.nav_brand()}</a>
-			<LocaleSwitcher />
 		</div>
 		<div class="flex flex-1 items-center justify-center">
 			<div class="w-full max-w-xs">
