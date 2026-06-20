@@ -129,7 +129,10 @@
 <aside
 	class="flex h-svh w-64 shrink-0 flex-col border-r border-l bg-sidebar text-sidebar-foreground"
 >
-	<div class="flex shrink-0 items-center gap-2 border-b px-4 py-3" style="height: var(--header-height)">
+	<div
+		class="flex shrink-0 items-center gap-2 border-b px-4 py-3"
+		style="height: var(--header-height)"
+	>
 		<button
 			onclick={() => settingsStore.toggle()}
 			class="-ms-1 inline-flex size-7 items-center justify-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
