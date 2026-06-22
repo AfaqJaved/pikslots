@@ -1,4 +1,11 @@
-import { Controller, Delete, HttpStatus, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  HttpStatus,
+  Param,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';

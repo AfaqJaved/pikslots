@@ -6,7 +6,10 @@ import type {
 } from '@pikslots/domain';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 
-type BookingError = BookingNotFoundError | UnauthorizedError | InfrastructureError;
+type BookingError =
+  | BookingNotFoundError
+  | UnauthorizedError
+  | InfrastructureError;
 
 const bookingErrorMap: Record<
   BookingError['kind'],
@@ -23,7 +26,9 @@ const bookingErrorMap: Record<
     ),
 };
 
-export function mapBookingError(error: BookingError): PikslotsBaseErrorResponse {
+export function mapBookingError(
+  error: BookingError,
+): PikslotsBaseErrorResponse {
   console.log(error);
   return bookingErrorMap[error.kind](error);
 }
