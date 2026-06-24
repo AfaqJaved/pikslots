@@ -209,6 +209,25 @@ export class Booking {
     return false;
   }
 
+  static canEditBooking(
+    callerRole: UserRole,
+    isPartOfSameBusiness: boolean,
+    isSelf: boolean,
+  ): boolean {
+    if (callerRole === 'Platform Owner') return true;
+
+    if (
+      (callerRole === 'Business Owner' || callerRole === 'Admin' || callerRole === 'Enhanced') &&
+      isPartOfSameBusiness
+    )
+      return true;
+
+    if (isPartOfSameBusiness && isSelf && callerRole === 'Standard') return true;
+
+    // No acess
+    return false;
+  }
+
   static canDeleteBooking(
     callerRole: UserRole,
     isPartOfSameBusiness: boolean,

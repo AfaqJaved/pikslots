@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -20,18 +21,21 @@ import { mapBookingError } from './errors/booking.errors.map';
 import { BOOKING_ENDPOINTS } from '@pikslots/shared';
 import type {
   DeleteBookingResponse,
+  EditBookingResponse,
   FindAllBookingsByBusinessForUserResponse,
   FindBookingByIdResponse,
   RegisterBookingResponse,
 } from '@pikslots/shared';
 import {
   DeleteBookingDocs,
+  EditBookingDocs,
   FindAllBookingsByBusinessForUserDocs,
   FindBookingByIdDocs,
   RegisterBookingDocs,
 } from './docs/booking.controller.docs';
 import { BookingUseCasesFactory } from './factory/booking.usecases.factory';
 import { RegisterBookingDto } from './dto/register.booking.dto';
+import { EditBookingDto } from './dto/edit.booking.dto';
 
 @ApiTags('Bookings')
 @Controller('')
@@ -160,6 +164,42 @@ export class BookingController {
         deletedBy: b.deletedBy,
         isDeleted: b.isDeleted,
       },
+      HttpStatus.OK,
+    );
+  }
+
+  @EditBookingDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Patch(BOOKING_ENDPOINTS.EDIT)
+  async editBooking(
+    @Res({ passthrough: true }) res: Response,
+    @Param('bookingId') bookingId: string,
+    @Body() dto: EditBookingDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<EditBookingResponse>
+  > {
+    const result =
+      await this.bookingUseCasesFactory.editBookingUseCase.execute({
+        bookingId,
+        bookingDate: dto.bookingDate,
+        bookingStartTime: dto.bookingStartTime,
+        bookingEndTime: dto.bookingEndTime,
+        serviceId: dto.serviceId,
+        customerId: dto.customerId,
+        userId: dto.userId,
+        updatedBy: this.securityContext.userId,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapBookingError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<EditBookingResponse>(
+      { message: 'success' },
       HttpStatus.OK,
     );
   }

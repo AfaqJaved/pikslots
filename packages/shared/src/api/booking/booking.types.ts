@@ -64,6 +64,19 @@ export interface FindBookingByIdResponse {
   isDeleted: boolean;
 }
 
+export interface EditBookingRequest {
+  bookingDate: string;
+  bookingStartTime: string;
+  bookingEndTime: string;
+  serviceId: string;
+  customerId: string;
+  userId: string;
+}
+
+export interface EditBookingResponse {
+  message: 'success';
+}
+
 export interface DeleteBookingResponse {
   message: 'success';
 }

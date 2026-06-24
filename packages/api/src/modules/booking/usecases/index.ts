@@ -1,5 +1,6 @@
 import { Provider } from '@nestjs/common';
 import {
+  IEditBookingUseCase,
   IFindAllBookingsByBusinessForUserUseCase,
   IFindBookingByIdUseCase,
   IDeleteBookingUseCase,
@@ -9,6 +10,7 @@ import { FindAllBookingsByBusinessForUserUseCaseImpl } from './find.all.bookings
 import { FindBookingByIdUseCaseImpl } from './find.booking.by.id.usecase.impl';
 import { DeleteBookingUseCaseImpl } from './delete.booking.usecase.impl';
 import { RegisterBookingUseCaseImpl } from './register.booking.usecase.impl';
+import { EditBookingUseCaseImpl } from './edit.booking.usecase.impl';
 
 export const BOOKING_USECASES: Provider[] = [
   { useClass: RegisterBookingUseCaseImpl, provide: IRegisterBookingUseCase },
@@ -18,4 +20,5 @@ export const BOOKING_USECASES: Provider[] = [
   },
   { useClass: FindBookingByIdUseCaseImpl, provide: IFindBookingByIdUseCase },
   { useClass: DeleteBookingUseCaseImpl, provide: IDeleteBookingUseCase },
+  { useClass: EditBookingUseCaseImpl, provide: IEditBookingUseCase },
 ];

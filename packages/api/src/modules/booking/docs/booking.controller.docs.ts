@@ -2,6 +2,7 @@ import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { RegisterBookingDto } from '../dto/register.booking.dto';
+import { EditBookingDto } from '../dto/edit.booking.dto';
 
 export const RegisterBookingDocs = () =>
   applyDecorators(
@@ -137,6 +138,44 @@ export const FindBookingByIdDocs = () =>
     ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
       description: 'Caller is not authorized to view this booking',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const EditBookingDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Edit an existing booking' }),
+    ApiParam({ name: 'bookingId', description: 'Booking ID', example: 'BK3KX9M2P' }),
+    ApiBody({ type: EditBookingDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Booking updated successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Booking not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.CONFLICT,
+      description: 'A booking already exists for this time slot',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Caller is not authorized to edit this booking',
       type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
