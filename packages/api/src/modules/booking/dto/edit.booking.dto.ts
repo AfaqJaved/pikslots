@@ -3,7 +3,10 @@ import type { EditBookingRequest } from '@pikslots/shared';
 import { IsDateString, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class EditBookingDto implements EditBookingRequest {
-  @ApiProperty({ example: '2025-06-16', description: 'Booking date (YYYY-MM-DD)' })
+  @ApiProperty({
+    example: '2025-06-16',
+    description: 'Booking date (YYYY-MM-DD)',
+  })
   @IsString()
   @IsNotEmpty()
   bookingDate: string;
@@ -30,7 +33,10 @@ export class EditBookingDto implements EditBookingRequest {
   @IsUUID()
   customerId: string;
 
-  @ApiProperty({ example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7d', description: 'User this booking is assigned to' })
+  @ApiProperty({
+    example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7d',
+    description: 'User this booking is assigned to',
+  })
   @IsUUID()
   userId: string;
 }

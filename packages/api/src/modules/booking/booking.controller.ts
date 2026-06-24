@@ -179,8 +179,8 @@ export class BookingController {
   ): Promise<
     PikslotsBaseErrorResponse | PikslotsBaseResponse<EditBookingResponse>
   > {
-    const result =
-      await this.bookingUseCasesFactory.editBookingUseCase.execute({
+    const result = await this.bookingUseCasesFactory.editBookingUseCase.execute(
+      {
         bookingId,
         bookingDate: dto.bookingDate,
         bookingStartTime: dto.bookingStartTime,
@@ -189,7 +189,8 @@ export class BookingController {
         customerId: dto.customerId,
         userId: dto.userId,
         updatedBy: this.securityContext.userId,
-      });
+      },
+    );
 
     if (!result.ok) {
       const errorResponse = mapBookingError(result.error);

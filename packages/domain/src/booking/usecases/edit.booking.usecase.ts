@@ -18,5 +18,10 @@ export const IEditBookingUseCase = Symbol('IEditBookingUseCase');
 export interface EditBookingUseCase {
   execute(
     command: EditBookingUseCaseCommand,
-  ): Promise<Result<Booking, BookingNotFoundError | BookingConflictError | UnauthorizedError | InfrastructureError>>;
+  ): Promise<
+    Result<
+      Booking,
+      BookingNotFoundError | BookingConflictError | UnauthorizedError | InfrastructureError
+    >
+  >;
 }

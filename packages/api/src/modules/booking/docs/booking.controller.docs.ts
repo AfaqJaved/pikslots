@@ -150,7 +150,11 @@ export const FindBookingByIdDocs = () =>
 export const EditBookingDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Edit an existing booking' }),
-    ApiParam({ name: 'bookingId', description: 'Booking ID', example: 'BK3KX9M2P' }),
+    ApiParam({
+      name: 'bookingId',
+      description: 'Booking ID',
+      example: 'BK3KX9M2P',
+    }),
     ApiBody({ type: EditBookingDto }),
     ApiResponse({
       status: HttpStatus.OK,
