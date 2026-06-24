@@ -23,6 +23,30 @@ export class BookingRepositoryImpl implements BookingRepository {
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
+  async findAllByBusinessForUser(
+    businessId: string,
+    userId: string,
+  ): Promise<Result<Booking[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('bookings')
+        .selectAll()
+        .where('business_id', '=', businessId)
+        .where('user_id', '=', userId)
+        .where('is_deleted', '=', false)
+        .execute();
+
+      return ok(rows.map((row) => this.mapper.persistenceToDomain(row)));
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find bookings by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async save(
     booking: Booking,
   ): Promise<Result<void, BookingConflictError | InfrastructureError>> {
@@ -68,51 +92,16 @@ export class BookingRepositoryImpl implements BookingRepository {
 
   async findAllByBusiness(
     businessId: string,
-  ): Promise<
-    Result<
-      Pick<
-        BookingProps,
-        | 'id'
-        | 'bookingId'
-        | 'bookingDate'
-        | 'bookingStartTime'
-        | 'bookingEndTime'
-        | 'serviceSnapshot'
-        | 'serviceId'
-        | 'customerId'
-      >[],
-      InfrastructureError
-    >
-  > {
+  ): Promise<Result<Booking[], InfrastructureError>> {
     try {
       const rows = await this.db
         .selectFrom('bookings')
-        .select([
-          'id',
-          'booking_id',
-          'booking_date',
-          'booking_start_time',
-          'booking_end_time',
-          'service_snapshot',
-          'service_id',
-          'customer_id',
-        ])
+        .selectAll()
         .where('business_id', '=', businessId)
         .where('is_deleted', '=', false)
         .execute();
 
-      return ok(
-        rows.map((row) => ({
-          id: row.id,
-          bookingId: row.booking_id,
-          bookingDate: row.booking_date.toISOString(),
-          bookingStartTime: row.booking_start_time.toISOString(),
-          bookingEndTime: row.booking_end_time.toISOString(),
-          serviceSnapshot: row.service_snapshot,
-          serviceId: row.service_id,
-          customerId: row.customer_id,
-        })),
-      );
+      return ok(rows.map((row) => this.mapper.persistenceToDomain(row)));
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',

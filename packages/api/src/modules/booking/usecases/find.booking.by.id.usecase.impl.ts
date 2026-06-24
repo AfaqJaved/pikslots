@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  Booking,
   BookingNotFoundError,
   type BookingRepository,
   err,
@@ -37,6 +38,7 @@ export class FindBookingByIdUseCaseImpl implements FindBookingByIdUseCase {
     >
   > {
     const found = await this.bookingRepository.findById(command.bookingId);
+
     if (!found.ok) return err(found.error);
 
     if (!found.value) {
@@ -48,11 +50,13 @@ export class FindBookingByIdUseCaseImpl implements FindBookingByIdUseCase {
         timestamp: new Date(),
       });
     }
-
     const isPartOfSameBusiness =
       this.securityContext.businessId === found.value.businessId;
+    const callerRole = this.securityContext.role;
+    const isSelf = this.securityContext.userId === found.value.userId;
 
-    if (!isPartOfSameBusiness) return err(UNAUTHORIZED_ERROR);
+    if (!Booking.canViewBookings(callerRole, isPartOfSameBusiness, isSelf))
+      return err(UNAUTHORIZED_ERROR);
 
     return ok(found.value.toProps());
   }

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  Booking,
   BookingNotFoundError,
   type BookingRepository,
   DeleteBookingCommand,
@@ -44,11 +45,13 @@ export class DeleteBookingUseCaseImpl implements DeleteBookingUseCase {
         timestamp: new Date(),
       });
     }
-
+    const isSelf = this.securityContext.userId === found.value.userId;
+    const callerRole = this.securityContext.role;
     const isPartOfSameBusiness =
       this.securityContext.businessId === found.value.businessId;
 
-    if (!isPartOfSameBusiness) return err(UNAUTHORIZED_ERROR);
+    if (!Booking.canDeleteBooking(callerRole, isPartOfSameBusiness, isSelf))
+      return err(UNAUTHORIZED_ERROR);
 
     const softDeleted = found.value.softDelete(command.deletedBy);
 

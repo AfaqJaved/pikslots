@@ -65,11 +65,9 @@ export class RegisterBookingUseCaseImpl implements RegisterBookingUseCase {
     }
 
     const id = uuidv7();
-    const bookingId = `BK-${id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
-
     const booking = Booking.create({
       id,
-      bookingId,
+      bookingId: Booking.createUniqueBookingId(id),
       bookingDate: command.bookingDate,
       bookingStartTime: command.bookingStartTime,
       bookingEndTime: command.bookingEndTime,

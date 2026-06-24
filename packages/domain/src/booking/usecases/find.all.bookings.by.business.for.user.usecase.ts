@@ -1,11 +1,14 @@
 import type { InfrastructureError, Result, UnauthorizedError } from '../../shared';
 import type { BookingProps } from '../booking.entity';
 
-export const IFindAllBookingsByBusinessUseCase = Symbol('IFindAllBookingsByBusinessUseCase');
+export const IFindAllBookingsByBusinessForUserUseCase = Symbol(
+  'IFindAllBookingsByBusinessForUserUseCase',
+);
 
-export interface FindAllBookingsByBusinessUseCase {
+export interface FindAllBookingsByBusinessForUserUseCase {
   execute(
     businessId: string,
+    userId: string,
   ): Promise<
     Result<
       Pick<

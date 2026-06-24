@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import type {
+  BookingConflictError,
   BookingNotFoundError,
   InfrastructureError,
   UnauthorizedError,
@@ -8,6 +9,7 @@ import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response'
 
 type BookingError =
   | BookingNotFoundError
+  | BookingConflictError
   | UnauthorizedError
   | InfrastructureError;
 
@@ -17,6 +19,8 @@ const bookingErrorMap: Record<
 > = {
   booking_not_found: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.NOT_FOUND),
+  booking_conflict: (error) =>
+    new PikslotsBaseErrorResponse(error.message, HttpStatus.CONFLICT),
   unauthorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
   infrastructure: () =>

@@ -1,8 +1,11 @@
 import {
+  Body,
   Controller,
   Delete,
+  Get,
   HttpStatus,
   Param,
+  Post,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -15,9 +18,20 @@ import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
 import { mapBookingError } from './errors/booking.errors.map';
 import { BOOKING_ENDPOINTS } from '@pikslots/shared';
-import { DeleteBookingDocs } from './docs/booking.controller.docs';
+import type {
+  DeleteBookingResponse,
+  FindAllBookingsByBusinessForUserResponse,
+  FindBookingByIdResponse,
+  RegisterBookingResponse,
+} from '@pikslots/shared';
+import {
+  DeleteBookingDocs,
+  FindAllBookingsByBusinessForUserDocs,
+  FindBookingByIdDocs,
+  RegisterBookingDocs,
+} from './docs/booking.controller.docs';
 import { BookingUseCasesFactory } from './factory/booking.usecases.factory';
-import type { DeleteBookingResponse } from '@pikslots/shared';
+import { RegisterBookingDto } from './dto/register.booking.dto';
 
 @ApiTags('Bookings')
 @Controller('')
@@ -26,6 +40,129 @@ export class BookingController {
     private readonly bookingUseCasesFactory: BookingUseCasesFactory,
     private readonly securityContext: SecurityContext,
   ) {}
+
+  @RegisterBookingDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Post(BOOKING_ENDPOINTS.REGISTER)
+  async registerBooking(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: RegisterBookingDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<RegisterBookingResponse>
+  > {
+    const result =
+      await this.bookingUseCasesFactory.registerBookingUseCase.execute({
+        bookingDate: dto.bookingDate,
+        bookingStartTime: dto.bookingStartTime,
+        bookingEndTime: dto.bookingEndTime,
+        businessId: dto.businessId,
+        serviceId: dto.serviceId,
+        userId: dto.userId,
+        customerId: dto.customerId,
+        serviceSnapshot: dto.serviceSnapshot,
+        createdBy: this.securityContext.userId,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapBookingError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.CREATED);
+    return new PikslotsBaseResponse<RegisterBookingResponse>(
+      { message: 'success' },
+      HttpStatus.CREATED,
+    );
+  }
+
+  @FindAllBookingsByBusinessForUserDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Get(BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER)
+  async findAllBookingsByBusinessForUser(
+    @Res({ passthrough: true }) res: Response,
+    @Param('businessId') businessId: string,
+    @Param('userId') userId: string,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<FindAllBookingsByBusinessForUserResponse>
+  > {
+    const result =
+      await this.bookingUseCasesFactory.findAllBookingsByBusinessUseCase.execute(
+        businessId,
+        userId,
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapBookingError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<FindAllBookingsByBusinessForUserResponse>(
+      result.value.map((b) => ({
+        id: b.id,
+        bookingId: b.bookingId,
+        bookingDate: b.bookingDate,
+        bookingStartTime: b.bookingStartTime,
+        bookingEndTime: b.bookingEndTime,
+        serviceSnapshot: b.serviceSnapshot,
+        serviceId: b.serviceId,
+        customerId: b.customerId,
+      })),
+      HttpStatus.OK,
+    );
+  }
+
+  @FindBookingByIdDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Get(BOOKING_ENDPOINTS.FIND_BY_ID)
+  async findBookingById(
+    @Res({ passthrough: true }) res: Response,
+    @Param('bookingId') bookingId: string,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<FindBookingByIdResponse>
+  > {
+    const result =
+      await this.bookingUseCasesFactory.findBookingByIdUseCase.execute({
+        bookingId,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapBookingError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const b = result.value;
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<FindBookingByIdResponse>(
+      {
+        id: b.id,
+        bookingId: b.bookingId,
+        bookingDate: b.bookingDate,
+        bookingStartTime: b.bookingStartTime,
+        bookingEndTime: b.bookingEndTime,
+        businessId: b.businessId,
+        serviceSnapshot: b.serviceSnapshot,
+        serviceId: b.serviceId,
+        customerId: b.customerId,
+        userId: b.userId,
+        createdAt: b.createdAt.toISOString(),
+        createdBy: b.createdBy,
+        updatedAt: b.updatedAt.toISOString(),
+        updatedBy: b.updatedBy,
+        deletedAt: b.deletedAt ? b.deletedAt.toISOString() : null,
+        deletedBy: b.deletedBy,
+        isDeleted: b.isDeleted,
+      },
+      HttpStatus.OK,
+    );
+  }
 
   @DeleteBookingDocs()
   @UseGuards(RolesGuard)

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  Booking,
   type BookingRepository,
   err,
-  FindAllBookingsByBusinessUseCase,
+  FindAllBookingsByBusinessForUserUseCase,
   IBookingRepository,
   InfrastructureError,
   Result,
@@ -18,7 +19,7 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
 };
 
 @Injectable()
-export class FindAllBookingsByBusinessUseCaseImpl implements FindAllBookingsByBusinessUseCase {
+export class FindAllBookingsByBusinessForUserUseCaseImpl implements FindAllBookingsByBusinessForUserUseCase {
   constructor(
     @Inject(IBookingRepository)
     private readonly bookingRepository: BookingRepository,
@@ -27,6 +28,7 @@ export class FindAllBookingsByBusinessUseCaseImpl implements FindAllBookingsByBu
 
   async execute(
     businessId: string,
+    userId: string,
   ): Promise<
     Result<
       Pick<
@@ -44,8 +46,19 @@ export class FindAllBookingsByBusinessUseCaseImpl implements FindAllBookingsByBu
     >
   > {
     const isPartOfSameBusiness = this.securityContext.businessId === businessId;
+    const callerRole = this.securityContext.role;
+    const isSelf = this.securityContext.userId === userId;
 
-    if (!isPartOfSameBusiness) return err(UNAUTHORIZED_ERROR);
+    if (!Booking.canViewBookings(callerRole, isPartOfSameBusiness, isSelf))
+      return err(UNAUTHORIZED_ERROR);
+
+    // only return bookings booked of self user with role (Standard)
+    if (Booking.canViewSelfBookings(callerRole, isPartOfSameBusiness, isSelf)) {
+      return this.bookingRepository.findAllByBusinessForUser(
+        businessId,
+        userId,
+      );
+    }
 
     return this.bookingRepository.findAllByBusiness(businessId);
   }

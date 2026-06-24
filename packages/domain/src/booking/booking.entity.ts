@@ -148,6 +148,13 @@ export class Booking {
     });
   }
 
+  // ── Booking Id Creation ──────────────────────────────────────────────────────────────
+
+  static createUniqueBookingId(uuid: string) {
+    const randomBits = parseInt(uuid.replace(/-/g, '').slice(16, 23), 16);
+    return `BK${randomBits.toString(36).toUpperCase().padStart(7, '0')}`; // e.g. BK3KX9M2P
+  }
+
   // ── Snapshot ──────────────────────────────────────────────────────────────
 
   toProps(): BookingProps {
@@ -182,6 +189,56 @@ export class Booking {
 
     // No acess
     return false;
+  }
+
+  static canViewBookings(
+    callerRole: UserRole,
+    isPartOfSameBusiness: boolean,
+    isSelf: boolean,
+  ): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if (
+      (callerRole === 'Business Owner' || callerRole === 'Admin' || callerRole === 'Enhanced') &&
+      isPartOfSameBusiness
+    )
+      return true;
+
+    if (isPartOfSameBusiness && isSelf && callerRole === 'Standard') return true;
+
+    // No acess
+    return false;
+  }
+
+  static canDeleteBooking(
+    callerRole: UserRole,
+    isPartOfSameBusiness: boolean,
+    isSelf: boolean,
+  ): boolean {
+    if (callerRole === 'Platform Owner') return true;
+
+    if (
+      (callerRole === 'Business Owner' || callerRole === 'Admin' || callerRole === 'Enhanced') &&
+      isPartOfSameBusiness
+    )
+      return true;
+
+    if (isPartOfSameBusiness && isSelf && callerRole === 'Standard') return true;
+
+    // No acess
+    return false;
+  }
+
+  static canViewSelfBookings(
+    callerRole: UserRole,
+    isPartOfSameBusiness: boolean,
+    isSelf: boolean,
+  ): boolean {
+    if (isPartOfSameBusiness && isSelf && callerRole === 'Standard') return true;
+    return false;
+  }
+
+  public isBookedForUser(userId: string) {
+    return this.userId === userId;
   }
 
   // ── Core fields ─────────────────────────────────────────────────────────────

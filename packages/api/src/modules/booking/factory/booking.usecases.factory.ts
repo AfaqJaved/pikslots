@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   IDeleteBookingUseCase,
-  IFindAllBookingsByBusinessUseCase,
+  IFindAllBookingsByBusinessForUserUseCase,
   IFindBookingByIdUseCase,
   IRegisterBookingUseCase,
 } from '@pikslots/domain';
 import type {
   DeleteBookingUseCase,
-  FindAllBookingsByBusinessUseCase,
+  FindAllBookingsByBusinessForUserUseCase,
   FindBookingByIdUseCase,
   RegisterBookingUseCase,
 } from '@pikslots/domain';
@@ -17,8 +17,8 @@ export class BookingUseCasesFactory {
   @Inject(IRegisterBookingUseCase)
   public readonly registerBookingUseCase: RegisterBookingUseCase;
 
-  @Inject(IFindAllBookingsByBusinessUseCase)
-  public readonly findAllBookingsByBusinessUseCase: FindAllBookingsByBusinessUseCase;
+  @Inject(IFindAllBookingsByBusinessForUserUseCase)
+  public readonly findAllBookingsByBusinessUseCase: FindAllBookingsByBusinessForUserUseCase;
 
   @Inject(IFindBookingByIdUseCase)
   public readonly findBookingByIdUseCase: FindBookingByIdUseCase;
