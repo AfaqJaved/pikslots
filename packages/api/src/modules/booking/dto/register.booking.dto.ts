@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { RegisterBookingRequest, ServiceSnapshotRequest } from '@pikslots/shared';
+import type {
+  RegisterBookingRequest,
+  ServiceSnapshotRequest,
+} from '@pikslots/shared';
 import {
   IsDateString,
   IsNotEmpty,
@@ -23,14 +26,20 @@ export class ServiceSnapshotDto implements ServiceSnapshotRequest {
   @Min(1)
   durationInMins: number;
 
-  @ApiProperty({ example: 2500, description: 'Cost in smallest currency unit (e.g. cents)' })
+  @ApiProperty({
+    example: 2500,
+    description: 'Cost in smallest currency unit (e.g. cents)',
+  })
   @IsNumber()
   @Min(0)
   cost: number;
 }
 
 export class RegisterBookingDto implements RegisterBookingRequest {
-  @ApiProperty({ example: '2025-06-16', description: 'Booking date (YYYY-MM-DD)' })
+  @ApiProperty({
+    example: '2025-06-16',
+    description: 'Booking date (YYYY-MM-DD)',
+  })
   @IsString()
   @IsNotEmpty()
   bookingDate: string;
@@ -57,7 +66,10 @@ export class RegisterBookingDto implements RegisterBookingRequest {
   @IsUUID()
   serviceId: string;
 
-  @ApiProperty({ example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7d', description: 'User this booking is assigned to' })
+  @ApiProperty({
+    example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7d',
+    description: 'User this booking is assigned to',
+  })
   @IsUUID()
   userId: string;
 
