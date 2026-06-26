@@ -5,6 +5,7 @@ import {
   IFindUserByIdUseCase,
   IGetAllBusinessOwnersUseCase,
   IGetAllUsersByRole,
+  IGetFreeSlotsForUser,
   IGetUserProfileUseCase,
   IInviteUserUseCase,
   ILoginUserUseCase,
@@ -18,6 +19,7 @@ import type {
   FindUserByIdUseCase,
   GetAllBusinessOwnersUseCase,
   GetAllUsersByRoleUseCase,
+  GetFreeSlotsForUser,
   GetUserProfileUseCase,
   InviteUserUseCase,
   LoginUserUseCase,
@@ -60,4 +62,7 @@ export class UserUsecasesFactory {
 
   @Inject(IFindAllUsersInsideBusinessUseCase)
   public readonly findAllUsersInsideBusinessUseCase: FindAllUsersInsideBusinessUseCase;
+
+  @Inject(IGetFreeSlotsForUser)
+  public readonly getFreeSlotsForUserUseCase: GetFreeSlotsForUser;
 }

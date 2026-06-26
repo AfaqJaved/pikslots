@@ -10,6 +10,7 @@ import {
   IFindUserByIdUseCase,
   IGetAllBusinessOwnersUseCase,
   IGetAllUsersByRole,
+  IGetFreeSlotsForUser,
   IGetUserProfileUseCase,
   IInviteUserUseCase,
   ILoginUserUseCase,
@@ -17,12 +18,14 @@ import {
   IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
 } from '@pikslots/domain';
+
 import { LoginUserUseCaseImpl } from './login.user.usecase.impl';
 import { RefreshUserSessionUseCaseImpl } from './refresh.user.session.usecase.impl';
 import { UpdateUserWorkingHoursUseCaseImpl } from './update.user.working.hours.usecase.impl';
 import { RequestInviteOtpUseCaseImpl } from './request.invite.otp.usecase.impl';
 import { AcceptInviteUseCaseImpl } from './accept.invite.usecase.impl';
 import { FindAllUsersInsideBusinessUseCaseImpl } from './find.all.users.inside.business.usecase.impl';
+import { GetFreeSlotsForUserUseCaseImpl } from './get.free.slots.for.user.usecase.impl';
 
 export const USER_USECASES: Provider[] = [
   { useClass: InviteUserUsecaseImpl, provide: IInviteUserUseCase },
@@ -47,5 +50,9 @@ export const USER_USECASES: Provider[] = [
   {
     useClass: FindAllUsersInsideBusinessUseCaseImpl,
     provide: IFindAllUsersInsideBusinessUseCase,
+  },
+  {
+    useClass: GetFreeSlotsForUserUseCaseImpl,
+    provide: IGetFreeSlotsForUser,
   },
 ];

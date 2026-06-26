@@ -1,5 +1,5 @@
 import type { Result } from '../../shared/result';
-import type { InfrastructureError } from '../../shared';
+import type { InfrastructureError, Slot } from '../../shared';
 import type { UserAlreadyExistsError, UserNotFoundError } from '../errors';
 import type { User } from '../user.entity';
 import type { UserRole } from '../types';
@@ -16,6 +16,11 @@ export interface UserRepository {
   update(user: User): Promise<Result<void, UserNotFoundError | InfrastructureError>>;
   existsByEmail(email: string): Promise<Result<boolean, InfrastructureError>>;
   existsByUsername(username: string): Promise<Result<boolean, InfrastructureError>>;
+  findBookedSlotsForUser(
+    userId: string,
+    businessId: string,
+    date: string,
+  ): Promise<Result<Slot[], InfrastructureError>>;
 }
 
 export const IUserRepository = Symbol('IUserRepository');
