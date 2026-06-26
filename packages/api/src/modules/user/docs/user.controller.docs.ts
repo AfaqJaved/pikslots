@@ -345,25 +345,58 @@ export const UpdateUserWorkingHoursDocs = () =>
 
 export const GetFreeSlotsForUserDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Get available booking slots for a user on a given day' }),
+    ApiOperation({
+      summary: 'Get available booking slots for a user on a given day',
+    }),
     ApiParam({
       name: 'userId',
       description: 'Target user ID',
       example: 'uuid',
     }),
-    ApiQuery({ name: 'businessId', required: true, description: 'Business ID', example: 'uuid' }),
-    ApiQuery({ name: 'date', required: true, description: 'Date in YYYY-MM-DD format', example: '2026-06-26' }),
-    ApiQuery({ name: 'durationInMins', required: true, description: 'Slot duration in minutes', example: 30 }),
-    ApiQuery({ name: 'bufferTimeInMins', required: true, description: 'Buffer time around each booking in minutes', example: 10 }),
-    ApiQuery({ name: 'timezone', required: true, description: 'IANA timezone of the caller', example: 'America/New_York' }),
+    ApiQuery({
+      name: 'businessId',
+      required: true,
+      description: 'Business ID',
+      example: 'uuid',
+    }),
+    ApiQuery({
+      name: 'date',
+      required: true,
+      description: 'Date in YYYY-MM-DD format',
+      example: '2026-06-26',
+    }),
+    ApiQuery({
+      name: 'durationInMins',
+      required: true,
+      description: 'Slot duration in minutes',
+      example: 30,
+    }),
+    ApiQuery({
+      name: 'bufferTimeInMins',
+      required: true,
+      description: 'Buffer time around each booking in minutes',
+      example: 10,
+    }),
+    ApiQuery({
+      name: 'businessTimezone',
+      required: true,
+      description: 'IANA timezone of the caller',
+      example: 'Asia/Karachi',
+    }),
     ApiResponse({
       status: HttpStatus.OK,
       description: 'Available slots returned successfully',
       schema: {
         example: {
           data: [
-            { startTime: '2026-06-26T13:00:00.000Z', endTime: '2026-06-26T13:30:00.000Z' },
-            { startTime: '2026-06-26T14:00:00.000Z', endTime: '2026-06-26T14:30:00.000Z' },
+            {
+              startTime: '2026-06-26T13:00:00.000Z',
+              endTime: '2026-06-26T13:30:00.000Z',
+            },
+            {
+              startTime: '2026-06-26T14:00:00.000Z',
+              endTime: '2026-06-26T14:30:00.000Z',
+            },
           ],
           statusCode: 200,
           timestamp: '2026-06-26T00:00:00.000Z',
