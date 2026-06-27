@@ -7,7 +7,6 @@
 	import Users from '@tabler/icons-svelte/icons/users';
 	import AdjustmentsHorizontal from '@tabler/icons-svelte/icons/adjustments-horizontal';
 	import CalendarCog from '@tabler/icons-svelte/icons/calendar-cog';
-	import DeviceMobile from '@tabler/icons-svelte/icons/device-mobile';
 	import Cash from '@tabler/icons-svelte/icons/cash';
 	import ChartBar from '@tabler/icons-svelte/icons/chart-bar';
 	import CreditCard from '@tabler/icons-svelte/icons/credit-card';
@@ -18,11 +17,13 @@
 	import LayoutSidebarLeftCollapse from '@tabler/icons-svelte/icons/layout-sidebar-left-collapse';
 	import { settingsStore } from '$stores/settings.svelte.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import * as m from '$lib/paraglide/messages.js';
 
-	type SubItem = { label: string; href: string };
+	type SubItem = { label: () => string; href: string };
 
 	type MenuItem = {
-		label: string;
+		key: string;
+		label: () => string;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		icon: any;
 		href?: string;
@@ -31,7 +32,7 @@
 	};
 
 	type MenuGroup = {
-		label?: string;
+		label?: () => string;
 		items: MenuItem[];
 	};
 
@@ -39,105 +40,83 @@
 		{
 			items: [
 				{
-					label: 'Your brand',
+					key: 'brand',
+					label: () => m.settings_your_brand(),
 					icon: BuildingStore,
 					activePrefix: '/home/settings/brand',
 					children: [
-						{ label: 'Brand details', href: '/home/settings/brand/brand-details' },
-						{ label: 'Appearance', href: '/home/settings/brand/appearance' },
-						{ label: 'Contact details', href: '/home/settings/brand/contact' },
-						{ label: 'Location', href: '/home/settings/brand/location' },
-						{ label: 'Business Hours', href: '/home/settings/brand/business-hours' },
-						{ label: 'Your links', href: '/home/settings/brand/links' }
+						{ label: () => m.settings_brand_details(), href: '/home/settings/brand/brand-details' },
+						{ label: () => m.settings_appearance(), href: '/home/settings/brand/appearance' },
+						{ label: () => m.settings_contact_details(), href: '/home/settings/brand/contact' },
+						{ label: () => m.settings_location(), href: '/home/settings/brand/location' },
+						{ label: () => m.settings_business_hours(), href: '/home/settings/brand/business-hours' },
+						{ label: () => m.settings_your_links(), href: '/home/settings/brand/links' }
 					]
 				},
-				{ label: 'Your profile', icon: User, href: '/home/settings/profile' },
-				{ label: 'Your team', icon: Users, href: '/home/settings/team' },
-				{ label: 'General', icon: AdjustmentsHorizontal, href: '/home/settings/general' }
+				{ key: 'profile', label: () => m.settings_your_profile(), icon: User, href: '/home/settings/profile' },
+				{ key: 'team', label: () => m.settings_your_team(), icon: Users, href: '/home/settings/team' },
+				{ key: 'general', label: () => m.settings_general(), icon: AdjustmentsHorizontal, href: '/home/settings/general' }
 			]
 		},
 		{
-			label: 'Manage',
+			label: () => m.settings_manage(),
 			items: [
 				{
-					label: 'Booking preferences',
+					key: 'booking-preferences',
+					label: () => m.settings_booking_preferences(),
 					icon: CalendarCog,
 					activePrefix: '/home/settings/booking-preferences',
 					children: [
-						{
-							label: 'Booking policies',
-							href: '/home/settings/booking-preferences/booking-policies'
-						},
-						{ label: 'Booking setup', href: '/home/settings/booking-preferences/booking-setup' },
-						{
-							label: 'Customization',
-							href: '/home/settings/booking-preferences/customization'
-						},
-						{
-							label: 'Booking page visibility',
-							href: '/home/settings/booking-preferences/booking-page-visibility'
-						}
+						{ label: () => m.settings_booking_policies(), href: '/home/settings/booking-preferences/booking-policies' },
+						{ label: () => m.settings_booking_setup(), href: '/home/settings/booking-preferences/booking-setup' },
+						{ label: () => m.settings_booking_customization(), href: '/home/settings/booking-preferences/customization' },
+						{ label: () => m.settings_booking_page_visibility(), href: '/home/settings/booking-preferences/booking-page-visibility' }
 					]
 				},
-				// { label: 'Your branded app', icon: DeviceMobile, href: '#' },
 				{
-					label: 'Payments',
+					key: 'payments',
+					label: () => m.settings_payments(),
 					icon: Cash,
 					activePrefix: '/home/settings/payments',
 					children: [
-						{
-							label: 'Payment integrations',
-							href: '/home/settings/payments/payment-integrations'
-						},
-						{
-							label: 'Booking Page payments',
-							href: '/home/settings/payments/booking-page-payments'
-						},
-						{ label: 'Payments history', href: '/home/settings/payments/payments-history' }
+						{ label: () => m.settings_payment_integrations(), href: '/home/settings/payments/payment-integrations' },
+						{ label: () => m.settings_booking_page_payments(), href: '/home/settings/payments/booking-page-payments' },
+						{ label: () => m.settings_payments_history(), href: '/home/settings/payments/payments-history' }
 					]
 				},
-				{ label: 'Reports', icon: ChartBar, href: '/home/settings/reports' },
-				{ label: 'Billing', icon: CreditCard, href: '#' },
+				{ key: 'reports', label: () => m.settings_reports(), icon: ChartBar, href: '/home/settings/reports' },
+				{ key: 'billing', label: () => m.settings_billing(), icon: CreditCard, href: '#' },
 				{
-					label: 'Notifications',
+					key: 'notifications',
+					label: () => m.settings_notifications(),
 					icon: Bell,
 					activePrefix: '/home/settings/notifications',
 					children: [
-						{
-							label: 'Your notifications',
-							href: '/home/settings/notifications/your-notifications'
-						},
-						{
-							label: 'Team notifications',
-							href: '/home/settings/notifications/team-notifications'
-						},
-						{
-							label: 'Customer notifications',
-							href: '/home/settings/notifications/customer-notifications'
-						},
-						{ label: 'Customization', href: '/home/settings/notifications/customization' }
+						{ label: () => m.settings_your_notifications(), href: '/home/settings/notifications/your-notifications' },
+						{ label: () => m.settings_team_notifications(), href: '/home/settings/notifications/team-notifications' },
+						{ label: () => m.settings_customer_notifications(), href: '/home/settings/notifications/customer-notifications' },
+						{ label: () => m.settings_notifications_customization(), href: '/home/settings/notifications/customization' }
 					]
 				},
-				{ label: 'Reviews', icon: Star, href: '/home/settings/reviews' },
-				{ label: 'Security', icon: Lock, href: '/home/settings/security' }
+				{ key: 'reviews', label: () => m.settings_reviews(), icon: Star, href: '/home/settings/reviews' },
+				{ key: 'security', label: () => m.settings_security(), icon: Lock, href: '/home/settings/security' }
 			]
 		}
 	];
 
 	let openState = $state<Record<string, boolean>>({
-		'Your brand': $page.url.pathname.startsWith('/home/settings/brand'),
-		'Booking preferences': $page.url.pathname.startsWith('/home/settings/booking-preferences'),
-		Payments: $page.url.pathname.startsWith('/home/settings/payments'),
-		Notifications: $page.url.pathname.startsWith('/home/settings/notifications')
+		'brand': $page.url.pathname.startsWith('/home/settings/brand'),
+		'booking-preferences': $page.url.pathname.startsWith('/home/settings/booking-preferences'),
+		'payments': $page.url.pathname.startsWith('/home/settings/payments'),
+		'notifications': $page.url.pathname.startsWith('/home/settings/notifications')
 	});
 
 	$effect(() => {
 		const path = $page.url.pathname;
-		if (path.startsWith('/home/settings/brand')) openState['Your brand'] = true;
-		if (path.startsWith('/home/settings/booking-preferences'))
-			openState['Booking preferences'] = true;
-		if (path.startsWith('/home/settings/payments')) openState['Payments'] = true;
-		if (path.startsWith('/home/settings/notifications')) openState['Notifications'] = true;
+		if (path.startsWith('/home/settings/brand')) openState['brand'] = true;
+		if (path.startsWith('/home/settings/booking-preferences')) openState['booking-preferences'] = true;
+		if (path.startsWith('/home/settings/payments')) openState['payments'] = true;
+		if (path.startsWith('/home/settings/notifications')) openState['notifications'] = true;
 	});
 
 	function isItemActive(item: MenuItem): boolean {
@@ -160,39 +139,39 @@
 		>
 			<LayoutSidebarLeftCollapse size={18} />
 		</button>
-		<span class="text-sm font-semibold">Settings</span>
+		<span class="text-sm font-semibold">{m.settings_title()}</span>
 	</div>
 
 	<ScrollArea class="min-h-0 flex-1">
 		<div class="flex flex-col gap-1 py-2">
-			{#each menuGroups as group (group.label ?? '__default')}
+			{#each menuGroups as group (group.label?.() ?? '__default')}
 				<Sidebar.Group>
 					{#if group.label}
-						<Sidebar.GroupLabel>{group.label}</Sidebar.GroupLabel>
+						<Sidebar.GroupLabel>{group.label()}</Sidebar.GroupLabel>
 					{/if}
 					<Sidebar.Menu>
-						{#each group.items as item (item.label)}
+						{#each group.items as item (item.key)}
 							<Sidebar.MenuItem>
 								{#if item.children}
 									<Sidebar.MenuButton
 										isActive={isItemActive(item)}
-										onclick={() => (openState[item.label] = !openState[item.label])}
+										onclick={() => (openState[item.key] = !openState[item.key])}
 									>
 										<item.icon />
-										<span>{item.label}</span>
+										<span>{item.label()}</span>
 										<ChevronDown
-											class="ml-auto transition-transform duration-200 {openState[item.label]
+											class="ml-auto transition-transform duration-200 {openState[item.key]
 												? 'rotate-180'
 												: ''}"
 										/>
 									</Sidebar.MenuButton>
-									{#if openState[item.label]}
+									{#if openState[item.key]}
 										<Sidebar.MenuSub>
 											{#each item.children as sub (sub.href)}
 												<Sidebar.MenuSubItem>
 													<Sidebar.MenuSubButton isActive={$page.url.pathname === sub.href}>
 														{#snippet child({ props })}
-															<a href={sub.href} {...props}>{sub.label}</a>
+															<a href={sub.href} {...props}>{sub.label()}</a>
 														{/snippet}
 													</Sidebar.MenuSubButton>
 												</Sidebar.MenuSubItem>
@@ -203,7 +182,7 @@
 									<Sidebar.MenuButton isActive={isItemActive(item)}>
 										{#snippet child({ props })}
 											<a href={item.href} {...props}>
-												<item.icon /><span>{item.label}</span>
+												<item.icon /><span>{item.label()}</span>
 											</a>
 										{/snippet}
 									</Sidebar.MenuButton>

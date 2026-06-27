@@ -47,6 +47,7 @@
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import PikslotEmpty from '$lib/components/pikslot-empty.svelte';
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
+	import * as m from '$lib/paraglide/messages.js';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 
 	// ── State ───────────────────────────────────────────────────────────────────
@@ -279,9 +280,9 @@
 	<div class="flex h-full min-h-0 flex-1 items-center justify-center">
 		<PikslotEmpty
 			icon={Briefcase}
-			title="No services yet — let's change that!"
-			description="Add your first service so clients can start booking with you."
-			buttonLabel="Add Service"
+			title={m.services_empty_title()}
+			description={m.services_empty_description()}
+			buttonLabel={m.services_empty_button()}
 			onclick={() => goto('/home/services/new')}
 		/>
 	</div>

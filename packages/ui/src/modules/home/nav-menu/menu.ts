@@ -7,22 +7,24 @@ import Cash from '@tabler/icons-svelte/icons/cash';
 import Puzzle from '@tabler/icons-svelte/icons/puzzle';
 import { IconCalendarCheck } from '@tabler/icons-svelte';
 import { settingsStore } from '$stores/settings.svelte.js';
+import * as m from '$lib/paraglide/messages.js';
 
 export const navPrimary = [
-	{ name: 'Bookings', url: '/home/bookings', icon: IconCalendarCheck },
-	{ name: 'Services', url: '/home/services', icon: Briefcase },
-	{ name: 'Customers', url: '/home/customers', icon: UserHeart },
-	{ name: 'Payments', url: '/home/payments', icon: Cash },
-	{ name: 'Integrations', url: '/home/integrations', icon: Puzzle }
+	{ name: () => m.nav_bookings(), url: '/home/bookings', icon: IconCalendarCheck },
+	{ name: () => m.nav_services(), url: '/home/services', icon: Briefcase },
+	{ name: () => m.nav_customers(), url: '/home/customers', icon: UserHeart },
+	{ name: () => m.nav_payments(), url: '/home/payments', icon: Cash },
+	{ name: () => m.nav_integrations(), url: '/home/integrations', icon: Puzzle }
 ];
 
 export const navSecondary = [
 	{
-		title: 'Settings',
+		key: 'settings',
+		title: () => m.nav_settings(),
 		url: '/home/settings/brand/brand-details',
 		icon: SettingsIcon,
 		onclick: () => settingsStore.toggle()
 	},
-	{ title: 'Get Help', url: '#', icon: HelpIcon },
-	{ title: 'Search', url: '#', icon: SearchIcon }
+	{ key: 'help', title: () => m.nav_get_help(), url: '#', icon: HelpIcon },
+	{ key: 'search', title: () => m.nav_search(), url: '#', icon: SearchIcon }
 ];

@@ -5,6 +5,7 @@ import type {
   BusinessSuspendedError,
 } from '../errors';
 import type { Business } from '../business.entity';
+import type { UnauthorizedError } from '../../shared';
 
 export const IFindBusinessByIdUseCase = Symbol('IFindBusinessByIdUseCase');
 

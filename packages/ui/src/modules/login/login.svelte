@@ -21,6 +21,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { LoginUserFormSchema } from './validations/schema';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const loginMutation = createMutation<
 		LoginUserResponse,
@@ -57,7 +58,7 @@
 		if (loginMutation.isError) {
 			console.log(loginMutation.error.response?.data.message);
 			toast.error(
-				loginMutation.error?.response?.data?.message ?? 'Login failed. Please try again.'
+				loginMutation.error?.response?.data?.message ?? m.login_error_default()
 			);
 		}
 	});
@@ -65,22 +66,22 @@
 
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
-		<div class="flex justify-center gap-2 md:justify-start">
-			<a href="##" class="font-code flex items-center gap-2 text-2xl">Pikslots</a>
+		<div class="flex justify-between gap-2">
+			<a href="##" class="font-code flex items-center gap-2 text-2xl">{m.nav_brand()}</a>
 		</div>
 		<div class="flex flex-1 items-center justify-center">
 			<div class="w-full max-w-xs">
 				<form class={cn('flex flex-col gap-6')} use:enhance>
 					<FieldGroup>
 						<div class="flex flex-col items-center gap-1 text-center">
-							<h1 class="text-2xl font-bold">Login to your account</h1>
+							<h1 class="text-2xl font-bold">{m.login_title()}</h1>
 							<p class="text-sm text-balance text-muted-foreground">
-								Enter your email below to login to your account
+								{m.login_subtitle()}
 							</p>
 						</div>
 
 						<Field>
-							<FieldLabel for="userNameOrEmail">Username or Email</FieldLabel>
+							<FieldLabel for="userNameOrEmail">{m.login_label_username()}</FieldLabel>
 							<Input
 								id="userNameOrEmail"
 								name="userNameOrEmail"
@@ -93,9 +94,9 @@
 
 						<Field>
 							<div class="flex items-center">
-								<FieldLabel for="password">Password</FieldLabel>
+								<FieldLabel for="password">{m.login_label_password()}</FieldLabel>
 								<a href="##" class="ms-auto text-sm underline-offset-4 hover:underline">
-									Forgot your password?
+									{m.login_forgot_password()}
 								</a>
 							</div>
 							<Input id="password" name="password" type="password" bind:value={$form.password} />
@@ -104,16 +105,16 @@
 
 						<Field>
 							<Button type="submit" disabled={loginMutation.isPending}>
-								{loginMutation.isPending ? 'Please wait...' : 'Login'}
+								{loginMutation.isPending ? m.login_btn_loading() : m.login_btn_submit()}
 							</Button>
 						</Field>
 
-						<FieldSeparator>Or no account 👇🏻</FieldSeparator>
+						<FieldSeparator>{m.login_separator()} 👇🏻</FieldSeparator>
 
 						<Field>
 							<FieldDescription class="text-center">
-								Don't have an account?
-								<a href="##" class="underline underline-offset-4">Sign up</a>
+								{m.login_no_account()}
+								<a href="##" class="underline underline-offset-4">{m.login_sign_up()}</a>
 							</FieldDescription>
 						</Field>
 					</FieldGroup>

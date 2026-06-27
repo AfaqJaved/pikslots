@@ -16,6 +16,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUserProfileQueryOptions } from '../../../api/user/get.user.profile.query';
 	import { logoutUser } from '../../../api/user/logout.user.mutation';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const userProfileQuery = createQuery(() => getUserProfileQueryOptions());
 
@@ -86,22 +87,22 @@
 					<DropdownMenu.Group>
 						<DropdownMenu.Item onclick={() => goto('/home/settings/profile')}>
 							<UserCircleIcon />
-							Profile
+							{m.user_profile()}
 						</DropdownMenu.Item>
 						<DropdownMenu.Item>
 							<CreditCardIcon />
-							Billing
+							{m.user_billing()}
 						</DropdownMenu.Item>
 						<DropdownMenu.Item>
 							<NotificationIcon />
-							Notifications
+							{m.user_notifications()}
 						</DropdownMenu.Item>
 					</DropdownMenu.Group>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item class="flex items-center justify-between" closeOnSelect={false}>
 						<div class="flex items-center gap-2">
 							<MoonIcon />
-							Dark mode
+							{m.user_dark_mode()}
 						</div>
 						<Switch
 							checked={themeStore.current === 'dark'}
@@ -111,7 +112,7 @@
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item onclick={logOut}>
 						<LogoutIcon />
-						Log out
+						{m.user_log_out()}
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
