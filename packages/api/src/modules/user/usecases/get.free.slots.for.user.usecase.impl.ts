@@ -12,7 +12,9 @@ import {
 import type {
   GetFreeSlotsForUser,
   GetFreeSlotsForUserCommand,
+  UserInactiveError,
   UserRepository,
+  UserSuspendedError,
 } from '@pikslots/domain';
 import {
   getWeekDay,
@@ -20,6 +22,20 @@ import {
   millisToIso,
   workingHourToUTC,
 } from '@pikslots/datetime';
+
+const USER_SUSPENDED_ERR: UserSuspendedError = {
+  kind: 'user_suspended',
+  reason: 'selected users has been suspended',
+  message: 'selected users has been suspended',
+  timestamp: new Date(),
+};
+
+const USER_INACTIVE_ERR: UserInactiveError = {
+  kind: 'user_inactive',
+  status: 'inactive',
+  message: 'selected user is inactive',
+  timestamp: new Date(),
+};
 
 @Injectable()
 export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
@@ -29,8 +45,17 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
 
   async execute(
     command: GetFreeSlotsForUserCommand,
-  ): Promise<Result<Slot[], UserNotFoundError | InfrastructureError>> {
+  ): Promise<
+    Result<
+      Slot[],
+      | UserNotFoundError
+      | UserSuspendedError
+      | UserInactiveError
+      | InfrastructureError
+    >
+  > {
     const userResult = await this.userRepository.findById(command.userId);
+
     if (!userResult.ok) return err(userResult.error);
 
     if (!userResult.value) {
@@ -42,6 +67,10 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
         timestamp: new Date(),
       });
     }
+
+    if (userResult.value.status === 'inactive') return err(USER_INACTIVE_ERR);
+
+    if (userResult.value.status === 'suspended') return err(USER_SUSPENDED_ERR);
 
     const user = userResult.value;
     const weekDay = getWeekDay(command.date) as WeekDay;
@@ -107,7 +136,7 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
     bufferMins: number,
   ): Slot[] {
     const slots: Slot[] = [];
-    const durationMs = durationMins * 60_000;
+    const durationMs = durationMins * 60_000; // convert to ms unix timetamp
     const bufferMs = bufferMins * 60_000;
 
     let current = isoToMillis(windowStart);

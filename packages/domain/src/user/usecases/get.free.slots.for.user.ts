@@ -1,5 +1,5 @@
 import type { InfrastructureError, Result, Slot } from '../../shared';
-import type { UserNotFoundError } from '../errors';
+import type { UserInactiveError, UserNotFoundError, UserSuspendedError } from '../errors';
 
 export interface GetFreeSlotsForUserCommand {
   userId: string;
@@ -15,5 +15,7 @@ export const IGetFreeSlotsForUser = Symbol('IGetFreeSlotsForUser');
 export interface GetFreeSlotsForUser {
   execute(
     command: GetFreeSlotsForUserCommand,
-  ): Promise<Result<Slot[], UserNotFoundError | InfrastructureError>>;
+  ): Promise<
+    Result<Slot[], UserNotFoundError | UserSuspendedError | UserInactiveError | InfrastructureError>
+  >;
 }
