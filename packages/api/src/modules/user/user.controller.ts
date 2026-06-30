@@ -30,12 +30,14 @@ import {
   RefreshUserSessionDocs,
   LogoutUserDocs,
   UpdateUserWorkingHoursDocs,
+  GetFreeSlotsForUserDocs,
 } from './docs/user.controller.docs';
 import { GetUsersByRoleDto } from './dto/get.users.by.role.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
   AcceptInviteResponse,
+  GetFreeSlotsForUserResponse,
   InviteUserResponse,
   LoginUserResponse,
   LogoutUserResponse,
@@ -48,6 +50,7 @@ import { UserResponseMapper } from './mappers/user.response.mapper';
 import { UpdateUserWorkingHoursDto } from './dto/update.user.working.hours.dto';
 import { RequestInviteOtpDto } from './dto/request.invite.otp.dto';
 import { AcceptInviteDto } from './dto/accept.invite.dto';
+import { GetFreeSlotsForUserDto } from './dto/get.free.slots.for.user.dto';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
 import { InviteJwtPayload } from '@pikslots/shared';
@@ -352,6 +355,39 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<AcceptInviteResponse>(
+      result.value,
+      HttpStatus.OK,
+    );
+  }
+
+  @GetFreeSlotsForUserDocs()
+  @Get(USER_ENDPOINTS.FREE_SLOTS)
+  async getFreeSlotsForUser(
+    @Param('userId') userId: string,
+    @Query() query: GetFreeSlotsForUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<GetFreeSlotsForUserResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.getFreeSlotsForUserUseCase.execute({
+        userId,
+        businessId: query.businessId,
+        date: query.date,
+        durationInMins: query.durationInMins,
+        bufferTimeInMins: query.bufferTimeInMins,
+        businessTimezone: query.businessTimezone,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<GetFreeSlotsForUserResponse>(
       result.value,
       HttpStatus.OK,
     );
