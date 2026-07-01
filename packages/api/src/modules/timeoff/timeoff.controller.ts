@@ -25,7 +25,7 @@ import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response'
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import { TimeoffUsecasesFactory } from './factory/timeoff.usecases.factory';
 import { SecurityContext } from 'src/shared/security/context/security.context';
-import { mapTimeoffError } from './error/timeoff.error.map';
+import { mapTimeoffError } from './errors/timeoff.error.map';
 
 @Controller('')
 export class TimeOffController {
