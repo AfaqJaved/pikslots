@@ -133,3 +133,20 @@ export interface AcceptInviteInput {
 
 export type RequestInviteOtpResponse = { message: 'success' };
 export type AcceptInviteResponse = { message: 'success' };
+
+// --- Free Slots ---
+
+export interface SlotResponse {
+  startTime: string; // ISO 8601 UTC
+  endTime: string; // ISO 8601 UTC
+}
+
+export interface GetFreeSlotsForUserInput {
+  businessId: string;
+  date: string; // 'YYYY-MM-DD'
+  durationInMins: number;
+  bufferTimeInMins: number;
+  businessTimezone: string; // IANA timezone
+}
+
+export type GetFreeSlotsForUserResponse = SlotResponse[];

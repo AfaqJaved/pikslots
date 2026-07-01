@@ -101,7 +101,7 @@
 
 <div class="flex h-full overflow-hidden">
 	<!-- ── Left panel ──────────────────────────────────────────────────────── -->
-	<div class="flex w-96 shrink-0 flex-col border-r">
+	<div class="flex w-62.5 shrink-0 flex-col border-r">
 		<!-- Header -->
 		<div class="flex items-center justify-between px-4 py-3">
 			<h2 class="text-base font-semibold">Customers</h2>
@@ -153,7 +153,7 @@
 				</div>
 			{:else}
 				{#each filteredCustomers as customer (customer.id)}
-					<div class="mx-auto w-87.5">
+					<div class="mx-auto w-55">
 						<button
 							onclick={() => {
 								selectedCustomerId = customer.id;

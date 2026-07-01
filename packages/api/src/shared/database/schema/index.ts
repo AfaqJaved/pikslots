@@ -10,6 +10,7 @@ import { ClassGroupTable } from './class.group.table';
 import { ClassGroupAssignmentTable } from './class.group.assignment.table';
 import { CustomerTable } from './customer.table';
 import { TimeOffTable } from './timeoff.table';
+import { BookingTable } from './booking.table';
 
 export type { AuditFields };
 
@@ -25,4 +26,5 @@ export interface PikSlotsDatabase {
   class_group_assignments: ClassGroupAssignmentTable;
   customers: CustomerTable;
   timeoff: TimeOffTable;
+  bookings: BookingTable;
 }
