@@ -1,2 +1,2 @@
 export * from './break.types';
-export * from './break.endpoints'
+export * from './break.endpoints';

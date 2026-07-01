@@ -15,5 +15,7 @@ export const IUpdateBreakUseCase = Symbol('IUpdateBreakUseCase');
 export interface UpdateBreakUseCase {
   execute(
     command: UpdateBreakCommand,
-  ): Promise<Result<Break, BreakNotFoundError | BreakOverlapError | BreakNotOwnedError | InfrastructureError>>;
+  ): Promise<
+    Result<Break, BreakNotFoundError | BreakOverlapError | BreakNotOwnedError | InfrastructureError>
+  >;
 }

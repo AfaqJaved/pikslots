@@ -1,24 +1,29 @@
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 export type BreakDay =
-  | 'monday' | 'tuesday' | 'wednesday'
-  | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
 
 export interface BreakProps {
   readonly id: string;
   readonly userId: string;
   readonly day: BreakDay;
   readonly startTime: string; // 'HH:MM'
-  readonly endTime: string;   // 'HH:MM'
+  readonly endTime: string; // 'HH:MM'
   readonly businessId: string;
   // audit
   readonly createdAt: Date;
   readonly createdBy: string;
   readonly updatedAt: Date;
   readonly updatedBy: string;
-  readonly deletedAt: Date | null;   // ← add
+  readonly deletedAt: Date | null; // ← add
   readonly deletedBy: string | null; // ← add
-  readonly isDeleted: boolean;  
+  readonly isDeleted: boolean;
 }
 
 // ── Create input ──────────────────────────────────────────────────────────────
@@ -27,7 +32,7 @@ export interface CreateBreakInput {
   id: string;
   userId: string;
   day: BreakDay;
-  buisnessId:string;
+  buisnessId: string;
   startTime: string;
   endTime: string;
   createdBy: string;
@@ -59,9 +64,9 @@ export class Break {
       createdBy: input.createdBy,
       updatedAt: now,
       updatedBy: input.createdBy,
-      deletedAt: null,   
-      deletedBy: null,   
-      isDeleted: false, 
+      deletedAt: null,
+      deletedBy: null,
+      isDeleted: false,
     });
   }
 
@@ -82,8 +87,7 @@ export class Break {
    */
   overlapsWith(other: Break): boolean {
     if (this.props.day !== other.props.day) return false;
-    return this.props.startTime < other.props.endTime &&
-           this.props.endTime > other.props.startTime;
+    return this.props.startTime < other.props.endTime && this.props.endTime > other.props.startTime;
   }
 
   /**
@@ -97,7 +101,9 @@ export class Break {
 
   // ── Identity ───────────────────────────────────────────────────────────────
 
-  get id(): string { return this.props.id; }
+  get id(): string {
+    return this.props.id;
+  }
 
   equals(other: Break): boolean {
     return this.props.id === other.props.id;
@@ -105,21 +111,45 @@ export class Break {
 
   // ── Core fields ────────────────────────────────────────────────────────────
 
-  get userId(): string { return this.props.userId; }
-  get buisnessId(): string { return this.props.businessId; }
-  get day(): BreakDay { return this.props.day; }
-  get startTime(): string { return this.props.startTime; }
-  get endTime(): string { return this.props.endTime; }
+  get userId(): string {
+    return this.props.userId;
+  }
+  get buisnessId(): string {
+    return this.props.businessId;
+  }
+  get day(): BreakDay {
+    return this.props.day;
+  }
+  get startTime(): string {
+    return this.props.startTime;
+  }
+  get endTime(): string {
+    return this.props.endTime;
+  }
 
   // ── Audit fields ───────────────────────────────────────────────────────────
 
-  get createdAt(): Date { return this.props.createdAt; }
-  get createdBy(): string { return this.props.createdBy; }
-  get updatedAt(): Date { return this.props.updatedAt; }
-  get updatedBy(): string { return this.props.updatedBy; }
-  get deletedAt(): Date | null { return this.props.deletedAt; }
-  get deletedBy(): string | null { return this.props.deletedBy; }
-  get isDeleted(): boolean { return this.props.isDeleted; }
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  get createdBy(): string {
+    return this.props.createdBy;
+  }
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
+  get updatedBy(): string {
+    return this.props.updatedBy;
+  }
+  get deletedAt(): Date | null {
+    return this.props.deletedAt;
+  }
+  get deletedBy(): string | null {
+    return this.props.deletedBy;
+  }
+  get isDeleted(): boolean {
+    return this.props.isDeleted;
+  }
 
   // ── Mutations (return new instance — immutable pattern) ────────────────────
 

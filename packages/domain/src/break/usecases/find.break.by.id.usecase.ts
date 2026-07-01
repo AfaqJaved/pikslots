@@ -5,5 +5,7 @@ import type { Break } from '../break.entity';
 export const IFindBreakByIdUseCase = Symbol('IFindBreakByIdUseCase');
 
 export interface FindBreakByIdUseCase {
-  execute(breakId: string): Promise<Result<Break, BreakNotFoundError |UnauthorizedError | InfrastructureError>>;
+  execute(
+    breakId: string,
+  ): Promise<Result<Break, BreakNotFoundError | UnauthorizedError | InfrastructureError>>;
 }
