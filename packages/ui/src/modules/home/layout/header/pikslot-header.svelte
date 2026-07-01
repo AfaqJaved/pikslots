@@ -38,7 +38,7 @@
 				<DropdownMenu.Trigger>
 					{#snippet child({ props })}
 						<Button
-							class="size-10 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-primary/80"
+							class="size-10 rounded-full hover:bg-primary/80 focus-visible:ring-0 focus-visible:ring-offset-0"
 							{...props}
 						>
 							<Plus size={16} class="size-4" />

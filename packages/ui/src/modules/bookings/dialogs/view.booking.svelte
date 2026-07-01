@@ -52,18 +52,20 @@
 						<Tabs.List class="h-auto gap-0 rounded-none bg-transparent p-0">
 							<Tabs.Trigger
 								value="details"
-								class="rounded-none border-b-2 border-transparent px-0 pb-2.5 pt-2 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
+								class="rounded-none border-b-2 border-transparent px-0 pt-2 pb-2.5 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
 							>
 								Details
 							</Tabs.Trigger>
 							<Tabs.Trigger
 								value="history"
-								class="ml-4 rounded-none border-b-2 border-transparent px-0 pb-2.5 pt-2 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
+								class="ml-4 rounded-none border-b-2 border-transparent px-0 pt-2 pb-2.5 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
 							>
 								History
 							</Tabs.Trigger>
 						</Tabs.List>
-						<button class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+						<button
+							class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+						>
 							No label
 							<ChevronDown size={12} />
 						</button>
@@ -74,11 +76,16 @@
 						<div class="flex flex-col gap-4 py-4">
 							<!-- Service -->
 							<div class="flex items-start gap-3">
-								<Circle size={14} class="mt-0.5 shrink-0" style="color: {booking.color ?? '#0d9488'}" />
+								<Circle
+									size={14}
+									class="mt-0.5 shrink-0"
+									style="color: {booking.color ?? '#0d9488'}"
+								/>
 								<div class="flex flex-col">
 									<span class="text-sm font-medium">{booking.title}</span>
 									<span class="text-xs text-muted-foreground">
-										Duration: <span class="font-medium text-foreground">{booking.durationMins}</span> mins
+										Duration: <span class="font-medium text-foreground">{booking.durationMins}</span
+										> mins
 									</span>
 								</div>
 							</div>
@@ -102,7 +109,9 @@
 							<div class="flex items-start gap-3">
 								<Users size={16} class="mt-0.5 shrink-0 text-muted-foreground" />
 								<div class="flex flex-col gap-1.5">
-									<span class="text-sm">{booking.guests.length} guest{booking.guests.length !== 1 ? 's' : ''}</span>
+									<span class="text-sm"
+										>{booking.guests.length} guest{booking.guests.length !== 1 ? 's' : ''}</span
+									>
 									{#each booking.guests as guest}
 										<div class="flex items-center gap-2">
 											<div class="flex size-6 items-center justify-center rounded-full bg-muted">
