@@ -204,6 +204,27 @@
 		font-family: 'Roboto Variable', sans-serif;
 	}
 
+	:global(.calendar-wrapper .fc-scrollgrid),
+	:global(.calendar-wrapper .fc-scrollgrid td),
+	:global(.calendar-wrapper .fc-scrollgrid th) {
+		border-width: 0.8px !important;
+		border-color: var(--border) !important;
+	}
+
+	:global(.calendar-wrapper .fc-scrollgrid) {
+		border-left-width: 0 !important;
+		border-right-width: 0 !important;
+		border-top-width: 0 !important;
+		border-bottom-width: 0 !important;
+	}
+
+	:global(.calendar-wrapper .fc-col-header-cell),
+	:global(.calendar-wrapper .fc-scrollgrid-section-header td),
+	:global(.calendar-wrapper .fc-scrollgrid-section-header th) {
+		border-bottom-width: 0.8px !important;
+		border-color: var(--border) !important;
+	}
+
 	/* ── Today highlight → shadcn primary ── */
 	:global(.calendar-wrapper .fc-day-today) {
 		background-color: color-mix(in oklch, var(--primary) 10%, transparent) !important;
@@ -221,13 +242,58 @@
 		background-color: color-mix(in oklch, var(--primary) 20%, transparent) !important;
 	}
 
-	/* ── List view transparent background ── */
+	/* ── List view ── */
+
+	/* Container */
 	:global(.calendar-wrapper .fc-list),
-	:global(.calendar-wrapper .fc-list-table),
-	:global(.calendar-wrapper .fc-list-day-cushion),
-	:global(.calendar-wrapper .fc-list-event),
-	:global(.calendar-wrapper .fc-list-empty) {
+	:global(.calendar-wrapper .fc-list-table) {
 		background: transparent !important;
+	}
+
+	/* Day header row */
+	:global(.calendar-wrapper .fc-list-day > td),
+	:global(.calendar-wrapper .fc-list-day-cushion) {
+		background-color: color-mix(in oklch, var(--primary) 15%, transparent) !important;
+		border-color: var(--border) !important;
+	}
+
+	:global(.calendar-wrapper .fc-list-day-cushion a),
+	:global(.calendar-wrapper .fc-list-day-text),
+	:global(.calendar-wrapper .fc-list-day-side-text) {
+		color: var(--primary) !important;
+		text-decoration: none !important;
+	}
+
+	/* Event rows */
+	:global(.calendar-wrapper .fc-list-event) {
+		background-color: transparent !important;
+	}
+
+	:global(.calendar-wrapper .fc-list-event:hover td) {
+		background-color: var(--accent) !important;
+		cursor: pointer;
+	}
+
+	:global(.calendar-wrapper .fc-list-event td) {
+		border-color: var(--border) !important;
+	}
+
+	/* Event time */
+	:global(.calendar-wrapper .fc-list-event-time) {
+		color: var(--muted-foreground) !important;
+	}
+
+	/* Event title */
+	:global(.calendar-wrapper .fc-list-event-title a) {
+		color: var(--foreground) !important;
+		text-decoration: none !important;
+	}
+
+	/* Empty state */
+	:global(.calendar-wrapper .fc-list-empty),
+	:global(.calendar-wrapper .fc-list-empty-cushion) {
+		background: transparent !important;
+		color: var(--muted-foreground) !important;
 	}
 
 	:global(.calendar-wrapper .fc-list-empty) {
