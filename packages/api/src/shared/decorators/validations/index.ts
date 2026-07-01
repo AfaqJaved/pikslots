@@ -8,3 +8,5 @@ export * from './timezone.validations';
 export * from './url.validations';
 export * from './enum.validations';
 export * from './uuid.validations';
+export * from './week.day.validation';
+export * from './time.validation';
