@@ -4,24 +4,60 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import Trash from '@tabler/icons-svelte/icons/trash';
-	import { WEEKDAYS, quarterHourTimes } from '$utils/working-hours';
-	import type { UserWorkingHoursResponse } from '@pikslots/shared';
+	import { WEEKDAYS, quarterHourTimes, fromHHmm, toHHmm } from '$utils/working-hours';
+	import type { UserWorkingHoursResponse, WeekDay } from '@pikslots/shared';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { authStore } from '$stores/auth.svelte';
+	import { toast } from 'svelte-sonner';
+	import { getBreaksByUserQueryOptions } from '../../../api/break/get.breaks.by.user.query';
+	import { createBreakMutationOptions } from '../../../api/break/create.break.mutation';
+	import { updateBreakMutationOptions } from '../../../api/break/update.break.mutation';
+	import { deleteBreakMutationOptions } from '../../../api/break/delete.break.mutation';
 
 	let { userWorkingHours }: { userWorkingHours: UserWorkingHoursResponse | undefined } = $props();
 
-	type Break = { start: string; end: string };
-	type DayBreaks = { label: string; workday: boolean; enabled: boolean; breaks: Break[] };
+	const userId = authStore.getPayloadData()?.userId ?? '';
+	const businessId = authStore.getPayloadData()?.businessId ?? '';
+	const queryClient = useQueryClient();
+
+	const breaksQuery = createQuery(() => getBreaksByUserQueryOptions(userId));
+	const createMut = createMutation(() => createBreakMutationOptions());
+	const updateMut = createMutation(() => updateBreakMutationOptions());
+	const deleteMut = createMutation(() => deleteBreakMutationOptions());
+
+	type BreakEntry = { id?: string; start: string; end: string };
+	type DayBreaks = {
+		label: string;
+		day: WeekDay;
+		workday: boolean;
+		enabled: boolean;
+		breaks: BreakEntry[];
+	};
 
 	let breakDays = $state<DayBreaks[]>([]);
 
+	function buildDayBreaks(): DayBreaks[] {
+		if (!userWorkingHours) return [];
+		const apiBreaks = breaksQuery.data ?? [];
+		return WEEKDAYS.map((day) => {
+			const dayBreaks = apiBreaks
+				.filter((b) => b.day === day)
+				.map((b) => ({ id: b.id, start: fromHHmm(b.startTime), end: fromHHmm(b.endTime) }));
+			return {
+				label: day.charAt(0).toUpperCase() + day.slice(1),
+				day,
+				workday: userWorkingHours[day].enabled,
+				enabled: dayBreaks.length > 0,
+				breaks: dayBreaks
+			};
+		});
+	}
+
 	$effect(() => {
 		if (!userWorkingHours) return;
-		breakDays = WEEKDAYS.map((day) => ({
-			label: day.charAt(0).toUpperCase() + day.slice(1),
-			workday: userWorkingHours[day].enabled,
-			enabled: false,
-			breaks: [] as Break[]
-		}));
+		// react to both userWorkingHours and API data
+		void breaksQuery.data;
+		breakDays = buildDayBreaks();
 	});
 
 	function addBreak(dayIndex: number) {
@@ -30,6 +66,93 @@
 
 	function removeBreak(dayIndex: number, breakIndex: number) {
 		breakDays[dayIndex].breaks.splice(breakIndex, 1);
+	}
+
+	function getConflictingIndices(breaks: BreakEntry[]): Set<number> {
+		const conflicting = new Set<number>();
+		for (let i = 0; i < breaks.length; i++) {
+			// invalid range: start >= end
+			if (toHHmm(breaks[i].start) >= toHHmm(breaks[i].end)) {
+				conflicting.add(i);
+			}
+		}
+		for (let i = 0; i < breaks.length; i++) {
+			for (let j = i + 1; j < breaks.length; j++) {
+				const aStart = toHHmm(breaks[i].start);
+				const aEnd = toHHmm(breaks[i].end);
+				const bStart = toHHmm(breaks[j].start);
+				const bEnd = toHHmm(breaks[j].end);
+				if (aStart < bEnd && aEnd > bStart) {
+					conflicting.add(i);
+					conflicting.add(j);
+				}
+			}
+		}
+		return conflicting;
+	}
+
+	const conflictsByDay = $derived.by(() =>
+		breakDays.map((day) => {
+			if (!day.enabled || day.breaks.length === 0) return new Set<number>();
+			return getConflictingIndices(day.breaks);
+		})
+	);
+
+	const hasConflicts = $derived(conflictsByDay.some((s) => s.size > 0));
+
+	const isSaving = $derived(createMut.isPending || updateMut.isPending || deleteMut.isPending);
+
+	async function save() {
+		const apiBreaks = breaksQuery.data ?? [];
+		const ops: Promise<unknown>[] = [];
+
+		for (const day of breakDays) {
+			const originalDayBreaks = apiBreaks.filter((b) => b.day === day.day);
+
+			if (!day.enabled) {
+				// delete all existing breaks for this day
+				for (const orig of originalDayBreaks) {
+					ops.push(deleteMut.mutateAsync(orig.id));
+				}
+				continue;
+			}
+
+			const currentIds = new Set(day.breaks.filter((b) => b.id).map((b) => b.id!));
+
+			// delete breaks removed from UI
+			for (const orig of originalDayBreaks) {
+				if (!currentIds.has(orig.id)) {
+					ops.push(deleteMut.mutateAsync(orig.id));
+				}
+			}
+
+			// create or update each local break
+			for (const brk of day.breaks) {
+				const startTime = toHHmm(brk.start);
+				const endTime = toHHmm(brk.end);
+
+				if (!brk.id) {
+					ops.push(createMut.mutateAsync({ day: day.day, startTime, endTime, userId, businessId }));
+				} else {
+					const orig = originalDayBreaks.find((b) => b.id === brk.id);
+					if (orig && (orig.startTime !== startTime || orig.endTime !== endTime)) {
+						ops.push(updateMut.mutateAsync({ breakId: brk.id, day: day.day, startTime, endTime }));
+					}
+				}
+			}
+		}
+
+		try {
+			await Promise.all(ops);
+			await queryClient.invalidateQueries({ queryKey: ['breaks', 'user', userId] });
+			toast.success('Breaks saved successfully');
+		} catch {
+			toast.error('Failed to save breaks');
+		}
+	}
+
+	function reset() {
+		breakDays = buildDayBreaks();
 	}
 </script>
 
@@ -40,7 +163,7 @@
 				<div class="flex items-center gap-4">
 					<Switch
 						bind:checked={day.enabled}
-						disabled={!day.workday}
+						disabled={!day.workday || breaksQuery.isLoading}
 						class={!day.workday ? 'opacity-40' : ''}
 					/>
 
@@ -63,9 +186,14 @@
 				{#if day.enabled && day.breaks.length > 0}
 					<div class="mt-1 flex flex-col gap-1 pl-[calc(1.25rem+1rem+7rem)]">
 						{#each day.breaks as brk, bi (bi)}
+							{@const isConflict = conflictsByDay[di]?.has(bi)}
 							<div class="flex items-center gap-2">
 								<Select.Root type="single" bind:value={brk.start}>
-									<Select.Trigger class="w-28 text-xs">
+									<Select.Trigger
+										class="w-28 text-xs {isConflict
+											? 'border-destructive ring-1 ring-destructive focus:ring-destructive'
+											: ''}"
+									>
 										{brk.start}
 									</Select.Trigger>
 									<Select.Content class="max-h-60 overflow-y-auto">
@@ -78,7 +206,11 @@
 								<span class="text-muted-foreground">—</span>
 
 								<Select.Root type="single" bind:value={brk.end}>
-									<Select.Trigger class="w-28 text-xs">
+									<Select.Trigger
+										class="w-28 text-xs {isConflict
+											? 'border-destructive ring-1 ring-destructive focus:ring-destructive'
+											: ''}"
+									>
 										{brk.end}
 									</Select.Trigger>
 									<Select.Content class="max-h-60 overflow-y-auto">
@@ -104,6 +236,12 @@
 								{/if}
 							</div>
 						{/each}
+
+						{#if conflictsByDay[di]?.size > 0}
+							<p class="text-xs text-destructive">
+								Break slots overlap — adjust the times to resolve the conflict.
+							</p>
+						{/if}
 					</div>
 				{/if}
 			</div>
@@ -111,7 +249,12 @@
 	</div>
 
 	<div class="flex items-center justify-end gap-2 py-2">
-		<Button variant="ghost">Cancel</Button>
-		<Button>Save</Button>
+		{#if hasConflicts}
+			<p class="mr-auto text-xs text-destructive">Fix conflicting break slots to save.</p>
+		{/if}
+		<Button variant="ghost" onclick={reset} disabled={isSaving}>Cancel</Button>
+		<Button onclick={save} disabled={isSaving || breaksQuery.isLoading || hasConflicts}>
+			{isSaving ? 'Saving…' : 'Save'}
+		</Button>
 	</div>
 </div>
