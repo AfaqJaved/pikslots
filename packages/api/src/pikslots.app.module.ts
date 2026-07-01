@@ -16,6 +16,7 @@ import { ClassModule } from './modules/class/class.module';
 import { ClassGroupModule } from './modules/class-group/class.group.module';
 import { ClassGroupAssignmentModule } from './modules/class-group-assignment/class.group.assignment.module';
 import { CustomerModule } from './modules/customer/customer.module';
+import { TimeoffModule } from './modules/timeoff/timeoff.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CustomerModule } from './modules/customer/customer.module';
     ClassGroupModule,
     ClassGroupAssignmentModule,
     CustomerModule,
+    TimeoffModule,
   ],
   controllers: [],
   providers: [],
