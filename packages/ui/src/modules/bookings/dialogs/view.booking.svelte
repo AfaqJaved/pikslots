@@ -38,7 +38,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="w-[420px] gap-0 p-0">
+	<Dialog.Content class="flex h-[560px] w-[420px] flex-col gap-0 overflow-hidden p-0">
 		<!-- Header -->
 		<Dialog.Header class="flex flex-row items-center justify-between border-b px-5 py-4">
 			<Dialog.Title class="text-base font-semibold">Appointment</Dialog.Title>
@@ -46,19 +46,22 @@
 
 		{#if booking}
 			<!-- Tabs row -->
-			<div class="flex items-center justify-between border-b px-5">
-				<Tabs.Root value="details" class="w-full">
+			<div class="flex min-h-0 flex-1 flex-col overflow-hidden border-b px-5">
+				<Tabs.Root value="details" class="flex min-h-0 flex-1 flex-col">
 					<div class="flex items-center justify-between">
-						<Tabs.List class="h-auto gap-0 rounded-none bg-transparent p-0">
+						<Tabs.List
+							variant="line"
+							class="h-auto justify-start rounded-none bg-transparent px-0 pb-0"
+						>
 							<Tabs.Trigger
 								value="details"
-								class="rounded-none border-b-2 border-transparent px-0 pt-2 pb-2.5 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
+								class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground"
 							>
 								Details
 							</Tabs.Trigger>
 							<Tabs.Trigger
 								value="history"
-								class="ml-4 rounded-none border-b-2 border-transparent px-0 pt-2 pb-2.5 text-sm data-[state=active]:border-foreground data-[state=active]:shadow-none"
+								class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground"
 							>
 								History
 							</Tabs.Trigger>
@@ -72,7 +75,7 @@
 					</div>
 
 					<!-- Details tab -->
-					<Tabs.Content value="details" class="mt-0 px-0">
+					<Tabs.Content value="details" class="mt-0 min-h-0 flex-1 overflow-y-auto px-0">
 						<div class="flex flex-col gap-4 py-4">
 							<!-- Service -->
 							<div class="flex items-start gap-3">
@@ -152,7 +155,7 @@
 					</Tabs.Content>
 
 					<!-- History tab -->
-					<Tabs.Content value="history" class="mt-0 px-0">
+					<Tabs.Content value="history" class="mt-0 min-h-0 flex-1 overflow-y-auto px-0">
 						<div class="flex items-center justify-center py-10 text-sm text-muted-foreground">
 							No history available
 						</div>
