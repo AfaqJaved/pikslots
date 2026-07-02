@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - pikslots_postgres_data:/var/lib/postgresql/data
+      - pikslots_postgres_data:/var/lib/postgresql
 
 volumes:
   pikslots_postgres_data:
