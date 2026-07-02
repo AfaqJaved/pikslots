@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { plainToInstance, Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
   validateSync,
@@ -50,6 +52,11 @@ export class Env {
 
   @IsString()
   INVITE_JWT_EXPIRES_IN: string = '7d';
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
+  ENABLE_API_DOCS: boolean = false;
 
   @IsArray()
   @IsString({ each: true })

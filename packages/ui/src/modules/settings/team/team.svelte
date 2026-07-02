@@ -202,7 +202,11 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="breaks" class="mt-0">
-					<BreaksTab userWorkingHours={selected.userWorkingHours} />
+					<BreaksTab
+						userWorkingHours={selected.userWorkingHours}
+						userId={selected.id}
+						businessId={businessStore.selectedBusiness?.id ?? ''}
+					/>
 				</Tabs.Content>
 
 				<Tabs.Content value="time-off" class="mt-0">

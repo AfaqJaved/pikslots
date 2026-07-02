@@ -11,3 +11,4 @@ export * from './class-group-assignment/';
 export * from './customer/';
 export * from './timeoff/';
 export * from './booking/';
+export * from './break/';

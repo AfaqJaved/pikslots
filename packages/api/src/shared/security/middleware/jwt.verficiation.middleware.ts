@@ -13,7 +13,7 @@ const PUBLIC_ROUTES: string[] = [
   '/users/invite/request-otp',
   '/users/invite/accept',
   '/businesses/register',
-  '/users/:userId/free-slots', // get free slots for the user
+  '/users/free-slots/*', // get free slots for the user
 ];
 
 function isPublicRoute(originalUrl: string): boolean {

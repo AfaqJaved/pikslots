@@ -12,6 +12,7 @@ import {
 import type {
   GetFreeSlotsForUser,
   GetFreeSlotsForUserCommand,
+  UserBreak,
   UserInactiveError,
   UserRepository,
   UserSuspendedError,
@@ -92,6 +93,7 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
       command.businessTimezone,
     );
 
+    // already booked bookings
     const bookedResult = await this.userRepository.findBookedSlotsForUser(
       command.userId,
       command.businessId,
@@ -100,13 +102,49 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
 
     if (!bookedResult.ok) return err(bookedResult.error);
 
-    // TODO BREAKS
+    // user breaks
+    const breaksResult = await this.userRepository.findUserBreaks(
+      command.userId,
+      command.businessId,
+      weekDay,
+    );
+
+    if (!breaksResult.ok) return err(breaksResult.error);
+
+    // Convert break HH:mm times to UTC ISO strings for the requested date based on the timezone,
+    // then merge with booked slots so generateSlots treats them as blocked time.
+    const breakSlots: UserBreak[] = breaksResult.value.map((brk) => ({
+      startTime: workingHourToUTC(
+        command.date,
+        brk.startTime,
+        command.businessTimezone,
+      ),
+      endTime: workingHourToUTC(
+        command.date,
+        brk.endTime,
+        command.businessTimezone,
+      ),
+      day: brk.day,
+    }));
+
     // TODO TIMEOFFS
+    const blockedSlots = [...bookedResult.value, ...breakSlots];
+
+    // Clamp the window start to the next 5-minute boundary at or after now (UTC)
+    // so past slots are never generated and the first available slot always
+    // starts on a clean 5-minute mark.  For future dates now < windowStart so
+    // the ceil is a no-op and windowStart is used as-is.
+    const FIVE_MIN_MS = 5 * 60_000;
+    const nowCeil = Math.ceil(Date.now() / FIVE_MIN_MS) * FIVE_MIN_MS;
+    const effectiveWindowStart = millisToIso(
+      Math.max(isoToMillis(windowStart), nowCeil),
+    );
+
     return ok(
       this.generateSlots(
-        windowStart,
+        effectiveWindowStart,
         windowEnd,
-        bookedResult.value,
+        blockedSlots,
         command.durationInMins,
         command.bufferTimeInMins,
       ),
@@ -123,7 +161,7 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
    *
    * @param windowStart  - ISO 8601 UTC string marking the start of the working window
    * @param windowEnd    - ISO 8601 UTC string marking the end of the working window
-   * @param bookedSlots  - Existing bookings for the day (ISO 8601 UTC start/end times)
+   * @param blockedSlots - All blocked intervals for the day: existing bookings + breaks (ISO 8601 UTC start/end times)
    * @param durationMins - Duration of each generated slot in minutes
    * @param bufferMins   - Buffer time around each existing booking in minutes
    * @returns Array of available slots with ISO 8601 UTC start and end times
@@ -131,7 +169,7 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
   private generateSlots(
     windowStart: string,
     windowEnd: string,
-    bookedSlots: Slot[],
+    blockedSlots: Slot[],
     durationMins: number,
     bufferMins: number,
   ): Slot[] {
@@ -145,10 +183,14 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
     while (current + durationMs <= endMs) {
       const slotEnd = current + durationMs;
 
-      const hasConflict = bookedSlots.some(({ startTime, endTime }) => {
-        const bookedStart = isoToMillis(startTime);
-        const bookedEnd = isoToMillis(endTime);
-        return current < bookedEnd && slotEnd > bookedStart;
+      // `slotEnd + bufferMs` is used so that a slot whose trailing buffer
+      // runs into a blocked interval (break or booking) is also excluded.
+      // Strict inequalities keep boundary-touching slots available:
+      // e.g. break 10:00–11:00 with buffer=0 → slot 9:30–10:00 still allowed.
+      const hasConflict = blockedSlots.some(({ startTime, endTime }) => {
+        const blockedStart = isoToMillis(startTime);
+        const blockedEnd = isoToMillis(endTime);
+        return current < blockedEnd && slotEnd + bufferMs > blockedStart;
       });
 
       if (!hasConflict) {

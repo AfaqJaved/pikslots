@@ -10,5 +10,5 @@ export const USER_ENDPOINTS = {
   BUSINESS_USERS: '/users/business/:businessId',
   REQUEST_INVITE_OTP: '/users/invite/request-otp',
   ACCEPT_INVITE: '/users/invite/accept',
-  FREE_SLOTS: '/users/:userId/free-slots',
+  FREE_SLOTS: '/users/free-slots/:userId',
 } as const;

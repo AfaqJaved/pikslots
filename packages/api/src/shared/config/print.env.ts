@@ -38,6 +38,7 @@ export class PrintLoadedEnv {
     'MAIL_FROM',
     'FRONTEND_PUBLIC_URL',
     'BACKEND_PUBLIC_URL',
+    'ENABLE_API_DOCS',
   ];
 
   constructor(private readonly configService: ConfigService<Env, true>) {}

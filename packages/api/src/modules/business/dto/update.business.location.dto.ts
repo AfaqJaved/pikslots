@@ -6,6 +6,7 @@ import type {
 import {
   PikSlotsEnumValidation,
   PikSlotsStringValidation,
+  PikSlotsTimezoneValidation,
 } from 'src/shared/decorators/validations';
 
 const CURRENCIES: SupportedCurrencies[] = ['USD', 'PKR', 'RUB'];
@@ -34,4 +35,8 @@ export class UpdateBusinessLocationDto implements UpdateBusinessLocationInput {
   @ApiProperty({ enum: CURRENCIES, example: 'USD' })
   @PikSlotsEnumValidation(CURRENCIES)
   currency: SupportedCurrencies;
+
+  @ApiProperty({ example: 'Asia/Karachi' })
+  @PikSlotsTimezoneValidation()
+  timeZone: string;
 }
