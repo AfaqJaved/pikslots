@@ -81,6 +81,20 @@ export class Timeoff {
     // No access
     return false;
   }
+  static canViewTimeoff(
+    callerRole: UserRole,
+    isPartOfSameBusiness: boolean,
+    isSelf: boolean,
+  ): boolean {
+    if (callerRole === 'Platform Owner') return true;
+    if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
+      return true;
+    if ((callerRole == 'Enhanced' || callerRole == 'Standard') && isPartOfSameBusiness && isSelf)
+      return true;
+
+    // No access
+    return false;
+  }
 
   static canUpdateTimeoff(
     callerRole: UserRole,

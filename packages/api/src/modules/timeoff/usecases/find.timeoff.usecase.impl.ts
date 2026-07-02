@@ -8,21 +8,49 @@ import {
   Result,
   Timeoff,
   TimeOffNotFound,
+  UnauthorizedError,
 } from '@pikslots/domain';
 import { TimeOffRepositoryImpl } from '../repository/timeoff.repository.impl';
+import { SecurityContext } from 'src/shared/security/context/security.context';
+
+const UNAUTHORIZED_ERROR: UnauthorizedError = {
+  kind: 'unauthorized',
+  message: 'Can not edit customer : unauthorized!!!',
+  timestamp: new Date(),
+};
 
 @Injectable()
 export class FindTimeOffByIdUseCaseImpl implements FindTimeOffByIdUseCase {
   constructor(
     @Inject(ITimeoffRepository)
     private readonly timeoffRepositoryImpl: TimeOffRepositoryImpl,
+    private readonly securityContext: SecurityContext,
   ) {}
   async execute(
     command: string,
-  ): Promise<Result<Timeoff, TimeOffNotFound | InfrastructureError>> {
-    const result = await this.timeoffRepositoryImpl.find(command);
+  ): Promise<
+    Result<Timeoff, TimeOffNotFound | UnauthorizedError | InfrastructureError>
+  > {
+    const found = await this.timeoffRepositoryImpl.find(command);
+    if (!found.ok) return err(found.error);
+    if (!found.value) {
+      return err<TimeOffNotFound>({
+        kind: 'timeoff_not_found',
+        message: 'failed to find timeoff',
+        by: 'id',
+        value: command,
+        timestamp: new Date(),
+      });
+    }
 
-    if (!result.ok) return err(result.error);
-    return ok(result.value);
+    const callerRole = this.securityContext.role;
+    const isSelf = this.securityContext.userId == found.value.userId;
+    const isPartOfTheSameBusiness =
+      this.securityContext.businessId == found.value.businessId;
+
+    if (!Timeoff.canViewTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
+      return err<UnauthorizedError>(UNAUTHORIZED_ERROR);
+
+    return ok(found.value);
   }
 }

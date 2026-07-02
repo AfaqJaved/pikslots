@@ -50,13 +50,15 @@ export class TimeoffPersistenceMapper {
       start_time: timeoff.startTime || null,
       end_time: timeoff.endTime || null,
       recurrence: timeoff.recurrence
-        ? {
-            recurrence_type: timeoff.recurrence.recurrenceType,
-            rruleString: buildRRule(
-              timeoff.recurrence.recurrenceRule,
-              timeoff.startDate,
-            ),
-          }
+        ? timeoff.recurrence.recurrenceRule.frequency !== 'Does not repeat'
+          ? {
+              recurrence_type: timeoff.recurrence.recurrenceType,
+              rruleString: buildRRule(
+                timeoff.recurrence.recurrenceRule,
+                timeoff.startDate,
+              ),
+            }
+          : null
         : null,
       ...domainAuditToPersistence(timeoff),
     };
