@@ -1,5 +1,5 @@
 import type { Result } from '../../shared/result';
-import type { InfrastructureError, Slot } from '../../shared';
+import type { InfrastructureError, Slot, UserBreak, WeekDay } from '../../shared';
 import type { UserAlreadyExistsError, UserNotFoundError } from '../errors';
 import type { User } from '../user.entity';
 import type { UserRole } from '../types';
@@ -21,6 +21,11 @@ export interface UserRepository {
     businessId: string,
     date: string,
   ): Promise<Result<Slot[], InfrastructureError>>;
+  findUserBreaks(
+    userId: string,
+    busniessId: string,
+    day: WeekDay,
+  ): Promise<Result<UserBreak[], InfrastructureError>>;
 }
 
 export const IUserRepository = Symbol('IUserRepository');

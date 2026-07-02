@@ -7,9 +7,11 @@ import {
   Slot,
   User,
   UserAlreadyExistsError,
+  UserBreak,
   UserNotFoundError,
   UserRepository,
   UserRole,
+  WeekDay,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
@@ -272,6 +274,38 @@ export class UserRepositoryImpl implements UserRepository {
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to find booked slots for user',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async findUserBreaks(
+    userId: string,
+    businessId: string,
+    day: WeekDay,
+  ): Promise<Result<UserBreak[], InfrastructureError>> {
+    try {
+      const rows = await this.db
+        .selectFrom('breaks')
+        .select(['day', 'start_time', 'end_time'])
+        .where('user_id', '=', userId)
+        .where('business_id', '=', businessId)
+        .where('day', '=', day)
+        .where('is_deleted', '=', false)
+        .execute();
+
+      return ok(
+        rows.map((row) => ({
+          day: row.day,
+          startTime: row.start_time,
+          endTime: row.end_time,
+        })),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find user breaks',
         timestamp: new Date(),
         cause,
       });
