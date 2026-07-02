@@ -429,6 +429,7 @@ export class Business {
     zip: string;
     country: string;
     currency: SupportedCurrencies;
+    timeZone: string;
     updatedBy: string;
   }): Business {
     return new Business({
@@ -441,6 +442,7 @@ export class Business {
         zip: value.zip,
         country: value.country,
         currency: value.currency,
+        timeZone: value.timeZone,
       },
       updatedAt: new Date(),
       updatedBy: value.updatedBy,

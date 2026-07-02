@@ -11,6 +11,7 @@ export interface UpdateBusinessLocationCommand {
   zip: string;
   country: string;
   currency: SupportedCurrencies;
+  timeZone: string;
 }
 
 export const IUpdateBusinessLocationUseCase = Symbol('IUpdateBusinessLocationUseCase');
