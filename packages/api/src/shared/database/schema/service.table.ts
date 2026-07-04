@@ -11,6 +11,7 @@ export interface ServiceTable extends AuditFields {
   cost: number;
   is_hidden_from_booking_page: boolean;
   business_id: string; // fk → businesses.id
+  color_code: string;
 }
 
 export type ServiceTableSelect = Selectable<ServiceTable>;

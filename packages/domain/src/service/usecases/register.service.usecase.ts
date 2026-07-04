@@ -9,6 +9,7 @@ export interface RegisterServiceCommand {
   bufferTimeInMins: number;
   cost: number;
   isHiddenFromBookingPage: boolean;
+  colorCode: string;
   businessId: string;
   createdBy: string;
   associatedServiceGroups: string[];

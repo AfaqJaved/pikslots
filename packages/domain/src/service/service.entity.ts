@@ -12,6 +12,7 @@ export interface ServiceProps {
   readonly cost: number;
   readonly isHiddenFromBookingPage: boolean;
   readonly businessId: string;
+  readonly colorCode: string;
   // audit
   readonly createdAt: Date;
   readonly createdBy: string;
@@ -34,6 +35,7 @@ export interface ServiceCreateInput {
   isHiddenFromBookingPage: boolean;
   cost: number;
   businessId: string;
+  colorCode: string;
   createdBy: string;
 }
 
@@ -62,6 +64,7 @@ export class Service {
       cost: input.cost,
       isHiddenFromBookingPage: input.isHiddenFromBookingPage,
       businessId: input.businessId,
+      colorCode: input.colorCode,
       createdAt: now,
       createdBy: input.createdBy,
       updatedAt: now,
@@ -80,6 +83,7 @@ export class Service {
     bufferTimeInMins: number;
     cost: number;
     isHiddenFromBookingPage: boolean;
+    colorCode: string;
     updatedBy: string;
   }): Service {
     return new Service({
@@ -91,6 +95,7 @@ export class Service {
       bufferTimeInMins: input.bufferTimeInMins,
       cost: input.cost,
       isHiddenFromBookingPage: input.isHiddenFromBookingPage,
+      colorCode: input.colorCode,
       updatedAt: new Date(),
       updatedBy: input.updatedBy,
     });
@@ -167,7 +172,9 @@ export class Service {
   get businessId(): string {
     return this.props.businessId;
   }
-
+  get colorCode(): string {
+    return this.props.colorCode;
+  }
   // ── Audit fields ───────────────────────────────────────────────────────────
 
   get createdAt(): Date {
