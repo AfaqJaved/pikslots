@@ -44,6 +44,18 @@ export function isoToMillis(isoString: string): number {
 }
 
 /**
+ * Converts a UTC ISO 8601 string to the equivalent local time in the given
+ * timezone, returned as an ISO 8601 string (with the timezone offset, not Z).
+ *
+ * @param isoString - UTC ISO 8601 string, e.g. "2025-06-16T14:00:00.000Z"
+ * @param timezone  - IANA timezone, e.g. "America/New_York"
+ * @returns ISO 8601 string in the target timezone, e.g. "2025-06-16T10:00:00.000-04:00"
+ */
+export function utcIsoToTimezone(isoString: string, timezone: string): string {
+  return DateTime.fromISO(isoString, { zone: 'utc' }).setZone(timezone).toISO()!;
+}
+
+/**
  * Converts a Unix timestamp in milliseconds to a UTC ISO 8601 string.
  * The inverse of `isoToMillis`.
  *

@@ -19,6 +19,7 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
   message: 'Can not edit customer : unauthorized!!!',
   timestamp: new Date(),
 };
+
 @Injectable()
 export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
   constructor(
@@ -31,8 +32,10 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
   ): Promise<
     Result<void, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
-    const result = await this.timeoffRepositoryImpl.find(command.id);
+    const result = await this.timeoffRepositoryImpl.findById(command.id);
+
     if (!result.ok) return err(result.error);
+
     if (!result.value) {
       return err({
         kind: 'timeoff_not_found',
@@ -42,27 +45,28 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
         value: command.id,
       });
     }
+
     const callerRole = this.securityContext.role;
     const isPartOfTheSameBusiness =
       this.securityContext.businessId == result.value.businessId;
-    const isself = this.securityContext.userId == result.value.userId;
-    if (
-      !Timeoff.canUpdateTimeoff(callerRole, isPartOfTheSameBusiness, isself)
-    ) {
+    const isSelf = this.securityContext.userId == result.value.userId;
+
+    if (!Timeoff.canUpdateTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);
-    }
+
     const updated = result.value.update({
       title: command.title,
-      startDate: command.startDate,
-      endDate: command.endDate,
-      startTime: command.startTime,
-      endTime: command.endTime,
+      startDateTime: command.startDateTime,
+      endDateTime: command.endDateTime,
       recurrence: command.recurrence,
       updatedBy: this.securityContext.userId,
       updatedAt: new Date(),
     });
+
     const saved = await this.timeoffRepositoryImpl.update(updated);
+
     if (!saved.ok) return err(saved.error);
+
     return ok(saved.value);
   }
 }

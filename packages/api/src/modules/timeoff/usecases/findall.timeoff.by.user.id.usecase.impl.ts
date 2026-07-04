@@ -36,7 +36,10 @@ export class FindAllTimeOffByUserUseCaseImpl implements FindAllTimeOffByUserUseC
     if (!Timeoff.canViewTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
       return err<UnauthorizedError>(UNAUTHORIZED_ERROR);
 
-    const rows = await this.timeoffrepository.findAll(command.userId);
+    const rows = await this.timeoffrepository.findAllByUser(
+      command.userId,
+      command.businessId,
+    );
 
     if (!rows.ok) return err(rows.error);
 

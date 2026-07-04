@@ -3,17 +3,15 @@ import { PikSlotsDatabase } from '../schema';
 
 export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
   await db.schema
-    .createTable('timeoff')
+    .createTable('timeoffs')
     .addColumn('id', 'uuid', (col) => col.primaryKey().notNull())
     .addColumn('title', 'varchar', (col) => col.notNull())
     .addColumn('user_id', 'uuid', (col) => col.references('users.id').notNull())
     .addColumn('business_id', 'uuid', (col) =>
       col.references('businesses.id').notNull(),
     )
-    .addColumn('start_date', 'timestamptz', (col) => col.notNull())
-    .addColumn('end_date', 'timestamptz')
-    .addColumn('start_time', 'time')
-    .addColumn('end_time', 'time')
+    .addColumn('start_date_time', 'timestamptz', (col) => col.notNull())
+    .addColumn('end_date_time', 'timestamptz', (col) => col.notNull())
     .addColumn('recurrence', 'varchar')
     // audit
     .addColumn('created_at', 'timestamptz', (col) =>
@@ -31,8 +29,14 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
 
   await db.schema
     .createIndex('idx_timeoff_user_id')
-    .on('timeoff')
+    .on('timeoffs')
     .column('user_id')
+    .execute();
+
+  await db.schema
+    .createIndex('idx_timeoff_business_id')
+    .on('timeoffs')
+    .column('business_id')
     .execute();
 }
 

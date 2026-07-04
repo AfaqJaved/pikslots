@@ -18,12 +18,16 @@ import type {
 export class TimeoffUsecasesFactory {
   @Inject(IRegisterTImeOffUseCase)
   public readonly registerTimeoffUsecase: RegisterTimeOffUseCase;
+
   @Inject(IEditTimeOffByIdUseCase)
   public readonly editTimeoffUsecase: EditTImeOffByIdUseCase;
+
   @Inject(IFindAllTime0ffByUserUseCase)
   public readonly findAllTimeoffUsecase: FindAllTimeOffByUserUseCase;
+
   @Inject(IFindTime0ffByIdUseCase)
   public readonly findTImeoffUsecase: FindTimeOffByIdUseCase;
+
   @Inject(IDeleteTimeoffUseCase)
   public readonly deleteTimeoffUsecase: DeleteTimeoffUseCase;
 }

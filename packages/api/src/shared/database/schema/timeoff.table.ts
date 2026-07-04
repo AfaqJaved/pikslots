@@ -6,11 +6,9 @@ export interface TimeOffTable extends AuditFields {
   title: string;
   user_id: string;
   business_id: string;
-  start_date: Date;
-  end_date: Date | null;
-  start_time: string | null;
-  end_time: string | null;
-  recurrence: string | null;
+  start_date_time: Date;
+  end_date_time: Date;
+  recurrence: string | null; // rrule string
 }
 
 export type TimeoffTableSelect = Selectable<TimeOffTable>;

@@ -3,10 +3,8 @@ export interface RegisterTimeoffInput {
   title: string;
   userId: string;
   businessId: string;
-  startDate: Date;
-  endDate: Date | null;
-  startTime: string | null;
-  endTime: string | null;
+  startDateTime: string;
+  endDateTime: string;
   recurrence: string | null;
 }
 
@@ -15,10 +13,8 @@ export interface EditTimeoffInput {
   title: string;
   userId: string;
   businessId: string;
-  startDate: Date;
-  endDate: Date | null;
-  startTime: string | null;
-  endTime: string | null;
+  startDateTime: string;
+  endDateTime: string;
   recurrence: string | null;
 }
 
@@ -36,10 +32,8 @@ export interface FindTimeoffByIdResponse {
   title: string;
   userId: string;
   businessId: string;
-  startDate: Date;
-  endDate: Date | null;
-  startTime: string | null;
-  endTime: string | null;
+  startDateTime: string;
+  endDateTime: string;
   recurrence: string | null;
   createdAt: Date;
   createdBy: string;

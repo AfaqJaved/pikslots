@@ -29,8 +29,10 @@ export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
   ): Promise<
     Result<void, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
-    const found = await this.timeoffRepository.find(id);
+    const found = await this.timeoffRepository.findById(id);
+
     if (!found.ok) return err(found.error);
+
     if (!found.value) {
       return err({
         kind: 'timeoff_not_found',
@@ -42,9 +44,9 @@ export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
     }
 
     const callerRole = this.securityContext.role;
-    const isSelf = this.securityContext.userId == found.value.userId;
+    const isSelf = this.securityContext.userId === found.value.userId;
     const isPartOfSameBusiness =
-      this.securityContext.businessId == found.value.businessId;
+      this.securityContext.businessId === found.value.businessId;
 
     if (!Timeoff.canDeleteTimeoff(callerRole, isPartOfSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);

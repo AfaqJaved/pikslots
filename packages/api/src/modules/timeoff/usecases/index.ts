@@ -1,5 +1,5 @@
 import { Provider } from '@nestjs/common';
-import { FindTimeOffByIdUseCaseImpl } from './find.timeoff.usecase.impl';
+import { FindTimeOffByIdUseCaseImpl } from './find.timeoff.by.id.usecase.impl';
 import {
   IDeleteTimeoffUseCase,
   IEditTimeOffByIdUseCase,
@@ -7,7 +7,7 @@ import {
   IFindTime0ffByIdUseCase,
   IRegisterTImeOffUseCase,
 } from '@pikslots/domain';
-import { FindAllTimeOffByUserUseCaseImpl } from './findall.timeoff.usecase.impl';
+import { FindAllTimeOffByUserUseCaseImpl } from './findall.timeoff.by.user.id.usecase.impl';
 import { EditTimeoffByIdUseCaseImpl } from './edit.timeoff.usecase.impl';
 import { RegisterTimeOffUseCaseImpl } from './register.timeoff.usecase.impl';
 import { DeleteTimeoffUseCaseImpl } from './delete.timeoff.usecase.impl';

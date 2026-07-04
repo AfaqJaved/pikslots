@@ -1,6 +1,15 @@
 import type { InfrastructureError, Result, UnauthorizedError } from '../../shared';
 import type { TimeOffNotFound } from '../errors';
-import type { EditTimeoffCommand } from '../types';
+
+export interface EditTimeoffCommand {
+  id: string;
+  title: string;
+  userId: string;
+  businessId: string;
+  startDateTime: string;
+  endDateTime: string;
+  recurrence: string | null;
+}
 
 export const IEditTimeOffByIdUseCase = Symbol('IEditTimeOffByIdUseCase');
 

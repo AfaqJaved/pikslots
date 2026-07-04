@@ -1,6 +1,14 @@
 import type { InfrastructureError, Result, UnauthorizedError } from '../../shared';
 import type { Timeoff } from '../timeoff.entity';
-import type { CreateTimeoffCommand } from '../types';
+
+export interface CreateTimeoffCommand {
+  title: string;
+  userId: string;
+  businessId: string;
+  startDateTime: string;
+  endDateTime: string;
+  recurrence: string | null;
+}
 
 export const IRegisterTImeOffUseCase = Symbol('IRegisterTimeoffUseCase');
 

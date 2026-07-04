@@ -6,10 +6,8 @@ export interface TimeoffProps {
   readonly title: string;
   readonly userId: string;
   readonly businessId: string;
-  readonly startDate: Date;
-  readonly endDate: Date | null;
-  readonly startTime: string | null;
-  readonly endTime: string | null;
+  readonly startDateTime: string; // iso 8601 date time string in utc only
+  readonly endDateTime: string; // iso 8601 date time string in utc only
   readonly recurrence: string | null;
   // audit
   readonly createdAt: Date;
@@ -27,10 +25,8 @@ export interface CreateTimeoffInput {
   title: string;
   userId: string;
   businessId: string;
-  startDate: Date;
-  endDate: Date | null;
-  startTime: string | null;
-  endTime: string | null;
+  startDateTime: string;
+  endDateTime: string;
   recurrence: string | null;
   createdBy: string;
   updatedBy: string;
@@ -41,6 +37,7 @@ export class Timeoff {
   constructor(props: TimeoffProps) {
     this.props = props;
   }
+
   static create(input: CreateTimeoffInput) {
     const now = new Date();
     return new Timeoff({
@@ -48,10 +45,8 @@ export class Timeoff {
       title: input.title,
       userId: input.userId,
       businessId: input.businessId,
-      startDate: input.startDate,
-      endDate: input.endDate || null,
-      startTime: input.startTime || null,
-      endTime: input.endTime || null,
+      startDateTime: input.startDateTime,
+      endDateTime: input.endDateTime,
       recurrence: input.recurrence || null,
       createdAt: now,
       createdBy: input.createdBy,
@@ -123,13 +118,12 @@ export class Timeoff {
     // No access
     return false;
   }
+
   // ___Mutution methods__________________________________________________
   update(input: {
     title: string;
-    startDate: Date;
-    endDate: Date | null;
-    startTime: string | null;
-    endTime: string | null;
+    startDateTime: string;
+    endDateTime: string;
     recurrence: string | null;
     updatedBy: string;
     updatedAt: Date;
@@ -137,10 +131,8 @@ export class Timeoff {
     return new Timeoff({
       ...this.props,
       title: input.title,
-      startDate: input.startDate,
-      endDate: input.endDate || null,
-      startTime: input.startTime || null,
-      endTime: input.endTime || null,
+      startDateTime: input.startDateTime,
+      endDateTime: input.endDateTime,
       recurrence: input.recurrence || null,
       updatedBy: input.updatedBy,
       updatedAt: input.updatedAt,
@@ -168,17 +160,11 @@ export class Timeoff {
   get businessId(): string {
     return this.props.businessId;
   }
-  get startDate(): Date {
-    return this.props.startDate;
+  get startDateTime(): string {
+    return this.props.startDateTime;
   }
-  get endDate(): Date | null {
-    return this.props.endDate;
-  }
-  get startTime(): string | null {
-    return this.props.startTime;
-  }
-  get endTime(): string | null {
-    return this.props.endTime;
+  get endDateTime(): string {
+    return this.props.endDateTime;
   }
   get recurrence(): string | null {
     return this.props.recurrence;

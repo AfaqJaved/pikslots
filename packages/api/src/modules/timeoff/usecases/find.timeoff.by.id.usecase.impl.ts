@@ -31,8 +31,10 @@ export class FindTimeOffByIdUseCaseImpl implements FindTimeOffByIdUseCase {
   ): Promise<
     Result<Timeoff, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
-    const found = await this.timeoffRepositoryImpl.find(id);
+    const found = await this.timeoffRepositoryImpl.findById(id);
+
     if (!found.ok) return err(found.error);
+
     if (!found.value) {
       return err<TimeOffNotFound>({
         kind: 'timeoff_not_found',

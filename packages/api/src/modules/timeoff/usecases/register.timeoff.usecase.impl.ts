@@ -1,6 +1,5 @@
 import { Inject } from '@nestjs/common';
 import {
-  CreateTimeoffCommand,
   err,
   InfrastructureError,
   ITimeoffRepository,
@@ -9,6 +8,7 @@ import {
   RegisterTimeOffUseCase,
   Timeoff,
   UnauthorizedError,
+  CreateTimeoffCommand,
 } from '@pikslots/domain';
 import { TimeOffRepositoryImpl } from '../repository/timeoff.repository.impl';
 import { SecurityContext } from 'src/shared/security/context/security.context';
@@ -29,9 +29,9 @@ export class RegisterTimeOffUseCaseImpl implements RegisterTimeOffUseCase {
     command: CreateTimeoffCommand,
   ): Promise<Result<Timeoff, UnauthorizedError | InfrastructureError>> {
     const callerRole = this.securityContext.role;
-    const isSelf = this.securityContext.userId == command.userId;
+    const isSelf = this.securityContext.userId === command.userId;
     const isPartOfTheSameBusiness =
-      this.securityContext.businessId == command.businessId;
+      this.securityContext.businessId === command.businessId;
 
     if (!Timeoff.canCreateTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);
@@ -41,16 +41,15 @@ export class RegisterTimeOffUseCaseImpl implements RegisterTimeOffUseCase {
       title: command.title,
       userId: command.userId,
       businessId: command.businessId,
-      startDate: command.startDate,
-      endDate: command.endDate,
-      startTime: command.startTime,
-      endTime: command.endTime,
+      startDateTime: command.startDateTime,
+      endDateTime: command.endDateTime,
       recurrence: command.recurrence,
       createdBy: command.userId,
       updatedBy: command.userId,
     });
 
-    const saved = await this.timeoffRepository.register(timeoff);
+    const saved = await this.timeoffRepository.save(timeoff);
+
     if (!saved.ok) return err(saved.error);
 
     return ok(timeoff);

@@ -36,6 +36,7 @@ async function bootstrap() {
       .setDescription('pikslots swagger api')
       .setVersion('1.0')
       .addBearerAuth()
+      .addSecurityRequirements('bearer')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);

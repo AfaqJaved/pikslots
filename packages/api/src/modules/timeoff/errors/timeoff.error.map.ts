@@ -26,5 +26,6 @@ const timeoffErrorMap: Record<
 export function mapTimeoffError(
   error: TimeoffError,
 ): PikslotsBaseErrorResponse {
+  console.log(error);
   return timeoffErrorMap[error.kind](error);
 }

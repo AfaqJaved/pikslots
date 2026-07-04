@@ -18,7 +18,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   private readonly mapper = new TimeoffPersistenceMapper();
   constructor(@Inject(PIKSLOTS_DB) readonly db: Kysely<PikSlotsDatabase>) {}
 
-  async register(timeoff: Timeoff): Promise<Result<void, InfrastructureError>> {
+  async save(timeoff: Timeoff): Promise<Result<void, InfrastructureError>> {
     try {
       await this.db
         .insertInto('timeoffs')
@@ -34,14 +34,16 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
       });
     }
   }
-  async findAll(
-    user_id: string,
+  async findAllByUser(
+    userId: string,
+    businessId: string,
   ): Promise<Result<Timeoff[], InfrastructureError>> {
     try {
       const row = await this.db
         .selectFrom('timeoffs')
         .selectAll()
-        .where('user_id', '=', user_id)
+        .where('user_id', '=', userId)
+        .where('business_id', '=', businessId)
         .execute();
       if (row.length == 0) return ok([]);
       return ok(row.map((o) => this.mapper.persistenceToDomain(o)));
@@ -54,7 +56,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
       });
     }
   }
-  async find(
+  async findById(
     id: string,
   ): Promise<Result<Timeoff, TimeOffNotFound | InfrastructureError>> {
     try {
@@ -126,7 +128,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
           kind: 'timeoff_not_found',
           by: 'id',
           value: id,
-          message: `Service not found against ${id}`,
+          message: `Timeoff not found against ${id}`,
           timestamp: new Date(),
         });
       }
@@ -135,7 +137,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to delete service',
+        message: 'Failed to delete timeoff',
         timestamp: new Date(),
         cause,
       });

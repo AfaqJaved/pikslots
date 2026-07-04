@@ -10,6 +10,13 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import {
+  SaveTimeoffDocs,
+  FindTimeoffByIdDocs,
+  FindAllTimeoffsByUserDocs,
+  EditTimeoffDocs,
+  DeleteTimeoffDocs,
+} from './docs/timeoff.controller.docs';
 import { TimeoffPersistenceMapper } from './mappers/timeoff.database.mapper';
 import {
   RegisterTimeoffResponse,
@@ -38,6 +45,8 @@ export class TimeOffController {
     private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory,
     private readonly securityContext: SecurityContext,
   ) {}
+
+  @SaveTimeoffDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Post(TIMEOFF_ENDPOINTS.REGISTER)
@@ -52,10 +61,8 @@ export class TimeOffController {
         title: dto.title,
         userId: dto.userId,
         businessId: dto.businessId,
-        startDate: dto.startDate,
-        endDate: dto.endDate,
-        startTime: dto.startTime,
-        endTime: dto.endTime,
+        startDateTime: dto.startDateTime,
+        endDateTime: dto.endDateTime,
         recurrence: dto.recurrence,
       });
 
@@ -69,6 +76,7 @@ export class TimeOffController {
     return new PikslotsBaseResponse({ message: 'success' }, HttpStatus.CREATED);
   }
 
+  @FindTimeoffByIdDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Get(TIMEOFF_ENDPOINTS.FIND)
@@ -95,10 +103,8 @@ export class TimeOffController {
         title: value.title,
         userId: value.userId,
         businessId: value.businessId,
-        startDate: value.startDate,
-        endDate: value.endDate,
-        startTime: value.startTime,
-        endTime: value.endTime,
+        startDateTime: value.startDateTime,
+        endDateTime: value.endDateTime,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -112,6 +118,7 @@ export class TimeOffController {
     );
   }
 
+  @FindAllTimeoffsByUserDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Get(TIMEOFF_ENDPOINTS.FINDALL)
@@ -142,10 +149,8 @@ export class TimeOffController {
         title: value.title,
         userId: value.userId,
         businessId: value.businessId,
-        startDate: value.startDate,
-        endDate: value.endDate,
-        startTime: value.startTime,
-        endTime: value.endTime,
+        startDateTime: value.startDateTime,
+        endDateTime: value.endDateTime,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -159,6 +164,7 @@ export class TimeOffController {
     );
   }
 
+  @EditTimeoffDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Patch(TIMEOFF_ENDPOINTS.UPDATE)
@@ -174,10 +180,8 @@ export class TimeOffController {
       title: dto.title,
       userId: dto.userId,
       businessId: dto.businessId,
-      startDate: dto.startDate,
-      endDate: dto.endDate,
-      startTime: dto.startTime,
-      endTime: dto.endTime,
+      startDateTime: dto.startDateTime,
+      endDateTime: dto.endDateTime,
       recurrence: dto.recurrence,
     });
 
@@ -191,6 +195,7 @@ export class TimeOffController {
     return new PikslotsBaseResponse({ message: 'success' }, HttpStatus.OK);
   }
 
+  @DeleteTimeoffDocs()
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
   @Delete(TIMEOFF_ENDPOINTS.DELETE)

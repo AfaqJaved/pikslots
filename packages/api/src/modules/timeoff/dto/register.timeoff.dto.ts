@@ -1,10 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RegisterTimeoffInput } from '@pikslots/shared';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import {
-  PikSlotsOptionalTimeValidation,
+  IsDate,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
+import {
   PikSlotsStringValidation,
+  PikSlotsUUIDValidation,
 } from 'src/shared/decorators/validations';
 
 export class RegisterTimeoffDto implements RegisterTimeoffInput {
@@ -14,29 +20,40 @@ export class RegisterTimeoffDto implements RegisterTimeoffInput {
   @PikSlotsStringValidation(1, 255)
   title: string;
 
-  @IsUUID()
-  @IsNotEmpty()
+  @ApiProperty({
+    example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7c',
+    description: 'ID of the user this time-off belongs to',
+  })
+  @PikSlotsUUIDValidation()
   userId: string;
 
-  @IsUUID()
-  @IsNotEmpty()
+  @ApiProperty({
+    example: '01932b4a-5f3c-7e1d-b2a8-3c9d4e5f6a7d',
+    description: 'ID of the business this time-off belongs to',
+  })
+  @PikSlotsUUIDValidation()
   businessId: string;
 
-  @Type(() => Date)
-  @IsDate()
-  startDate: Date;
+  @ApiProperty({
+    example: '2025-06-16T10:00:00.000Z',
+    description: 'Time off start date time ISO 8601 UTC datetime string',
+  })
+  @IsDateString()
+  startDateTime: string;
 
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  endDate: Date | null;
+  @ApiProperty({
+    example: '2025-06-16T10:00:00.000Z',
+    description: 'Time off end date time ISO 8601 UTC datetime string',
+  })
+  @IsDateString()
+  endDateTime: string;
 
-  @PikSlotsOptionalTimeValidation()
-  startTime: string | null;
-
-  @PikSlotsOptionalTimeValidation()
-  endTime: string | null;
-
+  @ApiProperty({
+    example: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
+    description: 'Optional rrule recurrence string',
+    required: false,
+    nullable: true,
+  })
   @IsOptional()
   @PikSlotsStringValidation(1, 255)
   recurrence: string | null;
