@@ -20,6 +20,7 @@ export class ServicePersistenceMapper {
       cost: row.cost,
       isHiddenFromBookingPage: row.is_hidden_from_booking_page,
       businessId: row.business_id,
+      colorCode: row.color_code,
       ...persistenceAuditToDomain(row),
     });
   }
@@ -35,6 +36,7 @@ export class ServicePersistenceMapper {
       cost: service.cost,
       is_hidden_from_booking_page: service.isHiddenFromBookingPage,
       business_id: service.businessId,
+      color_code: service.colorCode,
       ...domainAuditToPersistence(service),
     };
   }

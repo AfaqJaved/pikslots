@@ -11,6 +11,7 @@ export interface EditServiceCommand {
   cost: number;
   isHiddenFromBookingPage: boolean;
   businessId: string;
+  colorCode: string;
   associatedServiceGroups: string[];
   associatedUsers: string[];
   updatedBy: string;

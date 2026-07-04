@@ -11,6 +11,7 @@ export interface RegisterServiceInput {
   isHiddenFromBookingPage: boolean;
   associatedUsers: string[];
   associatedServiceGroups: string[];
+  colorCode: string;
 }
 
 // --- Responses ---
@@ -29,6 +30,7 @@ export interface ServiceResponse {
   cost: number;
   isHiddenFromBookingPage: boolean;
   businessId: string;
+  colorCode: string;
 }
 
 export type FindAllServicesByBusinessResponse = ServiceResponse[];
@@ -45,6 +47,7 @@ export interface UpdateServiceInput {
   associatedUsers: string[];
   associatedServiceGroups: string[];
   businessId: string;
+  colorCode: string;
 }
 
 export interface UpdateServiceResponse {

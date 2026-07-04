@@ -69,6 +69,7 @@ export class RegisterServiceUseCaseImpl implements RegisterServiceUseCase {
       cost: command.cost,
       isHiddenFromBookingPage: command.isHiddenFromBookingPage,
       businessId: command.businessId,
+      colorCode: command.colorCode,
       createdBy: command.createdBy,
     });
 

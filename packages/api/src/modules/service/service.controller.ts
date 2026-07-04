@@ -60,11 +60,12 @@ export class ServiceController {
         imagesUrls: dto.imagesUrls,
         durationInMins: dto.durationInMins,
         bufferTimeInMins: dto.bufferTimeInMins,
-        cost: dto.cost,
         isHiddenFromBookingPage: dto.isHiddenFromBookingPage,
         associatedServiceGroups: dto.associatedServiceGroups,
         associatedUsers: dto.associatedUsers,
+        cost: dto.cost,
         businessId: dto.businessId,
+        colorCode: dto.colorCode,
         createdBy: this.securityContext.userId,
       });
 
@@ -103,6 +104,7 @@ export class ServiceController {
         associatedServiceGroups: dto.associatedServiceGroups,
         associatedUsers: dto.associatedUsers,
         businessId: dto.businessId,
+        colorCode: dto.colorCode,
         updatedBy: this.securityContext.userId,
       },
     );
@@ -181,6 +183,7 @@ export class ServiceController {
         cost: s.cost,
         isHiddenFromBookingPage: s.isHiddenFromBookingPage,
         businessId: s.businessId,
+        colorCode: s.colorCode,
       })),
       HttpStatus.OK,
     );
