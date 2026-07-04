@@ -1,5 +1,5 @@
 export const TIMEOFF_ENDPOINTS = {
-  SAVE: '/timeoff/save',
+  REGISTER: '/timeoff/register',
   FIND: '/timeoff/:findById',
   FINDALL: '/timeoff/findall/:userId',
   UPDATE: '/timeoff/:id',

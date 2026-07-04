@@ -7,8 +7,6 @@ import {
   domainAuditToPersistence,
   persistenceAuditToDomain,
 } from 'src/shared/database/mapper/audit.fields.mapper';
-import { buildRRule } from '../helper/timeoff.build.rrulestring.helper';
-import { buildRecurrenceObject } from '../helper/timeoff.build.recurrence.helper';
 
 export class TimeoffPersistenceMapper {
   public persistenceToDomain(row: TimeoffTableSelect): Timeoff {
@@ -21,21 +19,7 @@ export class TimeoffPersistenceMapper {
       endDate: row.end_date,
       startTime: row.start_time,
       endTime: row.end_time,
-      recurrence: row.recurrence
-        ? {
-            recurrenceType: row.recurrence.recurrence_type,
-            recurrenceRule: buildRecurrenceObject(
-              row.recurrence.rruleString!,
-              row.recurrence.recurrence_type,
-            ),
-          }
-        : {
-            recurrenceType: 'standard',
-            recurrenceRule: {
-              frequency: 'Does not repeat',
-              custom: {},
-            },
-          },
+      recurrence: row.recurrence,
       ...persistenceAuditToDomain(row),
     });
   }
@@ -49,17 +33,7 @@ export class TimeoffPersistenceMapper {
       end_date: timeoff.endDate || null,
       start_time: timeoff.startTime || null,
       end_time: timeoff.endTime || null,
-      recurrence: timeoff.recurrence
-        ? timeoff.recurrence.recurrenceRule.frequency !== 'Does not repeat'
-          ? {
-              recurrence_type: timeoff.recurrence.recurrenceType,
-              rruleString: buildRRule(
-                timeoff.recurrence.recurrenceRule,
-                timeoff.startDate,
-              ),
-            }
-          : null
-        : null,
+      recurrence: timeoff.recurrence,
       ...domainAuditToPersistence(timeoff),
     };
   }

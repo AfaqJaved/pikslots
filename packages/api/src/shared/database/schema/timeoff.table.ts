@@ -1,6 +1,5 @@
 import { Insertable, Selectable, Updateable } from 'kysely';
 import { AuditFields } from './audit.table';
-import { recurrencePresistence } from '@pikslots/domain';
 
 export interface TimeOffTable extends AuditFields {
   id: string;
@@ -11,7 +10,7 @@ export interface TimeOffTable extends AuditFields {
   end_date: Date | null;
   start_time: string | null;
   end_time: string | null;
-  recurrence: recurrencePresistence | null;
+  recurrence: string | null;
 }
 
 export type TimeoffTableSelect = Selectable<TimeOffTable>;

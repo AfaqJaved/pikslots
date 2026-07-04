@@ -14,7 +14,7 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
     .addColumn('end_date', 'timestamptz')
     .addColumn('start_time', 'time')
     .addColumn('end_time', 'time')
-    .addColumn('recurrence', 'jsonb')
+    .addColumn('recurrence', 'varchar')
     // audit
     .addColumn('created_at', 'timestamptz', (col) =>
       col.notNull().defaultTo(sql`now()`),

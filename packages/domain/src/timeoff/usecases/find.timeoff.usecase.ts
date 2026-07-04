@@ -6,6 +6,6 @@ export const IFindTime0ffByIdUseCase = Symbol('IFindTimeoffByIdUseCase');
 
 export interface FindTimeOffByIdUseCase {
   execute(
-    command: string,
+    id: string,
   ): Promise<Result<Timeoff, TimeOffNotFound | UnauthorizedError | InfrastructureError>>;
 }

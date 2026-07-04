@@ -15,7 +15,7 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
-  message: 'Can not edit customer : unauthorized!!!',
+  message: 'Can not delete timeoff : unauthorized!!!',
   timestamp: new Date(),
 };
 export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
@@ -25,19 +25,19 @@ export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
-    command: string,
+    id: string,
   ): Promise<
     Result<void, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
-    const found = await this.timeoffRepository.find(command);
+    const found = await this.timeoffRepository.find(id);
     if (!found.ok) return err(found.error);
     if (!found.value) {
       return err({
         kind: 'timeoff_not_found',
-        message: `timeoff not found by id: ${command}`,
+        message: `timeoff not found by id: ${id}`,
         timestamp: new Date(),
         by: 'id',
-        value: command,
+        value: id,
       });
     }
 
@@ -46,13 +46,13 @@ export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
     const isPartOfSameBusiness =
       this.securityContext.businessId == found.value.businessId;
 
-    if (!Timeoff.canDeletTimeoff(callerRole, isPartOfSameBusiness, isSelf))
+    if (!Timeoff.canDeleteTimeoff(callerRole, isPartOfSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);
 
-    const delet = await this.timeoffRepository.delete(found.value.id);
+    const deleteTimeoff = await this.timeoffRepository.delete(found.value.id);
 
-    if (!delet.ok) return err(delet.error);
+    if (!deleteTimeoff.ok) return err(deleteTimeoff.error);
 
-    return ok(delet.value);
+    return ok(deleteTimeoff.value);
   }
 }

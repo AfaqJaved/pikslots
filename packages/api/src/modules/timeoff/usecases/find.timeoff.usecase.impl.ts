@@ -15,7 +15,7 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
-  message: 'Can not edit customer : unauthorized!!!',
+  message: 'Can not find timeoff : unauthorized!!!',
   timestamp: new Date(),
 };
 
@@ -27,18 +27,18 @@ export class FindTimeOffByIdUseCaseImpl implements FindTimeOffByIdUseCase {
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
-    command: string,
+    id: string,
   ): Promise<
     Result<Timeoff, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
-    const found = await this.timeoffRepositoryImpl.find(command);
+    const found = await this.timeoffRepositoryImpl.find(id);
     if (!found.ok) return err(found.error);
     if (!found.value) {
       return err<TimeOffNotFound>({
         kind: 'timeoff_not_found',
         message: 'failed to find timeoff',
         by: 'id',
-        value: command,
+        value: id,
         timestamp: new Date(),
       });
     }

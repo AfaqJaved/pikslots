@@ -4,10 +4,10 @@ import {
   IEditTimeOffByIdUseCase,
   IFindAllTime0ffByUserUseCase,
   IFindTime0ffByIdUseCase,
-  ISaveTImeOffUseCase,
+  IRegisterTImeOffUseCase,
 } from '@pikslots/domain';
 import type {
-  SaveTimeOffUseCase,
+  RegisterTimeOffUseCase,
   DeleteTimeoffUseCase,
   EditTImeOffByIdUseCase,
   FindAllTimeOffByUserUseCase,
@@ -16,8 +16,8 @@ import type {
 
 @Injectable()
 export class TimeoffUsecasesFactory {
-  @Inject(ISaveTImeOffUseCase)
-  public readonly saveTimeoffUsecase: SaveTimeOffUseCase;
+  @Inject(IRegisterTImeOffUseCase)
+  public readonly registerTimeoffUsecase: RegisterTimeOffUseCase;
   @Inject(IEditTimeOffByIdUseCase)
   public readonly editTimeoffUsecase: EditTImeOffByIdUseCase;
   @Inject(IFindAllTime0ffByUserUseCase)

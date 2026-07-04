@@ -12,14 +12,17 @@ import {
 } from '@nestjs/common';
 import { TimeoffPersistenceMapper } from './mappers/timeoff.database.mapper';
 import {
-  SaveTimeoffResponse,
-  EditTImeoffResponse,
+  RegisterTimeoffResponse,
+  EditTimeoffResponse,
   TIMEOFF_ENDPOINTS,
+  FindTimeoffByIdResponse,
+  FindAllTimeoffByUserResponse,
+  DeleteTimeoffResponse,
 } from '@pikslots/shared';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
 import type { Response } from 'express';
-import { SaveTimeoffDto } from './dto/save.timeoff.dto';
+import { RegisterTimeoffDto } from './dto/register.timeoff.dto';
 import { EditTimeoffDto } from './dto/edit.timeoff.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
@@ -37,23 +40,24 @@ export class TimeOffController {
   ) {}
   @UseGuards(RolesGuard)
   @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
-  @Post(TIMEOFF_ENDPOINTS.SAVE)
-  async save(
+  @Post(TIMEOFF_ENDPOINTS.REGISTER)
+  async register(
     @Res({ passthrough: true }) res: Response,
-    @Body() dto: SaveTimeoffDto,
+    @Body() dto: RegisterTimeoffDto,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<SaveTimeoffResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<RegisterTimeoffResponse>
   > {
-    const result = await this.timeoffUseCaseFactory.saveTimeoffUsecase.execute({
-      title: dto.title,
-      userId: dto.userId,
-      businessId: dto.businessId,
-      startDate: dto.startDate,
-      endDate: dto.endDate,
-      startTime: dto.startTime,
-      endTime: dto.endTime,
-      recurrence: dto.recurrence,
-    });
+    const result =
+      await this.timeoffUseCaseFactory.registerTimeoffUsecase.execute({
+        title: dto.title,
+        userId: dto.userId,
+        businessId: dto.businessId,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        startTime: dto.startTime,
+        endTime: dto.endTime,
+        recurrence: dto.recurrence,
+      });
 
     if (!result.ok) {
       const errorResponse = mapTimeoffError(result.error);
@@ -72,7 +76,7 @@ export class TimeOffController {
     @Res({ passthrough: true }) res: Response,
     @Param('findById') id: string,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<Record<string, unknown>>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<FindTimeoffByIdResponse>
   > {
     const result =
       await this.timeoffUseCaseFactory.findTImeoffUsecase.execute(id);
@@ -85,7 +89,7 @@ export class TimeOffController {
 
     const value = result.value;
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse(
+    return new PikslotsBaseResponse<FindTimeoffByIdResponse>(
       {
         id: value.id,
         title: value.title,
@@ -100,6 +104,9 @@ export class TimeOffController {
         createdBy: value.createdBy,
         updatedAt: value.updatedAt,
         updatedBy: value.updatedBy,
+        deletedAt: value.deletedAt,
+        deletedBy: value.deletedBy,
+        isDeleted: value.isDeleted,
       },
       HttpStatus.OK,
     );
@@ -111,11 +118,16 @@ export class TimeOffController {
   async findAll(
     @Res({ passthrough: true }) res: Response,
     @Param('userId') userId: string,
+    @Param('businessId') businessId: string,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<Record<string, unknown>[]>
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<FindAllTimeoffByUserResponse>
   > {
     const result =
-      await this.timeoffUseCaseFactory.findAllTimeoffUsecase.execute(userId);
+      await this.timeoffUseCaseFactory.findAllTimeoffUsecase.execute({
+        userId,
+        businessId,
+      });
 
     if (!result.ok) {
       const errorResponse = mapTimeoffError(result.error);
@@ -124,7 +136,7 @@ export class TimeOffController {
     }
 
     res.status(HttpStatus.OK);
-    return new PikslotsBaseResponse(
+    return new PikslotsBaseResponse<FindAllTimeoffByUserResponse>(
       result.value?.map((value) => ({
         id: value.id,
         title: value.title,
@@ -139,6 +151,9 @@ export class TimeOffController {
         createdBy: value.createdBy,
         updatedAt: value.updatedAt,
         updatedBy: value.updatedBy,
+        deletedAt: value.deletedAt,
+        deletedBy: value.deletedBy,
+        isDeleted: value.isDeleted,
       })) ?? [],
       HttpStatus.OK,
     );
@@ -152,17 +167,17 @@ export class TimeOffController {
     @Param('id') id: string,
     @Body() dto: EditTimeoffDto,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<EditTImeoffResponse>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<EditTimeoffResponse>
   > {
     const result = await this.timeoffUseCaseFactory.editTimeoffUsecase.execute({
       id,
       title: dto.title,
-      user_id: dto.userId,
+      userId: dto.userId,
       businessId: dto.businessId,
       startDate: dto.startDate,
       endDate: dto.endDate,
       startTime: dto.startTime,
-      endTIme: dto.endTime,
+      endTime: dto.endTime,
       recurrence: dto.recurrence,
     });
 
@@ -183,7 +198,7 @@ export class TimeOffController {
     @Res({ passthrough: true }) res: Response,
     @Param('id') id: string,
   ): Promise<
-    PikslotsBaseErrorResponse | PikslotsBaseResponse<{ message: 'success' }>
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<DeleteTimeoffResponse>
   > {
     const result =
       await this.timeoffUseCaseFactory.deleteTimeoffUsecase.execute(id);

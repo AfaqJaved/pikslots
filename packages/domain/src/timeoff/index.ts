@@ -1,4 +1,3 @@
-export * from './value-objects';
 export * from './timeoff.entity.ts';
 export * from './repository/';
 export * from './usecases/';

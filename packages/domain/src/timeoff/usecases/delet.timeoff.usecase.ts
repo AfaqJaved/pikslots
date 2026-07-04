@@ -5,6 +5,6 @@ export const IDeleteTimeoffUseCase = Symbol('IDeleteTimeOffUseCase');
 
 export interface DeleteTimeoffUseCase {
   execute(
-    command: string,
+    id: string,
   ): Promise<Result<void, TimeOffNotFound | UnauthorizedError | InfrastructureError>>;
 }

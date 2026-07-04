@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EditTimeoffInput } from '@pikslots/shared';
+import { RegisterTimeoffInput } from '@pikslots/shared';
 import { Type } from 'class-transformer';
 import { IsDate, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import {
@@ -7,14 +7,10 @@ import {
   PikSlotsStringValidation,
 } from 'src/shared/decorators/validations';
 
-export class EditTimeoffDto implements EditTimeoffInput {
+export class RegisterTimeoffDto implements RegisterTimeoffInput {
   @ApiProperty({
-    example: 'Edit timeoff',
+    example: 'timeoff',
   })
-  @IsNotEmpty()
-  @IsUUID()
-  id: string;
-
   @PikSlotsStringValidation(1, 255)
   title: string;
 

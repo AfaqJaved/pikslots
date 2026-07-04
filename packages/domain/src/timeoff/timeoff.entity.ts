@@ -1,5 +1,4 @@
 import type { UserRole } from '../user';
-import type { recurrenceDomain } from './value-objects/recurrence.standard.vo';
 
 // _________props___________________________________
 export interface TimeoffProps {
@@ -11,7 +10,7 @@ export interface TimeoffProps {
   readonly endDate: Date | null;
   readonly startTime: string | null;
   readonly endTime: string | null;
-  readonly recurrence: recurrenceDomain | null;
+  readonly recurrence: string | null;
   // audit
   readonly createdAt: Date;
   readonly createdBy: string;
@@ -29,10 +28,10 @@ export interface CreateTimeoffInput {
   userId: string;
   businessId: string;
   startDate: Date;
-  endDate?: Date;
-  startTime?: string;
-  endTime?: string;
-  recurrence?: recurrenceDomain;
+  endDate: Date | null;
+  startTime: string | null;
+  endTime: string | null;
+  recurrence: string | null;
   createdBy: string;
   updatedBy: string;
 }
@@ -67,7 +66,7 @@ export class Timeoff {
     return new Timeoff(props);
   }
 
-  static canMakeTimeoff(
+  static canCreateTimeoff(
     callerRole: UserRole,
     isPartOfSameBusiness: boolean,
     isSelf: boolean,
@@ -110,7 +109,7 @@ export class Timeoff {
     // No access
     return false;
   }
-  static canDeletTimeoff(
+  static canDeleteTimeoff(
     callerRole: UserRole,
     isPartOfSameBusiness: boolean,
     isSelf: boolean,
@@ -128,10 +127,10 @@ export class Timeoff {
   update(input: {
     title: string;
     startDate: Date;
-    endDate?: Date;
-    startTime?: string;
-    endTime?: string;
-    recurrence?: recurrenceDomain;
+    endDate: Date | null;
+    startTime: string | null;
+    endTime: string | null;
+    recurrence: string | null;
     updatedBy: string;
     updatedAt: Date;
   }): Timeoff {
@@ -181,7 +180,7 @@ export class Timeoff {
   get endTime(): string | null {
     return this.props.endTime;
   }
-  get recurrence(): recurrenceDomain | null {
+  get recurrence(): string | null {
     return this.props.recurrence;
   }
   // _________Audit fields _______________________________

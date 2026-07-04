@@ -26,7 +26,7 @@ export interface PikSlotsDatabase {
   class_groups: ClassGroupTable;
   class_group_assignments: ClassGroupAssignmentTable;
   customers: CustomerTable;
-  timeoff: TimeOffTable;
+  timeoffs: TimeOffTable;
   bookings: BookingTable;
   breaks: BreakTable;
 }

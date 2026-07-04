@@ -1,13 +1,13 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
-import { SaveTimeoffDto } from '../dto/save.timeoff.dto';
+import { RegisterTimeoffDto } from '../dto/register.timeoff.dto';
 import { EditTimeoffDto } from '../dto/edit.timeoff.dto';
 
 export const SaveTimeoffDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Create a new time-off entry' }),
-    ApiBody({ type: SaveTimeoffDto }),
+    ApiBody({ type: RegisterTimeoffDto }),
     ApiResponse({
       status: HttpStatus.CREATED,
       description: 'Time-off created successfully',

@@ -5,11 +5,11 @@ import {
   IEditTimeOffByIdUseCase,
   IFindAllTime0ffByUserUseCase,
   IFindTime0ffByIdUseCase,
-  ISaveTImeOffUseCase,
+  IRegisterTImeOffUseCase,
 } from '@pikslots/domain';
 import { FindAllTimeOffByUserUseCaseImpl } from './findall.timeoff.usecase.impl';
 import { EditTimeoffByIdUseCaseImpl } from './edit.timeoff.usecase.impl';
-import { SaveTimeOffUseCaseImpl } from './save.timeoff.usecase.impl';
+import { RegisterTimeOffUseCaseImpl } from './register.timeoff.usecase.impl';
 import { DeleteTimeoffUseCaseImpl } from './delete.timeoff.usecase.impl';
 
 export const TIMEOFF_USECASES: Provider[] = [
@@ -23,8 +23,8 @@ export const TIMEOFF_USECASES: Provider[] = [
     provide: IEditTimeOffByIdUseCase,
   },
   {
-    useClass: SaveTimeOffUseCaseImpl,
-    provide: ISaveTImeOffUseCase,
+    useClass: RegisterTimeOffUseCaseImpl,
+    provide: IRegisterTImeOffUseCase,
   },
   {
     useClass: DeleteTimeoffUseCaseImpl,

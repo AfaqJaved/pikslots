@@ -1,12 +1,12 @@
 import { Inject } from '@nestjs/common';
 import {
-  CreateTimeoff,
+  CreateTimeoffCommand,
   err,
   InfrastructureError,
   ITimeoffRepository,
   ok,
   Result,
-  SaveTimeOffUseCase,
+  RegisterTimeOffUseCase,
   Timeoff,
   UnauthorizedError,
 } from '@pikslots/domain';
@@ -16,24 +16,24 @@ import { v7 as uuidv7 } from 'uuid';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
-  message: 'Can not edit customer : unauthorized!!!',
+  message: 'Can not create timeoff : unauthorized!!!',
   timestamp: new Date(),
 };
-export class SaveTimeOffUseCaseImpl implements SaveTimeOffUseCase {
+export class RegisterTimeOffUseCaseImpl implements RegisterTimeOffUseCase {
   constructor(
     @Inject(ITimeoffRepository)
     private readonly timeoffRepository: TimeOffRepositoryImpl,
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
-    command: CreateTimeoff,
+    command: CreateTimeoffCommand,
   ): Promise<Result<Timeoff, UnauthorizedError | InfrastructureError>> {
     const callerRole = this.securityContext.role;
     const isSelf = this.securityContext.userId == command.userId;
     const isPartOfTheSameBusiness =
       this.securityContext.businessId == command.businessId;
 
-    if (!Timeoff.canMakeTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
+    if (!Timeoff.canCreateTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);
 
     const timeoff = Timeoff.create({
@@ -50,7 +50,7 @@ export class SaveTimeOffUseCaseImpl implements SaveTimeOffUseCase {
       updatedBy: command.userId,
     });
 
-    const saved = await this.timeoffRepository.save(timeoff);
+    const saved = await this.timeoffRepository.register(timeoff);
     if (!saved.ok) return err(saved.error);
 
     return ok(timeoff);

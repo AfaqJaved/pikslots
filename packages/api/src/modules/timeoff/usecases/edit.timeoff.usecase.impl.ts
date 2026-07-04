@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   EditTImeOffByIdUseCase,
-  editTimeoffCommand,
+  EditTimeoffCommand,
   err,
   InfrastructureError,
   ITimeoffRepository,
@@ -27,7 +27,7 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
-    command: editTimeoffCommand,
+    command: EditTimeoffCommand,
   ): Promise<
     Result<void, TimeOffNotFound | UnauthorizedError | InfrastructureError>
   > {
@@ -42,12 +42,12 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
         value: command.id,
       });
     }
-    const callerRule = this.securityContext.role;
+    const callerRole = this.securityContext.role;
     const isPartOfTheSameBusiness =
       this.securityContext.businessId == result.value.businessId;
     const isself = this.securityContext.userId == result.value.userId;
     if (
-      !Timeoff.canUpdateTimeoff(callerRule, isPartOfTheSameBusiness, isself)
+      !Timeoff.canUpdateTimeoff(callerRole, isPartOfTheSameBusiness, isself)
     ) {
       return err(UNAUTHORIZED_ERROR);
     }
@@ -56,7 +56,7 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
       startDate: command.startDate,
       endDate: command.endDate,
       startTime: command.startTime,
-      endTime: command.endTIme,
+      endTime: command.endTime,
       recurrence: command.recurrence,
       updatedBy: this.securityContext.userId,
       updatedAt: new Date(),

@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
 import {
   err,
+  FindAllTimeoffByUserCommand,
   FindAllTimeOffByUserUseCase,
   InfrastructureError,
   ITimeoffRepository,
@@ -14,7 +15,7 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
-  message: 'Can not edit customer : unauthorized!!!',
+  message: 'Can not find timeoffs : unauthorized!!!',
   timestamp: new Date(),
 };
 
@@ -25,20 +26,19 @@ export class FindAllTimeOffByUserUseCaseImpl implements FindAllTimeOffByUserUseC
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
-    command: string,
+    command: FindAllTimeoffByUserCommand,
   ): Promise<Result<Timeoff[], UnauthorizedError | InfrastructureError>> {
-    const rows = await this.timeoffrepository.findAll(command);
-
-    if (!rows.ok) return err(rows.error);
-    if (!rows.value) return ok([]);
-
     const callerRole = this.securityContext.role;
-    const isSelf = this.securityContext.userId == rows.value[0].userId;
+    const isSelf = this.securityContext.userId === command.userId;
     const isPartOfTheSameBusiness =
-      this.securityContext.businessId == rows.value[0].businessId;
+      this.securityContext.businessId === command.businessId;
 
     if (!Timeoff.canViewTimeoff(callerRole, isPartOfTheSameBusiness, isSelf))
       return err<UnauthorizedError>(UNAUTHORIZED_ERROR);
+
+    const rows = await this.timeoffrepository.findAll(command.userId);
+
+    if (!rows.ok) return err(rows.error);
 
     return ok(rows.value);
   }

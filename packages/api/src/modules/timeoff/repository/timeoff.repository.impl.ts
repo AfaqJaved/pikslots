@@ -18,17 +18,17 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   private readonly mapper = new TimeoffPersistenceMapper();
   constructor(@Inject(PIKSLOTS_DB) readonly db: Kysely<PikSlotsDatabase>) {}
 
-  async save(timeoff: Timeoff): Promise<Result<void, InfrastructureError>> {
+  async register(timeoff: Timeoff): Promise<Result<void, InfrastructureError>> {
     try {
       await this.db
-        .insertInto('timeoff')
+        .insertInto('timeoffs')
         .values(this.mapper.domainToPersistence(timeoff))
         .execute();
       return ok(undefined);
     } catch (cause) {
       return err<InfrastructureError>({
         kind: 'infrastructure',
-        message: 'Failed to save timeoff',
+        message: 'Failed to register timeoff',
         timestamp: new Date(),
         cause,
       });
@@ -36,14 +36,14 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   }
   async findAll(
     user_id: string,
-  ): Promise<Result<Timeoff[] | null, InfrastructureError>> {
+  ): Promise<Result<Timeoff[], InfrastructureError>> {
     try {
       const row = await this.db
-        .selectFrom('timeoff')
+        .selectFrom('timeoffs')
         .selectAll()
         .where('user_id', '=', user_id)
         .execute();
-      if (row.length == 0) return ok(null);
+      if (row.length == 0) return ok([]);
       return ok(row.map((o) => this.mapper.persistenceToDomain(o)));
     } catch (cause) {
       return err<InfrastructureError>({
@@ -59,7 +59,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   ): Promise<Result<Timeoff, TimeOffNotFound | InfrastructureError>> {
     try {
       const row = await this.db
-        .selectFrom('timeoff')
+        .selectFrom('timeoffs')
         .selectAll()
         .where('id', '=', id)
         .where('is_deleted', '=', false)
@@ -70,6 +70,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
           message: 'Timeoff not found',
           by: 'id',
           timestamp: new Date(),
+          value: id,
         });
       }
       return ok(this.mapper.persistenceToDomain(row));
@@ -87,7 +88,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   ): Promise<Result<void, TimeOffNotFound | InfrastructureError>> {
     try {
       const row = await this.db
-        .updateTable('timeoff')
+        .updateTable('timeoffs')
         .set(this.mapper.domainToPersistence(timeoff))
         .where('id', '=', timeoff.id)
         .where('is_deleted', '=', false)
@@ -98,6 +99,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
           message: 'Timeoff not found',
           by: 'id',
           timestamp: new Date(),
+          value: null,
         });
       }
       return ok(undefined);
@@ -115,7 +117,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
   ): Promise<Result<void, TimeOffNotFound | InfrastructureError>> {
     try {
       const result = await this.db
-        .deleteFrom('timeoff')
+        .deleteFrom('timeoffs')
         .where('id', '=', id)
         .executeTakeFirst();
 
