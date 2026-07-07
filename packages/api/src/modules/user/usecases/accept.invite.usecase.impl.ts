@@ -15,7 +15,6 @@ import type {
   UserRepository,
 } from '@pikslots/domain';
 import { OtpService } from 'src/shared/cache/otp/otp.service';
-import { PikslotEmailService } from 'src/shared/email/pikslot.email.service';
 import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 
 @Injectable()
@@ -39,6 +38,7 @@ export class AcceptInviteUseCaseImpl implements AcceptInviteUseCase {
     >
   > {
     const findResult = await this.userRepository.findById(command.userId);
+
     if (!findResult.ok) return err(findResult.error as InfrastructureError);
 
     const user = findResult.value;
