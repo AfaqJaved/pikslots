@@ -39,6 +39,7 @@ export class AcceptInviteUseCaseImpl implements AcceptInviteUseCase {
     >
   > {
     const findResult = await this.userRepository.findById(command.userId);
+
     if (!findResult.ok) return err(findResult.error as InfrastructureError);
 
     const user = findResult.value;
