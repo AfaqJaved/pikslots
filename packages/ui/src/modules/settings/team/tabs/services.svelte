@@ -76,9 +76,7 @@
 
 		try {
 			await Promise.all([
-				...toAssign.map((s) =>
-					assignMut.mutateAsync({ serviceId: s.id, userId, businessId })
-				),
+				...toAssign.map((s) => assignMut.mutateAsync({ serviceId: s.id, userId, businessId })),
 				...toRemove.map((s) => removeMut.mutateAsync({ serviceId: s.id, userId }))
 			]);
 
@@ -133,11 +131,7 @@
 			<!-- Select all row -->
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-2">
-					<Checkbox
-						checked={allSelected}
-						onCheckedChange={toggleSelectAll}
-						id="select-all"
-					/>
+					<Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} id="select-all" />
 					<label for="select-all" class="cursor-pointer text-sm font-medium">Select all</label>
 				</div>
 				<span class="text-xs text-muted-foreground">
