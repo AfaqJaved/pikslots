@@ -15,7 +15,6 @@ import type {
   UserRepository,
 } from '@pikslots/domain';
 import { OtpService } from 'src/shared/cache/otp/otp.service';
-import { PikslotEmailService } from 'src/shared/email/pikslot.email.service';
 import { PasswordHashingService } from 'src/shared/security/hashing/password.hashing.service';
 
 @Injectable()

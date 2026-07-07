@@ -72,7 +72,8 @@ export class UserRepositoryTestImpl implements UserRepository {
     username: string,
   ): Promise<Result<User | null, UserNotFoundError | InfrastructureError>> {
     await Promise.resolve('');
-    const user = USER_TEST_DATA.find((item) => item.username === username) ?? null;
+    const user =
+      USER_TEST_DATA.find((item) => item.username === username) ?? null;
     return ok(user);
   }
 
