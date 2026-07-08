@@ -30,9 +30,8 @@
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import * as Select from '$lib/components/ui/select/index'
-	import { color } from '../core/store/utlis/color'
-
+	import * as Select from '$lib/components/ui/select/index';
+	import { color } from '../core/store/utlis/color';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -52,8 +51,7 @@
 		bufferTimeInMins: z.coerce.number().min(0).default(0),
 		cost: z.coerce.number().min(0).default(0),
 		isHiddenFromBookingPage: z.boolean().default(false),
-	   colorCode: z.string().min(1).max(10).default('#363030'),
-
+		colorCode: z.string().min(1).max(10).default('#363030')
 	});
 
 	// ── Queries ──────────────────────────────────────────────────────────────────
@@ -115,8 +113,8 @@
 						imagesUrls: [],
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
-						businessId: businessStore.selectedBusiness.id ,
-						colorCode: form.data.colorCode 
+						businessId: businessStore.selectedBusiness.id,
+						colorCode: form.data.colorCode
 					});
 				}
 			}
@@ -284,42 +282,42 @@
 					<!-- Title -->
 					<Field>
 						<Label for="title">Title <span class="text-destructive">*</span></Label>
-						 	<div class="flex w-full gap-x-2">
-						<Input
-							id="title"
-							bind:value={$form.title}
-							placeholder="For example, &quot;Introductory call&quot;"
-							class=" focus-visible:ring-primary"
-						/>
-						<FieldError errors={$errors.title?.map((e) => ({ message: e }))} />
+						<div class="flex w-full gap-x-2">
+							<Input
+								id="title"
+								bind:value={$form.title}
+								placeholder="For example, &quot;Introductory call&quot;"
+								class=" focus-visible:ring-primary"
+							/>
+							<FieldError errors={$errors.title?.map((e) => ({ message: e }))} />
 
-						<!-- color code -->
-						<Select.Root type="single" bind:value={$form.colorCode}>
-							<Select.Trigger class="rounded-xl">
-								<div
-									class="h-5 min-w-5 rounded-full"
-									style:background-color={$form.colorCode}
-								></div>
-							</Select.Trigger>
-							<Select.Content class="rounded-xl">
-								<div class="grid grid-cols-5">
-									{#each color as code, index (index)}
-										<Select.Item
-											id={code}
-											value={code}
-											class="flex  w-auto cursor-pointer items-center justify-center rounded-full border-2
+							<!-- color code -->
+							<Select.Root type="single" bind:value={$form.colorCode}>
+								<Select.Trigger class="rounded-xl">
+									<div
+										class="h-5 min-w-5 rounded-full"
+										style:background-color={$form.colorCode}
+									></div>
+								</Select.Trigger>
+								<Select.Content class="rounded-xl">
+									<div class="grid grid-cols-5">
+										{#each color as code, index (index)}
+											<Select.Item
+												id={code}
+												value={code}
+												class="flex  w-auto cursor-pointer items-center justify-center rounded-full border-2
 												  border-transparent p-1 transition-all duration-500 ease-in-out hover:border-[#95c2a2]"
-										>
-											<div
-												class="h-5 w-5 rounded-full shadow-xl"
-												style:background-color={code}
-											></div>
-										</Select.Item>
-									{/each}
-								</div>
-							</Select.Content>
-						</Select.Root>
-					</div>
+											>
+												<div
+													class="h-5 w-5 rounded-full shadow-xl"
+													style:background-color={code}
+												></div>
+											</Select.Item>
+										{/each}
+									</div>
+								</Select.Content>
+							</Select.Root>
+						</div>
 					</Field>
 
 					<!-- Description -->
