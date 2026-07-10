@@ -4,7 +4,7 @@ export let USER_TEST_DATA: User[] = [
   User.create({
     id: 'user-platform-owner-1',
     username: 'platform_owner',
-    password: 'hashed_password_1',
+    password: 'hashed_password_2',
     businessId: null,
     name: { firstName: 'Alice', lastName: 'Walker' },
     email: 'alice@pikslots.com',
