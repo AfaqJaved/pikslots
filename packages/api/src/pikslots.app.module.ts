@@ -19,6 +19,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { TimeoffModule } from './modules/timeoff/timeoff.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { BreakModule } from './modules/break/break.module';
+import { PikslotS3Module } from './shared/s3/s3.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BreakModule } from './modules/break/break.module';
     PikslotsQueueModule,
     PikslotEmailModule,
     PikslotCacheModule,
+    PikslotS3Module,
 
     // domain modules
     UserModule,

@@ -6,6 +6,8 @@ import type {
 	LoginUserResponse,
 	LogoutUserResponse,
 	RefreshUserSessionResponse,
+	UpdateUserAvatarInput,
+	UpdateUserAvatarResponse,
 	UpdateUserWorkingHoursInput,
 	UpdateUserWorkingHoursResponse,
 	UserSummary
@@ -25,3 +27,5 @@ export type BusinessUserModel = UserSummary;
 export type BusinessUsersResult = UserSummary[];
 export type UpdateWorkingHoursInput = UpdateUserWorkingHoursInput & { userId: string };
 export type UpdateWorkingHoursResult = UpdateUserWorkingHoursResponse;
+export type UpdateAvatarInput = UpdateUserAvatarInput & { userId: string };
+export type UpdateAvatarResult = UpdateUserAvatarResponse;

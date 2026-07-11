@@ -518,6 +518,12 @@
 								class="rounded"
 							/>
 							<Avatar.Root class="size-7 text-xs">
+								{#if member.avatarUrl}
+									<Avatar.Image
+										src={member.avatarUrl}
+										alt="{member.name.firstName} {member.name.lastName}"
+									/>
+								{/if}
 								<Avatar.Fallback class="bg-primary text-[11px] text-primary-foreground">
 									{member.name.firstName[0]}{member.name.lastName[0]}
 								</Avatar.Fallback>
