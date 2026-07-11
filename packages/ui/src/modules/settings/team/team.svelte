@@ -97,7 +97,10 @@
 						<div class="relative">
 							<Avatar.Root class="size-8 text-xs">
 								{#if member.avatarUrl}
-									<Avatar.Image src={member.avatarUrl} alt="{member.name.firstName} {member.name.lastName}" />
+									<Avatar.Image
+										src={member.avatarUrl}
+										alt="{member.name.firstName} {member.name.lastName}"
+									/>
 								{/if}
 								<Avatar.Fallback class="bg-muted font-medium text-foreground">
 									{member.name.firstName[0].toUpperCase()}
@@ -129,7 +132,10 @@
 			<div class="relative flex items-center gap-4 px-6 py-5">
 				<Avatar.Root class="size-16 text-lg">
 					{#if selected.avatarUrl}
-						<Avatar.Image src={selected.avatarUrl} alt="{selected.name.firstName} {selected.name.lastName}" />
+						<Avatar.Image
+							src={selected.avatarUrl}
+							alt="{selected.name.firstName} {selected.name.lastName}"
+						/>
 					{/if}
 					<Avatar.Fallback class="bg-muted font-semibold text-foreground">
 						{selected.name.firstName[0].toUpperCase()}

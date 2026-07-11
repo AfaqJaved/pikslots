@@ -12,7 +12,9 @@ export const GetPresignedUploadUrlDocs = () =>
       description: 'Presigned upload URL generated successfully',
       schema: {
         example: {
-          data: { url: 'https://s3.example.com/bucket/businesses/biz_01j/avatars/avatar.png?X-Amz-Signature=...' },
+          data: {
+            url: 'https://s3.example.com/bucket/businesses/biz_01j/avatars/avatar.png?X-Amz-Signature=...',
+          },
           statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },

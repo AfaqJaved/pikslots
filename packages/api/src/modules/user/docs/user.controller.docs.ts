@@ -429,7 +429,11 @@ export const GetFreeSlotsForUserDocs = () =>
 export const UpdateUserAvatarDocs = () =>
   applyDecorators(
     ApiOperation({ summary: 'Update avatar image key for a user' }),
-    ApiParam({ name: 'userId', description: 'Target user ID', example: 'usr_01j...' }),
+    ApiParam({
+      name: 'userId',
+      description: 'Target user ID',
+      example: 'usr_01j...',
+    }),
     ApiBody({ type: UpdateUserAvatarDto }),
     ApiResponse({
       status: HttpStatus.OK,

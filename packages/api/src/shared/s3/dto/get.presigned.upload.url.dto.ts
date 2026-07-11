@@ -21,7 +21,8 @@ export class GetPresignedUploadUrlDto implements GetPresignedUploadUrlInput {
 
   @ApiProperty({
     example: 'businesses/biz_01j/avatars',
-    description: 'Destination path in the bucket (no leading or trailing slash)',
+    description:
+      'Destination path in the bucket (no leading or trailing slash)',
   })
   @IsString()
   @IsNotEmpty()

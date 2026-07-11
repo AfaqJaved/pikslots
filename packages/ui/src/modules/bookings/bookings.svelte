@@ -144,7 +144,10 @@
 				>
 					<Avatar.Root class="size-6 text-[10px]">
 						{#if currentUser.avatarUrl}
-							<Avatar.Image src={currentUser.avatarUrl} alt="{currentUser.name.firstName} {currentUser.name.lastName}" />
+							<Avatar.Image
+								src={currentUser.avatarUrl}
+								alt="{currentUser.name.firstName} {currentUser.name.lastName}"
+							/>
 						{/if}
 						<Avatar.Fallback class="bg-primary text-[10px] text-primary-foreground">
 							{currentUser.name.firstName[0]}{currentUser.name.lastName[0]}
@@ -176,7 +179,10 @@
 					>
 						<Avatar.Root class="size-6 text-[10px]">
 							{#if user.avatarUrl}
-								<Avatar.Image src={user.avatarUrl} alt="{user.name.firstName} {user.name.lastName}" />
+								<Avatar.Image
+									src={user.avatarUrl}
+									alt="{user.name.firstName} {user.name.lastName}"
+								/>
 							{/if}
 							<Avatar.Fallback class="bg-muted text-[10px] text-muted-foreground">
 								{user.name.firstName[0]}{user.name.lastName[0]}
