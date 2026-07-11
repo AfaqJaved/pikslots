@@ -5,7 +5,6 @@ import { UserController } from './user.controller';
 import { USER_USECASES } from './usecases';
 import { UserUsecasesFactory } from './factory/user.usecases.factory';
 import { USER_EVENTS } from './events';
-
 @Module({
   imports: [],
   controllers: [UserController],

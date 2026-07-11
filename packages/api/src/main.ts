@@ -5,7 +5,6 @@ import { PikslotsAppModule } from './pikslots.app.module';
 import { type Env } from './shared/config/env';
 import { PrintLoadedEnv } from './shared/config/print.env';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { apiReference } from '@scalar/nestjs-api-reference';
 import { ValidationPipe } from '@nestjs/common';
 import { validationExceptionFactory } from './shared/pipes/validation.exception.factory';
 
@@ -29,18 +28,21 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Pikslots')
-    .setDescription('pikslots swagger api')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  const enableApiDocs = config.get('ENABLE_API_DOCS', { infer: true });
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, swaggerConfig);
-  // SwaggerModule.setup('api', app, documentFactory);
+  if (enableApiDocs) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Pikslots')
+      .setDescription('pikslots swagger api')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addSecurityRequirements('bearer')
+      .build();
 
-  app.use('/api', apiReference({ content: documentFactory() }));
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api', app, document);
+  }
+
   const port = config.get('PORT', { infer: true });
   await app.listen(port);
 }

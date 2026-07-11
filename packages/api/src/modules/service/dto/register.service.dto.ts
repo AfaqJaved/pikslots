@@ -12,6 +12,7 @@ import {
   MinLength,
   IsBoolean,
 } from 'class-validator';
+import { PikSlotsStringValidation } from 'src/shared/decorators/validations';
 
 export class RegisterServiceDto implements RegisterServiceInput {
   @ApiProperty({
@@ -84,4 +85,8 @@ export class RegisterServiceDto implements RegisterServiceInput {
   @ApiProperty({ example: false })
   @IsBoolean()
   isHiddenFromBookingPage: boolean;
+
+  @ApiProperty({ example: '#F54927' })
+  @PikSlotsStringValidation(1, 10)
+  colorCode: string;
 }

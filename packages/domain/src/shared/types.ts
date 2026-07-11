@@ -1,3 +1,14 @@
+export interface Slot {
+  startTime: string; // ISO 8601 UTC, e.g. "2025-06-16T09:00:00.000Z"
+  endTime: string; // ISO 8601 UTC, e.g. "2025-06-16T09:30:00.000Z"
+}
+
+export interface UserBreak {
+  day: WeekDay;
+  startTime: string; // ISO 8601 UTC, e.g. "2025-06-16T09:00:00.000Z"
+  endTime: string; // ISO 8601 UTC, e.g. "2025-06-16T09:30:00.000Z"
+}
+
 export interface DayHours {
   enabled: boolean;
   openTime: string; // 'HH:mm' 24-hour, e.g. '09:00'

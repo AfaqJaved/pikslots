@@ -39,6 +39,8 @@
 		{ value: 'RUB', label: 'Russia - RUB ₽' }
 	];
 
+	const timezones = Intl.supportedValuesOf('timeZone');
+
 	const business = $derived(businessStore.selectedBusiness);
 
 	let address = $state('');
@@ -47,6 +49,7 @@
 	let zip = $state('');
 	let country = $state('');
 	let currency = $state<SupportedCurrencies>('USD');
+	let timeZone = $state('');
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
 
 	$effect(() => {
@@ -57,6 +60,7 @@
 			zip = business.locationDetails.zip;
 			country = business.locationDetails.country;
 			currency = business.locationDetails.currency;
+			timeZone = business.locationDetails.timeZone;
 		}
 	});
 
@@ -67,7 +71,8 @@
 				cityState !== business.locationDetails.state ||
 				zip !== business.locationDetails.zip ||
 				country !== business.locationDetails.country ||
-				currency !== business.locationDetails.currency)
+				currency !== business.locationDetails.currency ||
+				timeZone !== business.locationDetails.timeZone)
 	);
 
 	const updateMutation = createMutation<
@@ -99,7 +104,8 @@
 			state: cityState,
 			zip,
 			country,
-			currency
+			currency,
+			timeZone
 		});
 	}
 </script>
@@ -217,6 +223,25 @@
 						<Select.Content>
 							{#each currencies as c (c.value)}
 								<Select.Item value={c.value}>{c.label}</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				{/if}
+			</div>
+
+			<!-- Timezone -->
+			<div class="flex flex-col gap-2">
+				<Label>Timezone</Label>
+				{#if business === null}
+					<Skeleton class="h-9 w-full rounded-md" />
+				{:else}
+					<Select.Root type="single" bind:value={timeZone}>
+						<Select.Trigger class="w-full">
+							{timeZone || 'Select a timezone'}
+						</Select.Trigger>
+						<Select.Content class="max-h-60 overflow-y-auto">
+							{#each timezones as tz (tz)}
+								<Select.Item value={tz}>{tz}</Select.Item>
 							{/each}
 						</Select.Content>
 					</Select.Root>

@@ -56,6 +56,7 @@ export interface UpdateBusinessLocationInput {
   zip: string;
   country: string;
   currency: SupportedCurrencies;
+  timeZone: string;
 }
 
 export interface UpdateBusinessAppearanceInput {

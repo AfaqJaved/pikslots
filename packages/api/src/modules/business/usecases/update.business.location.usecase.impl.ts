@@ -49,6 +49,7 @@ export class UpdateBusinessLocationUseCaseImpl implements UpdateBusinessLocation
       zip: command.zip,
       country: command.country,
       currency: command.currency,
+      timeZone: command.timeZone,
       updatedBy: this.securityContext.userId,
     });
 

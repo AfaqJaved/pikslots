@@ -373,6 +373,7 @@ export class BusinessController {
         zip: dto.zip,
         country: dto.country,
         currency: dto.currency,
+        timeZone: dto.timeZone,
       });
 
     if (!result.ok) {

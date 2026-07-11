@@ -83,6 +83,7 @@ export class EditServiceUseCaseImpl implements EditServiceUseCase {
       bufferTimeInMins: command.bufferTimeInMins,
       cost: command.cost,
       isHiddenFromBookingPage: command.isHiddenFromBookingPage,
+      colorCode: command.colorCode,
       updatedBy: command.updatedBy,
     });
 

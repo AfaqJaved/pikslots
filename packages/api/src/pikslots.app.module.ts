@@ -16,6 +16,9 @@ import { ClassModule } from './modules/class/class.module';
 import { ClassGroupModule } from './modules/class-group/class.group.module';
 import { ClassGroupAssignmentModule } from './modules/class-group-assignment/class.group.assignment.module';
 import { CustomerModule } from './modules/customer/customer.module';
+import { TimeoffModule } from './modules/timeoff/timeoff.module';
+import { BookingModule } from './modules/booking/booking.module';
+import { BreakModule } from './modules/break/break.module';
 
 @Module({
   imports: [
@@ -37,6 +40,9 @@ import { CustomerModule } from './modules/customer/customer.module';
     ClassGroupModule,
     ClassGroupAssignmentModule,
     CustomerModule,
+    TimeoffModule,
+    BookingModule,
+    BreakModule,
   ],
   controllers: [],
   providers: [],

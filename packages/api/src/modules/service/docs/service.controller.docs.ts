@@ -130,6 +130,7 @@ export const FindAllServicesByBusinessDocs = () =>
               cost: 25,
               isHiddenFromBookingPage: false,
               businessId: 'biz_01j...',
+              colorCode: '#F54927',
             },
           ],
           statusCode: 200,
