@@ -6,8 +6,9 @@ import { GetAllBusinessOwnersUseCaseImpl } from './get.all.business.owners.useca
 describe('GetAllBusinessOwnersUseCaseImpl', () => {
   let useCase: GetAllBusinessOwnersUseCaseImpl;
 
-  beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
+  it('returns business owners', async () => {
+
+      const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
         GetAllBusinessOwnersUseCaseImpl,
         { provide: IUserRepository, useClass: UserRepositoryTestImpl },
@@ -15,8 +16,6 @@ describe('GetAllBusinessOwnersUseCaseImpl', () => {
     }).compile();
 
     useCase = moduleRef.get(GetAllBusinessOwnersUseCaseImpl);
-  });
-  it('returns business owners', async () => {
     const result = await useCase.execute();
 
     expect(result.ok).toBe(true);
