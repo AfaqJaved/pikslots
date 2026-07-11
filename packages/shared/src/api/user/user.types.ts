@@ -99,6 +99,16 @@ export interface GetUsersByRoleInput {
   role: UserRole;
 }
 
+// --- Avatar ---
+
+export interface UpdateUserAvatarInput {
+  avatarKey: string;
+}
+
+export interface UpdateUserAvatarResponse {
+  message: 'success';
+}
+
 // --- Working Hours ---
 
 export interface UserDayHours {

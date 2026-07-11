@@ -8,6 +8,7 @@
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import Search from '@tabler/icons-svelte/icons/search';
 	import InviteTeamMemberDialog from './dialog/invite-team-member-dialog.svelte';
+	import EditProfileImageDialog from './dialog/edit-profile-image-dialog.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUsersInsideBusinessQueryOptions } from '../../api/user/get.users.inside.business.query';
 	import { authStore } from '$stores/auth.svelte';
@@ -21,6 +22,7 @@
 	import UpdatesTab from './tabs/updates.svelte';
 
 	let inviteOpen = $state(false);
+	let editImageOpen = $state(false);
 
 	const usersQuery = createQuery(() => ({
 		...getUsersInsideBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
@@ -51,6 +53,9 @@
 </script>
 
 <InviteTeamMemberDialog bind:open={inviteOpen} />
+{#if selected}
+	<EditProfileImageDialog bind:open={editImageOpen} userId={selected.id} />
+{/if}
 
 <div class="flex h-full min-h-0 flex-1">
 	<!-- Left: team list -->
@@ -91,6 +96,9 @@
 					>
 						<div class="relative">
 							<Avatar.Root class="size-8 text-xs">
+								{#if member.avatarUrl}
+									<Avatar.Image src={member.avatarUrl} alt="{member.name.firstName} {member.name.lastName}" />
+								{/if}
 								<Avatar.Fallback class="bg-muted font-medium text-foreground">
 									{member.name.firstName[0].toUpperCase()}
 								</Avatar.Fallback>
@@ -120,6 +128,9 @@
 		{#if selected}
 			<div class="relative flex items-center gap-4 px-6 py-5">
 				<Avatar.Root class="size-16 text-lg">
+					{#if selected.avatarUrl}
+						<Avatar.Image src={selected.avatarUrl} alt="{selected.name.firstName} {selected.name.lastName}" />
+					{/if}
 					<Avatar.Fallback class="bg-muted font-semibold text-foreground">
 						{selected.name.firstName[0].toUpperCase()}
 					</Avatar.Fallback>
@@ -131,7 +142,12 @@
 					</span>
 					<span class="text-xs text-muted-foreground">@{selected.username}</span>
 				</div>
-				<Button variant="ghost" size="icon-sm" class="absolute top-4 right-4">
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					class="absolute top-4 right-4"
+					onclick={() => (editImageOpen = true)}
+				>
 					<Pencil size={16} />
 				</Button>
 			</div>

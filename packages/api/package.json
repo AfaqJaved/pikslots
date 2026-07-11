@@ -26,6 +26,8 @@
     "migration:latest": "bun ./src/shared/database/migrate.ts latest"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1085.0",
+    "@aws-sdk/s3-request-presigner": "^3.1085.0",
     "@keyv/redis": "^5.1.6",
     "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/bullmq": "^11.0.4",

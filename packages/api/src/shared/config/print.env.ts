@@ -16,6 +16,8 @@ export class PrintLoadedEnv {
     'MAIL_PORT',
     'MAIL_PASS',
     'MAIL_USER',
+    'S3_ACCESS_KEY',
+    'S3_SECRET_KEY',
   ];
 
   private readonly envKeys: Array<keyof Env> = [
@@ -39,6 +41,13 @@ export class PrintLoadedEnv {
     'FRONTEND_PUBLIC_URL',
     'BACKEND_PUBLIC_URL',
     'ENABLE_API_DOCS',
+    'S3_ENABLED',
+    'S3_ACCESS_KEY',
+    'S3_SECRET_KEY',
+    'S3_HOST',
+    'S3_REGION',
+    'S3_FORCED_PATH_STYLE',
+    'S3_BUCKET_NAME',
   ];
 
   constructor(private readonly configService: ConfigService<Env, true>) {}
