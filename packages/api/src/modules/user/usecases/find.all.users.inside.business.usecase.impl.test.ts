@@ -7,24 +7,7 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 describe('FindAllUsersInsideBusinessUseCaseImpl', () => {
   let useCase: FindAllUsersInsideBusinessUseCaseImpl;
 
-  beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      providers: [
-        FindAllUsersInsideBusinessUseCaseImpl,
-        { provide: IUserRepository, useClass: UserRepositoryTestImpl },
-        {
-          provide: SecurityContext,
-          useValue: {
-            role: 'Admin',
-            userId: 'user-admin-1',
-            businessId: 'business-1',
-          },
-        },
-      ],
-    }).compile();
 
-    useCase = moduleRef.get(FindAllUsersInsideBusinessUseCaseImpl);
-  });
 
   it('returns unauthorized for No Access role', async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -76,6 +59,24 @@ describe('FindAllUsersInsideBusinessUseCaseImpl', () => {
   });
 
   it('returns all users for Admin role', async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        FindAllUsersInsideBusinessUseCaseImpl,
+        { provide: IUserRepository, useClass: UserRepositoryTestImpl },
+        {
+          provide: SecurityContext,
+          useValue: {
+            role: 'Admin',
+            userId: 'user-admin-1',
+            businessId: 'business-1',
+          },
+        },
+      ],
+    }).compile();
+
+    useCase = moduleRef.get(FindAllUsersInsideBusinessUseCaseImpl);
+
+    
     const result = await useCase.execute('business-1');
     expect(result.ok).toBe(true);
     if (result.ok) {
