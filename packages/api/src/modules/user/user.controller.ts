@@ -31,6 +31,7 @@ import {
   LogoutUserDocs,
   UpdateUserWorkingHoursDocs,
   GetFreeSlotsForUserDocs,
+  UpdateUserAvatarDocs,
 } from './docs/user.controller.docs';
 import { GetUsersByRoleDto } from './dto/get.users.by.role.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
@@ -43,11 +44,13 @@ import type {
   LogoutUserResponse,
   RefreshUserSessionResponse,
   RequestInviteOtpResponse,
+  UpdateUserAvatarResponse,
   UpdateUserWorkingHoursResponse,
   UserSummary,
 } from '@pikslots/shared';
 import { UserResponseMapper } from './mappers/user.response.mapper';
 import { UpdateUserWorkingHoursDto } from './dto/update.user.working.hours.dto';
+import { UpdateUserAvatarDto } from './dto/update.user.avatar.dto';
 import { RequestInviteOtpDto } from './dto/request.invite.otp.dto';
 import { AcceptInviteDto } from './dto/accept.invite.dto';
 import { GetFreeSlotsForUserDto } from './dto/get.free.slots.for.user.dto';
@@ -296,6 +299,36 @@ export class UserController {
         saturday: wh.saturday,
         sunday: wh.sunday,
       },
+      HttpStatus.OK,
+    );
+  }
+
+  @UpdateUserAvatarDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Patch(USER_ENDPOINTS.UPDATE_AVATAR)
+  async updateUserAvatar(
+    @Res({ passthrough: true }) res: Response,
+    @Param('userId') userId: string,
+    @Body() dto: UpdateUserAvatarDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<UpdateUserAvatarResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.updateUserAvatarUseCase.execute({
+        userId,
+        avatarKey: dto.avatarKey,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<UpdateUserAvatarResponse>(
+      { message: 'success' },
       HttpStatus.OK,
     );
   }

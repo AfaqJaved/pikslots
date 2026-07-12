@@ -12,6 +12,7 @@ import {
   IRefreshUserSessionUseCase,
   IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
+  IUpdateUserAvatarUseCase,
 } from '@pikslots/domain';
 import type {
   AcceptInviteUseCase,
@@ -26,6 +27,7 @@ import type {
   RefreshUserSessionUseCase,
   RequestInviteOtpUseCase,
   UpdateUserWorkingHoursUseCase,
+  UpdateUserAvatarUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -65,4 +67,7 @@ export class UserUsecasesFactory {
 
   @Inject(IGetFreeSlotsForUser)
   public readonly getFreeSlotsForUserUseCase: GetFreeSlotsForUser;
+
+  @Inject(IUpdateUserAvatarUseCase)
+  public readonly updateUserAvatarUseCase: UpdateUserAvatarUseCase;
 }

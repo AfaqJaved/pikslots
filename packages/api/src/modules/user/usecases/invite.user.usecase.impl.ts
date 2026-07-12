@@ -52,6 +52,7 @@ export class InviteUserUsecaseImpl implements InviteUserUseCase {
     const emailExists = await this.userRepository.existsByEmail(command.email);
 
     if (!emailExists.ok) return err(emailExists.error);
+
     if (emailExists.value) {
       return err<UserAlreadyExistsError>({
         kind: 'user_already_exists',
