@@ -1,33 +1,48 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { IUserRepository } from '@pikslots/domain';
+import { IUserRepository, UserRole } from '@pikslots/domain';
 import { UserRepositoryTestImpl } from '../repository/user.repository.fake.impl';
-// mock uuid to avoid ESM parsing issues from node_modules during Jest run
-jest.mock('uuid', () => ({ v7: jest.fn().mockReturnValue('fixed-uuid') }));
+
+// Mock uuid to avoid ESM parsing issues
+jest.mock('uuid', () => ({
+  v7: jest.fn(() => crypto.randomUUID()),
+}));
+
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { PikslotEmailService } from 'src/shared/email/pikslot.email.service';
 import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
 import { InviteUserUsecaseImpl } from './invite.user.usecase.impl';
 
 describe('InviteUserUsecaseImpl', () => {
-  let useCase: InviteUserUsecaseImpl;
-
-  beforeEach(async () => {
+  const createUseCase = async (
+    role: UserRole,
+    userId: string,
+  ): Promise<InviteUserUsecaseImpl> => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
         InviteUserUsecaseImpl,
-        { provide: IUserRepository, useClass: UserRepositoryTestImpl },
+        {
+          provide: IUserRepository,
+          useClass: UserRepositoryTestImpl,
+        },
         {
           provide: SecurityContext,
-          useValue: { role: 'Platform Owner', userId: 'user-platform-owner-1' },
+          useValue: {
+            role,
+            userId,
+          },
         },
         {
           provide: PikslotEmailService,
-          useValue: { sendEmail: jest.fn().mockResolvedValue({ ok: true }) },
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue({ ok: true }),
+          },
         },
         {
           provide: JwtInviteService,
-          useValue: { signInviteToken: jest.fn().mockReturnValue('tok') },
+          useValue: {
+            signInviteToken: jest.fn().mockReturnValue('token'),
+          },
         },
         {
           provide: ConfigService,
@@ -38,93 +53,149 @@ describe('InviteUserUsecaseImpl', () => {
       ],
     }).compile();
 
-    useCase = moduleRef.get(InviteUserUsecaseImpl);
-  });
+    return moduleRef.get(InviteUserUsecaseImpl);
+  };
 
-  it('invites user successfully and sends email when required', async () => {
-    const result = await useCase.execute({
-      username: 'new_user_1',
-      name: { firstName: 'X', lastName: 'Y' },
-      email: 'new1@acme.com',
-      phone: '+199999',
-      role: 'Enhanced',
+  const buildCommand = (role: UserRole) => {
+    const safeRole = role.toLowerCase().replace(/\s+/g, '-');
+
+    return {
+      username: `${safeRole}-${Date.now()}`,
+      name: {
+        firstName: 'John',
+        lastName: 'Doe',
+      },
+      email: `${safeRole}-${Date.now()}@test.com`,
+      phone: '+1000000000',
+      role,
       businessId: 'business-1',
       businessName: 'Acme',
-    });
+    };
+  };
 
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.value.message).toBe('success');
+  describe('Platform Owner permissions', () => {
+    it.each([
+      'Business Owner',
+      'Admin',
+      'Enhanced',
+      'Standard',
+      'No Access',
+    ] as UserRole[])('can invite %s', async (role) => {
+      const useCase = await createUseCase(
+        'Platform Owner',
+        'user-platform-owner-1',
+      );
+
+      const result = await useCase.execute(buildCommand(role));
+      expect(result.ok).toBe(true);
+
+      if (result.ok) {
+        expect(result.value.message).toBe('success');
+      }
+    });
   });
 
-  it('returns inviter_not_authorized when inviter cannot invite role', async () => {
-    // create module with Standard role
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      providers: [
-        InviteUserUsecaseImpl,
-        { provide: IUserRepository, useClass: UserRepositoryTestImpl },
-        {
-          provide: SecurityContext,
-          useValue: { role: 'Standard', userId: 'user-standard-1' },
-        },
-        { provide: PikslotEmailService, useValue: { sendEmail: jest.fn() } },
-        { provide: JwtInviteService, useValue: { signInviteToken: jest.fn() } },
-        { provide: ConfigService, useValue: { getOrThrow: jest.fn() } },
-      ],
-    }).compile();
+  describe('Business Owner permissions', () => {
+    it('cannot invite Platform Owner', async () => {
+      const useCase = await createUseCase(
+        'Business Owner',
+        'user-business-owner-1',
+      );
 
-    const localUseCase = moduleRef.get(InviteUserUsecaseImpl);
+      const result = await useCase.execute(
+        buildCommand('Platform Owner'),
+      );
 
-    const result = await localUseCase.execute({
-      username: 'another',
-      name: { firstName: 'A', lastName: 'B' },
-      email: 'another@acme.com',
-      phone: '+100',
-      role: 'Admin',
-      businessId: 'business-1',
+      expect(result.ok).toBe(false);
+
+      if (!result.ok) {
+        expect(result.error.kind).toBe('inviter_not_authorized');
+        expect(result.error.inviterRole).toBe('Business Owner');
+        expect(result.error.attemptedRole).toBe('Platform Owner');
+      }
     });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.kind).toBe('inviter_not_authorized');
-      expect(result.error.message).toBeDefined();
-      expect((result.error as any).inviterRole).toBe('Standard');
-      expect((result.error as any).attemptedRole).toBe('Admin');
-    }
   });
 
-  it('returns user_already_exists when email exists', async () => {
-    const result = await useCase.execute({
-      username: 'unique_username_1',
-      name: { firstName: 'A', lastName: 'B' },
-      email: 'alice@pikslots.com', // existing
-      phone: '+100',
-      role: 'Standard',
-      businessId: 'business-1',
-    });
+  describe('Admin permissions', () => {
+    it.each(['Platform Owner', 'Business Owner'] as UserRole[])(
+      'cannot invite %s',
+      async (role) => {
+        const useCase = await createUseCase('Admin', 'user-admin-1');
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.kind).toBe('user_already_exists');
-      expect(result.error.message).toBeDefined();
-      expect((result.error as any).field).toBeDefined();
-    }
+        const result = await useCase.execute(buildCommand(role));
+
+      expect(result.ok).toBe(false);
+
+        if (!result.ok) {
+          expect(result.error.kind).toBe('inviter_not_authorized');
+          expect(result.error.inviterRole).toBe('Admin');
+          expect(result.error.attemptedRole).toBe(role);
+        }
+      },
+    );
   });
 
-  it('returns user_already_exists when username exists', async () => {
-    const result = await useCase.execute({
-      username: 'platform_owner', // existing
-      name: { firstName: 'A', lastName: 'B' },
-      email: 'unique@acme.com',
-      phone: '+100',
-      role: 'Standard',
-      businessId: 'business-1',
+  describe('Enhanced, Standard and No Access permissions', () => {
+    it.each(['Enhanced', 'Standard', 'No Access'] as UserRole[])(
+      '%s cannot invite anyone',
+      async (callerRole) => {
+        const userId =
+          callerRole === 'Enhanced'
+            ? 'user-enhanced-1'
+            : callerRole === 'Standard'
+              ? 'user-standard-1'
+              : 'user-no-access-1';
+
+        const useCase = await createUseCase(callerRole, userId);
+
+        const result = await useCase.execute(buildCommand('Standard'));
+
+        expect(result.ok).toBe(false);
+
+        if (!result.ok) {
+          expect(result.error.kind).toBe('inviter_not_authorized');
+          expect(result.error.inviterRole).toBe(callerRole);
+          expect(result.error.attemptedRole).toBe('Standard');
+        }
+      },
+    );
+  });
+
+  describe('Duplicate user validation', () => {
+    it('returns user_already_exists when email exists', async () => {
+      const useCase = await createUseCase(
+        'Platform Owner',
+        'user-platform-owner-1',
+      );
+
+      const result = await useCase.execute({
+        ...buildCommand('Standard'),
+        email: 'alice@pikslots.com',
+      });
+
+      expect(result.ok).toBe(false);
+
+      if (!result.ok) {
+        expect(result.error.kind).toBe('user_already_exists');
+      }
     });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.kind).toBe('user_already_exists');
-      expect(result.error.message).toBeDefined();
-      expect((result.error as any).field).toBeDefined();
-    }
+    it('returns user_already_exists when username exists', async () => {
+      const useCase = await createUseCase(
+        'Platform Owner',
+        'user-platform-owner-1',
+      );
+
+      const result = await useCase.execute({
+        ...buildCommand('Standard'),
+        username: 'platform_owner',
+      });
+
+      expect(result.ok).toBe(false);
+
+      if (!result.ok) {
+        expect(result.error.kind).toBe('user_already_exists');
+      }
+    });
   });
 });

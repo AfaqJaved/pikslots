@@ -1,41 +1,91 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IUserRepository } from '@pikslots/domain';
+import { IUserRepository, UserRole } from '@pikslots/domain';
 import { UserRepositoryTestImpl } from '../repository/user.repository.fake.impl';
 import { GetAllUsersByRoleUseCaseImpl } from './get.all.users.by.role.usecase.impl';
 
 describe('GetAllUsersByRoleUseCaseImpl', () => {
   let useCase: GetAllUsersByRoleUseCaseImpl;
 
+  const QUERY_PERMISSIONS: Record<UserRole, UserRole[]> = {
+    'Platform Owner': [
+      'Platform Owner',
+      'Business Owner',
+      'Admin',
+      'Enhanced',
+      'Standard',
+      'No Access',
+    ],
+    'Business Owner': ['Admin', 'Enhanced', 'Standard', 'No Access'],
+    Admin: ['Enhanced', 'Standard', 'No Access'],
+    Enhanced: [],
+    Standard: [],
+    'No Access': [],
+  };
+
+  const ALL_ROLES: UserRole[] = [
+    'Platform Owner',
+    'Business Owner',
+    'Admin',
+    'Enhanced',
+    'Standard',
+    'No Access',
+  ];
+
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
         GetAllUsersByRoleUseCaseImpl,
-        { provide: IUserRepository, useClass: UserRepositoryTestImpl },
+        {
+          provide: IUserRepository,
+          useClass: UserRepositoryTestImpl,
+        },
       ],
     }).compile();
 
     useCase = moduleRef.get(GetAllUsersByRoleUseCaseImpl);
   });
 
-  it('returns users when caller can query the role', async () => {
-    const result = await useCase.execute('Platform Owner', 'Admin');
+  describe('authorized role queries', () => {
+    for (const callerRole of ALL_ROLES) {
+      for (const targetRole of QUERY_PERMISSIONS[callerRole]) {
+        it(`${callerRole} can query ${targetRole}`, async () => {
+          const result = await useCase.execute(callerRole, targetRole);
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.length).toBeGreaterThanOrEqual(1);
-      expect(result.value[0].role).toBe('Admin');
+          expect(result.ok).toBe(true);
+
+          if (result.ok) {
+            expect(result.value).toBeDefined();
+
+            // Every returned user should have the queried role
+            expect(result.value.every((user) => user.role === targetRole)).toBe(
+              true,
+            );
+          }
+        });
+      }
     }
   });
 
-  it('returns role_query_not_authorized when caller cannot query role', async () => {
-    const result = await useCase.execute('Standard', 'Admin');
+  describe('unauthorized role queries', () => {
+    for (const callerRole of ALL_ROLES) {
+      const forbiddenRoles = ALL_ROLES.filter(
+        (role) => !QUERY_PERMISSIONS[callerRole].includes(role),
+      );
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.kind).toBe('role_query_not_authorized');
-      expect(result.error.message).toBeDefined();
-      expect((result.error as any).callerRole).toBe('Standard');
-      expect((result.error as any).queriedRole).toBe('Admin');
+      for (const targetRole of forbiddenRoles) {
+        it(`${callerRole} cannot query ${targetRole}`, async () => {
+          const result = await useCase.execute(callerRole, targetRole);
+
+          expect(result.ok).toBe(false);
+
+          if (!result.ok) {
+            expect(result.error.kind).toBe('role_query_not_authorized');
+            expect(result.error.message).toBeDefined();
+            expect(result.error.callerRole).toBe(callerRole);
+            expect(result.error.queriedRole).toBe(targetRole);
+          }
+        });
+      }
     }
   });
 });

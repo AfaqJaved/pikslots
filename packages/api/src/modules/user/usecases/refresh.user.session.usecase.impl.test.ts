@@ -39,7 +39,8 @@ describe('RefreshUserSessionUseCaseImpl', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('unauthorized');
-      if ((result.error as any).message) expect((result.error as any).message).toBeDefined();
+      if ((result.error as any).message)
+        expect((result.error as any).message).toBeDefined();
     }
   });
 

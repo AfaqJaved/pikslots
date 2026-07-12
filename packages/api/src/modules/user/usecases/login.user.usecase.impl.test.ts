@@ -77,19 +77,33 @@ describe('LoginUserUseCaseImpl', () => {
       expect(result.error.message).toBeDefined();
     }
   });
-
-  it('returns user_inactive when user is invited/inactive', async () => {
+  it('returns user_inactive when user is inactive', async () => {
     (hash.compare as jest.Mock).mockResolvedValue(true);
 
     const result = await useCase.execute({
-      usernameOrEmail: 'business_owner',
+      usernameOrEmail: 'inactive_user',
       password: 'pw',
     } as any);
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.accessToken).toBe('a');
-      expect(result.value.refreshToken).toBe('r');
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('user_inactive');
+    }
+  });
+
+  it('returns user_suspended when user is suspended', async () => {
+    (hash.compare as jest.Mock).mockResolvedValue(true);
+
+    const result = await useCase.execute({
+      usernameOrEmail: 'suspended_user',
+      password: 'pw',
+    } as any);
+
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('user_suspended');
     }
   });
 });

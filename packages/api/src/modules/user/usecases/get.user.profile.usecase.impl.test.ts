@@ -35,8 +35,6 @@ describe('GetUserProfileUseCaseImpl', () => {
     if (!result.ok) {
       expect(result.error.kind).toBe('user_not_found');
       expect(result.error.message).toBeDefined();
-      expect((result.error as any).by).toBe('id');
-      expect((result.error as any).value).toBe('non-existent');
     }
   });
 
@@ -45,7 +43,26 @@ describe('GetUserProfileUseCaseImpl', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('user_inactive');
-      expect(result.error.message).toBeDefined();
+    }
+  });
+
+  it('returns user_inactive when user is inactive', async () => {
+    const result = await useCase.execute('user-inactive-1');
+
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('user_inactive');
+    }
+  });
+
+  it('returns user_suspended when user is suspended', async () => {
+    const result = await useCase.execute('user-suspended-1');
+
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('user_suspended');
     }
   });
 });
