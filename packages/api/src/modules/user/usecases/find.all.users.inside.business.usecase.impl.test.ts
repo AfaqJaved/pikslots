@@ -7,8 +7,6 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 describe('FindAllUsersInsideBusinessUseCaseImpl', () => {
   let useCase: FindAllUsersInsideBusinessUseCaseImpl;
 
-
-
   it('returns unauthorized for No Access role', async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
@@ -76,7 +74,6 @@ describe('FindAllUsersInsideBusinessUseCaseImpl', () => {
 
     useCase = moduleRef.get(FindAllUsersInsideBusinessUseCaseImpl);
 
-    
     const result = await useCase.execute('business-1');
     expect(result.ok).toBe(true);
     if (result.ok) {

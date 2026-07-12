@@ -7,8 +7,7 @@ describe('GetAllBusinessOwnersUseCaseImpl', () => {
   let useCase: GetAllBusinessOwnersUseCaseImpl;
 
   it('returns business owners', async () => {
-
-      const moduleRef: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
         GetAllBusinessOwnersUseCaseImpl,
         { provide: IUserRepository, useClass: UserRepositoryTestImpl },

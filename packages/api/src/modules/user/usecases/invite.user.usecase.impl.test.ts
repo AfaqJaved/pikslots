@@ -102,9 +102,7 @@ describe('InviteUserUsecaseImpl', () => {
         'user-business-owner-1',
       );
 
-      const result = await useCase.execute(
-        buildCommand('Platform Owner'),
-      );
+      const result = await useCase.execute(buildCommand('Platform Owner'));
 
       expect(result.ok).toBe(false);
 
@@ -124,7 +122,7 @@ describe('InviteUserUsecaseImpl', () => {
 
         const result = await useCase.execute(buildCommand(role));
 
-      expect(result.ok).toBe(false);
+        expect(result.ok).toBe(false);
 
         if (!result.ok) {
           expect(result.error.kind).toBe('inviter_not_authorized');
