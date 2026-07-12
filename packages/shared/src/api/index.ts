@@ -12,3 +12,4 @@ export * from './customer/';
 export * from './timeoff/';
 export * from './booking/';
 export * from './break/';
+export * from './s3';

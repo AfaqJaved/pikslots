@@ -17,6 +17,7 @@ import {
   IRefreshUserSessionUseCase,
   IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
+  IUpdateUserAvatarUseCase,
 } from '@pikslots/domain';
 
 import { LoginUserUseCaseImpl } from './login.user.usecase.impl';
@@ -26,6 +27,7 @@ import { RequestInviteOtpUseCaseImpl } from './request.invite.otp.usecase.impl';
 import { AcceptInviteUseCaseImpl } from './accept.invite.usecase.impl';
 import { FindAllUsersInsideBusinessUseCaseImpl } from './find.all.users.inside.business.usecase.impl';
 import { GetFreeSlotsForUserUseCaseImpl } from './get.free.slots.for.user.usecase.impl';
+import { UpdateUserAvatarUseCaseImpl } from './update.user.avatar.usecase.impl';
 
 export const USER_USECASES: Provider[] = [
   { useClass: InviteUserUsecaseImpl, provide: IInviteUserUseCase },
@@ -54,5 +56,9 @@ export const USER_USECASES: Provider[] = [
   {
     useClass: GetFreeSlotsForUserUseCaseImpl,
     provide: IGetFreeSlotsForUser,
+  },
+  {
+    useClass: UpdateUserAvatarUseCaseImpl,
+    provide: IUpdateUserAvatarUseCase,
   },
 ];

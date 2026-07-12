@@ -604,7 +604,10 @@
 						{#each filteredServices as service (service.id)}
 							<div
 								onclick={() => goto(`/home/services/${service.id}/edit`)}
-								class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
+								class={`flex cursor-pointer items-center gap-4 border-b  border-l-4 
+								px-5 py-3.5 hover:bg-accent/40
+								`}
+								style:border-left-color={service.colorCode}
 							>
 								<!-- Icon -->
 								<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
