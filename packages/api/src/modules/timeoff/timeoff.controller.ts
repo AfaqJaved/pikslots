@@ -17,7 +17,6 @@ import {
   EditTimeoffDocs,
   DeleteTimeoffDocs,
 } from './docs/timeoff.controller.docs';
-import { TimeoffPersistenceMapper } from './mappers/timeoff.database.mapper';
 import {
   RegisterTimeoffResponse,
   EditTimeoffResponse,
@@ -34,17 +33,14 @@ import { EditTimeoffDto } from './dto/edit.timeoff.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import { TimeoffUsecasesFactory } from './factory/timeoff.usecases.factory';
-import { SecurityContext } from 'src/shared/security/context/security.context';
 import { mapTimeoffError } from './errors/timeoff.error.map';
 
 @Controller('')
 export class TimeOffController {
-  private timeoffDatabaseMapper = new TimeoffPersistenceMapper();
 
   constructor(
     private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory,
-    private readonly securityContext: SecurityContext,
-  ) {}
+  ) { }
 
   @SaveTimeoffDocs()
   @UseGuards(RolesGuard)

@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
+	import AddTimeoff from '../dialog/add-timeoff.svelte';
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import Pencil from '@tabler/icons-svelte/icons/pencil';
 	import Trash from '@tabler/icons-svelte/icons/trash';
 
 	type TimeOff = { id: number; title: string; date: string; days: number };
 
+	let { userId, businessId }: { userId: string; businessId: string } = $props();
+
 	let timeoffs = $state<TimeOff[]>([{ id: 1, title: 'Eid holiday', date: '21 May 2026', days: 1 }]);
 	let hoveredId = $state<number | null>(null);
+	let dialogOpen = $state(false);
 
 	function removeTimeOff(id: number) {
 		timeoffs = timeoffs.filter((t) => t.id !== id);
@@ -16,7 +20,11 @@
 
 <div class="flex w-[70%] flex-col px-6">
 	<div class="pt-4 pb-2">
-		<Button variant="link" class="h-auto gap-1.5 p-0 text-xs font-medium">
+		<Button
+			variant="link"
+			class="h-auto gap-1.5 p-0 text-xs font-medium"
+			onclick={() => (dialogOpen = true)}
+		>
 			<Plus size={14} />
 			Add time off
 		</Button>
@@ -26,6 +34,7 @@
 		{#each timeoffs as entry (entry.id)}
 			<div
 				class="flex items-center justify-between py-3"
+				role="presentation"
 				onmouseenter={() => (hoveredId = entry.id)}
 				onmouseleave={() => (hoveredId = null)}
 			>
@@ -58,3 +67,5 @@
 		{/each}
 	</div>
 </div>
+
+<AddTimeoff bind:open={dialogOpen} {userId} {businessId} />

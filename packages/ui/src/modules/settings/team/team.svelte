@@ -232,7 +232,7 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="time-off" class="mt-0">
-					<TimeOffTab />
+					<TimeOffTab userId={selected.id} businessId={businessStore.selectedBusiness?.id ?? ''} />
 				</Tabs.Content>
 
 				<Tabs.Content value="updates" class="mt-0">
