@@ -7,6 +7,8 @@ export interface CreateTimeoffCommand {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  allDay: boolean;
+  timeZone: string;
   recurrence: string | null;
 }
 

@@ -8,6 +8,8 @@ export interface TimeOffTable extends AuditFields {
   business_id: string;
   start_date_time: Date;
   end_date_time: Date;
+  all_day: boolean;
+  time_zone: string;
   recurrence: string | null; // rrule string
 }
 

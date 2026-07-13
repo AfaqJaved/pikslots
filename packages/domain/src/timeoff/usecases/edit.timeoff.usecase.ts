@@ -8,6 +8,8 @@ export interface EditTimeoffCommand {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  timeZone: string;
+  allDay: boolean;
   recurrence: string | null;
 }
 

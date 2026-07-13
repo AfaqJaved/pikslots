@@ -13,6 +13,7 @@ const PUBLIC_ROUTES: string[] = [
   '/users/invite/request-otp',
   '/users/invite/accept',
   '/businesses/register',
+  '/api/*', // swagger docs
   '/users/free-slots/*', // get free slots for the user
 ];
 
