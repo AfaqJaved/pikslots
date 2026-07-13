@@ -3,7 +3,7 @@ import type { BreakNotFoundError, BreakConflictError } from '../errors';
 import type { Break } from '../break.entity';
 
 export interface BreakRepository {
-  save(breakEntity: Break): Promise<Result<void, BreakConflictError | InfrastructureError>>;
+  save(breakEntity: Break): Promise<Result<void, InfrastructureError>>;
   findById(id: string): Promise<Result<Break | null, InfrastructureError>>;
   findAllByUser(userId: string): Promise<Result<Break[], InfrastructureError>>;
   findAllByBusiness(businessId: string): Promise<Result<Break[], InfrastructureError>>;
