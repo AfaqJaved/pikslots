@@ -5,6 +5,8 @@ export interface RegisterTimeoffInput {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  allDay: boolean;
+  timeZone: string;
   recurrence: string | null;
 }
 
@@ -15,6 +17,8 @@ export interface EditTimeoffInput {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  allDay: boolean;
+  timeZone: string;
   recurrence: string | null;
 }
 
@@ -34,6 +38,8 @@ export interface FindTimeoffByIdResponse {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  allDay: boolean;
+  timeZone: string;
   recurrence: string | null;
   createdAt: Date;
   createdBy: string;

@@ -26,7 +26,7 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
     @Inject(ITimeoffRepository)
     private readonly timeoffRepositoryImpl: TimeOffRepositoryImpl,
     private readonly securityContext: SecurityContext,
-  ) {}
+  ) { }
   async execute(
     command: EditTimeoffCommand,
   ): Promise<
@@ -59,6 +59,8 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
       startDateTime: command.startDateTime,
       endDateTime: command.endDateTime,
       recurrence: command.recurrence,
+      allDay: command.allDay,
+      timeZone: command.timeZone,
       updatedBy: this.securityContext.userId,
       updatedAt: new Date(),
     });

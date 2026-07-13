@@ -56,6 +56,8 @@ export class TimeOffController {
         businessId: dto.businessId,
         startDateTime: dto.startDateTime,
         endDateTime: dto.endDateTime,
+        allDay: dto.allDay,
+        timeZone: dto.timeZone,
         recurrence: dto.recurrence,
       });
 
@@ -98,6 +100,8 @@ export class TimeOffController {
         businessId: value.businessId,
         startDateTime: value.startDateTime,
         endDateTime: value.endDateTime,
+        allDay: value.allDay,
+        timeZone: value.timeZone,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -144,6 +148,8 @@ export class TimeOffController {
         businessId: value.businessId,
         startDateTime: value.startDateTime,
         endDateTime: value.endDateTime,
+        allDay: value.allDay,
+        timeZone: value.timeZone,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -175,6 +181,8 @@ export class TimeOffController {
       businessId: dto.businessId,
       startDateTime: dto.startDateTime,
       endDateTime: dto.endDateTime,
+      allDay: dto.allDay,
+      timeZone: dto.timeZone,
       recurrence: dto.recurrence,
     });
 

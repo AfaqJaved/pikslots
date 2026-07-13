@@ -10,10 +10,11 @@
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
-	import { registerTimeoffMutationOptions } from '../../../api/timeoff/register.timeoff.mutation';
-	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
-	import { workingHourToUTC } from '@pikslots/datetime';
+	import { editTimeoffMutationOptions } from '../../../api/timeoff/edit.timeoff.mutation';
+	import { getLocalTimeZone, parseDate, today, type DateValue } from '@internationalized/date';
+	import { formatIsoInTimezone, workingHourToUTC } from '@pikslots/datetime';
 	import { businessStore } from '$stores/business.svelte';
+	import type { FindTimeoffByIdResponse } from '@pikslots/shared';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 
 	const REPEAT_OPTIONS = [
@@ -26,16 +27,18 @@
 
 	let {
 		open = $bindable(false),
+		timeoff,
 		userId,
 		businessId
 	}: {
 		open: boolean;
+		timeoff: FindTimeoffByIdResponse | null;
 		userId: string;
 		businessId: string;
 	} = $props();
 
 	const queryClient = useQueryClient();
-	const registerMutation = createMutation(registerTimeoffMutationOptions);
+	const editMutation = createMutation(() => editTimeoffMutationOptions());
 
 	let title = $state('');
 	let startDate = $state<DateValue>(today(getLocalTimeZone()));
@@ -55,15 +58,20 @@
 		businessStore.selectedBusiness?.locationDetails.timeZone || getLocalTimeZone()
 	);
 
-	function resetForm() {
-		title = '';
-		startDate = today(getLocalTimeZone());
-		startTime = '09:00';
-		endDate = today(getLocalTimeZone());
-		endTime = '17:00';
-		allDay = false;
+	function loadFromTimeoff() {
+		if (!timeoff) return;
+		title = timeoff.title;
+		startDate = parseDate(formatIsoInTimezone(timeoff.startDateTime, businessTimezone, 'yyyy-MM-dd'));
+		endDate = parseDate(formatIsoInTimezone(timeoff.endDateTime, businessTimezone, 'yyyy-MM-dd'));
+		startTime = formatIsoInTimezone(timeoff.startDateTime, businessTimezone, 'HH:mm');
+		endTime = formatIsoInTimezone(timeoff.endDateTime, businessTimezone, 'HH:mm');
+		allDay = timeoff.allDay;
 		repeat = 'none';
 	}
+
+	$effect(() => {
+		if (timeoff) loadFromTimeoff();
+	});
 
 	function formatDate(value: DateValue) {
 		return value.toDate(getLocalTimeZone()).toLocaleDateString('en-GB', {
@@ -77,10 +85,11 @@
 		return workingHourToUTC(date.toString(), time, businessTimezone);
 	}
 
-	function handleAdd() {
-		if (!title.trim()) return;
+	function handleSave() {
+		if (!title.trim() || !timeoff) return;
 
-		registerMutation.mutate({
+		editMutation.mutate({
+			id: timeoff.id,
 			title: title.trim(),
 			userId,
 			businessId,
@@ -93,16 +102,15 @@
 	}
 
 	$effect(() => {
-		if (registerMutation.isSuccess) {
+		if (editMutation.isSuccess) {
 			queryClient.invalidateQueries({ queryKey: ['timeoffs', 'user', userId, businessId] });
-			toast.success('Time off added successfully');
+			toast.success('Time off updated successfully');
 			open = false;
-			resetForm();
-			registerMutation.reset();
+			editMutation.reset();
 		}
 
-		if (registerMutation.isError) {
-			toast.error(registerMutation.error?.response?.data?.message ?? 'Failed to add time off');
+		if (editMutation.isError) {
+			toast.error(editMutation.error?.response?.data?.message ?? 'Failed to update time off');
 		}
 	});
 </script>
@@ -110,12 +118,12 @@
 <Dialog.Root
 	bind:open
 	onOpenChange={(v) => {
-		if (!v) resetForm();
+		if (!v) loadFromTimeoff();
 	}}
 >
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
-			<Dialog.Title>Add time off</Dialog.Title>
+			<Dialog.Title>Edit time off</Dialog.Title>
 		</Dialog.Header>
 
 		<FieldGroup>
@@ -211,11 +219,11 @@
 		</FieldGroup>
 
 		<Dialog.Footer>
-			<Button variant="ghost" onclick={() => (open = false)} disabled={registerMutation.isPending}>
+			<Button variant="ghost" onclick={() => (open = false)} disabled={editMutation.isPending}>
 				Cancel
 			</Button>
-			<Button onclick={handleAdd} disabled={registerMutation.isPending}>
-				{registerMutation.isPending ? 'Adding...' : 'Add'}
+			<Button onclick={handleSave} disabled={editMutation.isPending}>
+				{editMutation.isPending ? 'Saving...' : 'Save'}
 			</Button>
 		</Dialog.Footer>
 	</Dialog.Content>

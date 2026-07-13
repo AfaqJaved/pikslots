@@ -8,6 +8,8 @@ export interface TimeoffProps {
   readonly businessId: string;
   readonly startDateTime: string; // iso 8601 date time string in utc only
   readonly endDateTime: string; // iso 8601 date time string in utc only
+  readonly allDay: boolean; // iso 8601 date time string in utc only
+  readonly timeZone: string;
   readonly recurrence: string | null;
   // audit
   readonly createdAt: Date;
@@ -27,6 +29,8 @@ export interface CreateTimeoffInput {
   businessId: string;
   startDateTime: string;
   endDateTime: string;
+  timeZone: string;
+  allDay: boolean;
   recurrence: string | null;
   createdBy: string;
   updatedBy: string;
@@ -47,7 +51,9 @@ export class Timeoff {
       businessId: input.businessId,
       startDateTime: input.startDateTime,
       endDateTime: input.endDateTime,
-      recurrence: input.recurrence || null,
+      recurrence: input.recurrence,
+      timeZone: input.timeZone,
+      allDay: input.allDay,
       createdAt: now,
       createdBy: input.createdBy,
       updatedAt: now,
@@ -124,6 +130,8 @@ export class Timeoff {
     title: string;
     startDateTime: string;
     endDateTime: string;
+    allDay: boolean;
+    timeZone: string;
     recurrence: string | null;
     updatedBy: string;
     updatedAt: Date;
@@ -133,6 +141,8 @@ export class Timeoff {
       title: input.title,
       startDateTime: input.startDateTime,
       endDateTime: input.endDateTime,
+      allDay: input.allDay,
+      timeZone: input.timeZone,
       recurrence: input.recurrence || null,
       updatedBy: input.updatedBy,
       updatedAt: input.updatedAt,
@@ -169,6 +179,14 @@ export class Timeoff {
   get recurrence(): string | null {
     return this.props.recurrence;
   }
+  get allDay(): boolean {
+    return this.props.allDay;
+  }
+  get timeZone(): string {
+    return this.props.timeZone;
+  }
+
+
   // _________Audit fields _______________________________
 
   get createdAt(): Date {

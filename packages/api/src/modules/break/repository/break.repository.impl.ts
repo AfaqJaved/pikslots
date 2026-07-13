@@ -20,7 +20,7 @@ export class BreakRepositoryImpl implements BreakRepository {
 
   constructor(
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
-  ) {}
+  ) { }
 
   async save(breakEntity: Break): Promise<Result<void, InfrastructureError>> {
     try {
