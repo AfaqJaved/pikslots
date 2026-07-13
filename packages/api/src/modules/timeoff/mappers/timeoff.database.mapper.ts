@@ -17,6 +17,8 @@ export class TimeoffPersistenceMapper {
       businessId: row.business_id,
       startDateTime: row.start_date_time.toISOString(),
       endDateTime: row.end_date_time.toISOString(),
+      allDay: row.all_day,
+      timeZone: row.time_zone,
       recurrence: row.recurrence,
       ...persistenceAuditToDomain(row),
     });
@@ -29,6 +31,8 @@ export class TimeoffPersistenceMapper {
       business_id: timeoff.businessId,
       start_date_time: new Date(timeoff.startDateTime),
       end_date_time: new Date(timeoff.endDateTime),
+      all_day: timeoff.allDay,
+      time_zone: timeoff.timeZone,
       recurrence: timeoff.recurrence,
       ...domainAuditToPersistence(timeoff),
     };

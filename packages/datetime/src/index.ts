@@ -65,3 +65,40 @@ export function utcIsoToTimezone(isoString: string, timezone: string): string {
 export function millisToIso(ms: number): string {
   return DateTime.fromMillis(ms, { zone: 'utc' }).toISO()!;
 }
+
+/**
+ * Formats a UTC ISO 8601 string as a human-readable date/time in the given timezone.
+ * Generic display formatter usable for any UTC timestamp (time off, bookings, breaks, etc).
+ *
+ * @param isoString - UTC ISO 8601 string, e.g. "2025-06-16T14:00:00.000Z"
+ * @param timezone  - IANA timezone, e.g. "America/New_York"
+ * @param format    - Luxon format tokens, defaults to "d MMM yyyy", e.g. "16 Jun 2025"
+ * @returns the formatted date/time string in the target timezone
+ */
+export function formatIsoInTimezone(
+  isoString: string,
+  timezone: string,
+  format: string = 'd MMM yyyy',
+): string {
+  return DateTime.fromISO(isoString, { zone: 'utc' }).setZone(timezone).toFormat(format);
+}
+
+/**
+ * Counts the inclusive number of calendar days between two UTC ISO 8601 strings
+ * in the given timezone, ignoring the time-of-day component entirely.
+ * e.g. same calendar date for start and end => 1.
+ *
+ * @param startIsoString - UTC ISO 8601 string, e.g. "2025-06-16T22:00:00.000Z"
+ * @param endIsoString   - UTC ISO 8601 string, e.g. "2025-06-17T02:00:00.000Z"
+ * @param timezone       - IANA timezone, e.g. "America/New_York"
+ * @returns inclusive count of calendar days, e.g. 2
+ */
+export function diffInCalendarDays(
+  startIsoString: string,
+  endIsoString: string,
+  timezone: string,
+): number {
+  const start = DateTime.fromISO(startIsoString, { zone: 'utc' }).setZone(timezone).startOf('day');
+  const end = DateTime.fromISO(endIsoString, { zone: 'utc' }).setZone(timezone).startOf('day');
+  return Math.round(end.diff(start, 'days').days) + 1;
+}

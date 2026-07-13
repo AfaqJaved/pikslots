@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EditTimeoffInput } from '@pikslots/shared';
-import { IsDateString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { PikSlotsStringValidation } from 'src/shared/decorators/validations';
 
 export class EditTimeoffDto implements EditTimeoffInput {
@@ -47,6 +54,21 @@ export class EditTimeoffDto implements EditTimeoffInput {
   })
   @IsDateString()
   endDateTime: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether the time off spans the full day(s)',
+  })
+  @IsBoolean()
+  allDay: boolean;
+
+  @ApiProperty({
+    example: 'America/New_York',
+    description: 'IANA timezone the time off was created in',
+  })
+  @IsString()
+  @IsNotEmpty()
+  timeZone: string;
 
   @ApiProperty({
     example: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',

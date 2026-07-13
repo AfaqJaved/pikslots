@@ -43,6 +43,8 @@ export class RegisterTimeOffUseCaseImpl implements RegisterTimeOffUseCase {
       businessId: command.businessId,
       startDateTime: command.startDateTime,
       endDateTime: command.endDateTime,
+      timeZone: command.timeZone,
+      allDay: command.allDay,
       recurrence: command.recurrence,
       createdBy: command.userId,
       updatedBy: command.userId,

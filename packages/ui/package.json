@@ -61,6 +61,7 @@
 		"@fullcalendar/list": "^6.1.21",
 		"@fullcalendar/timegrid": "^6.1.21",
 		"@lucide/svelte": "^1.17.0",
+		"@pikslots/datetime": "workspace:*",
 		"@pikslots/shared": "workspace:*",
 		"@tanstack/svelte-query": "^6.1.29",
 		"@tanstack/svelte-query-devtools": "^6.1.33",
