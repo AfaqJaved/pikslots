@@ -186,7 +186,6 @@ export class Timeoff {
     return this.props.timeZone;
   }
 
-
   // _________Audit fields _______________________________
 
   get createdAt(): Date {

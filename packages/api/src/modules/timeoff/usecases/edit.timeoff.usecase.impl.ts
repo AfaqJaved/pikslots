@@ -26,7 +26,7 @@ export class EditTimeoffByIdUseCaseImpl implements EditTImeOffByIdUseCase {
     @Inject(ITimeoffRepository)
     private readonly timeoffRepositoryImpl: TimeOffRepositoryImpl,
     private readonly securityContext: SecurityContext,
-  ) { }
+  ) {}
   async execute(
     command: EditTimeoffCommand,
   ): Promise<

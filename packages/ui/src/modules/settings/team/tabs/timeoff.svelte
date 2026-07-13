@@ -124,7 +124,12 @@
 								<Trash size={14} />
 							</Button>
 						{:else}
-							{@const days = toDays(entry.startDateTime, entry.endDateTime, entry.allDay, entry.timeZone)}
+							{@const days = toDays(
+								entry.startDateTime,
+								entry.endDateTime,
+								entry.allDay,
+								entry.timeZone
+							)}
 							<span class="text-xs text-muted-foreground">
 								{days}
 								{days === 1 ? 'Day' : 'Days'}

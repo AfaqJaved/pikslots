@@ -61,7 +61,9 @@
 	function loadFromTimeoff() {
 		if (!timeoff) return;
 		title = timeoff.title;
-		startDate = parseDate(formatIsoInTimezone(timeoff.startDateTime, businessTimezone, 'yyyy-MM-dd'));
+		startDate = parseDate(
+			formatIsoInTimezone(timeoff.startDateTime, businessTimezone, 'yyyy-MM-dd')
+		);
 		endDate = parseDate(formatIsoInTimezone(timeoff.endDateTime, businessTimezone, 'yyyy-MM-dd'));
 		startTime = formatIsoInTimezone(timeoff.startDateTime, businessTimezone, 'HH:mm');
 		endTime = formatIsoInTimezone(timeoff.endDateTime, businessTimezone, 'HH:mm');

@@ -78,7 +78,7 @@ export function millisToIso(ms: number): string {
 export function formatIsoInTimezone(
   isoString: string,
   timezone: string,
-  format: string = 'd MMM yyyy'
+  format: string = 'd MMM yyyy',
 ): string {
   return DateTime.fromISO(isoString, { zone: 'utc' }).setZone(timezone).toFormat(format);
 }
@@ -96,7 +96,7 @@ export function formatIsoInTimezone(
 export function diffInCalendarDays(
   startIsoString: string,
   endIsoString: string,
-  timezone: string
+  timezone: string,
 ): number {
   const start = DateTime.fromISO(startIsoString, { zone: 'utc' }).setZone(timezone).startOf('day');
   const end = DateTime.fromISO(endIsoString, { zone: 'utc' }).setZone(timezone).startOf('day');

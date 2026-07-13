@@ -24,7 +24,7 @@ export class RegisterTimeOffUseCaseImpl implements RegisterTimeOffUseCase {
     @Inject(ITimeoffRepository)
     private readonly timeoffRepository: TimeOffRepositoryImpl,
     private readonly securityContext: SecurityContext,
-  ) { }
+  ) {}
   async execute(
     command: CreateTimeoffCommand,
   ): Promise<Result<Timeoff, UnauthorizedError | InfrastructureError>> {
