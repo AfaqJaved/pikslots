@@ -37,10 +37,7 @@ import { mapTimeoffError } from './errors/timeoff.error.map';
 
 @Controller('')
 export class TimeOffController {
-
-  constructor(
-    private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory,
-  ) { }
+  constructor(private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory) {}
 
   @SaveTimeoffDocs()
   @UseGuards(RolesGuard)

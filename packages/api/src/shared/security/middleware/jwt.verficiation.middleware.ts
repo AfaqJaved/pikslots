@@ -30,8 +30,8 @@ function isPublicRoute(originalUrl: string): boolean {
     // mid-path wildcard: convert to regex where * matches one path segment
     const regex = new RegExp(
       '^' +
-      route.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') +
-      '$',
+        route.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') +
+        '$',
     );
     return regex.test(path);
   });
@@ -42,7 +42,7 @@ export class JwtVerificationMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtLoginService: JwtLoginService,
     private readonly securityContext: SecurityContext,
-  ) { }
+  ) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     if (isPublicRoute(req.originalUrl)) return next();
