@@ -26,6 +26,22 @@ export interface UserRepository {
     busniessId: string,
     day: WeekDay,
   ): Promise<Result<UserBreak[], InfrastructureError>>;
+  findUserTimeoffsByDate(
+    userId: string,
+    businessId: string,
+    startDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  >;
 }
 
 export const IUserRepository = Symbol('IUserRepository');

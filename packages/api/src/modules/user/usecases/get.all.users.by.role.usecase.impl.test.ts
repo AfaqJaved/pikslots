@@ -78,11 +78,12 @@ describe('GetAllUsersByRoleUseCaseImpl', () => {
 
           expect(result.ok).toBe(false);
 
-          if (!result.ok) {
-            expect(result.error.kind).toBe('role_query_not_authorized');
+          if (!result.ok && result.error.kind === 'role_query_not_authorized') {
             expect(result.error.message).toBeDefined();
             expect(result.error.callerRole).toBe(callerRole);
             expect(result.error.queriedRole).toBe(targetRole);
+          } else {
+            throw new Error('Expected role_query_not_authorized error');
           }
         });
       }
