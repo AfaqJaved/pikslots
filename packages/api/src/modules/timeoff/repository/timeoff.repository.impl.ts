@@ -56,6 +56,7 @@ export class TimeOffRepositoryImpl implements TimeOffRepository {
       });
     }
   }
+
   async findById(
     id: string,
   ): Promise<Result<Timeoff, TimeOffNotFound | InfrastructureError>> {
