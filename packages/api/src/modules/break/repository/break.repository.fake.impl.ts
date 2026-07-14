@@ -37,14 +37,6 @@ export class BreakRepositoryTestImpl implements BreakRepository {
 
     return ok(breakFound);
   }
-  catch(cause) {
-    return err<InfrastructureError>({
-      kind: 'infrastructure',
-      message: 'Failed to find break by id',
-      timestamp: new Date(),
-      cause,
-    });
-  }
 
   async findAllByUser(
     userId: string,
