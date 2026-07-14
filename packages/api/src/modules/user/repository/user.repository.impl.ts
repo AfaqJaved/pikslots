@@ -335,7 +335,13 @@ export class UserRepositoryImpl implements UserRepository {
 
       const rows = await this.db
         .selectFrom('timeoffs')
-        .select(['title', 'start_date_time', 'end_date_time', 'all_day', 'time_zone'])
+        .select([
+          'title',
+          'start_date_time',
+          'end_date_time',
+          'all_day',
+          'time_zone',
+        ])
         .where('user_id', '=', userId)
         .where('business_id', '=', businessId)
         .where('start_date_time', '<', dayEnd)

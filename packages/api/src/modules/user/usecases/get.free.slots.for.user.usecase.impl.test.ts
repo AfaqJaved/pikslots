@@ -29,10 +29,12 @@ const ALL_DAYS_ENABLED_9_TO_5 = {
   sunday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
 };
 
-function buildUser(overrides: {
-  status?: User['status'];
-  workingHours?: typeof ALL_DAYS_ENABLED_9_TO_5;
-} = {}): User {
+function buildUser(
+  overrides: {
+    status?: User['status'];
+    workingHours?: typeof ALL_DAYS_ENABLED_9_TO_5;
+  } = {},
+): User {
   const user = User.create({
     id: 'user-under-test',
     username: 'user_under_test',
@@ -80,14 +82,16 @@ function buildUser(overrides: {
   });
 }
 
-function buildCommand(overrides: Partial<{
-  userId: string;
-  businessId: string;
-  date: string;
-  durationInMins: number;
-  bufferTimeInMins: number;
-  businessTimezone: string;
-}> = {}) {
+function buildCommand(
+  overrides: Partial<{
+    userId: string;
+    businessId: string;
+    date: string;
+    durationInMins: number;
+    bufferTimeInMins: number;
+    businessTimezone: string;
+  }> = {},
+) {
   return {
     userId: 'user-under-test',
     businessId: 'business-1',
@@ -130,7 +134,9 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
 
   describe('user lookup failures', () => {
     it('propagates an InfrastructureError from findById', async () => {
-      jest.spyOn(repository, 'findById').mockResolvedValueOnce(err(INFRA_ERROR));
+      jest
+        .spyOn(repository, 'findById')
+        .mockResolvedValueOnce(err(INFRA_ERROR));
 
       const result = await useCase.execute(buildCommand());
 
@@ -180,7 +186,11 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
     it('returns an empty array and skips other lookups when the day is disabled', async () => {
       const workingHours = {
         ...ALL_DAYS_ENABLED_9_TO_5,
-        [TEST_WEEKDAY]: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+        [TEST_WEEKDAY]: {
+          enabled: false,
+          openTime: '09:00',
+          closeTime: '17:00',
+        },
       };
       jest
         .spyOn(repository, 'findById')
@@ -291,7 +301,14 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
       if (!result.ok) return;
 
       const expected: Slot[] = [
-        '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
+        '09:00',
+        '10:00',
+        '11:00',
+        '12:00',
+        '13:00',
+        '14:00',
+        '15:00',
+        '16:00',
       ].map((start, i) => {
         const startTime = toUtc(start);
         const endHour = 10 + i;
@@ -381,7 +398,11 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
       // into the booking, so only the 10:00 slot should survive.
       const workingHours = {
         ...ALL_DAYS_ENABLED_9_TO_5,
-        [TEST_WEEKDAY]: { enabled: true, openTime: '09:00', closeTime: '11:00' },
+        [TEST_WEEKDAY]: {
+          enabled: true,
+          openTime: '09:00',
+          closeTime: '11:00',
+        },
       };
       jest
         .spyOn(repository, 'findById')
@@ -407,7 +428,11 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
     it('drops a trailing partial slot when the duration does not evenly divide the window', async () => {
       const workingHours = {
         ...ALL_DAYS_ENABLED_9_TO_5,
-        [TEST_WEEKDAY]: { enabled: true, openTime: '09:00', closeTime: '10:00' },
+        [TEST_WEEKDAY]: {
+          enabled: true,
+          openTime: '09:00',
+          closeTime: '10:00',
+        },
       };
       jest
         .spyOn(repository, 'findById')
