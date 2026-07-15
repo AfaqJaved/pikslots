@@ -248,9 +248,7 @@ describe('EditCustomerUseCaseImpl', () => {
         timestamp: new Date(),
         cause: new Error('boom'),
       };
-      jest
-        .spyOn(repository, 'findById')
-        .mockResolvedValueOnce(err(infraError));
+      jest.spyOn(repository, 'findById').mockResolvedValueOnce(err(infraError));
       const updateSpy = jest.spyOn(repository, 'update');
 
       const result = await useCase.execute(buildCommand());

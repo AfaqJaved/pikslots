@@ -216,9 +216,7 @@ describe('DeleteCustomerUseCaseImpl', () => {
       };
       jest.spyOn(repository, 'update').mockResolvedValueOnce(err(infraError));
 
-      const result = await useCase.execute(
-        buildCommand({ id: 'customer-1' }),
-      );
+      const result = await useCase.execute(buildCommand({ id: 'customer-1' }));
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -238,9 +236,7 @@ describe('DeleteCustomerUseCaseImpl', () => {
         .spyOn(repository, 'update')
         .mockResolvedValueOnce(err(notFoundError));
 
-      const result = await useCase.execute(
-        buildCommand({ id: 'customer-1' }),
-      );
+      const result = await useCase.execute(buildCommand({ id: 'customer-1' }));
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
