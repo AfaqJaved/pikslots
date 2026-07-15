@@ -127,8 +127,33 @@ export class GetFreeSlotsForUserUseCaseImpl implements GetFreeSlotsForUser {
       day: brk.day,
     }));
 
-    // TODO TIMEOFFS
-    const blockedSlots = [...bookedResult.value, ...breakSlots];
+    // user timeoffs
+    const timeoffsResult = await this.userRepository.findUserTimeoffsByDate(
+      command.userId,
+      command.businessId,
+      command.date,
+    );
+
+    if (!timeoffsResult.ok) return err(timeoffsResult.error);
+
+    // An all-day timeoff blocks the entire working window regardless of its
+    // stored start/end instants, so short-circuit instead of relying on
+    // interval overlap math.
+    if (timeoffsResult.value.some((timeoff) => timeoff.allDay)) return ok([]);
+
+    // Timeoffs already store startDateTime/endDateTime as UTC ISO instants,
+    // so they're directly usable as blocked slots, same as bookings/breaks.
+    // Recurrence is ignored for now — only the stored start/end are checked.
+    const timeoffSlots: Slot[] = timeoffsResult.value.map((timeoff) => ({
+      startTime: timeoff.startDateTime,
+      endTime: timeoff.endDateTime,
+    }));
+
+    const blockedSlots = [
+      ...bookedResult.value,
+      ...breakSlots,
+      ...timeoffSlots,
+    ];
 
     // Clamp the window start to the next 5-minute boundary at or after now (UTC)
     // so past slots are never generated and the first available slot always

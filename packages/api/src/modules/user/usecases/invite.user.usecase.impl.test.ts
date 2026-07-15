@@ -106,10 +106,11 @@ describe('InviteUserUsecaseImpl', () => {
 
       expect(result.ok).toBe(false);
 
-      if (!result.ok) {
-        expect(result.error.kind).toBe('inviter_not_authorized');
+      if (!result.ok && result.error.kind === 'inviter_not_authorized') {
         expect(result.error.inviterRole).toBe('Business Owner');
         expect(result.error.attemptedRole).toBe('Platform Owner');
+      } else {
+        throw new Error('Expected inviter_not_authorized error');
       }
     });
   });
@@ -124,10 +125,11 @@ describe('InviteUserUsecaseImpl', () => {
 
         expect(result.ok).toBe(false);
 
-        if (!result.ok) {
-          expect(result.error.kind).toBe('inviter_not_authorized');
+        if (!result.ok && result.error.kind === 'inviter_not_authorized') {
           expect(result.error.inviterRole).toBe('Admin');
           expect(result.error.attemptedRole).toBe(role);
+        } else {
+          throw new Error('Expected inviter_not_authorized error');
         }
       },
     );
@@ -150,10 +152,11 @@ describe('InviteUserUsecaseImpl', () => {
 
         expect(result.ok).toBe(false);
 
-        if (!result.ok) {
-          expect(result.error.kind).toBe('inviter_not_authorized');
+        if (!result.ok && result.error.kind === 'inviter_not_authorized') {
           expect(result.error.inviterRole).toBe(callerRole);
           expect(result.error.attemptedRole).toBe('Standard');
+        } else {
+          throw new Error('Expected inviter_not_authorized error');
         }
       },
     );

@@ -133,4 +133,24 @@ export class UserRepositoryTestImpl implements UserRepository {
     await Promise.resolve('');
     return ok([]);
   }
+
+  async findUserTimeoffsByDate(
+    _userId: string,
+    _businessId: string,
+    _startDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  > {
+    await Promise.resolve('');
+    return ok([]);
+  }
 }

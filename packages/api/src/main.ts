@@ -23,8 +23,26 @@ async function bootstrap() {
 
   const config = app.get(ConfigService<Env, true>);
 
+  const corsOrigins = config.get('CORS_ORIGINS', { infer: true });
+  const corsOriginMatchers = corsOrigins.map(
+    (pattern) =>
+      new RegExp(
+        `^${pattern
+          .split('*')
+          .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('.*')}$`,
+      ),
+  );
+
   app.enableCors({
-    origin: config.get('CORS_ORIGINS', { infer: true }),
+    origin: (origin, callback) => {
+      // requests with no origin (e.g. curl, server-to-server) are allowed
+      if (!origin || corsOriginMatchers.some((re) => re.test(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Not allowed by CORS: ${origin}`));
+      }
+    },
     credentials: true,
   });
 
