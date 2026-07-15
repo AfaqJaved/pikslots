@@ -5,5 +5,10 @@ import { resolve } from 'path';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
-	envDir: resolve(__dirname, '../../')
+	envDir: resolve(__dirname, '../../'),
+	server: {
+		// Allow any *.localhost subdomain (e.g. afaq.localhost, app.localhost) for local
+		// tenant-subdomain testing — browsers resolve these to 127.0.0.1 automatically.
+		allowedHosts: ['.localhost']
+	}
 });
