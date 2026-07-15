@@ -1,4 +1,9 @@
-import type { BusinessResponse, ServiceResponse, SlotResponse, UserSummary } from '@pikslots/shared';
+import type {
+	BusinessResponse,
+	ServiceResponse,
+	SlotResponse,
+	UserSummary
+} from '@pikslots/shared';
 
 /**
  * These aliases mirror the real `@pikslots/shared` API response shapes so mock

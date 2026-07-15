@@ -8,7 +8,13 @@
 	import ConfirmationStep from './steps/confirmation-step.svelte';
 	import { resolveTeamStep } from './resolve-team-step';
 	import type { BookingFlowState } from './booking-flow-state.svelte';
-	import type { PublicBusiness, PublicService, PublicServiceGroup, PublicSlot, PublicTeamMember } from '../types';
+	import type {
+		PublicBusiness,
+		PublicService,
+		PublicServiceGroup,
+		PublicSlot,
+		PublicTeamMember
+	} from '../types';
 
 	let {
 		flow,
@@ -122,7 +128,8 @@
 			slot={flow.selectedSlot}
 			timeZone={business.locationDetails.timeZone}
 			bookingReference={flow.bookingReference}
-			showBookAnotherAppointmentButton={business.bookingCustomization.showBookAnotherAppointmentButton}
+			showBookAnotherAppointmentButton={business.bookingCustomization
+				.showBookAnotherAppointmentButton}
 			onBookAnother={handleBookAnother}
 		/>
 	{/if}

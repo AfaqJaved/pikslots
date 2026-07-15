@@ -70,7 +70,11 @@ export function getBusinessHoursStatus(
 	const todayIndex = WEEKDAYS.indexOf(todayKey);
 
 	const today = businessHours[todayKey];
-	if (today.enabled && minutesSinceMidnight >= toMinutes(today.openTime) && minutesSinceMidnight < toMinutes(today.closeTime)) {
+	if (
+		today.enabled &&
+		minutesSinceMidnight >= toMinutes(today.openTime) &&
+		minutesSinceMidnight < toMinutes(today.closeTime)
+	) {
 		return { isOpenNow: true, label: `Open · Closes ${formatHourLabel(today.closeTime)}` };
 	}
 

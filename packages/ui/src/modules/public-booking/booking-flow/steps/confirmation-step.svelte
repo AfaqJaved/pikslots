@@ -35,7 +35,9 @@
 </script>
 
 <div class="flex flex-col items-center gap-4 py-6 text-center">
-	<div class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+	<div
+		class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+	>
 		<Check size={22} />
 	</div>
 

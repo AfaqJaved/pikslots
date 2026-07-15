@@ -33,7 +33,11 @@ export function generateMockSlots({
 
 	const slots: PublicSlot[] = [];
 	let index = 0;
-	for (let startMs = dayStartMs; startMs + durationInMins * 60_000 <= dayEndMs; startMs += stepMs, index++) {
+	for (
+		let startMs = dayStartMs;
+		startMs + durationInMins * 60_000 <= dayEndMs;
+		startMs += stepMs, index++
+	) {
 		if (startMs < nowMs) continue;
 		// Deterministically "book out" every 4th slot so the grid isn't unrealistically full.
 		if (index % 4 === 3) continue;

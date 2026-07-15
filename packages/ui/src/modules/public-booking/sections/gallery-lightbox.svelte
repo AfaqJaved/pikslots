@@ -21,7 +21,9 @@
 			{#each photos as photo (photo.id)}
 				<div
 					class="aspect-video w-full bg-cover bg-center"
-					style={photo.url ? `background-image: url(${photo.url})` : `background-image: ${photo.gradient}`}
+					style={photo.url
+						? `background-image: url(${photo.url})`
+						: `background-image: ${photo.gradient}`}
 					role="img"
 					aria-label={photo.alt}
 				></div>

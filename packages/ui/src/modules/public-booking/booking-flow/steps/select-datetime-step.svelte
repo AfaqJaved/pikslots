@@ -46,9 +46,11 @@
 	}
 
 	function formatSlotTime(iso: string): string {
-		return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone }).format(
-			new Date(iso)
-		);
+		return new Intl.DateTimeFormat('en-US', {
+			hour: 'numeric',
+			minute: '2-digit',
+			timeZone
+		}).format(new Date(iso));
 	}
 
 	function selectSlot(slot: PublicSlot) {
