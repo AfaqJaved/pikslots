@@ -39,6 +39,7 @@ describe('EditClassUseCaseImpl', () => {
   let useCase: EditClassUseCaseImpl;
   let repository: ClassRepositoryTestImpl;
   let queue: jest.Mocked<Queue>;
+  let addSpy: jest.SpyInstance;
   let securityContext: SecurityContext;
   let originalData: Class[];
 
@@ -74,6 +75,10 @@ describe('EditClassUseCaseImpl', () => {
         PIKSLOT_EVENTS.CLASS_GROUP_ASSIGNMENT.SYNC_CLASS_CLASS_GROUPS,
       ),
     );
+    // Captured once here so assertions below reference a plain variable
+    // instead of the bare `queue.add` property access, which trips
+    // @typescript-eslint/unbound-method on jest mocks.
+    addSpy = jest.spyOn(queue, 'add');
   });
 
   describe('authorization is checked before the class is looked up', () => {
@@ -94,7 +99,7 @@ describe('EditClassUseCaseImpl', () => {
         expect((result.error as UnauthorizedError).kind).toBe('unauthorized');
       }
       expect(findByIdSpy).not.toHaveBeenCalled();
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -110,7 +115,7 @@ describe('EditClassUseCaseImpl', () => {
           'class_not_found',
         );
       }
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -250,7 +255,7 @@ describe('EditClassUseCaseImpl', () => {
       if (!result.ok) {
         expect(result.error).toEqual(infraError);
       }
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
 
     it('propagates an InfrastructureError from update, without enqueueing the sync job', async () => {
@@ -268,7 +273,7 @@ describe('EditClassUseCaseImpl', () => {
       if (!result.ok) {
         expect(result.error).toEqual(infraError);
       }
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
 
     it('propagates a ClassNotFoundError raised by update itself', async () => {
@@ -291,7 +296,7 @@ describe('EditClassUseCaseImpl', () => {
           'class_not_found',
         );
       }
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -338,8 +343,8 @@ describe('EditClassUseCaseImpl', () => {
 
       await useCase.execute(command);
 
-      expect(queue.add).toHaveBeenCalledTimes(1);
-      expect(queue.add).toHaveBeenCalledWith(
+      expect(addSpy).toHaveBeenCalledTimes(1);
+      expect(addSpy).toHaveBeenCalledWith(
         PIKSLOT_EVENTS.CLASS_GROUP_ASSIGNMENT.SYNC_CLASS_CLASS_GROUPS,
         {
           classId: command.id,
@@ -358,8 +363,8 @@ describe('EditClassUseCaseImpl', () => {
 
       await useCase.execute(command);
 
-      expect(queue.add).toHaveBeenCalledTimes(1);
-      expect(queue.add).toHaveBeenCalledWith(
+      expect(addSpy).toHaveBeenCalledTimes(1);
+      expect(addSpy).toHaveBeenCalledWith(
         PIKSLOT_EVENTS.CLASS_GROUP_ASSIGNMENT.SYNC_CLASS_CLASS_GROUPS,
         expect.objectContaining({ classGroupIds: [] }),
       );

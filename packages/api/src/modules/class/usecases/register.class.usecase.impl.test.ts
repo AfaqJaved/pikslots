@@ -41,6 +41,7 @@ describe('RegisterClassUseCaseImpl', () => {
   let useCase: RegisterClassUseCaseImpl;
   let repository: ClassRepositoryTestImpl;
   let queue: jest.Mocked<Queue>;
+  let addSpy: jest.SpyInstance;
   let securityContext: SecurityContext;
   let originalData: Class[];
 
@@ -76,6 +77,10 @@ describe('RegisterClassUseCaseImpl', () => {
         PIKSLOT_EVENTS.CLASS_GROUP_ASSIGNMENT.SYNC_CLASS_CLASS_GROUPS,
       ),
     );
+    // Captured once here so assertions below reference a plain variable
+    // instead of the bare `queue.add` property access, which trips
+    // @typescript-eslint/unbound-method on jest mocks.
+    addSpy = jest.spyOn(queue, 'add');
   });
 
   describe('authorization', () => {
@@ -138,7 +143,7 @@ describe('RegisterClassUseCaseImpl', () => {
         expect((result.error as UnauthorizedError).kind).toBe('unauthorized');
       }
       expect(saveSpy).not.toHaveBeenCalled();
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
 
     it('denies an Admin acting outside their own business', async () => {
@@ -219,7 +224,7 @@ describe('RegisterClassUseCaseImpl', () => {
       if (!result.ok) {
         expect(result.error).toEqual(infraError);
       }
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
 
     // NOTE: ClassProps documents "title should be unique per business," and
@@ -281,7 +286,7 @@ describe('RegisterClassUseCaseImpl', () => {
     it('does not enqueue a sync job when associatedClassGroupIds is empty', async () => {
       await useCase.execute(buildCommand({ associatedClassGroupIds: [] }));
 
-      expect(queue.add).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
     });
 
     it('enqueues a class-group sync job with the correct payload when associatedClassGroupIds is non-empty', async () => {
@@ -293,8 +298,8 @@ describe('RegisterClassUseCaseImpl', () => {
 
       await useCase.execute(command);
 
-      expect(queue.add).toHaveBeenCalledTimes(1);
-      expect(queue.add).toHaveBeenCalledWith(
+      expect(addSpy).toHaveBeenCalledTimes(1);
+      expect(addSpy).toHaveBeenCalledWith(
         PIKSLOT_EVENTS.CLASS_GROUP_ASSIGNMENT.SYNC_CLASS_CLASS_GROUPS,
         {
           classId: 'mock-generated-id',

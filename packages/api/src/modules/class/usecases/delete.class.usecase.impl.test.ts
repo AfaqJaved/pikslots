@@ -175,9 +175,7 @@ describe('DeleteClassUseCaseImpl', () => {
         timestamp: new Date(),
         cause: new Error('boom'),
       };
-      jest
-        .spyOn(repository, 'findById')
-        .mockResolvedValueOnce(err(infraError));
+      jest.spyOn(repository, 'findById').mockResolvedValueOnce(err(infraError));
       const deleteSpy = jest.spyOn(repository, 'delete');
 
       const result = await useCase.execute('class-yoga-1');
