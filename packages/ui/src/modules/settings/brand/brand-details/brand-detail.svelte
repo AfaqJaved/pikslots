@@ -148,7 +148,7 @@
 			let logoImageKey = '';
 
 			if (logoFile) {
-			logoImageKey = await uploadMutation.mutateAsync({
+				logoImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
 					folder: 'brand_details',
 					businessSlug: business.slug,
@@ -165,35 +165,39 @@
 			}
 
 			if (logoFile || bannerFile) {
-			let {oldBannerImageUrl ,oldBrandLogoUrl}=	await updateBrnndDetailsImageMutation.mutateAsync({
-					businessId: business.id,
-					bannerImageKey: bannerImageKey,
-					brandLogoKey: logoImageKey
-				})
-				console.log('before mutation :', 'banner =',bannerImageKey ||  oldBannerImageUrl , 'brandlogo ', logoImageKey || oldBrandLogoUrl  )
+				let { oldBannerImageUrl, oldBrandLogoUrl } =
+					await updateBrnndDetailsImageMutation.mutateAsync({
+						businessId: business.id,
+						bannerImageKey: bannerImageKey,
+						brandLogoKey: logoImageKey
+					});
+				console.log(
+					'before mutation :',
+					'banner =',
+					bannerImageKey || oldBannerImageUrl,
+					'brandlogo ',
+					logoImageKey || oldBrandLogoUrl
+				);
 				await updateMutation.mutateAsync({
-				id: business.id,
-				bannerImageUrl: bannerImageKey || oldBannerImageUrl as string,
-				logoUrl: logoImageKey || oldBrandLogoUrl as string,
-				name: businessName,
-				slug: bookingUrl,
-				industry: selectedIndustry,
-				about
-			});
-
-			}
-			else {	
-				console.log('aya2')
+					id: business.id,
+					bannerImageUrl: bannerImageKey || (oldBannerImageUrl as string),
+					logoUrl: logoImageKey || (oldBrandLogoUrl as string),
+					name: businessName,
+					slug: bookingUrl,
+					industry: selectedIndustry,
+					about
+				});
+			} else {
+				console.log('aya2');
 				await updateMutation.mutateAsync({
-				id: business.id,
-				bannerImageUrl: business.brandDetail.bannerImageUrl,
-				logoUrl: business.brandDetail.brandLogoUrl,
-				name: businessName,
-				slug: bookingUrl,
-				industry: selectedIndustry,
-				about
-			});
-
+					id: business.id,
+					bannerImageUrl: business.brandDetail.bannerImageUrl,
+					logoUrl: business.brandDetail.brandLogoUrl,
+					name: businessName,
+					slug: bookingUrl,
+					industry: selectedIndustry,
+					about
+				});
 			}
 
 			bannerImageKey = '';

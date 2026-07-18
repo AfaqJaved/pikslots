@@ -104,10 +104,8 @@
 
 	$effect(() => {
 		if (updateMutation.data) {
-			
 			businessStore.setSelectedBusiness(updateMutation.data);
 			toast.success('Appearance saved successfully.');
-			
 		}
 		if (updateMutation.isError) {
 			toast.error(
@@ -136,26 +134,23 @@
 					});
 					galleryPhotosKeys = [...galleryPhotosKeys, photoKey];
 				}
-				
 			}
 
 			await updateGalleryPhotos.mutateAsync({
-					businessId: business.id,
-					galleryPhotosKeys
-				});
+				businessId: business.id,
+				galleryPhotosKeys
+			});
 
-			await updateMutation
-				.mutateAsync({
-					id: business.id,
-					brandColor: selectedColor,
-					brandButtonShape: selectedShape,
-					theme: selectedTheme,
-					gallaryPhotosUrls: galleryPhotosKeys
-				})
-		
-				galleryTempUrls.forEach((url) => URL.revokeObjectURL(url));
-    	        galleryTempUrls = [];
+			await updateMutation.mutateAsync({
+				id: business.id,
+				brandColor: selectedColor,
+				brandButtonShape: selectedShape,
+				theme: selectedTheme,
+				gallaryPhotosUrls: galleryPhotosKeys
+			});
 
+			galleryTempUrls.forEach((url) => URL.revokeObjectURL(url));
+			galleryTempUrls = [];
 		} catch (error) {
 			const axiosError = error as AxiosError<PikslotErrorResponse>;
 

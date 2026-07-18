@@ -30,10 +30,16 @@ export class UpdateCustomerProfileImageUseCaseImpl implements UpdateCustomerProf
   async execute(
     command: UpdateCustomerProfileImageCommand,
   ): Promise<
-    Result<Customer, CustomerNotFoundError | UnauthorizedError | InfrastructureError>
+    Result<
+      Customer,
+      CustomerNotFoundError | UnauthorizedError | InfrastructureError
+    >
   > {
-    const customerFound = await this.customerRepository.findById(command.customerId);
-    if (!customerFound.ok) return err(customerFound.error as InfrastructureError);
+    const customerFound = await this.customerRepository.findById(
+      command.customerId,
+    );
+    if (!customerFound.ok)
+      return err(customerFound.error as InfrastructureError);
 
     const target = customerFound.value;
 

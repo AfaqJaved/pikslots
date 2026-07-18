@@ -22,9 +22,6 @@ export interface UpdateBusinessBrandDetailsImagesUseCase {
   execute(
     command: UpdateBusinessBrandDetailsImagesCommand,
   ): Promise<
-    Result<
-      UpdateBusinessBrandDetailsImagesResult,
-      BusinessNotFoundError | InfrastructureError
-    >
+    Result<UpdateBusinessBrandDetailsImagesResult, BusinessNotFoundError | InfrastructureError>
   >;
 }
