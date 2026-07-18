@@ -20,13 +20,12 @@ const getPresignedUploadUrl = async (
 	folder: string,
 	businessSlug: string
 ): Promise<string> => {
-	const finalId = id ?? uuidv7();
 	const { data } = await apiClient.post<PikslotResponse<PresignedUrlResponse>>(
 		S3_ENDPOINTS.PRESIGNED_UPLOAD,
 		{
 			filename: file.name,
 			contentType: file.type,
-			path: `${businessSlug}/${folder}/${finalId}/avatar`
+			path: `${businessSlug}/${folder}/${id}/avatar`
 		}
 	);
 	return data.data.url;
@@ -44,9 +43,10 @@ export const uploadAvatar = async ({
 	file,
 	businessSlug
 }: UploadAvatarInput): Promise<string> => {
-	const url = await getPresignedUploadUrl(file, id, folder, businessSlug);
+	const finalId = id ?? uuidv7();
+	const url = await getPresignedUploadUrl(file, finalId, folder, businessSlug);
 	await uploadToS3(url, file);
-	return `${businessSlug}/${folder}/${id}/avatar/${file.name}`;
+	return `${businessSlug}/${folder}/${finalId}/avatar/${file.name}`;
 };
 
 export const uploadAvatarMutationOptions = () =>

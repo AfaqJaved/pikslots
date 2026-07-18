@@ -82,6 +82,9 @@
 
 	$effect(() => {
 		if (updateMutation.data) {
+			bannerFile = null;
+			logoFile = null;
+
 			businessStore.setSelectedBusiness(updateMutation.data);
 			toast.success('Brand details saved successfully.');
 		}
@@ -150,7 +153,7 @@
 			if (logoFile) {
 				logoImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_details',
+					folder: 'brand_farhan5',
 					businessSlug: business.slug,
 					file: logoFile
 				});
@@ -158,7 +161,7 @@
 			if (bannerFile) {
 				bannerImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_details',
+					folder: 'brand_farhan5',
 					businessSlug: business.slug,
 					file: bannerFile
 				});
@@ -171,13 +174,7 @@
 						bannerImageKey: bannerImageKey,
 						brandLogoKey: logoImageKey
 					});
-				console.log(
-					'before mutation :',
-					'banner =',
-					bannerImageKey || oldBannerImageUrl,
-					'brandlogo ',
-					logoImageKey || oldBrandLogoUrl
-				);
+
 				await updateMutation.mutateAsync({
 					id: business.id,
 					bannerImageUrl: bannerImageKey || (oldBannerImageUrl as string),
@@ -188,7 +185,6 @@
 					about
 				});
 			} else {
-				console.log('aya2');
 				await updateMutation.mutateAsync({
 					id: business.id,
 					bannerImageUrl: business.brandDetail.bannerImageUrl,
@@ -199,7 +195,6 @@
 					about
 				});
 			}
-
 			bannerImageKey = '';
 			logoImageKey = '';
 		} catch (error) {
