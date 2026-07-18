@@ -153,7 +153,7 @@
 			if (logoFile) {
 				logoImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_farhan5',
+					folder: 'brand_detail',
 					businessSlug: business.slug,
 					file: logoFile
 				});
@@ -161,7 +161,7 @@
 			if (bannerFile) {
 				bannerImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_farhan5',
+					folder: 'brand_detail',
 					businessSlug: business.slug,
 					file: bannerFile
 				});
