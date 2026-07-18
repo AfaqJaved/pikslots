@@ -78,7 +78,7 @@ export class EditServiceUseCaseImpl implements EditServiceUseCase {
     const updated = found.value.update({
       title: command.title,
       description: command.description,
-      imagesUrls: command.imagesUrls,
+      serviceAvatar: command.serviceAvatar,
       durationInMins: command.durationInMins,
       bufferTimeInMins: command.bufferTimeInMins,
       cost: command.cost,

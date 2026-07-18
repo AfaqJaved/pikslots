@@ -8,7 +8,7 @@ import {
   PikSlotsEnumValidation,
   PikSlotsStringValidation,
 } from 'src/shared/decorators/validations';
-import { IsArray, IsUrl, ArrayMaxSize } from 'class-validator';
+import { IsArray, IsString, ArrayMaxSize } from 'class-validator';
 
 const BUTTON_SHAPES: BrandButtonShape[] = ['pill', 'rounded', 'rectangle'];
 const THEMES: BrandTheme[] = ['system', 'light', 'dark'];
@@ -28,11 +28,11 @@ export class UpdateBusinessAppearanceDto implements UpdateBusinessAppearanceInpu
 
   @ApiProperty({
     type: [String],
-    example: ['https://cdn.example.com/photo1.jpg'],
-    description: 'Up to 10 gallery photo URLs',
+    example: ['photos/biz_01j/photo1.jpg'],
+    description: 'Up to 10 S3 gallery photo keys',
   })
   @IsArray()
   @ArrayMaxSize(10)
-  @IsUrl({}, { each: true })
+  @IsString({ each: true })
   gallaryPhotosUrls: string[];
 }

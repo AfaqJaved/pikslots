@@ -32,6 +32,9 @@
 	import { goto } from '$app/navigation';
 	import * as Select from '$lib/components/ui/select/index';
 	import { color } from '../core/store/utlis/color';
+	import EditServiceAvatar from './dialog/update-service-image-dialog.svelte';
+	import { uploadAvatarMutationOptions } from '../api/s3/upload.avatar.mutation';
+	import { UpdateServiceAvatarMututionOptions } from '../api/service/update.service.avatar.mutation';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +85,8 @@
 	// ── Mutation ─────────────────────────────────────────────────────────────────
 
 	const queryClient = useQueryClient();
+	const uploadMutation = createMutation(uploadAvatarMutationOptions);
+	const updateServiceAvatarMutation = createMutation(UpdateServiceAvatarMututionOptions);
 	const updateMutation = createMutation(updateServiceMutationOptions);
 
 	// ── Superform ────────────────────────────────────────────────────────────────
@@ -100,8 +105,22 @@
 			validators: zod(UpdateServiceSchema),
 			SPA: true,
 			resetForm: false,
-			onUpdate({ form }) {
+			onUpdate: async ({ form }) => {
+				let avaterKey = '';
 				if (form.valid && serviceId && businessStore.selectedBusiness?.id) {
+					if (imageFile && businessStore.selectedBusiness?.slug) {
+						avaterKey = await uploadMutation.mutateAsync({
+							folder: 'service',
+							file: imageFile,
+							businessSlug: businessStore.selectedBusiness.slug,
+							id: service ? service.id : null
+						});
+
+						await updateServiceAvatarMutation.mutateAsync({
+							avatarKey: avaterKey,
+							serviceId
+						});
+					}
 					updateMutation.mutate({
 						id: serviceId,
 						title: form.data.title,
@@ -110,7 +129,7 @@
 						bufferTimeInMins: form.data.bufferTimeInMins,
 						cost: Math.round(form.data.cost * 100),
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
-						imagesUrls: [],
+						serviceAvatar: avaterKey,
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
 						businessId: businessStore.selectedBusiness.id,
@@ -170,10 +189,14 @@
 	let imageFile = $state<File | null>(null);
 	let imagePreview = $state<string | null>(null);
 	let teamSearch = $state('');
+	let DialogOpen = $state<boolean>(false);
+	let fileInput: HTMLInputElement;
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
-	const canSave = $derived($form.title.trim().length > 0 && Number($form.durationInMins) >= 1);
+	const canSave = $derived(
+		($form.title.trim().length > 0 && Number($form.durationInMins) >= 1) || imageFile !== null
+	);
 
 	const filteredTeam = $derived(
 		teamMembers.filter((m) =>
@@ -210,13 +233,32 @@
 		}
 	}
 
+	function HandleOnSave(file: File | null) {
+		if (imagePreview) {
+			URL.revokeObjectURL(imagePreview);
+		}
+		imageFile = file;
+		imagePreview = file ? URL.createObjectURL(file) : null;
+	}
+
 	function handleImageChange(e: Event) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
 		imageFile = file;
+		if (imagePreview) {
+			URL.revokeObjectURL(imagePreview);
+		}
 		imagePreview = URL.createObjectURL(file);
+		DialogOpen = true;
 	}
 </script>
+
+<EditServiceAvatar
+	bind:open={DialogOpen}
+	bind:previewUrl={imagePreview}
+	initialFile={imageFile}
+	onSave={HandleOnSave}
+/>
 
 {#if servicesQuery.isPending}
 	<div class="flex flex-1 items-center justify-center">
@@ -268,13 +310,25 @@
 					<div class="flex flex-col gap-1">
 						<span class="text-sm font-medium">Service image</span>
 						<span class="text-xs text-muted-foreground">Up to 5 MB in size</span>
-						<label>
-							<input type="file" accept="image/*" class="hidden" onchange={handleImageChange} />
-							<Button variant="outline" size="sm" class="mt-1 cursor-pointer gap-2" tabindex={-1}>
+						<div>
+							<input
+								bind:this={fileInput}
+								type="file"
+								accept="image/*"
+								class="hidden"
+								onchange={handleImageChange}
+							/>
+							<Button
+								variant="outline"
+								size="sm"
+								class="mt-1 cursor-pointer gap-2"
+								tabindex={-1}
+								onclick={() => fileInput.click()}
+							>
 								<Upload size={14} />
 								Upload
 							</Button>
-						</label>
+						</div>
 					</div>
 				</div>
 

@@ -261,7 +261,9 @@
 					<CustomerUpdatesTab {customer} />
 				</Tabs.Content>
 			</Tabs.Root>
+			<Button onclick={() => (addCustomerOpen = true)}><Plus />Add</Button>
 		</div>
+		Up
 	{:else}
 		<div class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 			Select a customer to view details

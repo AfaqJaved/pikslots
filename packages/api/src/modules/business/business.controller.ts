@@ -28,6 +28,8 @@ import { UpdateBusinessNotificationCustomizationDto } from './dto/update.busines
 import { UpdateBusinessHoursDto } from './dto/update.business.hours.dto';
 import { UpdateBusinessLinksDto } from './dto/update.business.links.dto';
 import { UpdateBusinessContactDetailsDto } from './dto/update.business.contact.details.dto';
+import { UpdateBusinessBrandDetailsImagesDto } from './dto/update.business.brand.details.images.dto';
+import { UpdateBusinessGalleryPhotosDto } from './dto/update.business.gallery.photos.dto';
 import {
   GetAllBusinessesDocs,
   GetBusinessByIdDocs,
@@ -37,6 +39,7 @@ import {
   UpdateBusinessBookingPoliciesDocs,
   UpdateBusinessBookingSetupDocs,
   UpdateBusinessBrandDetailsDocs,
+  UpdateBusinessGalleryPhotosDocs,
   UpdateBusinessGeneralDocs,
   UpdateBusinessLocationDocs,
   UpdateBusinessTeamNotificationsDocs,
@@ -46,6 +49,7 @@ import {
   UpdateBusinessVisibilityDocs,
   UpdateBusinessLinksDocs,
   UpdateBusinessContactDetailsDocs,
+  UpdateBusinessBrandDetailsImagesDocs,
 } from './docs/business.controller.docs';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
@@ -57,6 +61,7 @@ import type {
   UpdateBusinessBookingCustomizationResponse,
   UpdateBusinessBookingPoliciesResponse,
   UpdateBusinessBookingSetupResponse,
+  UpdateBusinessBrandDetailsImagesResponse,
   UpdateBusinessBrandDetailsResponse,
   UpdateBusinessGeneralResponse,
   UpdateBusinessLocationResponse,
@@ -1193,5 +1198,75 @@ export class BusinessController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
+  }
+
+  @UpdateBusinessBrandDetailsImagesDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(BUSINESS_ENDPOINTS.UPDATE_BRAND_DETAILS_IMAGES)
+  async updateBusinessBrandDetailsImages(
+    @Res({ passthrough: true }) res: Response,
+    @Param('id') id: string,
+    @Body() dto: UpdateBusinessBrandDetailsImagesDto,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<UpdateBusinessBrandDetailsImagesResponse>
+  > {
+    const result =
+      await this.businessUseCaseFactory.updateBusinessBrandDetailsImagesUseCase.execute(
+        {
+          businessId: id,
+          bannerImageKey: dto.bannerImageKey,
+          brandLogoKey: dto.brandLogoKey,
+        },
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapBusinessError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+
+    return new PikslotsBaseResponse(
+      {
+        message: 'success' as const,
+        oldBannerImageUrl: result.value.oldBannerImageUrl,
+        oldBrandLogoUrl: result.value.oldBrandLogoUrl,
+      },
+      HttpStatus.OK,
+    );
+  }
+  @UpdateBusinessGalleryPhotosDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(BUSINESS_ENDPOINTS.UPDATE_GALLERY_PHOTOS)
+  async updateBusinessGalleryPhotos(
+    @Res({ passthrough: true }) res: Response,
+    @Param('id') id: string,
+    @Body() dto: UpdateBusinessGalleryPhotosDto,
+  ): Promise<
+    PikslotsBaseErrorResponse | PikslotsBaseResponse<{ message: 'success' }>
+  > {
+    const result =
+      await this.businessUseCaseFactory.updateBusinessGalleryPhotosUseCase.execute(
+        {
+          id,
+          galleryPhotosKeys: dto.galleryPhotosKeys,
+        },
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapBusinessError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse(
+      { message: 'success' as const },
+      HttpStatus.OK,
+    );
   }
 }

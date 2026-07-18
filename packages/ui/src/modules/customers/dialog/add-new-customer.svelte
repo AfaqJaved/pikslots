@@ -28,6 +28,8 @@
 	import BrandYoutube from '@tabler/icons-svelte/icons/brand-youtube';
 	import BrandLinkedin from '@tabler/icons-svelte/icons/brand-linkedin';
 	import { AddCustomerSchema } from '../validations/add-customer-schema';
+	import AddCustomerProfileImage from './add-customer-profile-image.svelte';
+	import { uploadAvatarMutationOptions } from '../../api/s3/upload.avatar.mutation';
 
 	const COUNTRY_CODES = [
 		{ code: '+1', country: 'US' },
@@ -125,9 +127,14 @@
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let extraFields = $state(new Set<ExtraField>());
+	let customerProfileImageDialog = $state<boolean>(false);
+	let imageFile = $state<File | null>(null);
+	let previewUrl = $state<string | null>(null);
+	let fileInput: HTMLInputElement;
 
 	const queryClient = useQueryClient();
 	const registerMutation = createMutation(() => registerCustomerMutationOptions());
+	const uploadMutation = createMutation(() => uploadAvatarMutationOptions());
 
 	const { form, errors, enhance } = superForm(
 		{
@@ -155,8 +162,10 @@
 			validators: zod(AddCustomerSchema),
 			SPA: true,
 			resetForm: false,
-			onUpdate({ form }) {
+			onUpdate: async ({ form }) => {
 				if (form.valid) {
+					let avaterKey = '';
+					URL.revokeObjectURL(previewUrl as string);
 					const phone = form.data.phone ? `${form.data.countryCode} ${form.data.phone}` : null;
 					const socialLinks: Record<string, string> = {};
 					if (form.data.website) socialLinks['website'] = form.data.website;
@@ -166,10 +175,18 @@
 					if (form.data.youtube) socialLinks['youtube'] = form.data.youtube;
 					if (form.data.linkedin) socialLinks['linkedin'] = form.data.linkedin;
 
-					registerMutation.mutate({
+					if (imageFile && businessStore.selectedBusiness?.slug) {
+						avaterKey = await uploadMutation.mutateAsync({
+							folder: 'customer',
+							file: imageFile,
+							businessSlug: businessStore.selectedBusiness.slug,
+							id: null
+						});
+					}
+					await registerMutation.mutate({
 						firstName: form.data.firstName,
 						lastName: form.data.lastName,
-						profileImageUrl: null,
+						profileImageUrl: avaterKey,
 						email: form.data.email || null,
 						additionalEmail: form.data.additionalEmail || null,
 						primaryPhone: phone,
@@ -231,6 +248,18 @@
 		};
 		extraFields = new Set();
 		registerMutation.reset();
+		imageFile = null;
+		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		previewUrl = null;
+	}
+	function handleImageChange(e: Event) {
+		const target = (e.target as HTMLInputElement).files?.[0];
+		if (!target) return;
+		imageFile = target;
+		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		previewUrl = URL.createObjectURL(target);
+		console.log(previewUrl);
+		customerProfileImageDialog = true;
 	}
 
 	const initials = $derived($form.firstName ? $form.firstName.charAt(0).toUpperCase() : null);
@@ -246,6 +275,13 @@
 		class="flex max-h-[90vh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl"
 		showCloseButton={false}
 	>
+		<!-- Add profile image dialog -->
+		<AddCustomerProfileImage
+			bind:open={customerProfileImageDialog}
+			bind:previewUrl
+			initialFile={imageFile}
+			onSave={(file) => (imageFile = file)}
+		/>
 		<!-- Header -->
 		<div class="flex items-center justify-between px-6 py-4">
 			<span class="text-base font-semibold">Add customer</span>
@@ -266,15 +302,46 @@
 			<!-- Left panel -->
 			<div class="flex w-52 shrink-0 flex-col border-r pt-6">
 				<div class="flex justify-center px-4 pb-4">
-					<Avatar.Root class="size-16 text-base">
-						{#if initials}
-							<Avatar.Fallback class="text-lg">{initials}</Avatar.Fallback>
-						{:else}
-							<Avatar.Fallback class="bg-muted">
-								<UserIcon class="size-7 text-muted-foreground" />
-							</Avatar.Fallback>
-						{/if}
-					</Avatar.Root>
+					{#if imageFile}
+						<Button
+							class="size-18 shrink-0 cursor-pointer rounded-full bg-transparent p-0"
+							onclick={() => fileInput.click()}
+						>
+							<img
+								src={previewUrl}
+								alt="customerImage"
+								class="h-full w-full cursor-pointer rounded-full object-cover opacity-60 hover:opacity-100"
+							/>
+						</Button>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept="image/*"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+					{:else}
+						<Avatar.Root
+							class="size-16 cursor-pointer text-base opacity-60 hover:opacity-100"
+							onclick={() => fileInput.click()}
+						>
+							{#if initials}
+								<Avatar.Fallback class="text-lg">{initials}</Avatar.Fallback>
+							{:else}
+								<Avatar.Fallback class="bg-muted">
+									<UserIcon class="size-7 text-muted-foreground" />
+								</Avatar.Fallback>
+							{/if}
+						</Avatar.Root>
+
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept="image/*"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+					{/if}
 				</div>
 
 				<div class="mt-2 px-2">

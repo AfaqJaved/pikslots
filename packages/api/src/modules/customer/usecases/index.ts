@@ -5,12 +5,14 @@ import {
   IDeleteCustomerUseCase,
   IFindAllCustomersByBusinessUseCase,
   IFindCustomerByIdUseCase,
+  IUpdateCustomerProfileImageUseCase,
 } from '@pikslots/domain';
 import { RegisterCustomerUseCaseImpl } from './register.customer.usecase.impl';
 import { EditCustomerUseCaseImpl } from './edit.customer.usecase.impl';
 import { DeleteCustomerUseCaseImpl } from './delete.customer.usecase.impl';
 import { FindAllCustomersByBusinessUseCaseImpl } from './find.all.customers.by.business.usecase.impl';
 import { FindCustomerByIdUseCaseImpl } from './find.customer.by.id.usecase.impl';
+import { UpdateCustomerProfileImageUseCaseImpl } from './update.customer.profile.image.usecase.impl';
 
 export const CUSTOMER_USECASES: Provider[] = [
   { useClass: RegisterCustomerUseCaseImpl, provide: IRegisterCustomerUseCase },
@@ -21,4 +23,8 @@ export const CUSTOMER_USECASES: Provider[] = [
     provide: IFindAllCustomersByBusinessUseCase,
   },
   { useClass: FindCustomerByIdUseCaseImpl, provide: IFindCustomerByIdUseCase },
+  {
+    useClass: UpdateCustomerProfileImageUseCaseImpl,
+    provide: IUpdateCustomerProfileImageUseCase,
+  },
 ];

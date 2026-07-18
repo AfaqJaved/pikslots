@@ -152,7 +152,24 @@ export class Customer {
     return false;
   }
 
+  static canUpdateProfileImage(callerRole: UserRole, isPartOfSameBusiness: boolean) {
+    if (callerRole === 'Platform Owner') return true;
+    if (
+      (callerRole === 'Business Owner' ||
+        callerRole === 'Admin' ||
+        callerRole === 'Enhanced' ||
+        callerRole === 'Standard') &&
+      isPartOfSameBusiness
+    )
+      return true;
+    return false;
+  }
+
   // ── Mutation methods ────────────────────────────────────────────────────────
+
+  updateProfileImageUrl(profileImageUrl: string) {
+    return new Customer({ ...this.props, profileImageUrl });
+  }
 
   update(input: {
     name: FullName;

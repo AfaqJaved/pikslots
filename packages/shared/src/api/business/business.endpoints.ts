@@ -16,4 +16,6 @@ export const BUSINESS_ENDPOINTS = {
   UPDATE_BUSINESS_HOURS: '/businesses/:id/business-hours',
   UPDATE_BUSINESS_LINKS: '/businesses/:id/links',
   UPDATE_CONTACT_DETAILS: '/businesses/:id/contact-details',
+  UPDATE_BRAND_DETAILS_IMAGES: '/business/:id/brand-details-images',
+  UPDATE_GALLERY_PHOTOS: '/business/:id/gallery-photos',
 } as const;

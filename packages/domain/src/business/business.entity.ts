@@ -410,6 +410,26 @@ export class Business {
     });
   }
 
+  updateBrandDetailImageUrls(input: { brandLogoUrl: string; brandImageUrl: string }): Business {
+    return new Business({
+      ...this.props,
+      brandDetail: {
+        brandLogoUrl: input.brandLogoUrl,
+        bannerImageUrl: input.brandImageUrl,
+      },
+    });
+  }
+
+  updateGalleryPhotos(gallaryPhotosUrls: string[]): Business {
+    return new Business({
+      ...this.props,
+      brandApperanceDetails: {
+        ...this.props.brandApperanceDetails,
+        gallaryPhotosUrls,
+      },
+    });
+  }
+
   updateGeneral(value: { language: string; updatedBy: string }): Business {
     return new Business({
       ...this.props,

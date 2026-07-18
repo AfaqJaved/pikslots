@@ -7,6 +7,7 @@ import {
   IUpdateBusinessBookingPoliciesUseCase,
   IUpdateBusinessBookingSetupUseCase,
   IUpdateBusinessBookingCustomizationUseCase,
+  IUpdateBusinessGalleryPhotosUseCase,
   IUpdateBusinessGeneralUseCase,
   IUpdateBusinessLocationUseCase,
   IUpdateBusinessTeamNotificationsUseCase,
@@ -16,6 +17,7 @@ import {
   IUpdateBusinessVisibilityUseCase,
   IUpdateBusinessLinksUseCase,
   IUpdateBusinessContactDetailsUseCase,
+  IUpdateBusinessBrandDetilsImagesUseCase,
 } from '@pikslots/domain';
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
 import { Provider } from '@nestjs/common';
@@ -35,6 +37,8 @@ import { UpdateBusinessNotificationCustomizationUseCaseImpl } from './update.bus
 import { UpdateBusinessHoursUseCaseImpl } from './update.business.hours.usecase.impl';
 import { UpdateBusinessLinksUseCaseImpl } from './update.business.links.usecase.impl';
 import { UpdateBusinessContactDetailsUseCaseImpl } from './update.business.contact.details.usecase.impl';
+import { UpdateBusinessBrandDetailsImagesUseCaseImpl } from './update.business.brand.details.images.usecase.impl';
+import { UpdateBusinessGalleryPhotosUseCaseImpl } from './update.business.gallery.photos.usecase.impl';
 
 export const BUSINESS_USECASES: Provider[] = [
   {
@@ -104,5 +108,13 @@ export const BUSINESS_USECASES: Provider[] = [
   {
     useClass: UpdateBusinessContactDetailsUseCaseImpl,
     provide: IUpdateBusinessContactDetailsUseCase,
+  },
+  {
+    useClass: UpdateBusinessBrandDetailsImagesUseCaseImpl,
+    provide: IUpdateBusinessBrandDetilsImagesUseCase,
+  },
+  {
+    useClass: UpdateBusinessGalleryPhotosUseCaseImpl,
+    provide: IUpdateBusinessGalleryPhotosUseCase,
   },
 ];

@@ -29,6 +29,8 @@
 	import { goto } from '$app/navigation';
 	import { color } from '../core/store/utlis/color';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import EditServiceAvatar from './dialog/update-service-image-dialog.svelte';
+	import { uploadAvatarMutationOptions } from '../api/s3/upload.avatar.mutation';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -53,6 +55,7 @@
 
 	// ── Mutation ─────────────────────────────────────────────────────────────────
 
+	const uploadMutation = createMutation(uploadAvatarMutationOptions);
 	const registerMutation = createMutation(registerServiceMutationOptions);
 
 	// ── Superform ────────────────────────────────────────────────────────────────
@@ -72,9 +75,19 @@
 			validators: zod(RegisterServiceSchema),
 			SPA: true,
 			resetForm: false,
-			onUpdate({ form }) {
+			onUpdate: async ({ form }) => {
 				if (form.valid) {
-					registerMutation.mutate({
+					let avatarKey = '';
+					URL.revokeObjectURL(imagePreview as string);
+					if (imageFile && businessStore.selectedBusiness?.slug) {
+						avatarKey = await uploadMutation.mutateAsync({
+							folder: 'service',
+							file: imageFile,
+							businessSlug: businessStore.selectedBusiness.slug,
+							id: null
+						});
+					}
+					await registerMutation.mutate({
 						title: form.data.title,
 						description: form.data.description,
 						durationInMins: form.data.durationInMins,
@@ -82,7 +95,7 @@
 						cost: Math.round(form.data.cost * 100),
 						businessId: form.data.businessId,
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
-						imagesUrls: [],
+						serviceAvatar: avatarKey,
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
 						colorCode: form.data.colorCode
@@ -130,6 +143,8 @@
 	let imageFile = $state<File | null>(null);
 	let imagePreview = $state<string | null>(null);
 	let teamSearch = $state('');
+	let DialogOpen = $state<boolean>(false);
+	let fileInput: HTMLInputElement;
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
@@ -147,6 +162,10 @@
 	const someSelected = $derived(selectedMemberIds.size > 0 && !allSelected);
 
 	// ── Handlers ─────────────────────────────────────────────────────────────────
+
+	function HandleOnSave(file: File | null) {
+		imageFile = file;
+	}
 
 	function toggleGroup(id: string) {
 		const next = new Set(selectedGroupIds);
@@ -174,9 +193,20 @@
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
 		imageFile = file;
+		if (imagePreview) {
+			URL.revokeObjectURL(imagePreview);
+		}
 		imagePreview = URL.createObjectURL(file);
+		DialogOpen = true;
 	}
 </script>
+
+<EditServiceAvatar
+	bind:open={DialogOpen}
+	bind:previewUrl={imagePreview}
+	initialFile={imageFile}
+	onSave={HandleOnSave}
+/>
 
 <form use:enhance class="mx-auto flex h-full min-h-0 w-[70%] flex-1 flex-col">
 	<!-- ── Top bar ──────────────────────────────────────────────────────────────── -->
@@ -219,13 +249,25 @@
 				<div class="flex flex-col gap-1">
 					<span class="text-sm font-medium">Service image</span>
 					<span class="text-xs text-muted-foreground">Up to 5 MB in size</span>
-					<label>
-						<input type="file" accept="image/*" class="hidden" onchange={handleImageChange} />
-						<Button variant="outline" size="sm" class="mt-1 cursor-pointer gap-2" tabindex={-1}>
+					<div>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept="image/*"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+						<Button
+							variant="outline"
+							size="sm"
+							class="mt-1 cursor-pointer gap-2"
+							tabindex={-1}
+							onclick={() => fileInput.click()}
+						>
 							<Upload size={14} />
 							Upload
 						</Button>
-					</label>
+					</div>
 				</div>
 			</div>
 

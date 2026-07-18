@@ -86,3 +86,11 @@ export interface DeleteCustomerResponse {
 }
 
 export type FindCustomerByIdResponse = FullCustomerResponse;
+
+export interface UpdateCustomerProfileImageInput {
+  profileImageKey: string;
+}
+
+export interface UpdateCustomerProfileImageResponse {
+  message: 'success';
+}

@@ -5,24 +5,28 @@ import type { AxiosError } from 'axios';
 import type { PikslotErrorResponse, PikslotResponse } from '../common/common-models';
 import type { PresignedUrlResponse } from '@pikslots/shared';
 import axios from 'axios';
+import { v7 as uuidv7 } from 'uuid';
 
 export interface UploadAvatarInput {
-	userId: string;
+	id: string | null;
+	folder: string;
 	file: File;
 	businessSlug: string;
 }
 
 const getPresignedUploadUrl = async (
 	file: File,
-	userId: string,
+	id: string | null,
+	folder: string,
 	businessSlug: string
 ): Promise<string> => {
+	const finalId = id ?? uuidv7();
 	const { data } = await apiClient.post<PikslotResponse<PresignedUrlResponse>>(
 		S3_ENDPOINTS.PRESIGNED_UPLOAD,
 		{
 			filename: file.name,
 			contentType: file.type,
-			path: `${businessSlug}/users/${userId}/avatar`
+			path: `${businessSlug}/${folder}/${finalId}/avatar`
 		}
 	);
 	return data.data.url;
@@ -35,13 +39,14 @@ const uploadToS3 = async (url: string, file: File): Promise<void> => {
 };
 
 export const uploadAvatar = async ({
-	userId,
+	id,
+	folder,
 	file,
 	businessSlug
 }: UploadAvatarInput): Promise<string> => {
-	const url = await getPresignedUploadUrl(file, userId, businessSlug);
+	const url = await getPresignedUploadUrl(file, id, folder, businessSlug);
 	await uploadToS3(url, file);
-	return `${businessSlug}/users/${userId}/avatar/${file.name}`;
+	return `${businessSlug}/${folder}/${id}/avatar/${file.name}`;
 };
 
 export const uploadAvatarMutationOptions = () =>

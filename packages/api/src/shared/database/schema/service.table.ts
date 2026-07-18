@@ -5,7 +5,7 @@ export interface ServiceTable extends AuditFields {
   id: string; // uuid primary key
   title: string; // unique per business
   description: string;
-  images: string[]; // max 5 image URLs
+  service_avatar: string;
   duration_in_mins: number;
   buffer_time_in_mins: number; // gap between consecutive bookings
   cost: number;

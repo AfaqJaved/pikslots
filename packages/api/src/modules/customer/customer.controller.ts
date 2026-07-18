@@ -21,12 +21,14 @@ import { mapCustomerError } from './errors/customer.errors.map';
 import { CUSTOMER_ENDPOINTS } from '@pikslots/shared';
 import { RegisterCustomerDto } from './dto/register.customer.dto';
 import { EditCustomerDto } from './dto/edit.customer.dto';
+import { UpdateCustomerProfileImageDto } from './dto/update.customer.profile.image.dto';
 import {
   RegisterCustomerDocs,
   EditCustomerDocs,
   DeleteCustomerDocs,
   FindAllCustomersByBusinessDocs,
   FindCustomerByIdDocs,
+  UpdateCustomerProfileImageDocs,
 } from './docs/customer.controller.docs';
 import { CustomerUseCasesFactory } from './factory/customer.usecases.factory';
 import type {
@@ -35,6 +37,7 @@ import type {
   EditCustomerResponse,
   DeleteCustomerResponse,
   FindCustomerByIdResponse,
+  UpdateCustomerProfileImageResponse,
 } from '@pikslots/shared';
 
 @ApiTags('Customers')
@@ -239,6 +242,39 @@ export class CustomerController {
         lastName: c.fullName.lastName,
         profileImageUrl: c.profileImageUrl,
       })),
+      HttpStatus.OK,
+    );
+  }
+
+  @UpdateCustomerProfileImageDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Patch(CUSTOMER_ENDPOINTS.UPDATE_PROFILE_IMAGE)
+  async updateProfileImage(
+    @Res({ passthrough: true }) res: Response,
+    @Param('customerId') customerId: string,
+    @Body() dto: UpdateCustomerProfileImageDto,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<UpdateCustomerProfileImageResponse>
+  > {
+    const result =
+      await this.customerUseCasesFactory.updateCustomerProfileImageUseCase.execute(
+        {
+          customerId,
+          profileImageKey: dto.profileImageKey,
+        },
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapCustomerError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<UpdateCustomerProfileImageResponse>(
+      { message: 'success' },
       HttpStatus.OK,
     );
   }

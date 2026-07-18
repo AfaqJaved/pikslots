@@ -5,7 +5,7 @@ export interface EditServiceCommand {
   id: string;
   title: string;
   description: string;
-  imagesUrls: string[];
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;
