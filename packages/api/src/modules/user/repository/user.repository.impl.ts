@@ -311,4 +311,60 @@ export class UserRepositoryImpl implements UserRepository {
       });
     }
   }
+
+  async findUserTimeoffsByDate(
+    userId: string,
+    businessId: string,
+    startDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  > {
+    try {
+      const dayStart = new Date(startDate);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+      const rows = await this.db
+        .selectFrom('timeoffs')
+        .select([
+          'title',
+          'start_date_time',
+          'end_date_time',
+          'all_day',
+          'time_zone',
+        ])
+        .where('user_id', '=', userId)
+        .where('business_id', '=', businessId)
+        .where('start_date_time', '<', dayEnd)
+        .where('end_date_time', '>', dayStart)
+        .where('is_deleted', '=', false)
+        .execute();
+
+      return ok(
+        rows.map((row) => ({
+          title: row.title,
+          startDateTime: row.start_date_time.toISOString(),
+          endDateTime: row.end_date_time.toISOString(),
+          allDay: row.all_day,
+          timeZone: row.time_zone,
+        })),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find user timeoffs by date',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
 }

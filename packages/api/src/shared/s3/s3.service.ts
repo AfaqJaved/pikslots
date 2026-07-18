@@ -5,6 +5,7 @@ import {
   CreateBucketCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  PutBucketCorsCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -90,6 +91,22 @@ export class PikslotS3ServiceImplementation
           Bucket: this.configService.get('S3_BUCKET_NAME'),
         }),
       );
+
+      await this.s3.send(
+        new PutBucketCorsCommand({
+          Bucket: this.configService.get('S3_BUCKET_NAME'),
+          CORSConfiguration: {
+            CORSRules: [
+              {
+                AllowedOrigins: ['*'],
+                AllowedHeaders: ['*'],
+                AllowedMethods: ['GET', 'PUT', 'DELETE', 'HEAD'],
+              },
+            ],
+          },
+        }),
+      );
+
       this.logger.log('S3 connected successfully');
     } catch (error) {
       if (

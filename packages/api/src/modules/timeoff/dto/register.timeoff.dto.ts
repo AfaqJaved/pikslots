@@ -2,10 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RegisterTimeoffInput } from '@pikslots/shared';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDate,
   IsDateString,
   IsNotEmpty,
   IsOptional,
+  IsString,
   IsUUID,
 } from 'class-validator';
 import {
@@ -47,6 +49,21 @@ export class RegisterTimeoffDto implements RegisterTimeoffInput {
   })
   @IsDateString()
   endDateTime: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether the time off spans the full day(s)',
+  })
+  @IsBoolean()
+  allDay: boolean;
+
+  @ApiProperty({
+    example: 'America/New_York',
+    description: 'IANA timezone the time off was created in',
+  })
+  @IsString()
+  @IsNotEmpty()
+  timeZone: string;
 
   @ApiProperty({
     example: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',

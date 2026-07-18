@@ -17,7 +17,6 @@ import {
   EditTimeoffDocs,
   DeleteTimeoffDocs,
 } from './docs/timeoff.controller.docs';
-import { TimeoffPersistenceMapper } from './mappers/timeoff.database.mapper';
 import {
   RegisterTimeoffResponse,
   EditTimeoffResponse,
@@ -34,17 +33,11 @@ import { EditTimeoffDto } from './dto/edit.timeoff.dto';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import { TimeoffUsecasesFactory } from './factory/timeoff.usecases.factory';
-import { SecurityContext } from 'src/shared/security/context/security.context';
 import { mapTimeoffError } from './errors/timeoff.error.map';
 
 @Controller('')
 export class TimeOffController {
-  private timeoffDatabaseMapper = new TimeoffPersistenceMapper();
-
-  constructor(
-    private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory,
-    private readonly securityContext: SecurityContext,
-  ) {}
+  constructor(private readonly timeoffUseCaseFactory: TimeoffUsecasesFactory) {}
 
   @SaveTimeoffDocs()
   @UseGuards(RolesGuard)
@@ -63,6 +56,8 @@ export class TimeOffController {
         businessId: dto.businessId,
         startDateTime: dto.startDateTime,
         endDateTime: dto.endDateTime,
+        allDay: dto.allDay,
+        timeZone: dto.timeZone,
         recurrence: dto.recurrence,
       });
 
@@ -105,6 +100,8 @@ export class TimeOffController {
         businessId: value.businessId,
         startDateTime: value.startDateTime,
         endDateTime: value.endDateTime,
+        allDay: value.allDay,
+        timeZone: value.timeZone,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -151,6 +148,8 @@ export class TimeOffController {
         businessId: value.businessId,
         startDateTime: value.startDateTime,
         endDateTime: value.endDateTime,
+        allDay: value.allDay,
+        timeZone: value.timeZone,
         recurrence: value.recurrence,
         createdAt: value.createdAt,
         createdBy: value.createdBy,
@@ -182,6 +181,8 @@ export class TimeOffController {
       businessId: dto.businessId,
       startDateTime: dto.startDateTime,
       endDateTime: dto.endDateTime,
+      allDay: dto.allDay,
+      timeZone: dto.timeZone,
       recurrence: dto.recurrence,
     });
 

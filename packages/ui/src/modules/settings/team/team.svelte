@@ -216,7 +216,7 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="services" class="mt-0">
-					<ServicesTab />
+					<ServicesTab userId={selected.id} businessId={businessStore.selectedBusiness?.id ?? ''} />
 				</Tabs.Content>
 
 				<Tabs.Content value="working-hours" class="mt-0">
@@ -232,7 +232,7 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="time-off" class="mt-0">
-					<TimeOffTab />
+					<TimeOffTab userId={selected.id} businessId={businessStore.selectedBusiness?.id ?? ''} />
 				</Tabs.Content>
 
 				<Tabs.Content value="updates" class="mt-0">

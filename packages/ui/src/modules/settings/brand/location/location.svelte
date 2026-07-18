@@ -39,7 +39,7 @@
 		{ value: 'RUB', label: 'Russia - RUB ₽' }
 	];
 
-	const timezones = Intl.supportedValuesOf('timeZone');
+	const timezones = [...Intl.supportedValuesOf('timeZone'), 'UTC'];
 
 	const business = $derived(businessStore.selectedBusiness);
 
