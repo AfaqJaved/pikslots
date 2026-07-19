@@ -67,8 +67,7 @@ describe('RegisterServiceUseCaseImpl', () => {
         { provide: SecurityContext, useValue: securityContext },
         {
           provide: getQueueToken(
-            PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT
-              .SYNC_SERVICE_SERVICE_GROUPS,
+            PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
           ),
           useValue: { add: jest.fn().mockResolvedValue(undefined) },
         },
