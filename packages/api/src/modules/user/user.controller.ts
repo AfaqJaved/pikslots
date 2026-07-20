@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -61,6 +62,10 @@ import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/shared/config/env';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 @ApiTags('Users')
 @Controller('')
@@ -70,6 +75,7 @@ export class UserController {
     private readonly configService: ConfigService<Env, true>,
     private readonly securityContext: SecurityContext,
     private readonly jwtInviteService: JwtInviteService,
+    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
   ) {}
 
   @GetAllBusinessOwnersDocs()
@@ -93,7 +99,11 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(
-      result.value.map(UserResponseMapper.toUserSummary),
+      await Promise.all(
+        result.value.map((u) =>
+          UserResponseMapper.toUserSummary(u, this.s3Service),
+        ),
+      ),
       HttpStatus.OK,
     );
   }
@@ -120,7 +130,11 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(
-      result.value.map(UserResponseMapper.toUserSummary),
+      await Promise.all(
+        result.value.map((u) =>
+          UserResponseMapper.toUserSummary(u, this.s3Service),
+        ),
+      ),
       HttpStatus.OK,
     );
   }
@@ -146,7 +160,11 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(
-      result.value.map(UserResponseMapper.toUserSummary),
+      await Promise.all(
+        result.value.map((u) =>
+          UserResponseMapper.toUserSummary(u, this.s3Service),
+        ),
+      ),
       HttpStatus.OK,
     );
   }
@@ -168,7 +186,7 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<UserSummary>(
-      UserResponseMapper.toUserSummary(result.value),
+      await UserResponseMapper.toUserSummary(result.value, this.s3Service),
       HttpStatus.OK,
     );
   }
