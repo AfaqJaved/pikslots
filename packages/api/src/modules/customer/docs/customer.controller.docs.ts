@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { RegisterCustomerDto } from '../dto/register.customer.dto';
 import { EditCustomerDto } from '../dto/edit.customer.dto';
+import { UpdateCustomerProfileImageDto } from '../dto/update.customer.profile.image.dto';
 
 export const RegisterCustomerDocs = () =>
   applyDecorators(
@@ -206,6 +207,48 @@ export const FindAllCustomersByBusinessDocs = () =>
           timestamp: '2026-01-01T00:00:00.000Z',
         },
       },
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const UpdateCustomerProfileImageDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update profile image key for a customer' }),
+    ApiParam({
+      name: 'customerId',
+      description: 'Target customer ID',
+      example: 'cus_01j...',
+    }),
+    ApiBody({ type: UpdateCustomerProfileImageDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Profile image updated successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Customer not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.BAD_REQUEST,
+      description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'unauthorized',
+      type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
       status: HttpStatus.INTERNAL_SERVER_ERROR,

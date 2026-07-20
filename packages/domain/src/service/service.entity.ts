@@ -6,7 +6,7 @@ export interface ServiceProps {
   readonly id: string;
   readonly title: string; // should be unique per business
   readonly description: string;
-  readonly images: string[]; // only 5 images allowed
+  readonly serviceAvatar: string;
   readonly durationInMins: number;
   readonly bufferTimeInMins: number; // the time between two consecutive services
   readonly cost: number;
@@ -29,7 +29,7 @@ export interface ServiceCreateInput {
   id: string;
   title: string;
   description: string;
-  imagesUrls: string[]; // only 5 images allowed
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number; // the time between two consecutive services
   isHiddenFromBookingPage: boolean;
@@ -58,7 +58,7 @@ export class Service {
       id: input.id,
       title: input.title,
       description: input.description,
-      images: input.imagesUrls,
+      serviceAvatar: input.serviceAvatar,
       durationInMins: input.durationInMins,
       bufferTimeInMins: input.bufferTimeInMins,
       cost: input.cost,
@@ -78,7 +78,7 @@ export class Service {
   update(input: {
     title: string;
     description: string;
-    imagesUrls: string[];
+    serviceAvatar: string;
     durationInMins: number;
     bufferTimeInMins: number;
     cost: number;
@@ -90,7 +90,7 @@ export class Service {
       ...this.props,
       title: input.title,
       description: input.description,
-      images: input.imagesUrls,
+      serviceAvatar: input.serviceAvatar,
       durationInMins: input.durationInMins,
       bufferTimeInMins: input.bufferTimeInMins,
       cost: input.cost,
@@ -99,6 +99,10 @@ export class Service {
       updatedAt: new Date(),
       updatedBy: input.updatedBy,
     });
+  }
+
+  updateAvatarUrl(serviceAvatar: string) {
+    return new Service({ ...this.props, serviceAvatar });
   }
 
   static canRegisterService(callerRole: UserRole, isPartOfSameBusiness: boolean): boolean {
@@ -125,6 +129,13 @@ export class Service {
       return true;
 
     // Enhanced , Standard , No acess
+    return false;
+  }
+  static canUpdateAvatar(callerRole: UserRole, isPartOfSameBusiness: boolean) {
+    if (callerRole == 'Platform Owner') return true;
+    if ((callerRole == 'Business Owner' || callerRole == 'Admin') && isPartOfSameBusiness)
+      return true;
+
     return false;
   }
 
@@ -154,8 +165,8 @@ export class Service {
   get description(): string {
     return this.props.description;
   }
-  get images(): string[] {
-    return this.props.images;
+  get serviceAvatar(): string {
+    return this.props.serviceAvatar;
   }
   get durationInMins(): number {
     return this.props.durationInMins;

@@ -4,7 +4,7 @@ import type { Service } from '../service.entity';
 export interface RegisterServiceCommand {
   title: string;
   description: string;
-  imagesUrls: string[];
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;

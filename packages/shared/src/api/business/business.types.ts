@@ -163,7 +163,26 @@ export interface UpdateBusinessContactDetailsInput {
   additionalPhones: PhoneEntry[];
 }
 
+export interface UpdateBusinessBrandDetailsImagesInput {
+  bannerImageKey: string;
+  brandLogoKey: string;
+}
+
+export interface UpdateBusinessGalleryPhotosInput {
+  galleryPhotosKeys: string[];
+}
+
 // ── Responses ─────────────────────────────────────────────────────────────────
+
+export interface UpdateBusinessBrandDetailsImagesResponse {
+  message: 'success';
+  oldBannerImageUrl: string | null;
+  oldBrandLogoUrl: string | null;
+}
+
+export interface UpdateBusinessGalleryPhotosResponse {
+  message: 'success';
+}
 
 export interface RegisterBusinessResponse {
   message: 'success';

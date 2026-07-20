@@ -1,7 +1,6 @@
 export * from './register.business.usecase.ts';
 export * from './find.all.registered.businesses.usecase.ts';
 export * from './find.business.by.id.usecase.ts';
-
 export * from './update.business.brand.details.usecase.ts';
 export * from './update.business.appearance.usecase.ts';
 export * from './update.business.location.usecase.ts';
@@ -16,3 +15,5 @@ export * from './update.business.notification.customization.usecase.ts';
 export * from './update.business.hours.usecase.ts';
 export * from './update.business.links.usecase.ts';
 export * from './update.business.contact.details.usecase.ts';
+export * from './update.business.brand.details.images.usecase.ts';
+export * from './update.business.gallery.photos.usecase.ts';

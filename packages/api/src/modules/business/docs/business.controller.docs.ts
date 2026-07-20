@@ -16,6 +16,7 @@ import { UpdateBusinessNotificationCustomizationDto } from '../dto/update.busine
 import { UpdateBusinessHoursDto } from '../dto/update.business.hours.dto';
 import { UpdateBusinessLinksDto } from '../dto/update.business.links.dto';
 import { UpdateBusinessContactDetailsDto } from '../dto/update.business.contact.details.dto';
+import { UpdateBusinessGalleryPhotosDto } from '../dto/update.business.gallery.photos.dto';
 
 export const GetBusinessByIdDocs = () =>
   applyDecorators(
@@ -479,8 +480,12 @@ export const RegisterBusinessDocs = () =>
       description: 'Business registered successfully',
       schema: {
         example: {
-          data: { message: 'success' },
-          statusCode: 201,
+          data: {
+            message: 'success',
+            oldBannerImageUrl: 'banners/biz_01j/old-banner.jpg',
+            oldBrandLogoUrl: 'brandLogo/biz_01j/old-logo.jpg',
+          },
+          statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },
       },
@@ -677,6 +682,74 @@ export const UpdateBusinessContactDetailsDocs = () =>
             },
             updatedAt: '2026-01-01T00:00:00.000Z',
           },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Business not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.BAD_REQUEST,
+      description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Database or infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const UpdateBusinessBrandDetailsImagesDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Update brand details images key for the business',
+    }),
+    ApiParam({ name: 'id', description: 'Business ID', example: 'biz_01j...' }),
+    ApiBody({ type: UpdateBusinessBrandDetailsDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Banner image updated successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Business not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.BAD_REQUEST,
+      description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Database or infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const UpdateBusinessGalleryPhotosDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update gallery photos keys for a business' }),
+    ApiParam({ name: 'id', description: 'Business ID', example: 'biz_01j...' }),
+    ApiBody({ type: UpdateBusinessGalleryPhotosDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Gallery photos updated successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
           statusCode: 200,
           timestamp: '2026-01-01T00:00:00.000Z',
         },

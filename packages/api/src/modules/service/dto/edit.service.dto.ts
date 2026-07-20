@@ -2,8 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UpdateServiceInput } from '@pikslots/shared';
 import {
   IsArray,
-  ArrayMaxSize,
-  IsUrl,
   IsNumber,
   IsString,
   IsUUID,
@@ -30,14 +28,10 @@ export class EditServiceDto implements Omit<UpdateServiceInput, 'id'> {
   description: string;
 
   @ApiProperty({
-    type: [String],
-    example: [],
-    description: 'Up to 5 image URLs',
+    type: String,
   })
-  @IsArray()
-  @ArrayMaxSize(5)
-  @IsUrl({}, { each: true })
-  imagesUrls: string[];
+  @PikSlotsStringValidation(1, 100)
+  serviceAvatar: string;
 
   @ApiProperty({ example: 30, description: 'Service duration in minutes' })
   @IsNumber()

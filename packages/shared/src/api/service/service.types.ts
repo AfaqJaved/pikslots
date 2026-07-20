@@ -3,7 +3,7 @@
 export interface RegisterServiceInput {
   title: string;
   description: string;
-  imagesUrls: string[];
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;
@@ -24,7 +24,7 @@ export interface ServiceResponse {
   id: string;
   title: string;
   description: string;
-  images: string[];
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;
@@ -39,7 +39,7 @@ export interface UpdateServiceInput {
   id: string;
   title: string;
   description: string;
-  imagesUrls: string[];
+  serviceAvatar: string;
   durationInMins: number;
   bufferTimeInMins: number;
   cost: number;
@@ -55,5 +55,13 @@ export interface UpdateServiceResponse {
 }
 
 export interface DeleteServiceResponse {
+  message: 'success';
+}
+
+export interface UpdateServiceAvatarInput {
+  avatarKey: string;
+}
+
+export interface UpdateServiceAvatarResponse {
   message: 'success';
 }

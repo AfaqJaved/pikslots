@@ -22,6 +22,10 @@
 	import type { BaseErrorResponse } from '@pikslots/shared';
 	import type { AxiosError } from 'axios';
 	import { toast } from 'svelte-sonner';
+	import UpdateBrandDetailImagesDialog from '../dialogs/update-brand-details-images-dialog.svelte';
+	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
+	import { UpdateBusinessBrandDetailsImagesMutationsOptions } from '../../../api/business/update.business.brand.details.images.mutation';
+	import type { PikslotErrorResponse } from '../../../api/common/common-models';
 
 	const INDUSTRIES: { value: BusinessIndustry; label: string }[] = [
 		{ value: 'salon_and_beauty', label: 'Salon & Beauty' },
@@ -43,15 +47,31 @@
 	let about = $state('');
 	let selectedIndustry = $state<BusinessIndustry | ''>('');
 
+	let bannerDialogOpen = $state(false);
+	let bannerFile = $state<File | null>(null);
+	let bannerPreview = $state<string | null>(null);
+	let bannerInput: HTMLInputElement;
+
+	let logoDialogOpen = $state(false);
+	let logoFile = $state<File | null>(null);
+	let logoPreview = $state<string | null>(null);
+	let logoInput: HTMLInputElement;
+
 	$effect(() => {
 		if (business) {
 			businessName = business.name;
 			bookingUrl = business.slug;
 			about = business.about;
 			selectedIndustry = business.industry;
+			bannerPreview = business.brandDetail.bannerImageUrl;
+			logoPreview = business.brandDetail.brandLogoUrl;
 		}
 	});
 
+	const uploadMutation = createMutation(uploadAvatarMutationOptions);
+	const updateBrnndDetailsImageMutation = createMutation(
+		UpdateBusinessBrandDetailsImagesMutationsOptions
+	);
 	const updateMutation = createMutation<
 		BusinessUpdateBrandDetailsResult,
 		AxiosError<BaseErrorResponse>,
@@ -62,6 +82,9 @@
 
 	$effect(() => {
 		if (updateMutation.data) {
+			bannerFile = null;
+			logoFile = null;
+
 			businessStore.setSelectedBusiness(updateMutation.data);
 			toast.success('Brand details saved successfully.');
 		}
@@ -72,27 +95,131 @@
 		}
 	});
 
+	const isSaving = $derived(
+		uploadMutation.isPending ||
+			updateMutation.isPending ||
+			updateBrnndDetailsImageMutation.isPending
+	);
+
 	const isDirty = $derived(
 		!!business &&
 			(businessName !== business.name ||
 				bookingUrl !== business.slug ||
 				about !== business.about ||
-				selectedIndustry !== business.industry)
+				selectedIndustry !== business.industry ||
+				logoPreview !== business.brandDetail.brandLogoUrl ||
+				bannerPreview !== business.brandDetail.bannerImageUrl)
 	);
 
-	function handleSave() {
-		if (!business || !selectedIndustry) return;
-		updateMutation.mutate({
-			id: business.id,
-			bannerImageUrl: business.brandDetail.bannerImageUrl,
-			logoUrl: business.brandDetail.brandLogoUrl,
-			name: businessName,
-			slug: bookingUrl,
-			industry: selectedIndustry,
-			about
-		});
+	function handleBannerUpload(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		bannerFile = file;
+		if (bannerPreview) URL.revokeObjectURL(bannerPreview);
+		bannerPreview = URL.createObjectURL(file);
+		bannerDialogOpen = true;
+		input.value = '';
+	}
+
+	function bannerOnSave(file: File | null) {
+		bannerFile = file;
+	}
+
+	function handleLogoUpload(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		logoFile = file;
+		if (logoPreview) URL.revokeObjectURL(logoPreview);
+		logoPreview = URL.createObjectURL(file);
+		logoDialogOpen = true;
+		input.value = '';
+	}
+
+	function logoOnSave(file: File | null) {
+		logoFile = file;
+	}
+
+	async function handleSave() {
+		try {
+			if (!business || !selectedIndustry) return;
+
+			let bannerImageKey = '';
+			let logoImageKey = '';
+
+			if (logoFile) {
+				logoImageKey = await uploadMutation.mutateAsync({
+					id: business.id,
+					folder: 'brand_detail',
+					businessSlug: business.slug,
+					file: logoFile
+				});
+			}
+			if (bannerFile) {
+				bannerImageKey = await uploadMutation.mutateAsync({
+					id: business.id,
+					folder: 'brand_detail',
+					businessSlug: business.slug,
+					file: bannerFile
+				});
+			}
+
+			if (logoFile || bannerFile) {
+				let { oldBannerImageUrl, oldBrandLogoUrl } =
+					await updateBrnndDetailsImageMutation.mutateAsync({
+						businessId: business.id,
+						bannerImageKey: bannerImageKey,
+						brandLogoKey: logoImageKey
+					});
+
+				await updateMutation.mutateAsync({
+					id: business.id,
+					bannerImageUrl: bannerImageKey || (oldBannerImageUrl as string),
+					logoUrl: logoImageKey || (oldBrandLogoUrl as string),
+					name: businessName,
+					slug: bookingUrl,
+					industry: selectedIndustry,
+					about
+				});
+			} else {
+				await updateMutation.mutateAsync({
+					id: business.id,
+					bannerImageUrl: business.brandDetail.bannerImageUrl,
+					logoUrl: business.brandDetail.brandLogoUrl,
+					name: businessName,
+					slug: bookingUrl,
+					industry: selectedIndustry,
+					about
+				});
+			}
+			bannerImageKey = '';
+			logoImageKey = '';
+		} catch (error) {
+			const axiosError = error as AxiosError<PikslotErrorResponse>;
+
+			toast.error(axiosError.response?.data?.message ?? 'Failed to save. Please try again.');
+		}
 	}
 </script>
+
+<UpdateBrandDetailImagesDialog
+	bind:open={bannerDialogOpen}
+	bind:previewUrl={bannerPreview}
+	initialFile={bannerFile}
+	title="Banner Image"
+	onSave={bannerOnSave}
+/>
+
+<UpdateBrandDetailImagesDialog
+	bind:open={logoDialogOpen}
+	bind:previewUrl={logoPreview}
+	initialFile={logoFile}
+	title="Brand Logo"
+	onSave={logoOnSave}
+/>
 
 <!-- Page header -->
 <div class="border-b px-4 lg:px-6">
@@ -104,12 +231,7 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button
-			class="cursor-pointer"
-			size="sm"
-			onclick={handleSave}
-			disabled={!isDirty || updateMutation.isPending}
-		>
+		<Button class="cursor-pointer" size="sm" onclick={handleSave} disabled={!isDirty || isSaving}>
 			{updateMutation.isPending ? 'Saving...' : 'Save'}
 		</Button>
 	</div>
@@ -124,7 +246,25 @@
 			<h2 class="text-xs font-semibold">Brand details</h2>
 
 			<!-- Banner upload -->
-			{#if business?.brandDetail.bannerImageUrl}
+			{#if bannerPreview}
+				<Button
+					class="h-40 w-full cursor-pointer bg-transparent p-0"
+					onclick={() => bannerInput.click()}
+				>
+					<img
+						src={bannerPreview}
+						alt="Banner preview"
+						class="h-full w-full rounded-lg border object-cover opacity-100 hover:opacity-60"
+					/>
+				</Button>
+				<input
+					bind:this={bannerInput}
+					type="file"
+					accept=".jpg,.jpeg,.png"
+					class="hidden"
+					onchange={handleBannerUpload}
+				/>
+			{:else if business?.brandDetail.bannerImageUrl}
 				<img
 					src={business.brandDetail.bannerImageUrl}
 					alt="Banner"
@@ -137,7 +277,14 @@
 					class="flex h-40 w-full flex-col items-center justify-center rounded-lg border bg-muted"
 				>
 					<Photo size={32} class="mb-3 text-muted-foreground" />
-					<Button variant="outline" size="sm">
+					<input
+						bind:this={bannerInput}
+						type="file"
+						accept=".jpg,.jpeg,.png"
+						class="hidden"
+						onchange={handleBannerUpload}
+					/>
+					<Button variant="outline" size="sm" onclick={() => bannerInput.click()}>
 						<Upload size={14} />
 						Upload banner image
 					</Button>
@@ -148,6 +295,12 @@
 			<div class="flex items-center gap-4">
 				{#if business === null}
 					<Skeleton class="size-16 rounded-full" />
+				{:else if logoPreview}
+					<img
+						src={logoPreview}
+						alt="Logo preview"
+						class="size-16 rounded-full border object-cover"
+					/>
 				{:else}
 					<Avatar.Root class="size-16 rounded-full border">
 						<Avatar.Image src={business?.brandDetail.brandLogoUrl ?? ''} alt="Brand logo" />
@@ -161,7 +314,14 @@
 					<span class="text-xs text-muted-foreground"
 						>Select a 200 × 200 px image, up to 10 MB in size</span
 					>
-					<Button variant="outline" size="sm" class="mt-1 w-fit">
+					<input
+						bind:this={logoInput}
+						type="file"
+						accept=".jpg,.jpeg,.png"
+						class="hidden"
+						onchange={handleLogoUpload}
+					/>
+					<Button variant="outline" size="sm" class="mt-1 w-fit" onclick={() => logoInput.click()}>
 						<Upload size={14} />
 						Upload logo
 					</Button>

@@ -8,6 +8,7 @@ import {
   IUpdateBusinessBookingPoliciesUseCase,
   IUpdateBusinessBookingSetupUseCase,
   IUpdateBusinessBookingCustomizationUseCase,
+  IUpdateBusinessGalleryPhotosUseCase,
   IUpdateBusinessGeneralUseCase,
   IUpdateBusinessLocationUseCase,
   IUpdateBusinessTeamNotificationsUseCase,
@@ -17,6 +18,7 @@ import {
   IUpdateBusinessVisibilityUseCase,
   IUpdateBusinessLinksUseCase,
   IUpdateBusinessContactDetailsUseCase,
+  IUpdateBusinessBrandDetilsImagesUseCase,
 } from '@pikslots/domain';
 import type {
   FindAllRegisteredBusinessesUseCase,
@@ -27,6 +29,7 @@ import type {
   UpdateBusinessBookingSetupUseCase,
   UpdateBusinessBookingCustomizationUseCase,
   UpdateBusinessBrandDetailsUseCase,
+  UpdateBusinessGalleryPhotosUseCase,
   UpdateBusinessGeneralUseCase,
   UpdateBusinessLocationUseCase,
   UpdateBusinessTeamNotificationsUseCase,
@@ -36,6 +39,7 @@ import type {
   UpdateBusinessVisibilityUseCase,
   UpdateBusinessLinksUseCase,
   UpdateBusinessContactDetailsUseCase,
+  UpdateBusinessBrandDetailsImagesUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -90,4 +94,10 @@ export class BusinessUseCaseFactory {
 
   @Inject(IUpdateBusinessContactDetailsUseCase)
   public readonly updateBusinessContactDetailsUseCase: UpdateBusinessContactDetailsUseCase;
+
+  @Inject(IUpdateBusinessBrandDetilsImagesUseCase)
+  public readonly updateBusinessBrandDetailsImagesUseCase: UpdateBusinessBrandDetailsImagesUseCase;
+
+  @Inject(IUpdateBusinessGalleryPhotosUseCase)
+  public readonly updateBusinessGalleryPhotosUseCase: UpdateBusinessGalleryPhotosUseCase;
 }

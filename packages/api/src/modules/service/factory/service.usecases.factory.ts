@@ -4,12 +4,14 @@ import {
   IRegisterServiceUseCase,
   IEditServiceUseCase,
   IDeleteServiceUseCase,
+  IUpdateServiceAvatarUseCase,
 } from '@pikslots/domain';
 import type {
   FindAllServicesByBusinessUseCase,
   RegisterServiceUseCase,
   EditServiceUseCase,
   DeleteServiceUseCase,
+  UpdateServiceAvatarUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -25,4 +27,7 @@ export class ServiceUseCasesFactory {
 
   @Inject(IDeleteServiceUseCase)
   public readonly deleteServiceUseCase: DeleteServiceUseCase;
+
+  @Inject(IUpdateServiceAvatarUseCase)
+  public readonly UpdatedServiceAvatarUsecase: UpdateServiceAvatarUseCase;
 }

@@ -7,9 +7,7 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
     .addColumn('id', 'uuid', (col) => col.primaryKey().notNull())
     .addColumn('title', 'varchar(255)', (col) => col.notNull())
     .addColumn('description', 'text', (col) => col.notNull())
-    .addColumn('images', 'jsonb', (col) =>
-      col.notNull().defaultTo(sql`'[]'::jsonb`),
-    )
+    .addColumn('service_avatar', 'varchar', (col) => col.defaultTo(null))
     .addColumn('duration_in_mins', 'integer', (col) => col.notNull())
     .addColumn('buffer_time_in_mins', 'integer', (col) =>
       col.notNull().defaultTo(0),

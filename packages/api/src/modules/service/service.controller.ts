@@ -25,6 +25,7 @@ import {
   FindAllServicesByBusinessDocs,
   EditServiceDocs,
   DeleteServiceDocs,
+  UpdateServiceAvatarDocs,
 } from './docs/service.controller.docs';
 import { ServiceUseCasesFactory } from './factory/service.usecases.factory';
 import {
@@ -32,8 +33,10 @@ import {
   FindAllServicesByBusinessResponse,
   UpdateServiceResponse,
   DeleteServiceResponse,
+  UpdateServiceAvatarResponse,
 } from '@pikslots/shared';
 import { EditServiceDto } from './dto/edit.service.dto';
+import { UpdateServiceAvatarDto } from './dto/update.service.avatar.dto';
 
 @ApiTags('Services')
 @Controller('')
@@ -57,7 +60,7 @@ export class ServiceController {
       await this.serviceUseCasesFactory.registerServiceUseCase.execute({
         title: dto.title,
         description: dto.description,
-        imagesUrls: dto.imagesUrls,
+        serviceAvatar: dto.serviceAvatar,
         durationInMins: dto.durationInMins,
         bufferTimeInMins: dto.bufferTimeInMins,
         isHiddenFromBookingPage: dto.isHiddenFromBookingPage,
@@ -96,7 +99,7 @@ export class ServiceController {
         id: serviceId,
         title: dto.title,
         description: dto.description,
-        imagesUrls: dto.imagesUrls,
+        serviceAvatar: dto.serviceAvatar,
         durationInMins: dto.durationInMins,
         bufferTimeInMins: dto.bufferTimeInMins,
         cost: dto.cost,
@@ -177,7 +180,7 @@ export class ServiceController {
         id: s.id,
         title: s.title,
         description: s.description,
-        images: s.images,
+        serviceAvatar: s.serviceAvatar,
         durationInMins: s.durationInMins,
         bufferTimeInMins: s.bufferTimeInMins,
         cost: s.cost,
@@ -185,6 +188,33 @@ export class ServiceController {
         businessId: s.businessId,
         colorCode: s.colorCode,
       })),
+      HttpStatus.OK,
+    );
+  }
+
+  @UpdateServiceAvatarDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin')
+  @Patch(SERVICE_ENDPOINTS.UPDATE_SERVICE_AVATAR)
+  async UpdateServiceAvatar(
+    @Res({ passthrough: true }) res: Response,
+    @Param('serviceId') serviceId: string,
+    @Body() dto: UpdateServiceAvatarDto,
+  ) {
+    const result =
+      await this.serviceUseCasesFactory.UpdatedServiceAvatarUsecase.execute({
+        serviceId,
+        avatarKey: dto.avatarKey,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapServiceError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<UpdateServiceAvatarResponse>(
+      { message: 'success' },
       HttpStatus.OK,
     );
   }

@@ -20,6 +20,10 @@
 	import type { BaseErrorResponse } from '@pikslots/shared';
 	import type { AxiosError } from 'axios';
 	import { toast } from 'svelte-sonner';
+	import UpdateGalleryPhotosDialog from '../dialogs/update-gallery-photos-dialog.svelte';
+	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
+	import { UpdateGalleryImagesMututionOptions } from '../../../api/business/update.gallery.images.mutation';
+	import type { PikslotErrorResponse } from '../../../api/common/common-models';
 
 	const brandColors = [
 		{ value: '#111111', label: 'Black' },
@@ -41,7 +45,10 @@
 	let selectedShape = $state<BrandButtonShape>('pill');
 	let selectedTheme = $state<BrandTheme>('system');
 	let gallaryPhotosUrls = $state<string[]>([]);
+	let galleryPhotosFile = $state<File[]>([]);
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
+	let isGalleryDialogOpen = $state<boolean>(false);
+	let galleryTempUrls = $state<string[]>([]);
 
 	$effect(() => {
 		if (business) {
@@ -57,14 +64,31 @@
 			(selectedColor !== business.brandAppearanceDetails.brandColor ||
 				selectedShape !== business.brandAppearanceDetails.brandButtonShape ||
 				selectedTheme !== business.brandAppearanceDetails.theme ||
+				galleryPhotosFile.length > 0 ||
 				JSON.stringify(gallaryPhotosUrls) !==
 					JSON.stringify(business.brandAppearanceDetails.gallaryPhotosUrls))
 	);
 
+	let galleryPhotosError = $derived(galleryPhotosFile.length > 10);
+
 	function removePhoto(url: string) {
+		const tempIndex = galleryTempUrls.indexOf(url);
+
+		if (tempIndex !== -1) {
+			URL.revokeObjectURL(url);
+
+			galleryTempUrls = galleryTempUrls.filter((u) => u !== url);
+
+			galleryPhotosFile = galleryPhotosFile.filter((_, index) => index !== tempIndex);
+
+			return;
+		}
+
 		gallaryPhotosUrls = gallaryPhotosUrls.filter((u) => u !== url);
 	}
-
+	// ________mutations_________________
+	const uploadS3Mutations = createMutation(uploadAvatarMutationOptions);
+	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMututionOptions);
 	const updateMutation = createMutation<
 		BusinessUpdateAppearanceResult,
 		AxiosError<BaseErrorResponse>,
@@ -72,6 +96,11 @@
 	>(() => ({
 		mutationFn: updateBusinessAppearance
 	}));
+
+	const isSaving = $derived(
+		updateMutation.isPending || uploadS3Mutations.isPending || updateGalleryPhotos.isPending
+	);
+	const galleryUrls = $derived([...gallaryPhotosUrls, ...galleryTempUrls]);
 
 	$effect(() => {
 		if (updateMutation.data) {
@@ -85,17 +114,61 @@
 		}
 	});
 
-	function handleSave() {
-		if (!business) return;
-		updateMutation.mutate({
-			id: business.id,
-			brandColor: selectedColor,
-			brandButtonShape: selectedShape,
-			theme: selectedTheme,
-			gallaryPhotosUrls
-		});
+	async function handleSave() {
+		try {
+			if (!business) return;
+			if (galleryPhotosFile.length > 10) {
+				toast.error('You can only upload a maximum of 10 images.');
+				return;
+			}
+			let photoKey = '';
+			let galleryPhotosKeys = [...gallaryPhotosUrls];
+
+			if (galleryPhotosFile.length > 0) {
+				for (let i = 0; i < galleryPhotosFile.length; i++) {
+					photoKey = await uploadS3Mutations.mutateAsync({
+						id: business.id,
+						folder: 'BusinessGallery',
+						businessSlug: business.slug,
+						file: galleryPhotosFile[i]
+					});
+					galleryPhotosKeys = [...galleryPhotosKeys, photoKey];
+				}
+			}
+
+			await updateGalleryPhotos.mutateAsync({
+				businessId: business.id,
+				galleryPhotosKeys
+			});
+
+			await updateMutation.mutateAsync({
+				id: business.id,
+				brandColor: selectedColor,
+				brandButtonShape: selectedShape,
+				theme: selectedTheme,
+				gallaryPhotosUrls: galleryPhotosKeys
+			});
+
+			galleryTempUrls.forEach((url) => URL.revokeObjectURL(url));
+			galleryTempUrls = [];
+		} catch (error) {
+			const axiosError = error as AxiosError<PikslotErrorResponse>;
+
+			toast.error(axiosError.response?.data?.message ?? 'Failed to save. Please try again.');
+		}
+	}
+
+	function handleOnSave(file: File[]) {
+		galleryPhotosFile = [...file];
 	}
 </script>
+
+<!-- Gallery Dialog -->
+<UpdateGalleryPhotosDialog
+	bind:open={isGalleryDialogOpen}
+	bind:galleryTempUrls
+	onSave={handleOnSave}
+/>
 
 <!-- Page header -->
 <div class="border-b px-4 lg:px-6">
@@ -107,7 +180,7 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button size="sm" onclick={handleSave} disabled={!isDirty || updateMutation.isPending}>
+		<Button size="sm" onclick={handleSave} disabled={!isDirty || isSaving || galleryPhotosError}>
 			{updateMutation.isPending ? 'Saving...' : 'Save'}
 		</Button>
 	</div>
@@ -255,15 +328,16 @@
 			<h3 class="text-xs font-medium">Gallery</h3>
 			{#if business === null}
 				<Skeleton class="min-h-40 rounded-lg" />
-			{:else if gallaryPhotosUrls.length > 0}
-				<div class="grid grid-cols-3 gap-2 rounded-lg border p-2">
-					{#each gallaryPhotosUrls as url (url)}
-						<div class="group relative">
-							<img src={url} alt="Gallery" class="aspect-square w-full rounded-md object-cover" />
+			{:else if galleryUrls.length > 0}
+				<div class="grid grid-cols-5 gap-2 rounded-lg border p-2">
+					{#each galleryUrls as url (url)}
+						<div class="group relative aspect-square overflow-hidden rounded-md">
+							<img src={url} alt="Gallery" class="h-full w-full object-cover" />
+
 							<button
 								type="button"
 								onclick={() => removePhoto(url)}
-								class="absolute top-1 right-1 hidden size-5 items-center justify-center rounded-full bg-black/60 text-white group-hover:flex"
+								class="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
 								aria-label="Remove photo"
 							>
 								<svg
@@ -284,15 +358,23 @@
 				<div
 					class="flex min-h-40 flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/30"
 				>
-					<Button variant="outline" size="sm">
+					<Button variant="outline" size="sm" onclick={() => (isGalleryDialogOpen = true)}>
 						<Photo size={14} />
 						Upload photos
 					</Button>
 				</div>
 			{/if}
-			<p class="text-center text-xs text-muted-foreground">
-				Up to 10 MB size per image. Max 10 photos per upload.
-			</p>
+			<button
+				class="inline-flex cursor-pointer items-center justify-center self-center bg-transparent text-sm text-emerald-900 underline"
+				onclick={() => (isGalleryDialogOpen = true)}
+			>
+				See all photos
+			</button>
+			{#if galleryPhotosError}
+				<p class="text-center text-xs text-muted-foreground">
+					Up to 10 MB size per image. Max 10 photos per upload.
+				</p>
+			{/if}
 		</section>
 	</div>
 

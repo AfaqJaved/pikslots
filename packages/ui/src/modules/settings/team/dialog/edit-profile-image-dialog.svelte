@@ -31,6 +31,7 @@
 	let crop = $state({ x: 0, y: 0 });
 	let croppedPixels = $state<CropArea | null>(null);
 	let fileInput: HTMLInputElement;
+	let folder = 'user';
 
 	const uploadMutation = createMutation(() => uploadAvatarMutationOptions());
 	const updateAvatarMutation = createMutation(() => updateUserAvatarMutationOptions());
@@ -65,7 +66,7 @@
 		if (!file || !businessStore.selectedBusiness?.slug) return;
 
 		uploadMutation.mutate(
-			{ userId, file, businessSlug: businessStore.selectedBusiness.slug },
+			{ id: userId, folder, file, businessSlug: businessStore.selectedBusiness.slug },
 			{
 				onSuccess: (avatarKey) => {
 					updateAvatarMutation.mutate(

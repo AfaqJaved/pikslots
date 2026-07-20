@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 import { RegisterServiceDto } from '../dto/register.service.dto';
 import { EditServiceDto } from '../dto/edit.service.dto';
+import { UpdateServiceAvatarDto } from '../dto/update.service.avatar.dto';
 
 export const RegisterServiceDocs = () =>
   applyDecorators(
@@ -137,6 +138,43 @@ export const FindAllServicesByBusinessDocs = () =>
           timestamp: '2026-01-01T00:00:00.000Z',
         },
       },
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Infrastructure failure',
+      type: PikslotsBaseErrorResponse,
+    }),
+  );
+
+export const UpdateServiceAvatarDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Update avatar image key for a service' }),
+    ApiParam({
+      name: 'serviceId',
+      description: 'Target service ID',
+      example: 'usr_01j...',
+    }),
+    ApiBody({ type: UpdateServiceAvatarDto }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Avatar updated successfully',
+      schema: {
+        example: {
+          data: { message: 'success' },
+          statusCode: 200,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }),
+    ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'service not found',
+      type: PikslotsBaseErrorResponse,
+    }),
+    ApiResponse({
+      status: HttpStatus.BAD_REQUEST,
+      description: 'Validation error',
+      type: PikslotsBaseErrorResponse,
     }),
     ApiResponse({
       status: HttpStatus.INTERNAL_SERVER_ERROR,
