@@ -9,7 +9,7 @@ import {
 } from '@pikslots/domain';
 import { UpdateBusinessAppearanceUseCaseImpl } from './update.business.appearance.usecase.impl';
 import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
-import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl.test';
+import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
 
 function buildCommand(
   overrides: Partial<UpdateBusinessAppearanceCommand> = {},

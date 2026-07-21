@@ -11,7 +11,7 @@ import {
   InfrastructureError,
 } from '@pikslots/domain';
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
-import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl.test';
+import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
 import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
 import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
