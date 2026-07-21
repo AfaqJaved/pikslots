@@ -9,10 +9,10 @@ import {
   InfrastructureError,
   UnauthorizedError,
 } from '@pikslots/domain';
-import { BUSINESS_TEST_DATA } from '../repository/business.test.data';
-import { FindBusinessByIdUseCaseImpl } from './find-business-by-id.usecase.impl';
-import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
 import { SecurityContext } from 'src/shared/security/context/security.context';
+import { FindBusinessByIdUseCaseImpl } from './find.business.by.id.usecase.impl';
+import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl.test';
+import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
 
 describe('FindBusinessByIdUseCaseImpl', () => {
   let useCase: FindBusinessByIdUseCaseImpl;

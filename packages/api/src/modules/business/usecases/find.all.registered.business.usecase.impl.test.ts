@@ -8,9 +8,9 @@ import {
 // import { BUSINESS_TEST_DATA } from '../';
 // import { FindAllRegisteredBusinessesUseCaseImpl } from './find-all-registered-businesses.usecase.impl';
 // import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
-import { BUSINESS_TEST_DATA } from '../repositroy/business.fake.data';
+import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
 import { FindAllRegisteredBusinessesUseCaseImpl } from './find.all.registered.businesses.usecase.impl';
-import { BusinessRepositoryTestImpl } from '../repositroy/business.repository.impl';
+import { BusinessRepositoryTestImpl } from '../repository/business.repository.impl';
 
 describe('FindAllRegisteredBusinessesUseCaseImpl', () => {
   let useCase: FindAllRegisteredBusinessesUseCaseImpl;

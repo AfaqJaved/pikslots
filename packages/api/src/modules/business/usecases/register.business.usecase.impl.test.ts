@@ -11,11 +11,10 @@ import {
   InfrastructureError,
 } from '@pikslots/domain';
 import { RegisterBusinessUseCaseImpl } from './register.business.usecase.impl';
-// import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
+import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl.test';
 import { JwtInviteService } from 'src/shared/security/jwt/jwt.invite.service';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
-import { BusinessRepositoryTestImpl } from '../repositroy/business.repository.impl';
-import { BUSINESS_TEST_DATA } from '../repositroy/business.fake.data';
+import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
 
 jest.mock('uuid', () => ({
   v7: () => 'mock-generated-id',
