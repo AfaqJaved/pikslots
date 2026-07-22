@@ -73,8 +73,9 @@ describe('FindGroupsByClassUseCaseImpl', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.some((g) => g.id === 'group-evening-1')).toBe(
-        ).toBe(false);
+        expect(result.value.some((g) => g.id === 'group-evening-1'))
+          .toBe()
+          .toBe(false);
       }
     });
   });
