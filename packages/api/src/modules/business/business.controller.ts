@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -76,12 +77,18 @@ import type {
 import { BusinessUseCaseFactory } from './factroy/business.usecases.factory';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
+import { BusinessResponseMapper } from './mappers/business.response.mapper';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 @ApiTags('Businesses')
 @Controller('')
 export class BusinessController {
   constructor(
     private readonly businessUseCaseFactory: BusinessUseCaseFactory,
+    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
   ) {}
 
   @RegisterBusinessDocs()
@@ -127,39 +134,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: GetBusinessByIdResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      businessLinks: b.businessLinks,
-      contactDetails: b.contactDetails,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: GetBusinessByIdResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -183,38 +162,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const businesses: GetAllBusinessesResponse = result.value.map((b) => ({
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      contactDetails: b.contactDetails,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      businessLinks: b.businessLinks,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    }));
+    const businesses: GetAllBusinessesResponse = await Promise.all(
+      result.value.map((b) =>
+        BusinessResponseMapper.toBusinessResponse(b, this.s3Service),
+      ),
+    );
 
     res.status(HttpStatus.OK);
 
@@ -252,39 +204,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessBrandDetailsResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      businessLinks: b.businessLinks,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      contactDetails: b.contactDetails,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessBrandDetailsResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -319,39 +243,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessAppearanceResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      contactDetails: b.contactDetails,
-      businessLinks: b.businessLinks,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessAppearanceResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -387,40 +283,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-
-    const response: UpdateBusinessLocationResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      contactDetails: b.contactDetails,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      businessLinks: b.businessLinks,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessLocationResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -450,39 +317,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessGeneralResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      contactDetails: b.contactDetails,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      businessLinks: b.businessLinks,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessGeneralResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -518,39 +357,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessBookingPoliciesResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      businessLinks: b.businessLinks,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      contactDetails: b.contactDetails,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessBookingPoliciesResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -606,39 +417,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessBookingSetupResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      contactDetails: b.contactDetails,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      businessLinks: b.businessLinks,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessBookingSetupResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -689,39 +472,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessBookingCustomizationResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      businessLinks: b.businessLinks,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      contactDetails: b.contactDetails,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessBookingCustomizationResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -753,39 +508,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessVisibilityResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      businessLinks: b.businessLinks,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      contactDetails: b.contactDetails,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessVisibilityResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -821,39 +548,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessTeamNotificationsResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      businessLinks: b.businessLinks,
-      locationDetails: b.locationDetails,
-      contactDetails: b.contactDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessTeamNotificationsResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -888,39 +587,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessCustomerNotificationsResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      businessLinks: b.businessLinks,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      contactDetails: b.contactDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessCustomerNotificationsResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -953,39 +624,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessNotificationCustomizationResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      contactDetails: b.contactDetails,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      businessLinks: b.businessLinks,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessNotificationCustomizationResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -1023,39 +666,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessHoursResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      businessLinks: b.businessLinks,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      contactDetails: b.contactDetails,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessHoursResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -1093,39 +708,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessLinksResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      businessLinks: b.businessLinks,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      contactDetails: b.contactDetails,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessLinksResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);
@@ -1162,39 +749,11 @@ export class BusinessController {
       return errorResponse;
     }
 
-    const b = result.value;
-    const response: UpdateBusinessContactDetailsResponse = {
-      id: b.id,
-      ownerId: b.ownerId,
-      slug: b.slug,
-      name: b.name,
-      industry: b.industry,
-      about: b.about,
-      appearInSearchResults: b.appearInSearchResults,
-      status: b.status,
-      suspendedReason: b.suspendedReason,
-      brandDetail: b.brandDetail,
-      brandAppearanceDetails: b.brandApperanceDetails,
-      locationDetails: b.locationDetails,
-      bookingPolicies: b.bookingPolicies,
-      bookingSetup: b.bookingSetup,
-      bookingContactFields: b.bookingContactFields,
-      bookingCustomization: b.bookingCustomization,
-      bookingLabelOverrides: b.bookingLabelOverrides,
-      businessHours: b.businessHours,
-      businessLinks: b.businessLinks,
-      contactDetails: b.contactDetails,
-      teamNotifications: b.teamNotifications,
-      customerNotifications: b.customerNotifications,
-      notificationCustomization: b.notificationCustomization,
-      subscriptionPlan: b.subscriptionPlan,
-      subscriptionStatus: b.subscriptionStatus,
-      trialEndsAt: b.trialEndsAt,
-      createdAt: b.createdAt,
-      createdBy: b.createdBy,
-      updatedAt: b.updatedAt,
-      updatedBy: b.updatedBy,
-    };
+    const response: UpdateBusinessContactDetailsResponse =
+      await BusinessResponseMapper.toBusinessResponse(
+        result.value,
+        this.s3Service,
+      );
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse(response, HttpStatus.OK);

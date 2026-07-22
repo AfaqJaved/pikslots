@@ -9,10 +9,6 @@ import {
   FindAllUsersInsideBusinessUseCase,
 } from '@pikslots/domain';
 import type { UnauthorizedError, UserRepository } from '@pikslots/domain';
-import {
-  IPikslotS3Service,
-  type PikslotS3Service,
-} from 'src/shared/s3/s3.service';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
@@ -24,7 +20,6 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
 export class FindAllUsersInsideBusinessUseCaseImpl implements FindAllUsersInsideBusinessUseCase {
   constructor(
     @Inject(IUserRepository) private readonly userRepository: UserRepository,
-    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
     private readonly securityContext: SecurityContext,
   ) {}
 
@@ -34,28 +29,15 @@ export class FindAllUsersInsideBusinessUseCaseImpl implements FindAllUsersInside
     if (this.securityContext.role === 'No Access')
       return err(UNAUTHORIZED_ERROR);
 
+    const result = await this.userRepository.findAllByBusiness(businessId);
+    if (!result.ok) return err(result.error);
+
     if (this.securityContext.role === 'Standard') {
-      const result = await this.userRepository.findAllByBusiness(businessId);
-      if (!result.ok) return err(result.error);
       return ok(
         result.value.filter((user) => user.id === this.securityContext.userId),
       );
     }
 
-    const result = await this.userRepository.findAllByBusiness(businessId);
-
-    if (!result.ok) return err(result.error);
-
-    const users = await Promise.all(
-      result.value.map(async (user) => {
-        if (user.avatarUrl === null) return user;
-
-        return user.updateAvatarUrl(
-          await this.s3Service.getPresignedDownloadUrl(user.avatarUrl),
-        );
-      }),
-    );
-
-    return ok(users);
+    return ok(result.value);
   }
 }
