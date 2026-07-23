@@ -1,8 +1,17 @@
 import type { User } from '@pikslots/domain';
 import type { UserSummary } from '@pikslots/shared';
+import type { PikslotS3Service } from 'src/shared/s3/s3.service';
 
 export class UserResponseMapper {
-  static toUserSummary(u: User): UserSummary {
+  static async toUserSummary(
+    u: User,
+    s3Service: PikslotS3Service,
+  ): Promise<UserSummary> {
+    const avatarUrl =
+      u.avatarUrl !== null
+        ? await s3Service.getPresignedDownloadUrl(u.avatarUrl)
+        : null;
+
     return {
       id: u.id,
       username: u.username,
@@ -11,7 +20,7 @@ export class UserResponseMapper {
       phone: u.phone,
       role: u.role,
       status: u.status,
-      avatarUrl: u.avatarUrl,
+      avatarUrl,
       emailVerified: u.emailVerified,
       bookingUrl: u.bookingUrl,
       businessId: u.businessId,

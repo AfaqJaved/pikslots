@@ -49,6 +49,7 @@ export class UpdateBusinessGalleryPhotosUseCaseImpl implements UpdateBusinessGal
     const oldGalleryPhotos = business.brandApperanceDetails.gallaryPhotosUrls;
 
     const updated = business.updateGalleryPhotos(command.galleryPhotosKeys);
+
     const updateResult = await this.businessRepository.update(updated);
 
     if (!updateResult.ok) return err(updateResult.error as InfrastructureError);
