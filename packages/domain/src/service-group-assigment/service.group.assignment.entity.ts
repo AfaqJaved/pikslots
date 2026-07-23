@@ -23,6 +23,7 @@ export interface ServiceGroupAssignmentCreateInput {
   serviceGroupId: string;
   businessId: string;
   createdBy: string;
+  updatedBy: string;
 }
 
 // ── Entity ────────────────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ export class ServiceGroupAssignment {
    * Creates a brand-new ServiceGroupAssignment.
    * Use this in application use-cases, never for rehydrating persisted data.
    */
-  static create(input: ServiceGroupAssignmentProps): ServiceGroupAssignment {
+  static create(input: ServiceGroupAssignmentCreateInput): ServiceGroupAssignment {
     const now = new Date();
     return new ServiceGroupAssignment({
       id: input.id,
@@ -59,7 +60,7 @@ export class ServiceGroupAssignment {
    * Reconstitutes a ServiceGroupAssignment from already-validated persistence data.
    * Never call with raw untrusted input.
    */
-  static reconstitute(props: ServiceGroupAssignment): ServiceGroupAssignment {
+  static reconstitute(props: ServiceGroupAssignmentProps): ServiceGroupAssignment {
     return new ServiceGroupAssignment(props);
   }
 

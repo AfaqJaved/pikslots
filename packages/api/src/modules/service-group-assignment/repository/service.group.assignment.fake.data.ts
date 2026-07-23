@@ -62,10 +62,13 @@ export const SERVICE_GROUP_ASSIGNMENT_TEST_DATA: ServiceGroupAssignment[] = [
     isDeleted: true,
   }),
 
-  // Different business entirely (business isolation checks)
+  // Different business entirely, with its own distinct service id (real UUIDs
+  // never collide across businesses, so this uses a unique serviceId rather
+  // than reusing 'service-haircut-1' — avoids manufacturing a fake cross-tenant
+  // collision that couldn't happen in real data).
   ServiceGroupAssignment.reconstitute({
     id: 'sga-5',
-    serviceId: 'service-haircut-1',
+    serviceId: 'service-manicure-1',
     serviceGroupId: 'group-styling-1',
     businessId: 'business-2',
     createdAt: new Date('2024-01-06T00:00:00Z'),
@@ -89,4 +92,5 @@ export const SERVICE_TITLE_LOOKUP: Record<string, string> = {
   'service-haircut-1': 'Haircut',
   'service-color-1': 'Hair Coloring',
   'service-massage-1': 'Massage',
+  'service-manicure-1': 'Manicure',
 };
