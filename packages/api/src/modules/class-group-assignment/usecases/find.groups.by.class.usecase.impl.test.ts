@@ -35,9 +35,6 @@ describe('FindGroupsByClassUseCaseImpl', () => {
 
   describe('successful lookup', () => {
     it('returns all active groups assigned to the class', async () => {
-      // yoga is assigned to group-morning-1 (cga-1, active).
-      // Note: add a yoga <-> evening assignment to test data if you want
-      // multi-group coverage here; otherwise this asserts the single-group case.
       const result = await useCase.execute('class-yoga-1');
 
       expect(result.ok).toBe(true);

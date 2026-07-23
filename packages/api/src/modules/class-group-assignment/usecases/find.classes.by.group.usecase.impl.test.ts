@@ -1,4 +1,3 @@
-// find.classes.by.group.usecase.impl.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   err,
