@@ -1,4 +1,3 @@
-// class-group-assignment.test.data.ts
 import { ClassGroupAssignment } from '@pikslots/domain';
 
 export const CLASS_GROUP_ASSIGNMENT_TEST_DATA: ClassGroupAssignment[] = [
