@@ -6,7 +6,7 @@
 	import SelectDatetimeStep from './steps/select-datetime-step.svelte';
 	import ContactDetailsStep from './steps/contact-details-step.svelte';
 	import ConfirmationStep from './steps/confirmation-step.svelte';
-	import UngroupedSerivice from './steps/select-ungrouped-service.svelte'
+	import UngroupedSerivice from './steps/select-ungrouped-service.svelte';
 	import { resolveTeamStep } from './resolve-team-step';
 	import type { BookingFlowState } from './booking-flow-state.svelte';
 	import type {
@@ -28,7 +28,7 @@
 		flow: BookingFlowState;
 		business: PublicBusiness;
 		serviceGroups: PublicServiceGroup[];
-		ungroupedService:  PublicService[]
+		ungroupedService: PublicService[];
 		teamMembers: PublicTeamMember[];
 		onClose: () => void;
 	} = $props();
@@ -101,22 +101,22 @@
 	</div>
 
 	{#if flow.step === 'service'}
-	{#if serviceGroups && serviceGroups.length > 0}
-		<SelectServiceStep
-			{serviceGroups}
-			currency={business.locationDetails.currency}
-			showPrices={business.bookingCustomization.showServiceAndClassPrices}
-			showDuration={business.bookingCustomization.showServiceAndClassDuration}
-			onSelect={handleServiceSelected}
-		/>
-		{:else if ungroupedService && ungroupedService.length > 0 }
-		<UngroupedSerivice
-		    services={ungroupedService}
-		    currency={business.locationDetails.currency}
-			showPrices={business.bookingCustomization.showServiceAndClassPrices}
-			showDuration={business.bookingCustomization.showServiceAndClassDuration}
-			onSelect={handleServiceSelected}
-		/>
+		{#if serviceGroups && serviceGroups.length > 0}
+			<SelectServiceStep
+				{serviceGroups}
+				currency={business.locationDetails.currency}
+				showPrices={business.bookingCustomization.showServiceAndClassPrices}
+				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				onSelect={handleServiceSelected}
+			/>
+		{:else if ungroupedService && ungroupedService.length > 0}
+			<UngroupedSerivice
+				services={ungroupedService}
+				currency={business.locationDetails.currency}
+				showPrices={business.bookingCustomization.showServiceAndClassPrices}
+				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				onSelect={handleServiceSelected}
+			/>
 		{/if}
 	{:else if flow.step === 'team-member'}
 		<SelectTeamMemberStep {teamMembers} onSelect={handleTeamMemberSelected} />

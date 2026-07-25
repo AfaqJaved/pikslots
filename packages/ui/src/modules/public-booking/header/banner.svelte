@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { PublicBusiness } from '../types';
 
-	let { business }: { business: PublicBusiness; } =
-		$props();
+	let { business }: { business: PublicBusiness } = $props();
 
 	const initials = $derived(
 		business.name
@@ -31,5 +30,4 @@
 			{initials}
 		{/if}
 	</div>
-
 </div>
