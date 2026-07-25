@@ -46,21 +46,23 @@
 	});
 
 	const filterServiceGroups = $derived(
-		flow.selectedTeamMember?.serviceIds !== null ?
-		serviceGroups.map((g)=> ({
-			...g, 
-			services: g.services.filter((s)=> flow.selectedTeamMember?.serviceIds?.includes(s.id))
-		})).filter((g) => g.services.length > 0)
-		: serviceGroups
-	)
+		flow.selectedTeamMember?.serviceIds !== null
+			? serviceGroups
+					.map((g) => ({
+						...g,
+						services: g.services.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
+					}))
+					.filter((g) => g.services.length > 0)
+			: serviceGroups
+	);
 
 	const filterUngroupedServices = $derived(
-		flow.selectedTeamMember?.serviceIds !== null ?
-		ungroupedService.filter
-		((s)=> flow.selectedTeamMember?.serviceIds?.includes(s.id)).filter((s)=> s !== null)
-		: ungroupedService
-	)
-
+		flow.selectedTeamMember?.serviceIds !== null
+			? ungroupedService
+					.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
+					.filter((s) => s !== null)
+			: ungroupedService
+	);
 
 	function handleServiceSelected(service: PublicService) {
 		flow.selectedService = service;
