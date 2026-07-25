@@ -3,7 +3,8 @@ import { BusinessTableSelect } from 'src/shared/database/schema/business.table';
 import { ServiceGroupAssignmentTableSelect } from 'src/shared/database/schema/service.group.assignment.table';
 import { ServiceGroupTableSelect } from 'src/shared/database/schema/service.group.table';
 import { ServiceTableSelect } from 'src/shared/database/schema/service.table';
-import { UserTable } from 'src/shared/database/schema/user.table';
+import { ServiceUserAssignmentTableSelect } from 'src/shared/database/schema/service.user.assignment.table';
+import { UserTableSelect } from 'src/shared/database/schema/user.table';
 
 export class PublicBookingPagePresistenceMapper {
   public businessToDomain(row: BusinessTableSelect): BusinessDetails {
@@ -63,12 +64,24 @@ export class PublicBookingPagePresistenceMapper {
     };
   }
 
-  public userToDomain(row: UserTable): TeamMemberDetails {
+  public userToDomain(row: UserTableSelect): TeamMemberDetails {
     return {
       id: row.id,
       avatarUrl: row.avatar_url,
       name: { firstName: row.first_name, lastName: row.last_name },
       role: row.role,
+      serviceIds: null,
+    };
+  }
+  public serviceUserAssignment(row: ServiceUserAssignmentTableSelect): {
+    id: string;
+    userId: string;
+    serviceId: string;
+  } {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      serviceId: row.service_id,
     };
   }
 }

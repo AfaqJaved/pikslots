@@ -47,7 +47,7 @@
 	);
 
 	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
-	const tabs = $derived(
+	const tabs = $derived( 
 		(
 			[
 				{
@@ -116,8 +116,8 @@
 						onClose={handleCloseBooking}
 					/>
 				</div>
-			{/if}
-		{:else}
+				{/if}
+				{:else}
 			<div class="flex flex-1 flex-col gap-10">
 				{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
 					<section id="section-services">

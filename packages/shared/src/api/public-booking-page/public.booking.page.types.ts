@@ -57,6 +57,7 @@ export interface TeamMemberDetails {
   name: { firstName: string; lastName: string };
   avatarUrl: string | null;
   role: string;
+  serviceIds: string[] | null;
 }
 
 export interface PublicBookingPageDetails {

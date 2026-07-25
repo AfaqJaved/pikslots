@@ -45,6 +45,23 @@
 		}
 	});
 
+	const filterServiceGroups = $derived(
+		flow.selectedTeamMember?.serviceIds !== null ?
+		serviceGroups.map((g)=> ({
+			...g, 
+			services: g.services.filter((s)=> flow.selectedTeamMember?.serviceIds?.includes(s.id))
+		})).filter((g) => g.services.length > 0)
+		: serviceGroups
+	)
+
+	const filterUngroupedServices = $derived(
+		flow.selectedTeamMember?.serviceIds !== null ?
+		ungroupedService.filter
+		((s)=> flow.selectedTeamMember?.serviceIds?.includes(s.id)).filter((s)=> s !== null)
+		: ungroupedService
+	)
+
+
 	function handleServiceSelected(service: PublicService) {
 		flow.selectedService = service;
 		flow.step = 'team-member';
@@ -103,7 +120,7 @@
 	{#if flow.step === 'service'}
 		{#if serviceGroups && serviceGroups.length > 0}
 			<SelectServiceStep
-				{serviceGroups}
+				serviceGroups={flow.previousStep === 'first' ? filterServiceGroups : serviceGroups}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}
@@ -111,7 +128,7 @@
 			/>
 		{:else if ungroupedService && ungroupedService.length > 0}
 			<UngroupedSerivice
-				services={ungroupedService}
+				services={flow.previousStep === 'first' ? filterUngroupedServices : ungroupedService}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}

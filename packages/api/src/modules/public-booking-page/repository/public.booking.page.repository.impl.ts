@@ -142,4 +142,31 @@ export class PublicBookingPageRepositoryImpl implements PublicBookingPageReposit
       });
     }
   }
+  async findAllServiceUserAssignmentByBusinessId(
+    businessId: string,
+  ): Promise<
+    Result<
+      { id: string; serviceId: string; userId: string }[],
+      InfrastructureError
+    >
+  > {
+    try {
+      const rows = await this.db
+        .selectFrom('service_user_assignments')
+        .selectAll()
+        .where('business_id', '=', businessId)
+        .execute();
+
+      return ok(
+        rows.map((row) => this.PesistenceMapper.serviceUserAssignment(row)),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find assignments by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
 }

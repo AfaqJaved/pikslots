@@ -46,28 +46,48 @@ export class FindBookingPageDetailsByBusinessSlugUseCaseImpl implements FindBook
 
     const businessId = business.id;
     // promise.all servicess , servicesGroup ,  User (team Members)
-    const [serviceGroupResult, servicesResult, teamMembersResult] =
-      await Promise.all([
-        this.publicBookingPageRepository.findAllServiceGroupDetailsByBusinessId(
-          businessId,
-        ),
-        this.publicBookingPageRepository.findAllServiceDetailsByBusinessId(
-          businessId,
-        ),
-        this.publicBookingPageRepository.findAllTeamMembersByBusinessId(
-          businessId,
-        ),
-      ]);
+    const [
+      serviceGroupResult,
+      servicesResult,
+      teamMembersResult,
+      serviceUserAssignment,
+    ] = await Promise.all([
+      this.publicBookingPageRepository.findAllServiceGroupDetailsByBusinessId(
+        businessId,
+      ),
+      this.publicBookingPageRepository.findAllServiceDetailsByBusinessId(
+        businessId,
+      ),
+      this.publicBookingPageRepository.findAllTeamMembersByBusinessId(
+        businessId,
+      ),
+      this.publicBookingPageRepository.findAllServiceUserAssignmentByBusinessId(
+        businessId,
+      ),
+    ]);
 
     if (!serviceGroupResult.ok) return err(serviceGroupResult.error);
     if (!servicesResult.ok) return err(servicesResult.error);
     if (!teamMembersResult.ok) return err(teamMembersResult.error);
-
-    const teamMembers = teamMembersResult.value;
+    if (!serviceUserAssignment.ok) return err(serviceUserAssignment.error);
 
     const visibleServices = servicesResult.value.filter(
       (s) => !s.isHiddenFromBookingPage,
     );
+
+    const teamMembers = teamMembersResult.value;
+    for (const assignment of serviceUserAssignment.value) {
+      const user = teamMembers.find(
+        (result) => result.id === assignment.userId,
+      );
+
+      if (user) {
+        if (!user.serviceIds) {
+          user.serviceIds = [];
+        }
+        user.serviceIds.push(assignment.serviceId);
+      }
+    }
 
     // if  serviceGroup is not exist just return servicesGroups
     if (serviceGroupResult.value.length === 0) {
