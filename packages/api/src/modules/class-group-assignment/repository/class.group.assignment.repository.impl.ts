@@ -5,7 +5,6 @@ import {
   ClassGroupSummary,
   ClassSummary,
   err,
-  IClassGroupAssignmentRepository,
   InfrastructureError,
   ok,
   Result,
