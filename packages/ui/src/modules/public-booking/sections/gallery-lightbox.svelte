@@ -7,7 +7,7 @@
 		photos
 	}: {
 		open: boolean;
-		photos: PublicGalleryPhoto[];
+		photos: PublicGalleryPhoto;
 	} = $props();
 </script>
 
@@ -18,14 +18,14 @@
 		</Dialog.Header>
 
 		<div class="grid grid-cols-2 gap-2">
-			{#each photos as photo (photo.id)}
+			{#each photos as photo, index (index)}
 				<div
 					class="aspect-video w-full bg-cover bg-center"
-					style={photo.url
-						? `background-image: url(${photo.url})`
-						: `background-image: ${photo.gradient}`}
+					style={photo
+						? `background-image: url(${photo})`
+						: `background-image:  linear-gradient(135deg, #7c3aed 0%, #1e1b4b 60%, #0a0a0a 100%) `}
 					role="img"
-					aria-label={photo.alt}
+					aria-label="GalleryImages"
 				></div>
 			{/each}
 		</div>

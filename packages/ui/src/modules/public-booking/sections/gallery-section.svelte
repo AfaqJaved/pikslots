@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { PublicGalleryPhoto } from '../types';
 
-	let { photos, onShowAllPhotos }: { photos: PublicGalleryPhoto[]; onShowAllPhotos: () => void } =
+	let { photos, onShowAllPhotos }: { photos: PublicGalleryPhoto; onShowAllPhotos: () => void } =
 		$props();
 
 	const preview = $derived(photos.slice(0, 2));
@@ -13,15 +13,15 @@
 		<h2 class="text-xl font-semibold">Gallery</h2>
 
 		<div class="relative grid grid-cols-2 gap-1 overflow-hidden">
-			{#each preview as photo (photo.id)}
+			{#each preview as photo, index (index)}
 				<button
 					type="button"
 					onclick={onShowAllPhotos}
 					class="aspect-video w-full cursor-pointer bg-cover bg-center"
-					style={photo.url
-						? `background-image: url(${photo.url})`
-						: `background-image: ${photo.gradient}`}
-					aria-label={photo.alt}
+					style={photo
+						? `background-image: url(${photo})`
+						: `background-image: linear-gradient(135deg, #7c3aed 0%, #1e1b4b 60%, #0a0a0a 100%)`}
+					aria-label={photo ?? 'GalleryImage'}
 				></button>
 			{/each}
 

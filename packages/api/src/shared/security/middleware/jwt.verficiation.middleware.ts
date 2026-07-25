@@ -15,6 +15,7 @@ const PUBLIC_ROUTES: string[] = [
   '/businesses/register',
   '/api/*', // swagger docs
   '/users/free-slots/*', // get free slots for the user
+  '/public-booking-page/*/booking-details',
 ];
 
 function isPublicRoute(originalUrl: string): boolean {

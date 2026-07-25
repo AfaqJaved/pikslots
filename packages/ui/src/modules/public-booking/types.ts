@@ -1,8 +1,9 @@
 import type {
-	BusinessResponse,
-	ServiceResponse,
+	BusinessDetails,
+	Service,
+	ServiceGroups,
 	SlotResponse,
-	UserSummary
+	TeamMemberDetails
 } from '@pikslots/shared';
 
 /**
@@ -10,25 +11,14 @@ import type {
  * data here is a drop-in replacement target once real public endpoints exist.
  */
 
-export type PublicBusiness = BusinessResponse;
+export type PublicBusiness = BusinessDetails;
 
-export type PublicService = ServiceResponse;
+export type PublicService = Service;
 
-export interface PublicServiceGroup {
-	id: string;
-	name: string;
-	services: PublicService[];
-}
+export type PublicServiceGroup = ServiceGroups;
 
-export type PublicTeamMember = Pick<UserSummary, 'id' | 'name' | 'avatarUrl' | 'role'>;
+export type PublicTeamMember = TeamMemberDetails;
 
 export type PublicSlot = SlotResponse;
 
-export interface PublicGalleryPhoto {
-	id: string;
-	/** Real photo URL. Empty when the business hasn't uploaded one yet — render `gradient` instead. */
-	url: string;
-	alt: string;
-	/** CSS `background-image` fallback used while `url` is empty. */
-	gradient: string;
-}
+export type PublicGalleryPhoto = string[];
