@@ -46,8 +46,6 @@ export class UpdateBusinessHoursUseCaseImpl implements UpdateBusinessHoursUseCas
       updatedBy: this.securityContext.userId,
     });
 
-    console.log(command.businessHours);
-
     const updateResult = await this.businessRepository.update(updated);
 
     if (!updateResult.ok)
