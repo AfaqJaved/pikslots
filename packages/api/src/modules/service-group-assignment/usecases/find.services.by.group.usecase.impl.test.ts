@@ -35,7 +35,9 @@ describe('FindServicesByGroupUseCaseImpl', () => {
 
   describe('successful lookup', () => {
     it('returns all active services assigned to the group', async () => {
-      // group-styling-1 has haircut (sga-1) and color (sga-2), both active.
+      // group-styling-1 has haircut (sga-1, business-1), color (sga-2, business-1),
+      // and manicure (sga-5, business-2) — all active. findServicesByGroup has no
+      // businessId param, so it aggregates across businesses.
       const result = await useCase.execute('group-styling-1');
 
       expect(result.ok).toBe(true);
@@ -44,9 +46,10 @@ describe('FindServicesByGroupUseCaseImpl', () => {
           expect.arrayContaining([
             { id: 'service-haircut-1', title: 'Haircut' },
             { id: 'service-color-1', title: 'Hair Coloring' },
+            { id: 'service-manicure-1', title: 'Manicure' },
           ]),
         );
-        expect(result.value).toHaveLength(2);
+        expect(result.value).toHaveLength(3);
       }
     });
 
