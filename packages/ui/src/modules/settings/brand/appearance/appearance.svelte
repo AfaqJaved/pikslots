@@ -140,6 +140,13 @@
 		galleryPhotosUrls = galleryPhotosUrls.filter((u) => u !== url);
 	}
 
+	function getGalleryPhotosKeys(presignedUrl: string) {
+		const url = new URL(presignedUrl);
+		const key = url.pathname.replace('/pikslots2/', '');
+
+		return key;
+	}
+
 	async function handleSave() {
 		try {
 			if (!business) return;
@@ -148,8 +155,8 @@
 				return;
 			}
 			let photoKey = '';
-			let galleryPhotosKeys = [...galleryPhotosUrls];
-
+			let galleryPhotosKeys = galleryPhotosUrls.map((url) => getGalleryPhotosKeys(url));
+			console.log('keys', galleryPhotosKeys);
 			if (galleryPhotosFile.length > 0) {
 				for (let i = 0; i < galleryPhotosFile.length; i++) {
 					photoKey = await uploadS3Mutations.mutateAsync({
@@ -371,7 +378,7 @@
 						</Button>
 					</div>
 
-					{#each galleryUrls as url (url)}
+					{#each galleryUrls as url, i (i)}
 						<div class="group relative aspect-square overflow-hidden rounded-md">
 							<img src={url} alt="Gallery" class="h-full w-full object-cover" />
 
