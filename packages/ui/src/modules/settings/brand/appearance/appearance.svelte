@@ -212,7 +212,7 @@
 			</div>
 		</div>
 		<Button size="sm" onclick={handleSave} disabled={!isDirty || isSaving || galleryPhotosError}>
-			{updateMutation.isPending ? 'Saving...' : 'Save'}
+			{isSaving ? 'Saving...' : 'Save'}
 		</Button>
 	</div>
 </div>
