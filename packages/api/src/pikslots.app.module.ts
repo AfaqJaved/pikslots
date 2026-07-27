@@ -20,6 +20,7 @@ import { TimeoffModule } from './modules/timeoff/timeoff.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { BreakModule } from './modules/break/break.module';
 import { PikslotS3Module } from './shared/s3/s3.module';
+import { PublicBookingPage } from './modules/public-booking-page/public.booking.page.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { PikslotS3Module } from './shared/s3/s3.module';
     TimeoffModule,
     BookingModule,
     BreakModule,
+    PublicBookingPage,
   ],
   controllers: [],
   providers: [],

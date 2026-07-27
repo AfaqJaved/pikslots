@@ -25,8 +25,8 @@
 	class="flex cursor-pointer items-center gap-3 border p-3 text-left hover:bg-muted/50"
 >
 	<div class="flex size-11 shrink-0 items-center justify-center border bg-background">
-		{#if service.images[0]}
-			<img src={service.images[0]} alt={service.title} class="size-full object-cover" />
+		{#if service.serviceAvatar}
+			<img src={service.serviceAvatar} alt={service.title} class="size-full object-cover" />
 		{:else}
 			<Briefcase size={18} class="text-muted-foreground" />
 		{/if}

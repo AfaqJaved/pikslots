@@ -82,7 +82,9 @@
 			onUpdate: async ({ form }) => {
 				if (form.valid) {
 					let avatarKey = '';
-					URL.revokeObjectURL(imagePreview as string);
+					if (imagePreview) {
+						URL.revokeObjectURL(imagePreview);
+					}
 					if (imageFile && businessStore.selectedBusiness?.slug) {
 						avatarKey = await uploadMutation.mutateAsync({
 							folder: 'service',
@@ -100,7 +102,7 @@
 						cost: Math.round(form.data.cost * 100),
 						businessId: form.data.businessId,
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
-						serviceAvatar: avatarKey,
+						serviceAvatar: avatarKey ?? '',
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
 						colorCode: form.data.colorCode
