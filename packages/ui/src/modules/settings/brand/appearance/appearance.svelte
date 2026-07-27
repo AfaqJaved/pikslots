@@ -22,7 +22,7 @@
 	import { toast } from 'svelte-sonner';
 	import UpdateGalleryPhotosDialog from '../dialogs/update-gallery-photos-dialog.svelte';
 	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
-	import { UpdateGalleryImagesMututionOptions } from '../../../api/business/update.gallery.images.mutation';
+	import { UpdateGalleryImagesMutationOptions } from '../../../api/business/update.gallery.images.mutation';
 	import type { PikslotErrorResponse } from '../../../api/common/common-models';
 	import { PlusIcon } from '@lucide/svelte';
 
@@ -79,7 +79,7 @@
 
 	// ________mutations_________________
 	const uploadS3Mutations = createMutation(uploadAvatarMutationOptions);
-	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMututionOptions);
+	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMutationOptions);
 	const updateMutation = createMutation<
 		BusinessUpdateAppearanceResult,
 		AxiosError<BaseErrorResponse>,
@@ -156,12 +156,11 @@
 			}
 			let photoKey = '';
 			let galleryPhotosKeys = galleryPhotosUrls.map((url) => getGalleryPhotosKeys(url));
-			console.log('keys', galleryPhotosKeys);
 			if (galleryPhotosFile.length > 0) {
 				for (let i = 0; i < galleryPhotosFile.length; i++) {
 					photoKey = await uploadS3Mutations.mutateAsync({
-						id: business.id,
-						folder: 'BusinessGallery',
+						id: null,
+						folder: 'gallery',
 						businessSlug: business.slug,
 						file: galleryPhotosFile[i],
 						type: 'gallery_images'
@@ -185,6 +184,7 @@
 
 			galleryTempUrls.forEach((url) => URL.revokeObjectURL(url));
 			galleryTempUrls = [];
+			galleryPhotosFile = [];
 		} catch (error) {
 			const axiosError = error as AxiosError<PikslotErrorResponse>;
 
