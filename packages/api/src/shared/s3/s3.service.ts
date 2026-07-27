@@ -55,6 +55,8 @@ export class PikslotS3ServiceImplementation
   }
 
   async getPresignedDownloadUrl(key: string): Promise<string> {
+    if (!key) return '';
+
     const command = new GetObjectCommand({
       Bucket: this.configService.get('S3_BUCKET_NAME'),
       Key: key,
