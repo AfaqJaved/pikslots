@@ -40,6 +40,10 @@
 
 	const { onBack }: Props = $props();
 
+	//____var____________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
+
 	// ── Schema ───────────────────────────────────────────────────────────────────
 
 	const RegisterServiceSchema = z.object({
@@ -84,6 +88,7 @@
 							folder: 'service',
 							file: imageFile,
 							businessSlug: businessStore.selectedBusiness.slug,
+							type: 'service_avatar',
 							id: null
 						});
 					}
@@ -149,6 +154,7 @@
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
 	const canCreate = $derived($form.title.trim().length > 0 && Number($form.durationInMins) >= 1);
+	const isSaving = $derived(uploadMutation.isPending || registerMutation.isPending);
 
 	const filteredTeam = $derived(
 		teamMembers.filter((m) =>
@@ -192,6 +198,16 @@
 	function handleImageChange(e: Event) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
+
+		if (!ACCEPTED_TYPES.includes(file.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+
 		imageFile = file;
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
@@ -206,6 +222,7 @@
 	bind:previewUrl={imagePreview}
 	initialFile={imageFile}
 	onSave={HandleOnSave}
+	onClose={()=> imageFile = null}
 />
 
 <form use:enhance class="mx-auto flex h-full min-h-0 w-[70%] flex-1 flex-col">
@@ -221,7 +238,7 @@
 			</button>
 			<span class="text-base font-semibold">New service</span>
 		</div>
-		<Button type="submit" size="sm" disabled={!canCreate || registerMutation.isPending}>
+		<Button type="submit" size="sm" disabled={!canCreate || isSaving}>
 			{registerMutation.isPending ? 'Creating...' : 'Create'}
 		</Button>
 	</div>
@@ -253,7 +270,7 @@
 						<input
 							bind:this={fileInput}
 							type="file"
-							accept="image/*"
+							accept=".jpg,.jpeg,.png"
 							class="hidden"
 							onchange={handleImageChange}
 						/>

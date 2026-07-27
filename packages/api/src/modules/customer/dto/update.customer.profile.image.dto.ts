@@ -9,6 +9,6 @@ export class UpdateCustomerProfileImageDto implements UpdateCustomerProfileImage
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(255)
+  @MaxLength(300)
   profileImageKey: string;
 }

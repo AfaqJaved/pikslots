@@ -58,9 +58,11 @@ export class UpdateBusinessGalleryPhotosUseCaseImpl implements UpdateBusinessGal
       (key) => !command.galleryPhotosKeys.includes(key),
     );
 
-    await Promise.allSettled(
-      keysToDelete.map((key) => this.s3Service.deleteFile(key)),
-    );
+    if (keysToDelete.length > 0) {
+      await Promise.all(
+        keysToDelete.map((key) => this.s3Service.deleteFile(key)),
+      );
+    }
 
     return ok(updated);
   }

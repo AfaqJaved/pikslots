@@ -97,6 +97,7 @@
 			description: '',
 			durationInMins: 0,
 			bufferTimeInMins: 0,
+			serviceAvatar: '',
 			cost: 0,
 			isHiddenFromBookingPage: false,
 			colorCode: '#363030'
@@ -106,18 +107,19 @@
 			SPA: true,
 			resetForm: false,
 			onUpdate: async ({ form }) => {
-				let avaterKey = '';
+				let avatarKey = '';
 				if (form.valid && serviceId && businessStore.selectedBusiness?.id) {
-					if (imageFile && businessStore.selectedBusiness?.slug) {
-						avaterKey = await uploadMutation.mutateAsync({
+					if (imageFile && imageFile.size > 0) {
+						avatarKey = await uploadMutation.mutateAsync({
 							folder: 'service',
 							file: imageFile,
 							businessSlug: businessStore.selectedBusiness.slug,
-							id: service ? service.id : null
+							type: 'service_avatar',
+							id: serviceId ?? null
 						});
 
 						await updateServiceAvatarMutation.mutateAsync({
-							avatarKey: avaterKey,
+							avatarKey,
 							serviceId
 						});
 					}
@@ -129,7 +131,7 @@
 						bufferTimeInMins: form.data.bufferTimeInMins,
 						cost: Math.round(form.data.cost * 100),
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
-						serviceAvatar: avaterKey,
+						serviceAvatar: avatarKey,
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
 						businessId: businessStore.selectedBusiness.id,
@@ -158,6 +160,7 @@
 	$effect(() => {
 		if (service) {
 			$form.title = service.title;
+			$form.serviceAvatar = service.serviceAvatar;
 			$form.description = service.description;
 			$form.durationInMins = service.durationInMins;
 			$form.bufferTimeInMins = service.bufferTimeInMins;
@@ -181,6 +184,10 @@
 		}
 	});
 
+	//____var____________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
+
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let selectedMemberIds = $state<Set<string>>(new Set());
@@ -194,8 +201,9 @@
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
-	const canSave = $derived(
-		($form.title.trim().length > 0 && Number($form.durationInMins) >= 1) || imageFile !== null
+	const canSave = $derived($form.title.trim().length > 0 && Number($form.durationInMins) >= 1);
+	const isSaving = $derived(
+		uploadMutation.isPending || updateMutation.isPending || updateServiceAvatarMutation.isPending
 	);
 
 	const filteredTeam = $derived(
@@ -244,10 +252,20 @@
 	function handleImageChange(e: Event) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
-		imageFile = file;
+
+		if (!ACCEPTED_TYPES.includes(file.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
 		}
+		imageFile = file;
 		imagePreview = URL.createObjectURL(file);
 		DialogOpen = true;
 	}
@@ -258,6 +276,7 @@
 	bind:previewUrl={imagePreview}
 	initialFile={imageFile}
 	onSave={HandleOnSave}
+	onClose={() => imageFile = null}
 />
 
 {#if servicesQuery.isPending}
@@ -282,7 +301,7 @@
 				</button>
 				<span class="text-base font-semibold">Edit service</span>
 			</div>
-			<Button type="submit" size="sm" disabled={!canSave || updateMutation.isPending}>
+			<Button type="submit" size="sm" disabled={!canSave || isSaving}>
 				{updateMutation.isPending ? 'Saving...' : 'Save'}
 			</Button>
 		</div>
@@ -301,8 +320,12 @@
 					<div
 						class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted"
 					>
-						{#if imagePreview}
-							<img src={imagePreview} alt="Service" class="h-full w-full object-cover" />
+						{#if imagePreview || $form.serviceAvatar}
+							<img
+								src={imagePreview ? imagePreview : $form.serviceAvatar}
+								alt="Service"
+								class="h-full w-full object-cover"
+							/>
 						{:else}
 							<Photo size={24} class="text-muted-foreground" />
 						{/if}
@@ -314,7 +337,7 @@
 							<input
 								bind:this={fileInput}
 								type="file"
-								accept="image/*"
+								accept=".jpg,.jpeg,.png"
 								class="hidden"
 								onchange={handleImageChange}
 							/>

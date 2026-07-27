@@ -24,6 +24,12 @@
 	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
 	import { UpdateGalleryImagesMututionOptions } from '../../../api/business/update.gallery.images.mutation';
 	import type { PikslotErrorResponse } from '../../../api/common/common-models';
+	import { PlusIcon } from '@lucide/svelte';
+
+	//______________image variables____________________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
+	let fileInput: HTMLInputElement;
 
 	const brandColors = [
 		{ value: '#111111', label: 'Black' },
@@ -44,18 +50,18 @@
 	let selectedColor = $state('#1a1a1a');
 	let selectedShape = $state<BrandButtonShape>('pill');
 	let selectedTheme = $state<BrandTheme>('system');
-	let gallaryPhotosUrls = $state<string[]>([]);
+	let galleryPhotosUrls = $state<string[]>([]);
 	let galleryPhotosFile = $state<File[]>([]);
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
 	let isGalleryDialogOpen = $state<boolean>(false);
-	let galleryTempUrls = $state<string[]>([]);
+	let galleryTempUrls = $state<string[] | []>([]);
 
 	$effect(() => {
 		if (business) {
 			selectedColor = business.brandAppearanceDetails.brandColor;
 			selectedShape = business.brandAppearanceDetails.brandButtonShape;
 			selectedTheme = business.brandAppearanceDetails.theme;
-			gallaryPhotosUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
+			galleryPhotosUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
 		}
 	});
 
@@ -65,27 +71,12 @@
 				selectedShape !== business.brandAppearanceDetails.brandButtonShape ||
 				selectedTheme !== business.brandAppearanceDetails.theme ||
 				galleryPhotosFile.length > 0 ||
-				JSON.stringify(gallaryPhotosUrls) !==
+				JSON.stringify(galleryPhotosUrls) !==
 					JSON.stringify(business.brandAppearanceDetails.gallaryPhotosUrls))
 	);
 
-	let galleryPhotosError = $derived(galleryPhotosFile.length > 10);
+	let galleryPhotosError = $derived(galleryTempUrls.length > 10);
 
-	function removePhoto(url: string) {
-		const tempIndex = galleryTempUrls.indexOf(url);
-
-		if (tempIndex !== -1) {
-			URL.revokeObjectURL(url);
-
-			galleryTempUrls = galleryTempUrls.filter((u) => u !== url);
-
-			galleryPhotosFile = galleryPhotosFile.filter((_, index) => index !== tempIndex);
-
-			return;
-		}
-
-		gallaryPhotosUrls = gallaryPhotosUrls.filter((u) => u !== url);
-	}
 	// ________mutations_________________
 	const uploadS3Mutations = createMutation(uploadAvatarMutationOptions);
 	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMututionOptions);
@@ -100,7 +91,7 @@
 	const isSaving = $derived(
 		updateMutation.isPending || uploadS3Mutations.isPending || updateGalleryPhotos.isPending
 	);
-	const galleryUrls = $derived([...gallaryPhotosUrls, ...galleryTempUrls]);
+	const galleryUrls = $derived([...galleryPhotosUrls, ...galleryTempUrls]);
 
 	$effect(() => {
 		if (updateMutation.data) {
@@ -114,15 +105,50 @@
 		}
 	});
 
+	//________functions_________________________________
+	function onFileChange(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const selected = input.files?.[0];
+		if (!selected) return;
+
+		if (!ACCEPTED_TYPES.includes(selected.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (selected.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+		galleryPhotosFile = [...galleryPhotosFile, selected];
+		const newUrl = URL.createObjectURL(selected);
+		galleryTempUrls = [...galleryTempUrls, newUrl];
+		input.value = '';
+	}
+
+	function removePhoto(url: string) {
+		const tempIndex = galleryTempUrls.indexOf(url);
+
+		if (tempIndex !== -1) {
+			URL.revokeObjectURL(url);
+
+			galleryTempUrls = galleryTempUrls.filter((u) => u !== url);
+			galleryPhotosFile = galleryPhotosFile.filter((_, index) => index !== tempIndex);
+
+			return;
+		}
+
+		galleryPhotosUrls = galleryPhotosUrls.filter((u) => u !== url);
+	}
+
 	async function handleSave() {
 		try {
 			if (!business) return;
-			if (galleryPhotosFile.length > 10) {
+			if (galleryTempUrls.length > 10) {
 				toast.error('You can only upload a maximum of 10 images.');
 				return;
 			}
 			let photoKey = '';
-			let galleryPhotosKeys = [...gallaryPhotosUrls];
+			let galleryPhotosKeys = [...galleryPhotosUrls];
 
 			if (galleryPhotosFile.length > 0) {
 				for (let i = 0; i < galleryPhotosFile.length; i++) {
@@ -130,7 +156,8 @@
 						id: business.id,
 						folder: 'BusinessGallery',
 						businessSlug: business.slug,
-						file: galleryPhotosFile[i]
+						file: galleryPhotosFile[i],
+						type: 'gallery_images'
 					});
 					galleryPhotosKeys = [...galleryPhotosKeys, photoKey];
 				}
@@ -157,17 +184,14 @@
 			toast.error(axiosError.response?.data?.message ?? 'Failed to save. Please try again.');
 		}
 	}
-
-	function handleOnSave(file: File[]) {
-		galleryPhotosFile = [...file];
-	}
 </script>
 
 <!-- Gallery Dialog -->
 <UpdateGalleryPhotosDialog
 	bind:open={isGalleryDialogOpen}
 	bind:galleryTempUrls
-	onSave={handleOnSave}
+	bind:galleryPhotosUrls
+	bind:galleryPhotosFile
 />
 
 <!-- Page header -->
@@ -330,6 +354,23 @@
 				<Skeleton class="min-h-40 rounded-lg" />
 			{:else if galleryUrls.length > 0}
 				<div class="grid grid-cols-5 gap-2 rounded-lg border p-2">
+					<div class="aspect-square w-full rounded-md">
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept=".jpg,.jpeg,.png"
+							class="hidden"
+							onchange={onFileChange}
+						/>
+
+						<Button
+							class="flex h-full w-full items-center justify-center bg-black/30"
+							onclick={() => fileInput.click()}
+						>
+							<PlusIcon color="black" />
+						</Button>
+					</div>
+
 					{#each galleryUrls as url (url)}
 						<div class="group relative aspect-square overflow-hidden rounded-md">
 							<img src={url} alt="Gallery" class="h-full w-full object-cover" />
@@ -337,7 +378,7 @@
 							<button
 								type="button"
 								onclick={() => removePhoto(url)}
-								class="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+								class="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
 								aria-label="Remove photo"
 							>
 								<svg

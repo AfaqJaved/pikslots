@@ -16,6 +16,9 @@
 	import { editCustomerMutationOptions } from '../../api/customer/edit.customer.mutation';
 	import type { CustomerModel } from '../../api/customer/models/customer-model';
 	import { AddCustomerSchema } from '../validations/add-customer-schema';
+	import AddCustomerProfileImage from './add-customer-profile-image.svelte';
+	import { uploadAvatarMutationOptions } from '../../api/s3/upload.avatar.mutation';
+	import {UpdateCustomerProfileImageMutationOptions} from '../../api/customer/update.customer.profile.image.mutation'
 	import XIcon from '@lucide/svelte/icons/x';
 	import UserIcon from '@tabler/icons-svelte/icons/user';
 	import Plus from '@tabler/icons-svelte/icons/plus';
@@ -27,6 +30,10 @@
 	import BrandX from '@tabler/icons-svelte/icons/brand-x';
 	import BrandYoutube from '@tabler/icons-svelte/icons/brand-youtube';
 	import BrandLinkedin from '@tabler/icons-svelte/icons/brand-linkedin';
+
+	//____var____________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
 
 	const COUNTRY_CODES = [
 		{ code: '+1', country: 'US' },
@@ -102,6 +109,7 @@
 	] as const;
 
 	type ExtraField =
+	    'profileImageUrl'
 		| 'phone'
 		| 'email'
 		| 'website'
@@ -140,6 +148,7 @@
 	function initialExtraFields(c: CustomerModel): Set<ExtraField> {
 		const fields = new Set<ExtraField>();
 		if (c.additionalPhone) fields.add('phone');
+		if(c.profileImageUrl) fields.add('profileImageUrl');
 		if (c.additionalEmail) fields.add('email');
 		const links = c.customerSocialLinks ?? {};
 		if (links['website']) fields.add('website');
@@ -159,6 +168,7 @@
 			lastName: c.lastName,
 			countryCode: code,
 			phone: number,
+			profileImage: c.profileImageUrl,
 			email: c.email ?? '',
 			company: c.company ?? '',
 			country: c.country ?? 'Pakistan',
@@ -178,16 +188,23 @@
 	}
 
 	let extraFields = $state(initialExtraFields(customer));
+	let customerProfileImageDialog = $state<boolean>(false);
+	let imageFile = $state<File | null>(null);
+	let previewUrl = $state<string | null>(null);
+	let fileInput: HTMLInputElement;
 
 	const queryClient = useQueryClient();
 	const editMutation = createMutation(() => editCustomerMutationOptions());
+	const uploadMutation = createMutation(() => uploadAvatarMutationOptions());
+	const updateCustomerProfileMutation = createMutation(()=> UpdateCustomerProfileImageMutationOptions())
 
 	const { form, errors, enhance } = superForm(buildFormValues(customer), {
 		validators: zod(AddCustomerSchema),
 		SPA: true,
 		resetForm: false,
-		onUpdate({ form }) {
+		onUpdate: async ({ form }) => {
 			if (form.valid && businessStore.selectedBusiness) {
+				let avatarKey = customer.profileImageUrl ?? '';
 				const phone = form.data.phone ? `${form.data.countryCode} ${form.data.phone}` : null;
 				const socialLinks: Record<string, string> = {};
 				if (form.data.website) socialLinks['website'] = form.data.website;
@@ -197,11 +214,25 @@
 				if (form.data.youtube) socialLinks['youtube'] = form.data.youtube;
 				if (form.data.linkedin) socialLinks['linkedin'] = form.data.linkedin;
 
+				if (imageFile && businessStore.selectedBusiness?.slug) {
+					avatarKey = await uploadMutation.mutateAsync({
+						folder: 'customer',
+						file: imageFile,
+						businessSlug: businessStore.selectedBusiness.slug,
+						type: 'profile_image',
+						id: customer.id ?? null
+					});
+
+					await updateCustomerProfileMutation.mutateAsync({
+						customerId : customer.id, profileImageKey: avatarKey
+					})
+				}
+
 				editMutation.mutate({
 					id: customer.id,
 					firstName: form.data.firstName,
 					lastName: form.data.lastName,
-					profileImageUrl: customer.profileImageUrl,
+					profileImageUrl: avatarKey,
 					email: form.data.email || null,
 					additionalEmail: form.data.additionalEmail || null,
 					primaryPhone: phone,
@@ -229,6 +260,9 @@
 	$effect(() => {
 		if (editMutation.isSuccess) {
 			toast.success('Customer updated successfully');
+			if(previewUrl){	
+					URL.revokeObjectURL(previewUrl as string);
+				}
 			queryClient.invalidateQueries({
 				queryKey: ['customers', businessStore.selectedBusiness?.id]
 			});
@@ -245,19 +279,53 @@
 		extraFields = new Set([...extraFields, key]);
 	}
 
+	function handleImageChange(e: Event) {
+		const target = (e.target as HTMLInputElement).files?.[0];
+		if (!target) return;
+
+		if (!ACCEPTED_TYPES.includes(target.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (target.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+
+		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		imageFile = target;
+		previewUrl = URL.createObjectURL(target);
+		customerProfileImageDialog = true;
+	}
+
 	const initials = $derived($form.firstName ? $form.firstName.charAt(0).toUpperCase() : null);
+	const isSaving = $derived(uploadMutation.isPending || updateCustomerProfileMutation.isPending || editMutation.isPending)
+
 </script>
 
 <Dialog.Root
 	bind:open
 	onOpenChange={(v) => {
-		if (!v) editMutation.reset();
+		if (!v) {
+			editMutation.reset();
+			imageFile = null;
+			if (previewUrl) URL.revokeObjectURL(previewUrl);
+			previewUrl = null;
+		}
 	}}
 >
 	<Dialog.Content
 		class="flex max-h-[90vh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl"
 		showCloseButton={false}
 	>
+		<!-- Add profile image dialog -->
+		<AddCustomerProfileImage
+			bind:open={customerProfileImageDialog}
+			bind:previewUrl
+			initialFile={imageFile}
+			onSave={(file) => (imageFile = file)}
+			onClose={() => { imageFile = null; }}
+		/>
 		<!-- Header -->
 		<div class="flex items-center justify-between px-6 py-4">
 			<span class="text-base font-semibold">Edit customer</span>
@@ -278,15 +346,64 @@
 			<!-- Left panel -->
 			<div class="flex w-52 shrink-0 flex-col border-r pt-6">
 				<div class="flex justify-center px-4 pb-4">
-					<Avatar.Root class="size-16 text-base">
-						{#if initials}
-							<Avatar.Fallback class="text-lg">{initials}</Avatar.Fallback>
-						{:else}
-							<Avatar.Fallback class="bg-muted">
-								<UserIcon class="size-7 text-muted-foreground" />
-							</Avatar.Fallback>
-						{/if}
-					</Avatar.Root>
+					{#if imageFile}
+						<Button
+							class="size-18 shrink-0 cursor-pointer rounded-full bg-transparent p-0"
+							onclick={() => fileInput.click()}
+						>
+							<img
+								src={previewUrl}
+								alt="customerImage"
+								class="h-full w-full cursor-pointer rounded-full object-cover opacity-60 hover:opacity-100"
+							/>
+						</Button>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept=".jpg,.jpeg,.png"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+					{:else if customer.profileImageUrl}
+						<Button
+							class="size-18 shrink-0 cursor-pointer rounded-full bg-transparent p-0"
+							onclick={() => fileInput.click()}
+						>
+							<img
+								src={customer.profileImageUrl}
+								alt="customerImage"
+								class="h-full w-full cursor-pointer rounded-full object-cover opacity-60 hover:opacity-100"
+							/>
+						</Button>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept=".jpg,.jpeg,.png"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+					{:else}
+						<Avatar.Root
+							class="size-16 cursor-pointer text-base opacity-60 hover:opacity-100"
+							onclick={() => fileInput.click()}
+						>
+							{#if initials}
+								<Avatar.Fallback class="text-lg">{initials}</Avatar.Fallback>
+							{:else}
+								<Avatar.Fallback class="bg-muted">
+									<UserIcon class="size-7 text-muted-foreground" />
+								</Avatar.Fallback>
+							{/if}
+						</Avatar.Root>
+
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept=".jpg,.jpeg,.png"
+							class="hidden"
+							onchange={handleImageChange}
+						/>
+					{/if}
 				</div>
 
 				<div class="mt-2 px-2">
@@ -504,8 +621,8 @@
 						<Button variant="ghost" size="sm" type="button" onclick={() => (open = false)}>
 							Cancel
 						</Button>
-						<Button size="sm" type="submit" disabled={editMutation.isPending}>
-							{editMutation.isPending ? 'Saving...' : 'Save'}
+						<Button si	ze="sm" type="submit" disabled={isSaving}>
+							{isSaving ? 'Saving...' : 'Save'}
 						</Button>
 					</div>
 				</div>

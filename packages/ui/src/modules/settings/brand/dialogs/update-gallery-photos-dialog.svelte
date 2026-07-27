@@ -11,32 +11,34 @@
 	let {
 		open = $bindable(false),
 		galleryTempUrls = $bindable([]),
-		onSave
+		galleryPhotosUrls = $bindable([]),
+		galleryPhotosFile = $bindable([])
 	}: {
 		open: boolean;
 		galleryTempUrls: string[];
-		onSave: (file: File[]) => void;
+		galleryPhotosUrls: string[];
+		galleryPhotosFile: File[];
 	} = $props();
 
 	//______________image variables____________________________________
 	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 	const MAX_SIZE_MB = 10;
 	let fileInput: HTMLInputElement;
-
-	//_______states____________________________________________
-	let file = $state<File[]>([]);
-	let galleryPhotoUrls = $state<string[]>([]);
-
-	// ________derived__________________________________
-	const business = $derived(businessStore.selectedBusiness);
-	const galleryUrls = $derived([...galleryPhotoUrls, ...galleryTempUrls]);
+	let softDeleteUrls = $state<string[] | null>(null);
+	let pendingTempUrls = $state<string[]>([]);
+	let pendingFiles = $state<File[]>([]);
 
 	//___________effect___________________
 	$effect(() => {
 		if (business) {
-			galleryPhotoUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
+			galleryPhotosUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
 		}
 	});
+
+	// ________derived__________________________________
+	const business = $derived(businessStore.selectedBusiness);
+	const galleryUrls = $derived([...galleryPhotosUrls, ...galleryTempUrls, ...pendingTempUrls]);
+	const displayedUrls = $derived(galleryUrls.filter((url) => !softDeleteUrls?.includes(url)));
 
 	//________functions_________________________________
 	function onFileChange(e: Event) {
@@ -52,10 +54,28 @@
 			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
 			return;
 		}
-		file = [...file, selected];
+		pendingFiles = [...pendingFiles, selected];
 		const newUrl = URL.createObjectURL(selected);
-		galleryTempUrls = [...galleryTempUrls, newUrl];
+		pendingTempUrls = [...pendingTempUrls, newUrl];
 		input.value = '';
+	}
+
+	// this function hold reomve urls before save
+	function softDelete(url: string) {
+		if (!url) return;
+
+		const pendingIndex = pendingTempUrls.indexOf(url);
+		if (pendingIndex !== -1) {
+			URL.revokeObjectURL(url);
+			pendingTempUrls = pendingTempUrls.filter((u) => u !== url);
+			pendingFiles = pendingFiles.filter((_, index) => index !== pendingIndex);
+			return;
+		}
+
+		if (!softDeleteUrls) {
+			softDeleteUrls = [];
+		}
+		softDeleteUrls.push(url);
 	}
 
 	function removePhoto(url: string) {
@@ -65,24 +85,30 @@
 			URL.revokeObjectURL(url);
 
 			galleryTempUrls = galleryTempUrls.filter((u) => u !== url);
-
-			file = file.filter((_, index) => index !== tempIndex);
+			galleryPhotosFile = galleryPhotosFile.filter((_, index) => index !== tempIndex);
 
 			return;
 		}
-
-		galleryPhotoUrls = galleryPhotoUrls.filter((u) => u !== url);
+		galleryPhotosUrls = galleryPhotosUrls.filter((u) => u !== url);
 	}
 
 	async function save() {
-		if (!file) return;
-		onSave(file);
+		galleryPhotosFile = [...galleryPhotosFile, ...pendingFiles];
+		galleryTempUrls = [...galleryTempUrls, ...pendingTempUrls];
+
+		if (softDeleteUrls && softDeleteUrls.length > 0) {
+			for (const url of softDeleteUrls) {
+				removePhoto(url);
+			}
+		}
 		close();
 	}
 
 	function close() {
+		softDeleteUrls = null;
+		pendingTempUrls = [];
+		pendingFiles = [];
 		open = false;
-		file = [];
 	}
 </script>
 
@@ -99,7 +125,7 @@
 
 		{#if business === null}
 			<Skeleton class="min-h-40 rounded-lg" />
-		{:else if galleryUrls.length > 0}
+		{:else if displayedUrls.length > 0}
 			<div class="grid grid-cols-6 gap-2 rounded-lg border p-2">
 				<div class="aspect-square w-full rounded-md">
 					<input
@@ -118,14 +144,14 @@
 					</Button>
 				</div>
 
-				{#each galleryUrls as url (url)}
+				{#each displayedUrls as url (url)}
 					<div class="group relative aspect-square overflow-hidden rounded-md">
 						<img src={url} alt="Gallery" class="h-full w-full object-cover" />
 
 						<button
 							type="button"
-							onclick={() => removePhoto(url)}
-							class="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+							onclick={() => softDelete(url)}
+							class="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
 							aria-label="Remove photo"
 						>
 							<svg
@@ -162,7 +188,7 @@
 
 		<Dialog.Footer class="border-t px-6 py-4">
 			<Button variant="outline" onclick={close}>Cancel</Button>
-			<Button class=" opacity-80 hover:opacity-100" onclick={save} disabled={!file}>Apply</Button>
+			<Button class=" opacity-80 hover:opacity-100" onclick={save}>Apply</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

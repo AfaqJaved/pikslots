@@ -66,7 +66,13 @@
 		if (!file || !businessStore.selectedBusiness?.slug) return;
 
 		uploadMutation.mutate(
-			{ id: userId, folder, file, businessSlug: businessStore.selectedBusiness.slug },
+			{
+				id: userId,
+				folder,
+				file,
+				businessSlug: businessStore.selectedBusiness.slug,
+				type: 'avatar'
+			},
 			{
 				onSuccess: (avatarKey) => {
 					updateAvatarMutation.mutate(
