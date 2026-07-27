@@ -276,7 +276,7 @@
 	bind:previewUrl={imagePreview}
 	initialFile={imageFile}
 	onSave={HandleOnSave}
-	onClose={() => imageFile = null}
+	onClose={() => (imageFile = null)}
 />
 
 {#if servicesQuery.isPending}

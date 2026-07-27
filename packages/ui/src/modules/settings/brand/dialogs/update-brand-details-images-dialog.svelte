@@ -93,7 +93,7 @@
 		croppedPixels = null;
 	}
 
-		function onCloseRevokeUrl() {
+	function onCloseRevokeUrl() {
 		open = false;
 		file = null;
 		zoom = 1;

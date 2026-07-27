@@ -18,7 +18,7 @@
 	import { AddCustomerSchema } from '../validations/add-customer-schema';
 	import AddCustomerProfileImage from './add-customer-profile-image.svelte';
 	import { uploadAvatarMutationOptions } from '../../api/s3/upload.avatar.mutation';
-	import {UpdateCustomerProfileImageMutationOptions} from '../../api/customer/update.customer.profile.image.mutation'
+	import { UpdateCustomerProfileImageMutationOptions } from '../../api/customer/update.customer.profile.image.mutation';
 	import XIcon from '@lucide/svelte/icons/x';
 	import UserIcon from '@tabler/icons-svelte/icons/user';
 	import Plus from '@tabler/icons-svelte/icons/plus';
@@ -109,7 +109,7 @@
 	] as const;
 
 	type ExtraField =
-	    'profileImageUrl'
+		| 'profileImageUrl'
 		| 'phone'
 		| 'email'
 		| 'website'
@@ -148,7 +148,7 @@
 	function initialExtraFields(c: CustomerModel): Set<ExtraField> {
 		const fields = new Set<ExtraField>();
 		if (c.additionalPhone) fields.add('phone');
-		if(c.profileImageUrl) fields.add('profileImageUrl');
+		if (c.profileImageUrl) fields.add('profileImageUrl');
 		if (c.additionalEmail) fields.add('email');
 		const links = c.customerSocialLinks ?? {};
 		if (links['website']) fields.add('website');
@@ -196,7 +196,9 @@
 	const queryClient = useQueryClient();
 	const editMutation = createMutation(() => editCustomerMutationOptions());
 	const uploadMutation = createMutation(() => uploadAvatarMutationOptions());
-	const updateCustomerProfileMutation = createMutation(()=> UpdateCustomerProfileImageMutationOptions())
+	const updateCustomerProfileMutation = createMutation(() =>
+		UpdateCustomerProfileImageMutationOptions()
+	);
 
 	const { form, errors, enhance } = superForm(buildFormValues(customer), {
 		validators: zod(AddCustomerSchema),
@@ -224,8 +226,9 @@
 					});
 
 					await updateCustomerProfileMutation.mutateAsync({
-						customerId : customer.id, profileImageKey: avatarKey
-					})
+						customerId: customer.id,
+						profileImageKey: avatarKey
+					});
 				}
 
 				editMutation.mutate({
@@ -260,9 +263,9 @@
 	$effect(() => {
 		if (editMutation.isSuccess) {
 			toast.success('Customer updated successfully');
-			if(previewUrl){	
-					URL.revokeObjectURL(previewUrl as string);
-				}
+			if (previewUrl) {
+				URL.revokeObjectURL(previewUrl as string);
+			}
 			queryClient.invalidateQueries({
 				queryKey: ['customers', businessStore.selectedBusiness?.id]
 			});
@@ -299,8 +302,9 @@
 	}
 
 	const initials = $derived($form.firstName ? $form.firstName.charAt(0).toUpperCase() : null);
-	const isSaving = $derived(uploadMutation.isPending || updateCustomerProfileMutation.isPending || editMutation.isPending)
-
+	const isSaving = $derived(
+		uploadMutation.isPending || updateCustomerProfileMutation.isPending || editMutation.isPending
+	);
 </script>
 
 <Dialog.Root
@@ -324,7 +328,9 @@
 			bind:previewUrl
 			initialFile={imageFile}
 			onSave={(file) => (imageFile = file)}
-			onClose={() => { imageFile = null; }}
+			onClose={() => {
+				imageFile = null;
+			}}
 		/>
 		<!-- Header -->
 		<div class="flex items-center justify-between px-6 py-4">
@@ -621,7 +627,7 @@
 						<Button variant="ghost" size="sm" type="button" onclick={() => (open = false)}>
 							Cancel
 						</Button>
-						<Button si	ze="sm" type="submit" disabled={isSaving}>
+						<Button si ze="sm" type="submit" disabled={isSaving}>
 							{isSaving ? 'Saving...' : 'Save'}
 						</Button>
 					</div>

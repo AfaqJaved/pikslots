@@ -235,7 +235,7 @@
 	initialFile={bannerFile}
 	title="Banner Image"
 	onSave={bannerOnSave}
-	onClose={()=> bannerFile = null}
+	onClose={() => (bannerFile = null)}
 />
 
 <UpdateBrandDetailImagesDialog
@@ -244,8 +244,7 @@
 	initialFile={logoFile}
 	title="Brand Logo"
 	onSave={logoOnSave}
-	onClose={()=> logoFile = null}
-
+	onClose={() => (logoFile = null)}
 />
 
 <!-- Page header -->
@@ -276,10 +275,9 @@
 			{#if bannerPreview}
 				<Button
 					class="h-40 w-full cursor-pointer bg-transparent p-0"
-					onclick={() =>
-					{
-						bannerInput.click()}
-					}
+					onclick={() => {
+						bannerInput.click();
+					}}
 				>
 					<img
 						src={bannerPreview}
@@ -297,10 +295,9 @@
 			{:else if business?.brandDetail.bannerImageUrl}
 				<Button
 					class="h-40 w-full cursor-pointer bg-transparent p-0"
-					onclick={() =>
-					{
-						bannerInput.click()}
-					}
+					onclick={() => {
+						bannerInput.click();
+					}}
 				>
 					<img
 						src={business.brandDetail.bannerImageUrl}

@@ -222,7 +222,7 @@
 	bind:previewUrl={imagePreview}
 	initialFile={imageFile}
 	onSave={HandleOnSave}
-	onClose={()=> imageFile = null}
+	onClose={() => (imageFile = null)}
 />
 
 <form use:enhance class="mx-auto flex h-full min-h-0 w-[70%] flex-1 flex-col">

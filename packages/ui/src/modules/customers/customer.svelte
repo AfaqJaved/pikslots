@@ -93,10 +93,9 @@
 
 	// ── Effect ───────────────────────────────────────────────────────────────
 	$effect(() => {
-	  if (customersQuery.data && !selectedCustomerId) {
-        selectedCustomerId = customersQuery.data[0].id;
-    }
-
+		if (customersQuery.data && !selectedCustomerId) {
+			selectedCustomerId = customersQuery.data[0].id;
+		}
 	});
 </script>
 

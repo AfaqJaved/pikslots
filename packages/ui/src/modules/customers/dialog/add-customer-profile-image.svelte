@@ -73,7 +73,7 @@
 		onSave(croppedFile);
 		if (previewUrl) URL.revokeObjectURL(previewUrl);
 		previewUrl = URL.createObjectURL(croppedFile);
-		close()
+		close();
 	}
 
 	function close() {

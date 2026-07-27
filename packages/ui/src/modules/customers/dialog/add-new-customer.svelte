@@ -214,7 +214,7 @@
 	$effect(() => {
 		if (registerMutation.isSuccess) {
 			toast.success('Customer added successfully');
-			if(previewUrl){
+			if (previewUrl) {
 				URL.revokeObjectURL(previewUrl as string);
 			}
 
@@ -282,7 +282,7 @@
 	}
 
 	const initials = $derived($form.firstName ? $form.firstName.charAt(0).toUpperCase() : null);
-	const isSaving = $derived(uploadMutation.isPending || registerMutation.isPending)
+	const isSaving = $derived(uploadMutation.isPending || registerMutation.isPending);
 </script>
 
 <Dialog.Root
