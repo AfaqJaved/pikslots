@@ -140,7 +140,7 @@
 						class="flex h-full w-full items-center justify-center bg-black/30"
 						onclick={() => fileInput.click()}
 					>
-						<PlusIcon color="black" />
+						<PlusIcon />
 					</Button>
 				</div>
 
