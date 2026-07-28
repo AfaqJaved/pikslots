@@ -19,6 +19,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { SetPasswordFormSchema, OtpFormSchema } from './validations/schema';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { isInviteExpired } from '../../utils/check.jwt';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { requestInviteOtpMutationOptions } from '../api/user/request.invite.otp.mutation';
@@ -29,7 +30,7 @@
 	let linkExpired = $state<boolean>(false);
 
 	$effect(() => {
-		if (!token) goto('/login');
+		if (!token) goto(resolve('/login'));
 		if (token && isInviteExpired(token)) linkExpired = true;
 	});
 
@@ -147,7 +148,7 @@
 			expiredRedirectIn -= 1;
 			if (expiredRedirectIn <= 0) {
 				clearInterval(timer);
-				goto('/login');
+				goto(resolve('/login'));
 			}
 		}, 1000);
 		return () => clearInterval(timer);
@@ -164,7 +165,7 @@
 			redirectIn -= 1;
 			if (redirectIn <= 0) {
 				clearInterval(timer);
-				goto('/login');
+				goto(resolve('/login'));
 			}
 		}, 1000);
 		return () => clearInterval(timer);
@@ -264,7 +265,7 @@
 								<InputOTP bind:value={$otpForm.otp} maxlength={6}>
 									{#snippet children({ cells })}
 										<InputOTPGroup>
-											{#each cells.slice(0, 3) as cell}
+											{#each cells.slice(0, 3) as cell, i (i)}
 												<InputOTPSlot
 													{cell}
 													class="size-12 text-base font-semibold first:rounded-l-md last:rounded-r-md"
@@ -273,7 +274,7 @@
 										</InputOTPGroup>
 										<InputOTPSeparator />
 										<InputOTPGroup>
-											{#each cells.slice(3) as cell}
+											{#each cells.slice(3) as cell, i (i)}
 												<InputOTPSlot
 													{cell}
 													class="size-12 text-base font-semibold first:rounded-l-md last:rounded-r-md"
@@ -343,7 +344,7 @@
 							Your account is ready. You'll be redirected to login in {redirectIn}s.
 						</p>
 					</div>
-					<Button variant="outline" class="w-full" onclick={() => goto('/login')}>
+					<Button variant="outline" class="w-full" onclick={() => goto(resolve('/login'))}>
 						Go to login now
 					</Button>
 				</div>

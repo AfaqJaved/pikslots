@@ -6,20 +6,28 @@ import UserHeart from '@tabler/icons-svelte/icons/user-heart';
 import Cash from '@tabler/icons-svelte/icons/cash';
 import Puzzle from '@tabler/icons-svelte/icons/puzzle';
 import { IconCalendarCheck } from '@tabler/icons-svelte';
+import type { Icon } from '@tabler/icons-svelte';
 import { settingsStore } from '$stores/settings.svelte.js';
+import { resolve } from '$app/paths';
+import type { ResolvedPathname } from '$app/types';
 
-export const navPrimary = [
-	{ name: 'Bookings', url: '/home/bookings', icon: IconCalendarCheck },
-	{ name: 'Services', url: '/home/services', icon: Briefcase },
-	{ name: 'Customers', url: '/home/customers', icon: UserHeart },
-	{ name: 'Payments', url: '/home/payments', icon: Cash },
-	{ name: 'Integrations', url: '/home/integrations', icon: Puzzle }
+export const navPrimary: { name: string; url: ResolvedPathname; icon: Icon }[] = [
+	{ name: 'Bookings', url: resolve('/home/bookings'), icon: IconCalendarCheck },
+	{ name: 'Services', url: resolve('/home/services'), icon: Briefcase },
+	{ name: 'Customers', url: resolve('/home/customers'), icon: UserHeart },
+	{ name: 'Payments', url: resolve('/home/payments'), icon: Cash },
+	{ name: 'Integrations', url: resolve('/home/integrations'), icon: Puzzle }
 ];
 
-export const navSecondary = [
+export const navSecondary: {
+	title: string;
+	url: ResolvedPathname | '#';
+	icon: Icon;
+	onclick?: () => void;
+}[] = [
 	{
 		title: 'Settings',
-		url: '/home/settings/brand/brand-details',
+		url: resolve('/home/settings/brand/brand-details'),
 		icon: SettingsIcon,
 		onclick: () => settingsStore.toggle()
 	},

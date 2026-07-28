@@ -38,6 +38,7 @@
 	import { businessStore } from '$stores/business.svelte';
 	import { IconBriefcase } from '@tabler/icons-svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import Pencil from '@tabler/icons-svelte/icons/pencil';
 	import Trash from '@tabler/icons-svelte/icons/trash';
 	import ExternalLink from '@tabler/icons-svelte/icons/external-link';
@@ -282,7 +283,7 @@
 			title="No services yet — let's change that!"
 			description="Add your first service so clients can start booking with you."
 			buttonLabel="Add Service"
-			onclick={() => goto('/home/services/new')}
+			onclick={() => goto(resolve('/home/services/new'))}
 		/>
 	</div>
 {:else}
@@ -473,14 +474,14 @@
 					<DropdownMenu.Content align="end" class="w-36">
 						<DropdownMenu.Item
 							class="cursor-pointer gap-2"
-							onclick={() => goto('/home/services/new')}
+							onclick={() => goto(resolve('/home/services/new'))}
 						>
 							<IconBriefcase size={15} class="text-muted-foreground" />
 							Service
 						</DropdownMenu.Item>
 						<DropdownMenu.Item
 							class="cursor-pointer gap-2"
-							onclick={() => goto('/home/services/classes/new')}
+							onclick={() => goto(resolve('/home/services/classes/new'))}
 						>
 							<School size={15} class="text-muted-foreground" />
 							Class
@@ -603,7 +604,8 @@
 					{:else}
 						{#each filteredServices as service (service.id)}
 							<div
-								onclick={() => goto(`/home/services/${service.id}/edit`)}
+								onclick={() =>
+									goto(resolve('/home/services/[serviceId]/edit', { serviceId: service.id }))}
 								class={`flex cursor-pointer items-center gap-4 border-b  border-l-4 
 								px-5 py-3.5 hover:bg-accent/40
 								`}
@@ -652,7 +654,8 @@
 									<DropdownMenu.Content align="end" class="w-52">
 										<DropdownMenu.Item
 											class="cursor-pointer gap-2"
-											onclick={() => goto(`/home/services/${service.id}/edit`)}
+											onclick={() =>
+												goto(resolve('/home/services/[serviceId]/edit', { serviceId: service.id }))}
 										>
 											<Pencil size={14} class="text-muted-foreground" />
 											Edit
@@ -744,7 +747,8 @@
 					{:else}
 						{#each filteredClasses as cls (cls.id)}
 							<div
-								onclick={() => goto(`/home/services/classes/${cls.id}/edit`)}
+								onclick={() =>
+									goto(resolve('/home/services/classes/[classId]/edit', { classId: cls.id }))}
 								class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
 							>
 								<!-- Icon -->
@@ -786,7 +790,8 @@
 									<DropdownMenu.Content align="end" class="w-52">
 										<DropdownMenu.Item
 											class="cursor-pointer gap-2"
-											onclick={() => goto(`/home/services/classes/${cls.id}/edit`)}
+											onclick={() =>
+												goto(resolve('/home/services/classes/[classId]/edit', { classId: cls.id }))}
 										>
 											<Pencil size={14} class="text-muted-foreground" />
 											Edit

@@ -40,7 +40,9 @@ export async function runMigrations(db: Kysely<PikSlotsDatabase>) {
 
   if (error) {
     logger.error('Migration Failed !!! ..... ');
-    throw error;
+    throw error instanceof Error
+      ? error
+      : new Error('Migration failed', { cause: error });
   } else {
     logger.fatal('Migrations Completed Sucessfully!!! ..... ');
   }

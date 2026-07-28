@@ -7,7 +7,6 @@
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 	import Cropper from 'svelte-easy-crop';
-	import type { CropArea, OnCropCompleteEvent } from 'svelte-easy-crop';
 	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
 	import { updateUserAvatarMutationOptions } from '../../../api/user/update.user.avatar.mutation';
 	import { businessStore } from '$stores/business.svelte';
@@ -29,16 +28,11 @@
 	let previewUrl = $state<string | null>(null);
 	let zoom = $state(1);
 	let crop = $state({ x: 0, y: 0 });
-	let croppedPixels = $state<CropArea | null>(null);
 	let fileInput: HTMLInputElement;
 	let folder = 'user';
 
 	const uploadMutation = createMutation(() => uploadAvatarMutationOptions());
 	const updateAvatarMutation = createMutation(() => updateUserAvatarMutationOptions());
-
-	function onCropComplete(event: OnCropCompleteEvent) {
-		croppedPixels = event.pixels;
-	}
 
 	function onFileChange(e: Event) {
 		const input = e.currentTarget as HTMLInputElement;
@@ -57,7 +51,6 @@
 		file = selected;
 		zoom = 1;
 		crop = { x: 0, y: 0 };
-		croppedPixels = null;
 		if (previewUrl) URL.revokeObjectURL(previewUrl);
 		previewUrl = URL.createObjectURL(selected);
 	}
@@ -103,7 +96,6 @@
 		file = null;
 		zoom = 1;
 		crop = { x: 0, y: 0 };
-		croppedPixels = null;
 		if (previewUrl) {
 			URL.revokeObjectURL(previewUrl);
 			previewUrl = null;
@@ -140,7 +132,6 @@
 					showGrid={false}
 					minZoom={0.5}
 					maxZoom={5}
-					oncropcomplete={onCropComplete}
 				/>
 			{:else}
 				<div class="flex h-full items-center justify-center text-xs text-muted-foreground">

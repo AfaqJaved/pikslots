@@ -25,7 +25,7 @@ function buildCommand(
     id: 'business-1',
     galleryPhotosKeys: [OLD_PHOTO_1, OLD_PHOTO_2],
     ...overrides,
-  } as UpdateBusinessGalleryPhotosCommand;
+  };
 }
 
 describe('UpdateBusinessGalleryPhotosUseCaseImpl', () => {
@@ -48,7 +48,10 @@ describe('UpdateBusinessGalleryPhotosUseCaseImpl', () => {
         },
         {
           provide: IPikslotS3Service,
-          useValue: { deleteFile: jest.fn().mockResolvedValue(undefined) },
+          useValue: {
+            deleteFile: jest.fn().mockResolvedValue(undefined),
+            extractKeyFromUrl: jest.fn((url: string) => url),
+          },
         },
       ],
     }).compile();

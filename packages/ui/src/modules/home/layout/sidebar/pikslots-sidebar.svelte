@@ -1,8 +1,7 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { getAllBusinessesQueryOptions } from '../../../api/business/get.all.businesses.query';
+	import { resolve } from '$app/paths';
 	import { navPrimary, navSecondary } from '../../nav-menu/menu';
 	import NavPrimary from './nav-primary.svelte';
 	import NavSecondary from './nav-secondary.svelte';
@@ -18,7 +17,13 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton class="data-[slot=sidebar-menu-button]:!p-1.5">
 					{#snippet child({ props })}
-						<a href="/home" class="font-code flex items-center gap-2 px-2 text-xl"> Pikslots </a>
+						<a
+							href={resolve('/home')}
+							class="font-code flex items-center gap-2 px-2 text-xl"
+							{...props}
+						>
+							Pikslots
+						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>

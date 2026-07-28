@@ -11,7 +11,6 @@ import { LoginUserDto } from '../dto/login.user.dto';
 import { RefreshUserSessionDto } from '../dto/refresh.user.session.dto';
 import { InviteUserDto } from '../dto/invite.user.dto';
 import { UpdateUserWorkingHoursDto } from '../dto/update.user.working.hours.dto';
-import { GetFreeSlotsForUserDto } from '../dto/get.free.slots.for.user.dto';
 import { UpdateUserAvatarDto } from '../dto/update.user.avatar.dto';
 
 export const InviteUserDocs = () =>

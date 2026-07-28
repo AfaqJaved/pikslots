@@ -18,6 +18,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		open: boolean;
@@ -40,7 +41,8 @@
 	// Pre-fill selected services when query loads
 	$effect(() => {
 		if (servicesByGroupQuery.data) {
-			selectedIds = new Set(servicesByGroupQuery.data.map((s) => s.id));
+			selectedIds.clear();
+			for (const s of servicesByGroupQuery.data) selectedIds.add(s.id);
 		}
 	});
 
@@ -96,7 +98,7 @@
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let serviceSearch = $state('');
-	let selectedIds = $state<Set<string>>(new Set());
+	const selectedIds = new SvelteSet<string>();
 
 	const filteredServices = $derived(
 		services.filter((s) => s.title.toLowerCase().includes(serviceSearch.toLowerCase()))
@@ -116,7 +118,6 @@
 		} else {
 			filteredServices.forEach((s) => selectedIds.add(s.id));
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function toggleService(id: string) {
@@ -125,7 +126,6 @@
 		} else {
 			selectedIds.add(id);
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function handleCancel() {

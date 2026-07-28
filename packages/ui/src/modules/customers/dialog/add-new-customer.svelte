@@ -12,7 +12,6 @@
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
-	import z from 'zod';
 	import { businessStore } from '$stores/business.svelte';
 	import { registerCustomerMutationOptions } from '../../api/customer/register.customer.mutation';
 	import XIcon from '@lucide/svelte/icons/x';

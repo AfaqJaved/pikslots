@@ -201,7 +201,7 @@
 			<h3 class="text-xs font-medium">Brand color</h3>
 			{#if business === null}
 				<div class="flex flex-wrap gap-2">
-					{#each Array(11) as _}
+					{#each Array(11) as _, i (i)}
 						<Skeleton class="size-8 rounded-full" />
 					{/each}
 				</div>
@@ -243,7 +243,7 @@
 			<h3 class="text-xs font-medium">Button shape</h3>
 			{#if business === null}
 				<div class="grid grid-cols-3 gap-3">
-					{#each Array(3) as _}
+					{#each Array(3) as _, i (i)}
 						<Skeleton class="h-24 rounded-lg" />
 					{/each}
 				</div>
@@ -285,7 +285,7 @@
 			<h3 class="text-xs font-medium">Theme</h3>
 			{#if business === null}
 				<div class="grid grid-cols-3 gap-3">
-					{#each Array(3) as _}
+					{#each Array(3) as _, i (i)}
 						<Skeleton class="h-24 rounded-lg" />
 					{/each}
 				</div>

@@ -18,6 +18,7 @@
 	import { toast } from 'svelte-sonner';
 	import { authStore } from '$stores/auth.svelte.js';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { LoginUserFormSchema } from './validations/schema';
@@ -48,11 +49,11 @@
 	);
 
 	$effect(() => {
-		if (authStore.isAuthenticated) goto('/home');
+		if (authStore.isAuthenticated) goto(resolve('/home'));
 
 		if (loginMutation.data) {
 			authStore.setAccessToken(loginMutation.data.accessToken);
-			goto('/home');
+			goto(resolve('/home'));
 		}
 		if (loginMutation.isError) {
 			console.log(loginMutation.error.response?.data.message);

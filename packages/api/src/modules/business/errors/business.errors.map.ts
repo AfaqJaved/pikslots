@@ -1,6 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
 import {
-  err,
   type BusinessAlreadyExistsError,
   type BusinessInactiveError,
   type BusinessNotFoundError,
@@ -33,7 +32,7 @@ const businessErrorMap: Record<
   unauthorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
   infrastructure: (error) => {
-    //@ts-ignore
+    //@ts-expect-error cause is untyped on InfrastructureError
     console.log(error.cause);
     return new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',

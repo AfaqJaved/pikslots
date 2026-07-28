@@ -16,6 +16,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		open: boolean;
@@ -74,7 +75,7 @@
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let serviceSearch = $state('');
-	let selectedIds = $state<Set<string>>(new Set());
+	const selectedIds = new SvelteSet<string>();
 
 	const filteredServices = $derived(
 		services.filter((s) => s.title.toLowerCase().includes(serviceSearch.toLowerCase()))
@@ -94,7 +95,6 @@
 		} else {
 			filteredServices.forEach((s) => selectedIds.add(s.id));
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function toggleService(id: string) {
@@ -103,7 +103,6 @@
 		} else {
 			selectedIds.add(id);
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function handleCancel() {
@@ -114,7 +113,7 @@
 	function reset() {
 		$form.name = '';
 		serviceSearch = '';
-		selectedIds = new Set();
+		selectedIds.clear();
 	}
 
 	function formatDuration(mins: number): string {
@@ -205,7 +204,7 @@
 
 					<!-- Service list -->
 					<div class="flex flex-col gap-2 overflow-y-auto">
-						{#each filteredServices as service, i (service.id)}
+						{#each filteredServices as service (service.id)}
 							<button
 								type="button"
 								onclick={() => toggleService(service.id)}

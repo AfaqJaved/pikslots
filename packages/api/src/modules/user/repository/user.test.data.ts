@@ -1,7 +1,7 @@
 import { User } from '@pikslots/domain';
 
 const now = new Date();
-export let USER_TEST_DATA: User[] = [
+export const USER_TEST_DATA: User[] = [
   User.create({
     id: 'user-platform-owner-1',
     username: 'platform_owner',

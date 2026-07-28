@@ -32,7 +32,7 @@ function buildCommand(
     updatedBy: 'user-business-owner-1',
     associatedClassGroupIds: ['class-group-1', 'class-group-2'],
     ...overrides,
-  } as EditClassCommand;
+  };
 }
 
 describe('EditClassUseCaseImpl', () => {
@@ -52,7 +52,7 @@ describe('EditClassUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

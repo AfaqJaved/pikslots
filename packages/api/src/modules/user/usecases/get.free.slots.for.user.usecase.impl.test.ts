@@ -6,6 +6,7 @@ import {
   ok,
   Slot,
   User,
+  UserNotFoundError,
   WeekDay,
 } from '@pikslots/domain';
 import { getWeekDay, workingHourToUTC } from '@pikslots/datetime';
@@ -154,8 +155,8 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error.kind).toBe('user_not_found');
-        expect((result.error as any).by).toBe('id');
-        expect((result.error as any).value).toBe('non-existent');
+        expect((result.error as UserNotFoundError).by).toBe('id');
+        expect((result.error as UserNotFoundError).value).toBe('non-existent');
       }
     });
 

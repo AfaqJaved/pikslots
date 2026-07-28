@@ -7,7 +7,6 @@
 	import { Toaster } from 'svelte-sonner';
 	import { refreshUserToken } from '../modules/api/user/refresh.user.mutation';
 	import { browser } from '$app/environment';
-	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 
 	let { children } = $props();
 

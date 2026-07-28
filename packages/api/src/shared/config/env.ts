@@ -61,10 +61,10 @@ export class Env {
 
   @IsArray()
   @IsString({ each: true })
-  @Transform(({ value }) =>
+  @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string'
-      ? value.split(',').map((s: string) => s.trim())
-      : value,
+      ? value.split(',').map((s) => s.trim())
+      : (value as string[]),
   )
   CORS_ORIGINS: string[];
 

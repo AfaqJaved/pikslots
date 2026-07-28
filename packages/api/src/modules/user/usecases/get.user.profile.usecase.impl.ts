@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   err,
   GetUserProfileUseCase,
-  IGetUserProfileUseCase,
   InfrastructureError,
   IUserRepository,
   ok,

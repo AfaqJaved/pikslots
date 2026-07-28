@@ -28,7 +28,7 @@ function buildCommand(
     endTime: '16:30',
     createdBy: 'user-standard-1',
     ...overrides,
-  } as CreateBreakCommand;
+  };
 }
 
 describe('CreateBreakUseCaseImpl', () => {
@@ -46,7 +46,7 @@ describe('CreateBreakUseCaseImpl', () => {
       userId: 'user-standard-1',
       role: 'Standard',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
