@@ -4,6 +4,7 @@
 	import { settingsStore } from '$stores/settings.svelte.js';
 	import { authStore } from '$stores/auth.svelte.js';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import PikslotHeader from './header/pikslot-header.svelte';
 	import PikslotsSidebar from './sidebar/pikslots-sidebar.svelte';
@@ -18,7 +19,7 @@
 	);
 
 	$effect(() => {
-		if (!authStore.isInitializing && !authStore.isAuthenticated) goto('/login');
+		if (!authStore.isInitializing && !authStore.isAuthenticated) goto(resolve('/login'));
 
 		if (
 			authStore.getPayloadData()?.role !== 'Platform Owner' ||

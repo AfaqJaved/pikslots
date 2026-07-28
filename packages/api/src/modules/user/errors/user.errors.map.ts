@@ -13,7 +13,6 @@ import {
   type UserInactiveError,
   type ValidationError,
   type WorkingHoursUpdateNotAuthorizedError,
-  err,
 } from '@pikslots/domain';
 import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response';
 

@@ -44,7 +44,7 @@
 	);
 
 	$effect(() => {
-		businessStore.selectedBusiness?.id;
+		void businessStore.selectedBusiness?.id;
 		selectedId = null;
 		if (usersQuery.data) {
 			selectedId = usersQuery.data[0].id;

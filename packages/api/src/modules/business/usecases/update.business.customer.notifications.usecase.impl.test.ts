@@ -27,7 +27,7 @@ function buildCommand(
       value: 30,
     },
     ...overrides,
-  } as UpdateBusinessCustomerNotificationsCommand;
+  };
 }
 
 describe('UpdateBusinessCustomerNotificationsUseCaseImpl', () => {
@@ -45,7 +45,7 @@ describe('UpdateBusinessCustomerNotificationsUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

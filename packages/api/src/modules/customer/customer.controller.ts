@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -39,6 +40,11 @@ import type {
   FindCustomerByIdResponse,
   UpdateCustomerProfileImageResponse,
 } from '@pikslots/shared';
+import { CustomerResponseMapper } from './mappers/customer.reponse.mapper';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 @ApiTags('Customers')
 @Controller('')
@@ -46,6 +52,7 @@ export class CustomerController {
   constructor(
     private readonly customerUseCasesFactory: CustomerUseCasesFactory,
     private readonly securityContext: SecurityContext,
+    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
   ) {}
 
   @RegisterCustomerDocs()
@@ -186,13 +193,19 @@ export class CustomerController {
       return errorResponse;
     }
 
-    const c = result.value;
+    const customer: FindCustomerByIdResponse =
+      await CustomerResponseMapper.toCustomerResponse(
+        result.value,
+        this.s3Service,
+      );
+
+    const c = customer;
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<FindCustomerByIdResponse>(
       {
         id: c.id,
-        firstName: c.name.firstName,
-        lastName: c.name.lastName,
+        firstName: c.firstName,
+        lastName: c.lastName,
         profileImageUrl: c.profileImageUrl,
         email: c.email,
         additionalEmail: c.additionalEmail,
@@ -234,12 +247,26 @@ export class CustomerController {
       return errorResponse;
     }
 
+    const customer: FindAllCustomersByBusinessResponse = await Promise.all(
+      result.value.map((customer) =>
+        CustomerResponseMapper.toPartialCustomerResponse(
+          {
+            id: customer.id,
+            firstName: customer.fullName.firstName,
+            lastName: customer.fullName.lastName,
+            profileImageUrl: customer.profileImageUrl,
+          },
+          this.s3Service,
+        ),
+      ),
+    );
+
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<FindAllCustomersByBusinessResponse>(
-      result.value.map((c) => ({
+      customer.map((c) => ({
         id: c.id,
-        firstName: c.fullName.firstName,
-        lastName: c.fullName.lastName,
+        firstName: c.firstName,
+        lastName: c.lastName,
         profileImageUrl: c.profileImageUrl,
       })),
       HttpStatus.OK,

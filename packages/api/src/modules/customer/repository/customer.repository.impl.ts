@@ -15,6 +15,15 @@ import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
 import { PikSlotsDatabase } from 'src/shared/database/schema';
 import { CustomerPersistenceMapper } from '../mappers/customer.database.mapper';
 
+function hasPgErrorCode(cause: unknown): cause is { code: string } {
+  return (
+    typeof cause === 'object' &&
+    cause !== null &&
+    'code' in cause &&
+    typeof cause.code === 'string'
+  );
+}
+
 @Injectable()
 export class CustomerRepositoryImpl implements CustomerRepository {
   private readonly mapper = new CustomerPersistenceMapper();
@@ -67,9 +76,9 @@ export class CustomerRepositoryImpl implements CustomerRepository {
         .values(this.mapper.domainToPersistence(customer))
         .execute();
       return ok(undefined);
-    } catch (cause: any) {
+    } catch (cause) {
       // unique constraint violation (email + business_id)
-      if (cause?.code === '23505') {
+      if (hasPgErrorCode(cause) && cause.code === '23505') {
         return err<CustomerAlreadyExistsError>({
           kind: 'customer_already_exists',
           message: `A customer with this email already exists for this business`,

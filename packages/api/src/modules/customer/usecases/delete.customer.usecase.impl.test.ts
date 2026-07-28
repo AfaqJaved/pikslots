@@ -20,7 +20,7 @@ function buildCommand(
     id: 'customer-1',
     deletedBy: 'user-business-owner-1',
     ...overrides,
-  } as DeleteCustomerCommand;
+  };
 }
 
 describe('DeleteCustomerUseCaseImpl', () => {
@@ -40,7 +40,7 @@ describe('DeleteCustomerUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

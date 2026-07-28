@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { Icon } from '@tabler/icons-svelte';
+	import type { ResolvedPathname } from '$app/types';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/stores';
 	import { settingsStore } from '$stores/settings.svelte';
 
-	let { items }: { items: { name: string; url: string; icon: Icon }[] } = $props();
+	let { items }: { items: { name: string; url: ResolvedPathname; icon: Icon }[] } = $props();
 
 	// const sidebar = Sidebar.useSidebar();
 

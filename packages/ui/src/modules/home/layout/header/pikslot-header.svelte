@@ -46,12 +46,14 @@
 					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" class="w-48">
-					{#each actions as action}
+					<!-- eslint-disable svelte/no-navigation-without-resolve -- some of these action routes (bookings/new, settings/team/invite, customers/new) aren't built yet, so resolve() can't type-check them -->
+					{#each actions as action (action.href)}
 						<DropdownMenu.Item class="cursor-pointer gap-2.5" onclick={() => goto(action.href)}>
 							<action.icon size={15} class="text-muted-foreground" />
 							{action.label}
 						</DropdownMenu.Item>
 					{/each}
+					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>

@@ -121,7 +121,7 @@ export class Business {
         brandColor: '#111111',
         brandButtonShape: 'rounded',
         theme: 'system',
-        gallaryPhotosUrls: [],
+        gallaryPhotosUrls: ['', '', '', '', '', '', '', '', '', ''],
       },
       locationDetails: {
         address: '',

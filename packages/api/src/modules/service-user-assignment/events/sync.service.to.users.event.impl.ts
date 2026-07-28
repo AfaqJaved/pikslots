@@ -5,10 +5,7 @@ import {
   ServiceUserAssignment,
 } from '@pikslots/domain';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
-import type {
-  SyncServiceToUsersEvent,
-  ServiceUserAssignmentRepository,
-} from '@pikslots/domain';
+import type { ServiceUserAssignmentRepository } from '@pikslots/domain';
 import { v7 as uuidv7 } from 'uuid';
 import { ServiceUserAssignmentJob } from 'src/shared/queue/jobs';
 

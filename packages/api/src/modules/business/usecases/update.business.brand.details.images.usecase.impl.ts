@@ -79,6 +79,7 @@ export class UpdateBusinessBrandDetailsImagesUseCaseImpl implements UpdateBusine
     if (
       oldBannerImage &&
       command.bannerImageKey.length > 0 &&
+      command.bannerImageKey !== oldBrandLogo &&
       command.bannerImageKey !== oldBannerImage
     ) {
       try {
@@ -97,6 +98,7 @@ export class UpdateBusinessBrandDetailsImagesUseCaseImpl implements UpdateBusine
     if (
       oldBrandLogo &&
       command.brandLogoKey.length > 0 &&
+      command.brandLogoKey !== oldBannerImage &&
       command.brandLogoKey !== oldBrandLogo
     ) {
       try {

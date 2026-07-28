@@ -6,6 +6,7 @@ import { type Env } from './shared/config/env';
 import { PrintLoadedEnv } from './shared/config/print.env';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { validationExceptionFactory } from './shared/pipes/validation.exception.factory';
 
 async function bootstrap() {
@@ -34,7 +35,7 @@ async function bootstrap() {
       ),
   );
 
-  app.enableCors({
+  const corsOptions: CorsOptions = {
     origin: (origin, callback) => {
       // requests with no origin (e.g. curl, server-to-server) are allowed
       if (!origin || corsOriginMatchers.some((re) => re.test(origin))) {
@@ -44,7 +45,8 @@ async function bootstrap() {
       }
     },
     credentials: true,
-  });
+  };
+  app.enableCors(corsOptions);
 
   const enableApiDocs = config.get('ENABLE_API_DOCS', { infer: true });
 
@@ -65,4 +67,4 @@ async function bootstrap() {
   await app.listen(port);
 }
 
-bootstrap();
+void bootstrap();

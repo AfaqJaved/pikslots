@@ -13,6 +13,10 @@ import type {
   UpdateBusinessAppearanceCommand,
   UpdateBusinessAppearanceUseCase,
 } from '@pikslots/domain';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 const BUSINESS_NOT_FOUND = (id: string): BusinessNotFoundError => ({
   kind: 'business_not_found',
@@ -27,6 +31,8 @@ export class UpdateBusinessAppearanceUseCaseImpl implements UpdateBusinessAppear
   constructor(
     @Inject(IBusinessRepository)
     private readonly businessRepository: BusinessRepository,
+    @Inject(IPikslotS3Service)
+    private readonly s3Service: PikslotS3Service,
   ) {}
 
   async execute(
@@ -44,7 +50,9 @@ export class UpdateBusinessAppearanceUseCaseImpl implements UpdateBusinessAppear
       brandColor: command.brandColor,
       brandButtonShape: command.brandButtonShape,
       theme: command.theme,
-      gallaryPhotosUrls: command.gallaryPhotosUrls,
+      gallaryPhotosUrls: command.gallaryPhotosUrls.map((value) =>
+        this.s3Service.extractKeyFromUrl(value),
+      ),
       updatedBy: business.ownerId,
     });
 

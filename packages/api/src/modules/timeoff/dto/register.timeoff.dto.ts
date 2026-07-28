@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RegisterTimeoffInput } from '@pikslots/shared';
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDate,
   IsDateString,
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import {
   PikSlotsStringValidation,

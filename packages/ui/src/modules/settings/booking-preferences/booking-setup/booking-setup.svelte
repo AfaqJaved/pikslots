@@ -193,7 +193,7 @@
 			</div>
 			<div class="flex flex-col gap-2.5">
 				{#if business === null}
-					{#each Array(6) as _}
+					{#each Array(6) as _, i (i)}
 						<div class="flex items-center gap-3">
 							<Skeleton class="h-5 w-9 rounded-full" />
 							<Skeleton class="h-3.5 w-28 rounded" />
@@ -221,7 +221,7 @@
 
 			<div class="flex flex-col gap-2.5">
 				{#if business === null}
-					{#each Array(9) as _}
+					{#each Array(9) as _, i (i)}
 						<div class="flex items-center gap-3">
 							<Skeleton class="h-5 w-9 rounded-full" />
 							<Skeleton class="h-3.5 w-36 rounded" />
@@ -309,7 +309,7 @@
 
 			<div class="flex flex-col gap-2.5">
 				{#if business === null}
-					{#each Array(4) as _}
+					{#each Array(4) as _, i (i)}
 						<div class="flex items-center gap-3">
 							<Skeleton class="h-5 w-9 rounded-full" />
 							<Skeleton class="h-3.5 w-20 rounded" />

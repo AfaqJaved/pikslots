@@ -26,7 +26,7 @@
 		<a
 			href={user.bookingUrl}
 			target="_blank"
-			rel="noopener noreferrer"
+			rel="noopener noreferrer external"
 			class="text-xs underline underline-offset-2"
 		>
 			{user.bookingUrl}

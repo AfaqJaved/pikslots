@@ -13,6 +13,7 @@
 	import BrandYoutube from '@tabler/icons-svelte/icons/brand-youtube';
 	import BrandLinkedin from '@tabler/icons-svelte/icons/brand-linkedin';
 	import Link from '@tabler/icons-svelte/icons/link';
+	import type { Icon } from '@tabler/icons-svelte';
 	import { businessStore } from '../../../core/store/business.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { updateBusinessLinks } from '../../../api/business/update.business.links.mutation';
@@ -26,7 +27,7 @@
 
 	type LinkType = 'tiktok' | 'x' | 'youtube' | 'linkedin' | 'custom';
 
-	const LINK_OPTIONS: { type: LinkType; label: string; icon: any }[] = [
+	const LINK_OPTIONS: { type: LinkType; label: string; icon: Icon }[] = [
 		{ type: 'tiktok', label: 'TikTok', icon: BrandTiktok },
 		{ type: 'x', label: 'X', icon: BrandX },
 		{ type: 'youtube', label: 'YouTube', icon: BrandYoutube },
@@ -43,7 +44,7 @@
 	let x = $state('');
 	let youtube = $state('');
 	let linkedin = $state('');
-	let extraLinks = $state<{ type: LinkType; label: string; icon: any; value: string }[]>([]);
+	let extraLinks = $state<{ type: LinkType; label: string; icon: Icon; value: string }[]>([]);
 	let previewDevice = $state<'tablet' | 'desktop'>('tablet');
 
 	$effect(() => {
@@ -198,7 +199,7 @@
 				<Input id="facebook" type="url" bind:value={facebook} placeholder="" />
 			</div>
 
-			{#each extraLinks as link, i (link.type)}
+			{#each extraLinks as link (link.type)}
 				<div class="flex flex-col gap-2">
 					<Label class="flex items-center gap-1.5">
 						<link.icon size={13} class="text-muted-foreground" />

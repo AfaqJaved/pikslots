@@ -12,13 +12,15 @@
 		initialFile = <File | null>null,
 		previewUrl = $bindable<string | null>(null),
 		title,
-		onSave
+		onSave,
+		onClose
 	}: {
 		open: boolean;
 		initialFile: File | null;
 		previewUrl: string | null;
 		title: string;
 		onSave: (file: File | null) => void;
+		onClose: () => void;
 	} = $props();
 
 	//______________image variables____________________________________
@@ -90,12 +92,23 @@
 		crop = { x: 0, y: 0 };
 		croppedPixels = null;
 	}
+
+	function onCloseRevokeUrl() {
+		open = false;
+		file = null;
+		zoom = 1;
+		crop = { x: 0, y: 0 };
+		croppedPixels = null;
+		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		previewUrl = null;
+		onClose();
+	}
 </script>
 
 <Dialog.Root
 	bind:open
 	onOpenChange={(v) => {
-		if (!v) close();
+		if (!v) onCloseRevokeUrl();
 	}}
 >
 	<Dialog.Content class="gap-0 p-0 sm:max-w-lg">

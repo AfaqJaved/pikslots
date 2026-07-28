@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { browser } from '$app/environment';
 	import PublicBookingPage from '../modules/public-booking/public-booking-page.svelte';
 	import { getBusinessSlugFromHost, isAppHost } from '$utils/tenant-host';
@@ -9,7 +10,7 @@
 
 	$effect(() => {
 		if (browser && isAppHost(host)) {
-			goto('/home');
+			goto(resolve('/home'));
 		}
 	});
 </script>

@@ -6,6 +6,7 @@
 	import SelectDatetimeStep from './steps/select-datetime-step.svelte';
 	import ContactDetailsStep from './steps/contact-details-step.svelte';
 	import ConfirmationStep from './steps/confirmation-step.svelte';
+	import UngroupedSerivice from './steps/select-ungrouped-service.svelte';
 	import { resolveTeamStep } from './resolve-team-step';
 	import type { BookingFlowState } from './booking-flow-state.svelte';
 	import type {
@@ -20,12 +21,14 @@
 		flow,
 		business,
 		serviceGroups,
+		ungroupedService,
 		teamMembers,
 		onClose
 	}: {
 		flow: BookingFlowState;
 		business: PublicBusiness;
 		serviceGroups: PublicServiceGroup[];
+		ungroupedService: PublicService[];
 		teamMembers: PublicTeamMember[];
 		onClose: () => void;
 	} = $props();
@@ -41,6 +44,25 @@
 			flow.step = 'datetime';
 		}
 	});
+
+	const filterServiceGroups = $derived(
+		flow.selectedTeamMember?.serviceIds !== null
+			? serviceGroups
+					.map((g) => ({
+						...g,
+						services: g.services.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
+					}))
+					.filter((g) => g.services.length > 0)
+			: serviceGroups
+	);
+
+	const filterUngroupedServices = $derived(
+		flow.selectedTeamMember?.serviceIds !== null
+			? ungroupedService
+					.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
+					.filter((s) => s !== null)
+			: ungroupedService
+	);
 
 	function handleServiceSelected(service: PublicService) {
 		flow.selectedService = service;
@@ -98,13 +120,23 @@
 	</div>
 
 	{#if flow.step === 'service'}
-		<SelectServiceStep
-			{serviceGroups}
-			currency={business.locationDetails.currency}
-			showPrices={business.bookingCustomization.showServiceAndClassPrices}
-			showDuration={business.bookingCustomization.showServiceAndClassDuration}
-			onSelect={handleServiceSelected}
-		/>
+		{#if serviceGroups && serviceGroups.length > 0}
+			<SelectServiceStep
+				serviceGroups={flow.previousStep === 'first' ? filterServiceGroups : serviceGroups}
+				currency={business.locationDetails.currency}
+				showPrices={business.bookingCustomization.showServiceAndClassPrices}
+				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				onSelect={handleServiceSelected}
+			/>
+		{:else if ungroupedService && ungroupedService.length > 0}
+			<UngroupedSerivice
+				services={flow.previousStep === 'first' ? filterUngroupedServices : ungroupedService}
+				currency={business.locationDetails.currency}
+				showPrices={business.bookingCustomization.showServiceAndClassPrices}
+				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				onSelect={handleServiceSelected}
+			/>
+		{/if}
 	{:else if flow.step === 'team-member'}
 		<SelectTeamMemberStep {teamMembers} onSelect={handleTeamMemberSelected} />
 	{:else if flow.step === 'datetime' && flow.selectedService}
