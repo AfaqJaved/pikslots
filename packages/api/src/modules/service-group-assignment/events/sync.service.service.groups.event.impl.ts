@@ -46,8 +46,6 @@ export class SyncServiceServiceGroupsEventImpl extends WorkerHost {
     );
 
     if (newGroupIds.length > 0) {
-      const now = new Date();
-
       const assignments = newGroupIds.map((serviceGroupId) =>
         ServiceGroupAssignment.create({
           id: uuidv7(),
@@ -55,12 +53,7 @@ export class SyncServiceServiceGroupsEventImpl extends WorkerHost {
           serviceGroupId,
           businessId: data.businessId,
           createdBy: data.assignedBy,
-          createdAt: now,
-          updatedAt: now,
           updatedBy: data.assignedBy,
-          deletedAt: null,
-          deletedBy: null,
-          isDeleted: false,
         }),
       );
 
