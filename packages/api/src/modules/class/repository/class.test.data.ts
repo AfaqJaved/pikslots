@@ -2,7 +2,7 @@ import { Class } from '@pikslots/domain';
 
 const now = new Date();
 
-export let CLASS_TEST_DATA: Class[] = [
+export const CLASS_TEST_DATA: Class[] = [
   // ── business-1 classes ───────────────────────────────────────────────────
   Class.create({
     id: 'class-yoga-1',

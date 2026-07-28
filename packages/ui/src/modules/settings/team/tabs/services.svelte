@@ -5,6 +5,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import Search from '@tabler/icons-svelte/icons/search';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { getServicesByUserQueryOptions } from '../../../api/service-user-assignment/get.services.by.user.query';
 	import { getServicesByBusinessQueryOptions } from '../../../api/service/get.services.by.business.query';
@@ -45,18 +46,18 @@
 
 	function toggleSelectAll() {
 		if (allSelected) {
-			const next = new Set(selectedIds);
+			const next = new SvelteSet(selectedIds);
 			filteredServices.forEach((s) => next.delete(s.id));
 			selectedIds = next;
 		} else {
-			const next = new Set(selectedIds);
+			const next = new SvelteSet(selectedIds);
 			filteredServices.forEach((s) => next.add(s.id));
 			selectedIds = next;
 		}
 	}
 
 	function toggleService(id: string) {
-		const next = new Set(selectedIds);
+		const next = new SvelteSet(selectedIds);
 		if (next.has(id)) {
 			next.delete(id);
 		} else {

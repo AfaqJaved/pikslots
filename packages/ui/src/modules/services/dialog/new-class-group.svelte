@@ -16,6 +16,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		open: boolean;
@@ -74,7 +75,7 @@
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let classSearch = $state('');
-	let selectedIds = $state<Set<string>>(new Set());
+	const selectedIds = new SvelteSet<string>();
 
 	const filteredClasses = $derived(
 		classes.filter((c) => c.title.toLowerCase().includes(classSearch.toLowerCase()))
@@ -92,7 +93,6 @@
 		} else {
 			filteredClasses.forEach((c) => selectedIds.add(c.id));
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function toggleClass(id: string) {
@@ -101,7 +101,6 @@
 		} else {
 			selectedIds.add(id);
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function handleCancel() {
@@ -112,7 +111,7 @@
 	function reset() {
 		$form.name = '';
 		classSearch = '';
-		selectedIds = new Set();
+		selectedIds.clear();
 	}
 
 	function formatDuration(mins: number): string {

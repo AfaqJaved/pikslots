@@ -1,0 +1,126 @@
+// timeoff.test.data.ts
+import { Timeoff } from '@pikslots/domain';
+
+export const TIMEOFF_TEST_DATA: Timeoff[] = [
+  // Active: standard user's vacation, business-1
+  Timeoff.reconstitute({
+    id: 'timeoff-1',
+    title: 'Summer Vacation',
+    userId: 'user-standard-1',
+    businessId: 'business-1',
+    startDateTime: '2024-07-01T00:00:00Z',
+    endDateTime: '2024-07-07T23:59:59Z',
+    allDay: true,
+    timeZone: 'UTC',
+    recurrence: null,
+    createdAt: new Date('2024-06-01T00:00:00Z'),
+    createdBy: 'user-standard-1',
+    updatedAt: new Date('2024-06-01T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: same user, second timeoff, business-1
+  Timeoff.reconstitute({
+    id: 'timeoff-2',
+    title: 'Doctor Appointment',
+    userId: 'user-standard-1',
+    businessId: 'business-1',
+    startDateTime: '2024-08-15T09:00:00Z',
+    endDateTime: '2024-08-15T11:00:00Z',
+    allDay: false,
+    timeZone: 'America/New_York',
+    recurrence: null,
+    createdAt: new Date('2024-08-01T00:00:00Z'),
+    createdBy: 'user-standard-1',
+    updatedAt: new Date('2024-08-01T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: different user, same business (business-1)
+  Timeoff.reconstitute({
+    id: 'timeoff-3',
+    title: 'Personal Day',
+    userId: 'user-enhanced-1',
+    businessId: 'business-1',
+    startDateTime: '2024-09-10T00:00:00Z',
+    endDateTime: '2024-09-10T23:59:59Z',
+    allDay: true,
+    timeZone: 'UTC',
+    recurrence: null,
+    createdAt: new Date('2024-09-01T00:00:00Z'),
+    createdBy: 'user-enhanced-1',
+    updatedAt: new Date('2024-09-01T00:00:00Z'),
+    updatedBy: 'user-enhanced-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Soft-deleted: standard user's cancelled timeoff, business-1
+  // (should be excluded from findById, but note findAllByUser does NOT
+  // filter is_deleted in the real repo — see flag below)
+  Timeoff.reconstitute({
+    id: 'timeoff-4',
+    title: 'Cancelled Trip',
+    userId: 'user-standard-1',
+    businessId: 'business-1',
+    startDateTime: '2024-10-01T00:00:00Z',
+    endDateTime: '2024-10-05T23:59:59Z',
+    allDay: true,
+    timeZone: 'UTC',
+    recurrence: null,
+    createdAt: new Date('2024-09-15T00:00:00Z'),
+    createdBy: 'user-standard-1',
+    updatedAt: new Date('2024-09-20T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: new Date('2024-09-20T00:00:00Z'),
+    deletedBy: 'user-standard-1',
+    isDeleted: true,
+  }),
+
+  // Active: recurring weekly timeoff, business-1
+  Timeoff.reconstitute({
+    id: 'timeoff-5',
+    title: 'Weekly Therapy Session',
+    userId: 'user-standard-1',
+    businessId: 'business-1',
+    startDateTime: '2024-06-05T14:00:00Z',
+    endDateTime: '2024-06-05T15:00:00Z',
+    allDay: false,
+    timeZone: 'UTC',
+    recurrence: 'FREQ=WEEKLY;BYDAY=WE',
+    createdAt: new Date('2024-06-01T00:00:00Z'),
+    createdBy: 'user-standard-1',
+    updatedAt: new Date('2024-06-01T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: same userId as timeoff-1, but different business (isolation checks)
+  Timeoff.reconstitute({
+    id: 'timeoff-6',
+    title: 'Off day at second business',
+    userId: 'user-standard-1',
+    businessId: 'business-2',
+    startDateTime: '2024-07-20T00:00:00Z',
+    endDateTime: '2024-07-20T23:59:59Z',
+    allDay: true,
+    timeZone: 'UTC',
+    recurrence: null,
+    createdAt: new Date('2024-07-10T00:00:00Z'),
+    createdBy: 'user-standard-1',
+    updatedAt: new Date('2024-07-10T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+];

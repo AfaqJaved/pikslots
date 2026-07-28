@@ -13,6 +13,7 @@
 	import { themeStore } from '$stores/theme.svelte.js';
 	import { authStore } from '$stores/auth.svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUserProfileQueryOptions } from '../../../api/user/get.user.profile.query';
 	import { logoutUser } from '../../../api/user/logout.user.mutation';
@@ -24,9 +25,9 @@
 		const result = await logoutUser();
 		if (result.message === 'success') {
 			authStore.clearAccessToken();
-			goto('/login');
+			goto(resolve('/login'));
 		}
-		goto('/login');
+		goto(resolve('/login'));
 	};
 </script>
 
@@ -84,7 +85,7 @@
 					</DropdownMenu.Label>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Group>
-						<DropdownMenu.Item onclick={() => goto('/home/settings/profile')}>
+						<DropdownMenu.Item onclick={() => goto(resolve('/home/settings/profile'))}>
 							<UserCircleIcon />
 							Profile
 						</DropdownMenu.Item>

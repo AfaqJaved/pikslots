@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   Break,
-  BreakProps,
   type BreakRepository,
   err,
   FindBreaksByUserCommand,

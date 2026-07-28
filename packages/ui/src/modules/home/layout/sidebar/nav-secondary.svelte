@@ -3,13 +3,14 @@
 	import type { WithoutChildren } from '$lib/utils.js';
 	import type { ComponentProps } from 'svelte';
 	import type { Icon } from '@tabler/icons-svelte';
+	import type { ResolvedPathname } from '$app/types';
 	import { page } from '$app/stores';
 
 	let {
 		items,
 		...restProps
 	}: {
-		items: { title: string; url: string; icon: Icon; onclick?: () => void }[];
+		items: { title: string; url: ResolvedPathname | '#'; icon: Icon; onclick?: () => void }[];
 	} & WithoutChildren<ComponentProps<typeof Sidebar.Group>> = $props();
 
 	function isActive(url: string): boolean {
@@ -26,10 +27,17 @@
 						>>
 						{#snippet child({ props })}
 							<div on:click={item.onclick}>
-								<a href={item.url} {...props}>
-									<item.icon />
-									<span>{item.title}</span>
-								</a>
+								{#if item.url !== '#'}
+									<a href={item.url} {...props}>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								{:else}
+									<a href={'#'} {...props}>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								{/if}
 							</div>
 						{/snippet}
 					</Sidebar.MenuButton>

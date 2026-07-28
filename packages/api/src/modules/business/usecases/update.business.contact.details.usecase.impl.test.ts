@@ -24,7 +24,7 @@ function buildCommand(
       additionalPhones: [{ countryCode: '+1', number: '5558888' }],
     },
     ...overrides,
-  } as UpdateBusinessContactDetailsCommand;
+  };
 }
 
 describe('UpdateBusinessContactDetailsUseCaseImpl', () => {
@@ -42,7 +42,7 @@ describe('UpdateBusinessContactDetailsUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

@@ -18,12 +18,6 @@
 		{ value: 'all', label: 'All team members' },
 		{ value: 'afaq', label: 'Afaq Javed' }
 	];
-
-	function formatDate(value: string): string {
-		if (!value) return '';
-		const d = new Date(value);
-		return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-	}
 </script>
 
 <div class="flex h-full flex-col">

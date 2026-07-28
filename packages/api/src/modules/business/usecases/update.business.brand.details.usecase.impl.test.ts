@@ -24,7 +24,7 @@ function buildCommand(
     industry: 'salon_and_beauty',
     about: 'Updated about text.',
     ...overrides,
-  } as UpdateBusinessBrandDetailsCommand;
+  };
 }
 
 describe('UpdateBusinessBrandDetailsUseCaseImpl', () => {

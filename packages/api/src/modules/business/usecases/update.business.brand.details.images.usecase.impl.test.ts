@@ -23,7 +23,7 @@ function buildCommand(
     bannerImageKey: 'https://cdn.example.com/business-1/new-banner.jpg',
     brandLogoKey: 'https://cdn.example.com/business-1/new-logo.jpg',
     ...overrides,
-  } as UpdateBusinessBrandDetailsImagesCommand;
+  };
 }
 
 describe('UpdateBusinessBrandDetailsImagesUseCaseImpl', () => {

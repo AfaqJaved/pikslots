@@ -7,7 +7,7 @@ export interface TimeOffRepository {
   findAllByUser(
     userId: string,
     businessId: string,
-  ): Promise<Result<Timeoff[], TimeOffNotFound | InfrastructureError>>;
+  ): Promise<Result<Timeoff[], InfrastructureError>>;
   findById(id: string): Promise<Result<Timeoff, TimeOffNotFound | InfrastructureError>>;
   update(timeoff: Timeoff): Promise<Result<void, TimeOffNotFound | InfrastructureError>>;
   delete(id: string): Promise<Result<void, TimeOffNotFound | InfrastructureError>>;

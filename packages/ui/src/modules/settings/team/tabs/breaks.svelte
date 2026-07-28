@@ -5,6 +5,7 @@
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import Trash from '@tabler/icons-svelte/icons/trash';
 	import { WEEKDAYS, quarterHourTimes, fromHHmm, toHHmm } from '$utils/working-hours';
+	import { SvelteSet } from 'svelte/reactivity';
 	import type { UserWorkingHoursResponse, WeekDay } from '@pikslots/shared';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
@@ -73,7 +74,7 @@
 	}
 
 	function getConflictingIndices(breaks: BreakEntry[]): Set<number> {
-		const conflicting = new Set<number>();
+		const conflicting = new SvelteSet<number>();
 		for (let i = 0; i < breaks.length; i++) {
 			if (toHHmm(breaks[i].start) >= toHHmm(breaks[i].end)) {
 				conflicting.add(i);

@@ -21,6 +21,7 @@ export interface PikslotS3Service {
   }): Promise<string>;
   getPresignedDownloadUrl(key: string): Promise<string>;
   deleteFile(key: string): Promise<void>;
+  extractKeyFromUrl(value: string): string;
 }
 
 @Injectable()
@@ -46,7 +47,7 @@ export class PikslotS3ServiceImplementation
     const key = `${path}/${filename}`;
 
     const command = new PutObjectCommand({
-      Bucket: this.configService.get('S3_BUCKET_NAME'),
+      Bucket: this.configService.get('S3_BUCKET_NAME', { infer: true }),
       Key: key,
       ContentType: contentType,
     });
@@ -55,18 +56,36 @@ export class PikslotS3ServiceImplementation
   }
 
   async getPresignedDownloadUrl(key: string): Promise<string> {
+    if (!key) return '';
+
     const command = new GetObjectCommand({
-      Bucket: this.configService.get('S3_BUCKET_NAME'),
+      Bucket: this.configService.get('S3_BUCKET_NAME', { infer: true }),
       Key: key,
     });
 
     return getSignedUrl(this.s3, command, { expiresIn: 3600 });
   }
 
+  extractKeyFromUrl(value: string): string {
+    if (!/^https?:\/\//i.test(value)) return value;
+
+    const bucket = this.configService.get('S3_BUCKET_NAME', { infer: true });
+    const forcePathStyle = this.configService.get('S3_FORCED_PATH_STYLE', {
+      infer: true,
+    });
+    const path = decodeURIComponent(new URL(value).pathname);
+
+    if (forcePathStyle && path.startsWith(`/${bucket}/`)) {
+      return path.slice(`/${bucket}/`.length);
+    }
+
+    return path.replace(/^\//, '');
+  }
+
   async deleteFile(key: string): Promise<void> {
     await this.s3.send(
       new DeleteObjectCommand({
-        Bucket: this.configService.get('S3_BUCKET_NAME'),
+        Bucket: this.configService.get('S3_BUCKET_NAME', { infer: true }),
         Key: key,
       }),
     );
@@ -76,25 +95,29 @@ export class PikslotS3ServiceImplementation
     if (!this.configService.get<boolean>('S3_ENABLED')) return;
 
     this.s3 = new S3Client({
-      endpoint: this.configService.get('S3_HOST'),
-      region: this.configService.get('S3_REGION'), // RustFS ignores this, but required by AWS SDK
+      endpoint: this.configService.get('S3_HOST', { infer: true }),
+      region: this.configService.get('S3_REGION', { infer: true }), // RustFS ignores this, but required by AWS SDK
       credentials: {
-        accessKeyId: this.configService.get('S3_ACCESS_KEY'),
-        secretAccessKey: this.configService.get('S3_SECRET_KEY'),
+        accessKeyId: this.configService.get('S3_ACCESS_KEY', { infer: true }),
+        secretAccessKey: this.configService.get('S3_SECRET_KEY', {
+          infer: true,
+        }),
       },
-      forcePathStyle: this.configService.get('S3_FORCED_PATH_STYLE'), // Required for S3-compatible storage like RustFS
+      forcePathStyle: this.configService.get('S3_FORCED_PATH_STYLE', {
+        infer: true,
+      }), // Required for S3-compatible storage like RustFS
     });
 
     try {
       await this.s3.send(
         new CreateBucketCommand({
-          Bucket: this.configService.get('S3_BUCKET_NAME'),
+          Bucket: this.configService.get('S3_BUCKET_NAME', { infer: true }),
         }),
       );
 
       await this.s3.send(
         new PutBucketCorsCommand({
-          Bucket: this.configService.get('S3_BUCKET_NAME'),
+          Bucket: this.configService.get('S3_BUCKET_NAME', { infer: true }),
           CORSConfiguration: {
             CORSRules: [
               {
@@ -110,13 +133,15 @@ export class PikslotS3ServiceImplementation
       this.logger.log('S3 connected successfully');
     } catch (error) {
       if (
-        error.name === 'BucketAlreadyExists' ||
-        error.name === 'BucketAlreadyOwnedByYou'
+        error instanceof Error &&
+        (error.name === 'BucketAlreadyExists' ||
+          error.name === 'BucketAlreadyOwnedByYou')
       ) {
         this.logger.log('S3 connected successfully');
         return;
       }
-      this.logger.error(`S3 connection failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`S3 connection failed: ${message}`);
     }
   }
 }

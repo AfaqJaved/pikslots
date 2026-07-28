@@ -18,6 +18,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		open: boolean;
@@ -40,7 +41,8 @@
 	// Pre-fill selected classes when query loads
 	$effect(() => {
 		if (classesByGroupQuery.data) {
-			selectedIds = new Set(classesByGroupQuery.data.map((c) => c.id));
+			selectedIds.clear();
+			for (const c of classesByGroupQuery.data) selectedIds.add(c.id);
 		}
 	});
 
@@ -96,7 +98,7 @@
 	// ── State ────────────────────────────────────────────────────────────────────
 
 	let classSearch = $state('');
-	let selectedIds = $state<Set<string>>(new Set());
+	const selectedIds = new SvelteSet<string>();
 
 	const filteredClasses = $derived(
 		classes.filter((c) => c.title.toLowerCase().includes(classSearch.toLowerCase()))
@@ -114,7 +116,6 @@
 		} else {
 			filteredClasses.forEach((c) => selectedIds.add(c.id));
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function toggleClass(id: string) {
@@ -123,7 +124,6 @@
 		} else {
 			selectedIds.add(id);
 		}
-		selectedIds = new Set(selectedIds);
 	}
 
 	function handleCancel() {

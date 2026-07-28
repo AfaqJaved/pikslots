@@ -18,7 +18,7 @@ function buildCommand(
     id: 'business-1',
     language: 'fr',
     ...overrides,
-  } as UpdateBusinessGeneralCommand;
+  };
 }
 
 describe('UpdateBusinessGeneralUseCaseImpl', () => {

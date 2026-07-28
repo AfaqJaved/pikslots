@@ -29,7 +29,7 @@ function buildCommand(
     id: 'business-1',
     businessHours: NEW_HOURS,
     ...overrides,
-  } as UpdateBusinessHoursCommand;
+  };
 }
 
 describe('UpdateBusinessHoursUseCaseImpl', () => {
@@ -47,7 +47,7 @@ describe('UpdateBusinessHoursUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

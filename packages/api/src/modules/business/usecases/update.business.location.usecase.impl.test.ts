@@ -25,7 +25,7 @@ function buildCommand(
     currency: 'USD',
     timeZone: 'America/Chicago',
     ...overrides,
-  } as UpdateBusinessLocationCommand;
+  };
 }
 
 describe('UpdateBusinessLocationUseCaseImpl', () => {
@@ -43,7 +43,7 @@ describe('UpdateBusinessLocationUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

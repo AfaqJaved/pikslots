@@ -16,7 +16,7 @@
 <div class="flex flex-col px-6">
 	{#if isLoading}
 		<div class="flex flex-col gap-3 pt-4">
-			{#each Array(4) as _}
+			{#each Array(4) as _, i (i)}
 				<Skeleton class="h-4 w-56" />
 			{/each}
 		</div>
@@ -53,7 +53,7 @@
 			<a
 				href={user.bookingUrl}
 				target="_blank"
-				rel="noopener noreferrer"
+				rel="noopener noreferrer external"
 				class="text-xs underline underline-offset-2"
 			>
 				{user.bookingUrl}

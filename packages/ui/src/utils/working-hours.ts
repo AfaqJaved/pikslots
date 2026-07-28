@@ -178,7 +178,8 @@ export function fromHHmm(hhmm: string): string {
 /** '9:00 AM' → '09:00' */
 export function toHHmm(display: string): string {
 	const [time, period] = display.split(' ');
-	let [h, m] = time.split(':').map(Number);
+	const [rawHour, m] = time.split(':').map(Number);
+	let h = rawHour;
 	if (period === 'AM' && h === 12) h = 0;
 	if (period === 'PM' && h !== 12) h += 12;
 	return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;

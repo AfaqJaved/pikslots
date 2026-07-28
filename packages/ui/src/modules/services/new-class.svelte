@@ -21,6 +21,8 @@
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -87,7 +89,7 @@
 	$effect(() => {
 		if (registerMutation.isSuccess) {
 			toast.success('Class created successfully');
-			goto('/home/services');
+			goto(resolve('/home/services'));
 		}
 		if (registerMutation.isError) {
 			toast.error(registerMutation.error?.response?.data?.message ?? 'Failed to create class');
@@ -106,9 +108,8 @@
 
 	// ── State ────────────────────────────────────────────────────────────────────
 
-	let selectedGroupIds = $state<Set<string>>(new Set());
+	const selectedGroupIds = new SvelteSet<string>();
 	let groupComboOpen = $state(false);
-	let imageFile = $state<File | null>(null);
 	let imagePreview = $state<string | null>(null);
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
@@ -120,16 +121,13 @@
 	// ── Handlers ─────────────────────────────────────────────────────────────────
 
 	function toggleGroup(id: string) {
-		const next = new Set(selectedGroupIds);
-		if (next.has(id)) next.delete(id);
-		else next.add(id);
-		selectedGroupIds = next;
+		if (selectedGroupIds.has(id)) selectedGroupIds.delete(id);
+		else selectedGroupIds.add(id);
 	}
 
 	function handleImageChange(e: Event) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
-		imageFile = file;
 		imagePreview = URL.createObjectURL(file);
 	}
 </script>
@@ -191,7 +189,7 @@
 					<Input
 						id="title"
 						bind:value={$form.title}
-						placeholder={`For example, "Morning Yoga"`}
+						placeholder="For example, &quot;Morning Yoga&quot;"
 						class="focus-visible:ring-primary"
 					/>
 					<FieldError errors={$errors.title?.map((e) => ({ message: e }))} />

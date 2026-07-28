@@ -10,6 +10,7 @@ import {
 import { UpdateBusinessAppearanceUseCaseImpl } from './update.business.appearance.usecase.impl';
 import { BUSINESS_TEST_DATA } from '../repository/business.fake.data';
 import { BusinessRepositoryTestImpl } from '../repository/business.repository.fake.impl';
+import { IPikslotS3Service } from 'src/shared/s3/s3.service';
 
 function buildCommand(
   overrides: Partial<UpdateBusinessAppearanceCommand> = {},
@@ -24,7 +25,7 @@ function buildCommand(
       'https://cdn.example.com/business-1/new-gallery-2.jpg',
     ],
     ...overrides,
-  } as UpdateBusinessAppearanceCommand;
+  };
 }
 
 describe('UpdateBusinessAppearanceUseCaseImpl', () => {
@@ -43,6 +44,10 @@ describe('UpdateBusinessAppearanceUseCaseImpl', () => {
         {
           provide: IBusinessRepository,
           useClass: BusinessRepositoryTestImpl,
+        },
+        {
+          provide: IPikslotS3Service,
+          useValue: { extractKeyFromUrl: jest.fn((url: string) => url) },
         },
       ],
     }).compile();

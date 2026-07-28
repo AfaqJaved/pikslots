@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IUserRepository } from '@pikslots/domain';
+import { IUserRepository, ok, err, UnauthorizedError } from '@pikslots/domain';
 import { UserRepositoryTestImpl } from '../repository/user.repository.fake.impl';
 import { RefreshUserSessionUseCaseImpl } from './refresh.user.session.usecase.impl';
 import { JwtLoginService } from 'src/shared/security/jwt/jwt.login.service';
 
 describe('RefreshUserSessionUseCaseImpl', () => {
   let useCase: RefreshUserSessionUseCaseImpl;
+  let jwt: jest.Mocked<JwtLoginService>;
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -24,37 +25,34 @@ describe('RefreshUserSessionUseCaseImpl', () => {
     }).compile();
 
     useCase = moduleRef.get(RefreshUserSessionUseCaseImpl);
+    jwt = moduleRef.get(JwtLoginService);
   });
 
   it('returns unauthorized when token invalid', async () => {
-    const jwt = (useCase as any)
-      .jwtLoginService as jest.Mocked<JwtLoginService>;
-    jwt.verifyRefreshToken.mockReturnValue({
-      ok: false,
-      error: { kind: 'unauthorized' },
-    } as any);
+    const unauthorizedError: UnauthorizedError = {
+      kind: 'unauthorized',
+      message: 'Invalid refresh token',
+      timestamp: new Date(),
+    };
+    jwt.verifyRefreshToken.mockReturnValue(err(unauthorizedError));
 
-    const result = await useCase.execute({ currentRefreshToken: 'bad' } as any);
+    const result = await useCase.execute({ currentRefreshToken: 'bad' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('unauthorized');
-      if ((result.error as any).message)
-        expect((result.error as any).message).toBeDefined();
+      expect(result.error.message).toBeDefined();
     }
   });
 
   it('returns new tokens when refresh token valid', async () => {
-    const jwt = (useCase as any)
-      .jwtLoginService as jest.Mocked<JwtLoginService>;
-    jwt.verifyRefreshToken.mockReturnValue({
-      ok: true,
-      value: { userId: 'user-admin-1' },
-    } as any);
+    jwt.verifyRefreshToken.mockReturnValue(
+      ok({ userId: 'user-admin-1', role: 'Admin', businessId: 'business-1' }),
+    );
 
     const result = await useCase.execute({
       currentRefreshToken: 'good',
-    } as any);
+    });
 
     expect(result.ok).toBe(true);
     if (result.ok) {

@@ -2,7 +2,7 @@ import { Break } from '@pikslots/domain';
 
 const now = new Date();
 
-export let BREAK_TEST_DATA: Break[] = [
+export const BREAK_TEST_DATA: Break[] = [
   // ── Platform Owner breaks ─────────────────────────────────────────────────
   Break.create({
     id: 'break-platform-owner-1',

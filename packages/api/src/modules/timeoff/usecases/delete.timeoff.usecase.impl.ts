@@ -10,7 +10,7 @@ import {
   TimeOffNotFound,
   UnauthorizedError,
 } from '@pikslots/domain';
-import { TimeOffRepositoryImpl } from '../repository/timeoff.repository.impl';
+import type { TimeOffRepository } from '@pikslots/domain';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
@@ -21,7 +21,7 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
 export class DeleteTimeoffUseCaseImpl implements DeleteTimeoffUseCase {
   constructor(
     @Inject(ITimeoffRepository)
-    private readonly timeoffRepository: TimeOffRepositoryImpl,
+    private readonly timeoffRepository: TimeOffRepository,
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(

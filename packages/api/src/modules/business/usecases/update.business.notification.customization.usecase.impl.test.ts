@@ -20,7 +20,7 @@ function buildCommand(
     emailSenderName: "Alice's Salon (Updated Sender)",
     emailSignature: 'Thanks for choosing us!',
     ...overrides,
-  } as UpdateBusinessNotificationCustomizationCommand;
+  };
 }
 
 describe('UpdateBusinessNotificationCustomizationUseCaseImpl', () => {
@@ -38,7 +38,7 @@ describe('UpdateBusinessNotificationCustomizationUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

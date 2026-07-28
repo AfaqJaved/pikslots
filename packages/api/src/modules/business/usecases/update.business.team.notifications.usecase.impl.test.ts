@@ -28,7 +28,7 @@ function buildCommand(
     },
     extraCCEmails: ['manager@alicessalon.example.com'],
     ...overrides,
-  } as UpdateBusinessTeamNotificationsCommand;
+  };
 }
 
 describe('UpdateBusinessTeamNotificationsUseCaseImpl', () => {
@@ -46,7 +46,7 @@ describe('UpdateBusinessTeamNotificationsUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

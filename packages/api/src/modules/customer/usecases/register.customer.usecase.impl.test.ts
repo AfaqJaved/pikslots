@@ -49,7 +49,7 @@ function buildCommand(
     businessId: 'business-1',
     createdBy: 'user-business-owner-1',
     ...overrides,
-  } as RegisterCustomerCommand;
+  };
 }
 
 describe('RegisterCustomerUseCaseImpl', () => {
@@ -67,7 +67,7 @@ describe('RegisterCustomerUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
@@ -284,7 +284,7 @@ describe('RegisterCustomerUseCaseImpl', () => {
     // duplicate-email registration the way the real repository would.
     it('the fake repository only rejects on a colliding id, not a colliding email', async () => {
       // customer-1 already exists in the fixtures
-      const uuid = jest.requireMock('uuid') as { v7: () => string };
+      const uuid = jest.requireMock<{ v7: () => string }>('uuid');
       jest.spyOn(uuid, 'v7').mockReturnValueOnce('customer-1');
 
       const result = await useCase.execute(

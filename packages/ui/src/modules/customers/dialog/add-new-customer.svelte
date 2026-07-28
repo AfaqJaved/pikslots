@@ -12,7 +12,6 @@
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
-	import z from 'zod';
 	import { businessStore } from '$stores/business.svelte';
 	import { registerCustomerMutationOptions } from '../../api/customer/register.customer.mutation';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -30,6 +29,10 @@
 	import { AddCustomerSchema } from '../validations/add-customer-schema';
 	import AddCustomerProfileImage from './add-customer-profile-image.svelte';
 	import { uploadAvatarMutationOptions } from '../../api/s3/upload.avatar.mutation';
+
+	//____var____________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
 
 	const COUNTRY_CODES = [
 		{ code: '+1', country: 'US' },
@@ -124,6 +127,7 @@
 		{ key: 'youtube', label: 'YouTube', icon: BrandYoutube },
 		{ key: 'linkedin', label: 'LinkedIn', icon: BrandLinkedin }
 	];
+
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let extraFields = $state(new Set<ExtraField>());
@@ -165,7 +169,6 @@
 			onUpdate: async ({ form }) => {
 				if (form.valid) {
 					let avaterKey = '';
-					URL.revokeObjectURL(previewUrl as string);
 					const phone = form.data.phone ? `${form.data.countryCode} ${form.data.phone}` : null;
 					const socialLinks: Record<string, string> = {};
 					if (form.data.website) socialLinks['website'] = form.data.website;
@@ -180,6 +183,7 @@
 							folder: 'customer',
 							file: imageFile,
 							businessSlug: businessStore.selectedBusiness.slug,
+							type: 'profile_image',
 							id: null
 						});
 					}
@@ -209,6 +213,10 @@
 	$effect(() => {
 		if (registerMutation.isSuccess) {
 			toast.success('Customer added successfully');
+			if (previewUrl) {
+				URL.revokeObjectURL(previewUrl as string);
+			}
+
 			queryClient.invalidateQueries({
 				queryKey: ['customers', businessStore.selectedBusiness?.id]
 			});
@@ -255,14 +263,25 @@
 	function handleImageChange(e: Event) {
 		const target = (e.target as HTMLInputElement).files?.[0];
 		if (!target) return;
-		imageFile = target;
+
+		if (!ACCEPTED_TYPES.includes(target.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (target.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+
 		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		imageFile = target;
 		previewUrl = URL.createObjectURL(target);
 		console.log(previewUrl);
 		customerProfileImageDialog = true;
 	}
 
 	const initials = $derived($form.firstName ? $form.firstName.charAt(0).toUpperCase() : null);
+	const isSaving = $derived(uploadMutation.isPending || registerMutation.isPending);
 </script>
 
 <Dialog.Root
@@ -316,7 +335,7 @@
 						<input
 							bind:this={fileInput}
 							type="file"
-							accept="image/*"
+							accept=".jpg,.jpeg,.png"
 							class="hidden"
 							onchange={handleImageChange}
 						/>
@@ -337,7 +356,7 @@
 						<input
 							bind:this={fileInput}
 							type="file"
-							accept="image/*"
+							accept=".jpg,.jpeg,.png"
 							class="hidden"
 							onchange={handleImageChange}
 						/>
@@ -562,8 +581,8 @@
 						<Button variant="ghost" size="sm" type="button" onclick={() => (open = false)}>
 							Cancel
 						</Button>
-						<Button size="sm" type="submit" disabled={registerMutation.isPending}>
-							{registerMutation.isPending ? 'Saving...' : 'Save'}
+						<Button size="sm" type="submit" disabled={isSaving}>
+							{isSaving ? 'Saving...' : 'Save'}
 						</Button>
 					</div>
 				</div>

@@ -9,8 +9,12 @@ import {
   MaxLength,
   MinLength,
   IsBoolean,
+  IsOptional,
 } from 'class-validator';
-import { PikSlotsStringValidation } from 'src/shared/decorators/validations';
+import {
+  PikSlotsOptionalStringValidation,
+  PikSlotsStringValidation,
+} from 'src/shared/decorators/validations';
 
 export class EditServiceDto implements Omit<UpdateServiceInput, 'id'> {
   @ApiProperty({
@@ -24,13 +28,13 @@ export class EditServiceDto implements Omit<UpdateServiceInput, 'id'> {
 
   @ApiProperty({ example: 'A professional haircut service' })
   @IsString()
-  @MinLength(1)
+  @IsOptional()
   description: string;
 
   @ApiProperty({
     type: String,
   })
-  @PikSlotsStringValidation(1, 100)
+  @PikSlotsOptionalStringValidation(300)
   serviceAvatar: string;
 
   @ApiProperty({ example: 30, description: 'Service duration in minutes' })
