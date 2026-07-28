@@ -13,12 +13,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getBookingPageDetailsQueryOptions } from '../api/public-booking-page/get.booking.page.details.by.business.query';
 	import UngroupedServicesSection from './sections/ungrouped-service-section.svelte';
+	import BookingPageWrapper from './booking-theme-wrapper.svelte';
 
 	let { slug }: { slug: string } = $props();
-
-	// const serviceGroups = getMockServiceGroups();
-	// const teamMembers = getMockTeamMembers();
-	// const galleryPhotos = getMockGalleryPhotos();
 
 	const flow = createBookingFlowState();
 
@@ -47,6 +44,7 @@
 	);
 
 	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
+
 	const tabs = $derived(
 		(
 			[
@@ -96,7 +94,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-background">
+<BookingPageWrapper {business}>
 	{#if view === 'browse'}
 		<PublicNav {activeTab} {tabs} onSelect={handleNavSelect} />
 	{/if}
@@ -174,6 +172,6 @@
 			{/if}
 		{/if}
 	</div>
-</div>
+</BookingPageWrapper>
 
 <GalleryLightbox bind:open={galleryLightboxOpen} photos={galleryPhotos} />

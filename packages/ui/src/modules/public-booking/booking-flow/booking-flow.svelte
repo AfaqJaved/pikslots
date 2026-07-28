@@ -145,6 +145,7 @@
 			bufferTimeInMins={flow.selectedService.bufferTimeInMins}
 			businessHours={business.businessHours}
 			timeZone={business.locationDetails.timeZone}
+			{business}
 			onSelect={handleDatetimeSelected}
 		/>
 	{:else if flow.step === 'contact'}
@@ -152,6 +153,8 @@
 			contact={flow.contact}
 			fields={business.bookingContactFields}
 			onSubmit={handleContactSubmit}
+			brandColor={business.brandApperanceDetails.brandColor}
+			buttonShape={business.brandApperanceDetails.brandButtonShape}
 		/>
 	{:else if flow.step === 'confirmation' && flow.selectedService && flow.selectedSlot && flow.bookingReference}
 		<ConfirmationStep

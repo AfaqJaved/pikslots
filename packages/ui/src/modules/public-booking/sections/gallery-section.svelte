@@ -27,7 +27,7 @@
 
 			<Button
 				variant="secondary"
-				class="absolute right-3 bottom-3 bg-background text-foreground hover:bg-background/80"
+				class="border-gray absolute right-3 bottom-3 border-2 bg-background text-foreground hover:bg-background/80"
 				onclick={onShowAllPhotos}
 			>
 				Show all photos

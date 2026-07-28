@@ -6,6 +6,7 @@ import type {
   BookingSetup,
   BrandAppearanceDetails,
   BrandDetails,
+  BusinessContactDetails,
   BusinessHours,
   BusinessLinks,
   LocationDetails,
@@ -28,6 +29,7 @@ export interface BusinessDetails {
   bookingLabelOverrides: BookingLabelOverrides;
   businessHours: BusinessHours;
   businessLinks: BusinessLinks;
+  contactDetails: BusinessContactDetails;
 }
 export interface Service {
   id: string;

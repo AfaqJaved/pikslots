@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import { Calendar, Day as CalendarDay } from '$lib/components/ui/calendar/index.js';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
 	import type { BusinessHours } from '@pikslots/shared';
 	import { generateMockSlots } from '../../utils/mock-slots';
-	import type { PublicSlot } from '../../types';
+	import type { PublicBusiness, PublicSlot } from '../../types';
 	import type { WeekdayKey } from '$utils/working-hours';
 
 	let {
@@ -11,12 +11,14 @@
 		bufferTimeInMins,
 		businessHours,
 		timeZone,
+		business,
 		onSelect
 	}: {
 		durationInMins: number;
 		bufferTimeInMins: number;
 		businessHours: BusinessHours;
 		timeZone: string;
+		business: PublicBusiness;
 		onSelect: (date: string, slot: PublicSlot) => void;
 	} = $props();
 
@@ -36,6 +38,9 @@
 			bufferTimeInMins
 		})
 	);
+
+	const brandColor = $derived(business.brandApperanceDetails.brandColor);
+	const selectedDateStyle = $derived(`background-color: ${brandColor}; }`);
 
 	function isDateDisabled(date: DateValue): boolean {
 		const jsDate = date.toDate(getLocalTimeZone());
@@ -65,6 +70,12 @@
 	});
 </script>
 
+{#snippet calendarDay({ day: dateValue, outsideMonth }: { day: DateValue; outsideMonth: boolean })}
+	<CalendarDay
+		style={!outsideMonth && dateValue.compare(selectedDate) === 0 ? selectedDateStyle : ''}
+	/>
+{/snippet}
+
 <div class="flex flex-col gap-4">
 	<h2 class="text-lg font-semibold">Select a date &amp; time</h2>
 
@@ -75,8 +86,8 @@
 			minValue={today(getLocalTimeZone())}
 			{isDateDisabled}
 			class="border"
+			day={calendarDay}
 		/>
-
 		<div class="flex min-w-48 flex-1 flex-col gap-2">
 			<span class="text-xs font-medium text-muted-foreground">
 				Times shown in {timeZone}
