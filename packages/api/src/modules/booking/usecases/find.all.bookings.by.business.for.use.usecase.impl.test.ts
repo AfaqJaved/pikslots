@@ -1,4 +1,3 @@
-// find.all.bookings.by.business.for.user.usecase.impl.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   err,
@@ -26,7 +25,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
       userId: 'user-standard-1',
       role: 'Standard',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

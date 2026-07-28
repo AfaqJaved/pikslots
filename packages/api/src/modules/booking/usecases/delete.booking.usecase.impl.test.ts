@@ -1,4 +1,3 @@
-// delete.booking.usecase.impl.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   DeleteBookingCommand,

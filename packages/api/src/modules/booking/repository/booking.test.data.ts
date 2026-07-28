@@ -107,9 +107,9 @@ export const BOOKING_TEST_DATA: Booking[] = [
   Booking.reconstitute({
     id: 'booking-5',
     bookingId: 'BK0000005',
-    bookingDate: '2024-08-10',
-    bookingStartTime: '2024-08-10T09:00:00.000Z',
-    bookingEndTime: '2024-08-10T09:30:00.000Z',
+    bookingDate: '2024-08-13',
+    bookingStartTime: '2024-08-13T09:00:00.000Z',
+    bookingEndTime: '2024-08-13T09:30:00.000Z',
     businessId: 'business-2',
     serviceId: 'service-manicure-1',
     userId: 'user-standard-2',

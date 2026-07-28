@@ -1,4 +1,3 @@
-// find.booking.by.id.usecase.impl.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   err,

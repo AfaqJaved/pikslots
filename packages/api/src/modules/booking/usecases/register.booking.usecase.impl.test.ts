@@ -1,7 +1,7 @@
-// register.booking.usecase.impl.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BookingConflictError,
+  Booking,
   err,
   IBookingRepository,
   InfrastructureError,
@@ -35,7 +35,7 @@ function buildCommand(
     },
     createdBy: 'customer-1',
     ...overrides,
-  } as RegisterBookingCommand;
+  };
 }
 
 describe('RegisterBookingUseCaseImpl', () => {
@@ -53,7 +53,7 @@ describe('RegisterBookingUseCaseImpl', () => {
       userId: 'user-standard-1',
       role: 'Standard',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
@@ -276,13 +276,13 @@ describe('RegisterBookingUseCaseImpl', () => {
     });
 
     it('does not treat a booking in a different business as a conflict', async () => {
-      // booking-5 occupies business-2, 2024-08-10T09:00Z–09:30Z
+      // booking-5 occupies business-2, 2024-08-13T09:00Z–09:30Z
       const result = await useCase.execute(
         buildCommand({
           businessId: 'business-1',
-          bookingDate: '2024-08-10',
-          bookingStartTime: '2024-08-10T09:00:00.000Z',
-          bookingEndTime: '2024-08-10T09:30:00.000Z',
+          bookingDate: '2024-08-13',
+          bookingStartTime: '2024-08-13T09:00:00.000Z',
+          bookingEndTime: '2024-08-13T09:30:00.000Z',
         }),
       );
 
