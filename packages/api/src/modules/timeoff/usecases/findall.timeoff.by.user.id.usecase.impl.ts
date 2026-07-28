@@ -10,7 +10,7 @@ import {
   Timeoff,
   UnauthorizedError,
 } from '@pikslots/domain';
-import { TimeOffRepositoryImpl } from '../repository/timeoff.repository.impl';
+import type { TimeOffRepository } from '@pikslots/domain';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
@@ -22,7 +22,7 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
 export class FindAllTimeOffByUserUseCaseImpl implements FindAllTimeOffByUserUseCase {
   constructor(
     @Inject(ITimeoffRepository)
-    private readonly timeoffrepository: TimeOffRepositoryImpl,
+    private readonly timeoffrepository: TimeOffRepository,
     private readonly securityContext: SecurityContext,
   ) {}
   async execute(
