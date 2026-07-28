@@ -33,10 +33,10 @@
 										<span>{item.title}</span>
 									</a>
 								{:else}
-									<span {...props} class="cursor-default">
+									<a href={'#'} {...props}>
 										<item.icon />
 										<span>{item.title}</span>
-									</span>
+									</a>
 								{/if}
 							</div>
 						{/snippet}
