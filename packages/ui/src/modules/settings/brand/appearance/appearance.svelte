@@ -159,7 +159,6 @@
 			toast.error(axiosError.response?.data?.message ?? 'Failed to save. Please try again.');
 		}
 	}
-
 </script>
 
 <!-- Gallery Dialog -->
