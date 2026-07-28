@@ -17,6 +17,7 @@ export function createBookingFlowState() {
 	let selectedSlot = $state<PublicSlot | null>(null);
 	let contact = $state<ContactDetails>({ name: '', email: '', phone: '' });
 	let bookingReference = $state<string | null>(null);
+	let previousStep = $state<string>('');
 
 	function reset() {
 		step = 'service';
@@ -26,6 +27,7 @@ export function createBookingFlowState() {
 		selectedSlot = null;
 		contact = { name: '', email: '', phone: '' };
 		bookingReference = null;
+		previousStep = '';
 	}
 
 	/**
@@ -36,6 +38,7 @@ export function createBookingFlowState() {
 	function startWithService(service: PublicService) {
 		selectedService = service;
 		step = 'team-member';
+		previousStep = '';
 	}
 
 	/** Enter the flow already knowing which team member the customer wants. */
@@ -43,6 +46,7 @@ export function createBookingFlowState() {
 		reset();
 		selectedTeamMember = member;
 		step = 'service';
+		previousStep = 'first';
 	}
 
 	/** Enter the flow via the sidebar "Book" button — nothing preselected yet. */
@@ -61,6 +65,9 @@ export function createBookingFlowState() {
 	return {
 		get step() {
 			return step;
+		},
+		get previousStep() {
+			return previousStep;
 		},
 		set step(v: BookingStep) {
 			step = v;

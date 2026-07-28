@@ -47,6 +47,10 @@
 	let about = $state('');
 	let selectedIndustry = $state<BusinessIndustry | ''>('');
 
+	//______________image variables____________________________________
+	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+	const MAX_SIZE_MB = 10;
+
 	let bannerDialogOpen = $state(false);
 	let bannerFile = $state<File | null>(null);
 	let bannerPreview = $state<string | null>(null);
@@ -117,8 +121,17 @@
 		const file = input.files?.[0];
 		if (!file) return;
 
-		bannerFile = file;
+		if (!ACCEPTED_TYPES.includes(file.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
+
 		if (bannerPreview) URL.revokeObjectURL(bannerPreview);
+		bannerFile = file;
 		bannerPreview = URL.createObjectURL(file);
 		bannerDialogOpen = true;
 		input.value = '';
@@ -132,6 +145,15 @@
 		const input = e.currentTarget as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
+
+		if (!ACCEPTED_TYPES.includes(file.type)) {
+			toast.error('Only JPG, JPEG and PNG files are allowed');
+			return;
+		}
+		if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`File must be under ${MAX_SIZE_MB}MB`);
+			return;
+		}
 
 		logoFile = file;
 		if (logoPreview) URL.revokeObjectURL(logoPreview);
@@ -154,17 +176,19 @@
 			if (logoFile) {
 				logoImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_detail',
+					folder: 'brand_details',
 					businessSlug: business.slug,
-					file: logoFile
+					file: logoFile,
+					type: 'brand_logo'
 				});
 			}
 			if (bannerFile) {
 				bannerImageKey = await uploadMutation.mutateAsync({
 					id: business.id,
-					folder: 'brand_detail',
+					folder: 'brand_details',
 					businessSlug: business.slug,
-					file: bannerFile
+					file: bannerFile,
+					type: 'banner_image'
 				});
 			}
 
@@ -212,6 +236,7 @@
 	initialFile={bannerFile}
 	title="Banner Image"
 	onSave={bannerOnSave}
+	onClose={() => (bannerFile = null)}
 />
 
 <UpdateBrandDetailImagesDialog
@@ -220,6 +245,7 @@
 	initialFile={logoFile}
 	title="Brand Logo"
 	onSave={logoOnSave}
+	onClose={() => (logoFile = null)}
 />
 
 <!-- Page header -->
@@ -250,7 +276,9 @@
 			{#if bannerPreview}
 				<Button
 					class="h-40 w-full cursor-pointer bg-transparent p-0"
-					onclick={() => bannerInput.click()}
+					onclick={() => {
+						bannerInput.click();
+					}}
 				>
 					<img
 						src={bannerPreview}
@@ -266,10 +294,24 @@
 					onchange={handleBannerUpload}
 				/>
 			{:else if business?.brandDetail.bannerImageUrl}
-				<img
-					src={business.brandDetail.bannerImageUrl}
-					alt="Banner"
-					class="h-40 w-full rounded-lg border object-cover"
+				<Button
+					class="h-40 w-full cursor-pointer bg-transparent p-0"
+					onclick={() => {
+						bannerInput.click();
+					}}
+				>
+					<img
+						src={business.brandDetail.bannerImageUrl}
+						alt="Banner preview"
+						class="h-full w-full rounded-lg border object-cover opacity-100 hover:opacity-60"
+					/>
+				</Button>
+				<input
+					bind:this={bannerInput}
+					type="file"
+					accept=".jpg,.jpeg,.png"
+					class="hidden"
+					onchange={handleBannerUpload}
 				/>
 			{:else if business === null}
 				<Skeleton class="h-40 w-full rounded-lg" />

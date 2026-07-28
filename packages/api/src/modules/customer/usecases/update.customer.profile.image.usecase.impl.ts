@@ -70,7 +70,10 @@ export class UpdateCustomerProfileImageUseCaseImpl implements UpdateCustomerProf
     const updateResult = await this.customerRepository.update(updated);
     if (!updateResult.ok) return err(updateResult.error);
 
-    if (target.profileImageUrl !== null) {
+    if (
+      target.profileImageUrl &&
+      target.profileImageUrl !== updated.profileImageUrl
+    ) {
       await this.s3Service.deleteFile(target.profileImageUrl);
     }
 

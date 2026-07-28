@@ -20,7 +20,7 @@ export const updateGalleryImages = async ({
 	return data.data;
 };
 
-export const UpdateGalleryImagesMututionOptions = () =>
+export const UpdateGalleryImagesMutationOptions = () =>
 	mutationOptions<
 		UpdateBusinessGalleryPhotosResponse,
 		AxiosError<PikslotErrorResponse>,

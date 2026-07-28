@@ -21,6 +21,7 @@ export interface PikslotS3Service {
   }): Promise<string>;
   getPresignedDownloadUrl(key: string): Promise<string>;
   deleteFile(key: string): Promise<void>;
+  extractKeyFromUrl(value: string): string;
 }
 
 @Injectable()
@@ -63,6 +64,20 @@ export class PikslotS3ServiceImplementation
     });
 
     return getSignedUrl(this.s3, command, { expiresIn: 3600 });
+  }
+
+  extractKeyFromUrl(value: string): string {
+    if (!/^https?:\/\//i.test(value)) return value;
+
+    const bucket = this.configService.get('S3_BUCKET_NAME');
+    const forcePathStyle = this.configService.get('S3_FORCED_PATH_STYLE');
+    const path = decodeURIComponent(new URL(value).pathname);
+
+    if (forcePathStyle && path.startsWith(`/${bucket}/`)) {
+      return path.slice(`/${bucket}/`.length);
+    }
+
+    return path.replace(/^\//, '');
   }
 
   async deleteFile(key: string): Promise<void> {
