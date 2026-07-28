@@ -48,14 +48,18 @@ export class UpdateBusinessGalleryPhotosUseCaseImpl implements UpdateBusinessGal
 
     const oldGalleryPhotos = business.brandApperanceDetails.gallaryPhotosUrls;
 
-    const updated = business.updateGalleryPhotos(command.galleryPhotosKeys);
+    const newGalleryPhotoKeys = command.galleryPhotosKeys.map((value) =>
+      this.s3Service.extractKeyFromUrl(value),
+    );
+
+    const updated = business.updateGalleryPhotos(newGalleryPhotoKeys);
 
     const updateResult = await this.businessRepository.update(updated);
 
     if (!updateResult.ok) return err(updateResult.error as InfrastructureError);
 
     const keysToDelete = oldGalleryPhotos.filter(
-      (key) => !command.galleryPhotosKeys.includes(key),
+      (key) => !newGalleryPhotoKeys.includes(key),
     );
 
     await Promise.allSettled(

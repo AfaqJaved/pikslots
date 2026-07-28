@@ -11,10 +11,12 @@
 	let {
 		open = $bindable(false),
 		galleryTempUrls = $bindable([]),
+		galleryPhotoUrls = $bindable([]),
 		onSave
 	}: {
 		open: boolean;
 		galleryTempUrls: string[];
+		galleryPhotoUrls: string[];
 		onSave: (file: File[]) => void;
 	} = $props();
 
@@ -25,18 +27,11 @@
 
 	//_______states____________________________________________
 	let file = $state<File[]>([]);
-	let galleryPhotoUrls = $state<string[]>([]);
+	let pendingTempUrls = $state<string[]>([]);
 
 	// ________derived__________________________________
 	const business = $derived(businessStore.selectedBusiness);
 	const galleryUrls = $derived([...galleryPhotoUrls, ...galleryTempUrls]);
-
-	//___________effect___________________
-	$effect(() => {
-		if (business) {
-			galleryPhotoUrls = [...business.brandAppearanceDetails.gallaryPhotosUrls];
-		}
-	});
 
 	//________functions_________________________________
 	function onFileChange(e: Event) {
@@ -55,6 +50,7 @@
 		file = [...file, selected];
 		const newUrl = URL.createObjectURL(selected);
 		galleryTempUrls = [...galleryTempUrls, newUrl];
+		pendingTempUrls = [...pendingTempUrls, newUrl];
 		input.value = '';
 	}
 
@@ -68,6 +64,8 @@
 
 			file = file.filter((_, index) => index !== tempIndex);
 
+			pendingTempUrls = pendingTempUrls.filter((u) => u !== url);
+
 			return;
 		}
 
@@ -77,12 +75,19 @@
 	async function save() {
 		if (!file) return;
 		onSave(file);
+		pendingTempUrls = [];
 		close();
 	}
 
 	function close() {
 		open = false;
 		file = [];
+
+		if (pendingTempUrls.length > 0) {
+			pendingTempUrls.forEach((url) => URL.revokeObjectURL(url));
+			galleryTempUrls = galleryTempUrls.filter((u) => !pendingTempUrls.includes(u));
+			pendingTempUrls = [];
+		}
 	}
 </script>
 

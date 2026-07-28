@@ -151,6 +151,7 @@
 
 			galleryTempUrls.forEach((url) => URL.revokeObjectURL(url));
 			galleryTempUrls = [];
+			galleryPhotosFile = [];
 		} catch (error) {
 			const axiosError = error as AxiosError<PikslotErrorResponse>;
 
@@ -167,6 +168,7 @@
 <UpdateGalleryPhotosDialog
 	bind:open={isGalleryDialogOpen}
 	bind:galleryTempUrls
+	bind:galleryPhotoUrls={gallaryPhotosUrls}
 	onSave={handleOnSave}
 />
 
