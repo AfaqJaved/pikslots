@@ -22,7 +22,7 @@
 	import { toast } from 'svelte-sonner';
 	import UpdateGalleryPhotosDialog from '../dialogs/update-gallery-photos-dialog.svelte';
 	import { uploadAvatarMutationOptions } from '../../../api/s3/upload.avatar.mutation';
-	import { UpdateGalleryImagesMututionOptions } from '../../../api/business/update.gallery.images.mutation';
+	import { UpdateGalleryImagesMutationOptions } from '../../../api/business/update.gallery.images.mutation';
 	import type { PikslotErrorResponse } from '../../../api/common/common-models';
 
 	const brandColors = [
@@ -88,7 +88,7 @@
 	}
 	// ________mutations_________________
 	const uploadS3Mutations = createMutation(uploadAvatarMutationOptions);
-	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMututionOptions);
+	const updateGalleryPhotos = createMutation(UpdateGalleryImagesMutationOptions);
 	const updateMutation = createMutation<
 		BusinessUpdateAppearanceResult,
 		AxiosError<BaseErrorResponse>,
@@ -130,7 +130,8 @@
 						id: business.id,
 						folder: 'BusinessGallery',
 						businessSlug: business.slug,
-						file: galleryPhotosFile[i]
+						file: galleryPhotosFile[i],
+						type: 'gallery_photo'
 					});
 					galleryPhotosKeys = [...galleryPhotosKeys, photoKey];
 				}
@@ -159,17 +160,14 @@
 		}
 	}
 
-	function handleOnSave(file: File[]) {
-		galleryPhotosFile = [...file];
-	}
 </script>
 
 <!-- Gallery Dialog -->
 <UpdateGalleryPhotosDialog
 	bind:open={isGalleryDialogOpen}
 	bind:galleryTempUrls
-	bind:galleryPhotoUrls={gallaryPhotosUrls}
-	onSave={handleOnSave}
+	bind:galleryPhotosUrls={gallaryPhotosUrls}
+	bind:galleryPhotosFile
 />
 
 <!-- Page header -->

@@ -56,7 +56,6 @@
 		}
 		pendingFiles = [...pendingFiles, selected];
 		const newUrl = URL.createObjectURL(selected);
-		galleryTempUrls = [...galleryTempUrls, newUrl];
 		pendingTempUrls = [...pendingTempUrls, newUrl];
 		input.value = '';
 	}
