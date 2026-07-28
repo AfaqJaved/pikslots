@@ -47,7 +47,6 @@
 
 	$effect(() => {
 		if (business) {
-			console.log(business.businessHours);
 			days = hoursToState(business.businessHours);
 		}
 	});

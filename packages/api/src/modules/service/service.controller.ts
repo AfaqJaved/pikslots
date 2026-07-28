@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -18,7 +19,7 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 import { RolesGuard } from 'src/shared/security/guards/roles.guard';
 import { Roles } from 'src/shared/security/guards/roles.decorator';
 import { mapServiceError } from './errors/service.errors.map';
-import { SERVICE_ENDPOINTS } from '@pikslots/shared';
+import { SERVICE_ENDPOINTS, ServiceResponse } from '@pikslots/shared';
 import { RegisterServiceDto } from './dto/register.service.dto';
 import {
   RegisterServiceDocs,
@@ -37,6 +38,11 @@ import {
 } from '@pikslots/shared';
 import { EditServiceDto } from './dto/edit.service.dto';
 import { UpdateServiceAvatarDto } from './dto/update.service.avatar.dto';
+import { ResponseMapper } from './mappers/service.response.mapper';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 @ApiTags('Services')
 @Controller('')
@@ -44,6 +50,7 @@ export class ServiceController {
   constructor(
     private readonly serviceUseCasesFactory: ServiceUseCasesFactory,
     private readonly securityContext: SecurityContext,
+    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
   ) {}
 
   @RegisterServiceDocs()
@@ -174,9 +181,15 @@ export class ServiceController {
       return errorResponse;
     }
 
+    const service: ServiceResponse[] = await Promise.all(
+      result.value.map((value) =>
+        ResponseMapper.toServiceResponse(this.s3Service, value),
+      ),
+    );
+
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<FindAllServicesByBusinessResponse>(
-      result.value.map((s) => ({
+      service.map((s) => ({
         id: s.id,
         title: s.title,
         description: s.description,

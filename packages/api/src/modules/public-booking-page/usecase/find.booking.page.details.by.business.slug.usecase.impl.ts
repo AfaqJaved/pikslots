@@ -31,9 +31,11 @@ export class FindBookingPageDetailsByBusinessSlugUseCaseImpl implements FindBook
       await this.publicBookingPageRepository.findBusinessDetailsByBusinessSlug(
         businessSlug,
       );
+
     if (!businessResult.ok) return err(businessResult.error);
 
     const business = businessResult.value;
+
     if (!business) {
       return err<PublicBookingPageDetailsNotFound>({
         kind: 'booking_page_not_found',

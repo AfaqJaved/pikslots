@@ -609,11 +609,18 @@
 								`}
 								style:border-left-color={service.colorCode}
 							>
-								<!-- Icon -->
+								<!-- avatar-->
 								<div class="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-									<Adjustments size={16} class="text-muted-foreground" />
+									{#if service.serviceAvatar}
+										<img
+											src={service.serviceAvatar}
+											alt="image"
+											class="max-w-12 rounded-md object-cover"
+										/>
+									{:else}
+										<Adjustments size={16} class="text-muted-foreground" />
+									{/if}
 								</div>
-
 								<!-- Title + meta -->
 								<div class="flex flex-1 flex-col">
 									<span class="text-sm font-medium">{service.title}</span>

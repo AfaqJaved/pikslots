@@ -66,9 +66,11 @@ export class UpdateServiceAvatarUseCaseImpl implements UpdateServiceAvatarUseCas
 
     const updateAvatar = await this.serviceRepository.update(updated);
     if (!updateAvatar.ok) return err(updateAvatar.error);
-    console.log('target.avatar ', target.serviceAvatar);
 
-    if (target.serviceAvatar !== null) {
+    if (
+      target.serviceAvatar &&
+      target.serviceAvatar !== updated.serviceAvatar
+    ) {
       await this.s3Service.deleteFile(target.serviceAvatar);
     }
 

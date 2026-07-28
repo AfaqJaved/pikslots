@@ -2,8 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RegisterServiceInput } from '@pikslots/shared';
 import {
   IsArray,
-  ArrayMaxSize,
-  IsUrl,
   IsNumber,
   IsString,
   IsUUID,
@@ -35,7 +33,7 @@ export class RegisterServiceDto implements RegisterServiceInput {
   @ApiProperty({
     type: String,
   })
-  @PikSlotsOptionalStringValidation(100)
+  @PikSlotsOptionalStringValidation(500)
   serviceAvatar: string;
 
   @ApiProperty({ example: 30, description: 'Service duration in minutes' })

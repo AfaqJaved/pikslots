@@ -11,6 +11,7 @@ export interface UploadAvatarInput {
 	id: string | null;
 	folder: string;
 	file: File;
+	type: string;
 	businessSlug: string;
 }
 
@@ -18,6 +19,7 @@ const getPresignedUploadUrl = async (
 	file: File,
 	id: string | null,
 	folder: string,
+	type: string,
 	businessSlug: string
 ): Promise<string> => {
 	const { data } = await apiClient.post<PikslotResponse<PresignedUrlResponse>>(
@@ -25,7 +27,7 @@ const getPresignedUploadUrl = async (
 		{
 			filename: file.name,
 			contentType: file.type,
-			path: `${businessSlug}/${folder}/${id}/avatar`
+			path: `${businessSlug}/${folder}/${id}/${type}`
 		}
 	);
 	return data.data.url;
@@ -41,12 +43,13 @@ export const uploadAvatar = async ({
 	id,
 	folder,
 	file,
+	type,
 	businessSlug
 }: UploadAvatarInput): Promise<string> => {
 	const finalId = id ?? uuidv7();
-	const url = await getPresignedUploadUrl(file, finalId, folder, businessSlug);
+	const url = await getPresignedUploadUrl(file, finalId, folder, type, businessSlug);
 	await uploadToS3(url, file);
-	return `${businessSlug}/${folder}/${finalId}/avatar/${file.name}`;
+	return `${businessSlug}/${folder}/${finalId}/${type}/${file.name}`;
 };
 
 export const uploadAvatarMutationOptions = () =>
