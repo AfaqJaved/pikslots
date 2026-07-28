@@ -73,7 +73,7 @@
 					sideOffset={4}
 				>
 					<DropdownMenu.Label class="text-xs text-muted-foreground">Businesses</DropdownMenu.Label>
-					{#each businessesQuery.data as business, index (business.name)}
+					{#each businessesQuery.data as business (business.name)}
 						<DropdownMenu.Item
 							onSelect={() => onBusinessChange(business)}
 							class="cursor-pointer gap-2 p-2"

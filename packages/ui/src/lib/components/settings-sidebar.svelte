@@ -1,13 +1,14 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/stores';
+	import { resolve } from '$app/paths';
+	import type { ResolvedPathname } from '$app/types';
 
 	import BuildingStore from '@tabler/icons-svelte/icons/building-store';
 	import User from '@tabler/icons-svelte/icons/user';
 	import Users from '@tabler/icons-svelte/icons/users';
 	import AdjustmentsHorizontal from '@tabler/icons-svelte/icons/adjustments-horizontal';
 	import CalendarCog from '@tabler/icons-svelte/icons/calendar-cog';
-	import DeviceMobile from '@tabler/icons-svelte/icons/device-mobile';
 	import Cash from '@tabler/icons-svelte/icons/cash';
 	import ChartBar from '@tabler/icons-svelte/icons/chart-bar';
 	import CreditCard from '@tabler/icons-svelte/icons/credit-card';
@@ -19,13 +20,13 @@
 	import { settingsStore } from '$stores/settings.svelte.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
-	type SubItem = { label: string; href: string };
+	type SubItem = { label: string; href: ResolvedPathname };
 
 	type MenuItem = {
 		label: string;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		icon: any;
-		href?: string;
+		href?: ResolvedPathname | '#';
 		activePrefix?: string;
 		children?: SubItem[];
 	};
@@ -43,17 +44,21 @@
 					icon: BuildingStore,
 					activePrefix: '/home/settings/brand',
 					children: [
-						{ label: 'Brand details', href: '/home/settings/brand/brand-details' },
-						{ label: 'Appearance', href: '/home/settings/brand/appearance' },
-						{ label: 'Contact details', href: '/home/settings/brand/contact' },
-						{ label: 'Location', href: '/home/settings/brand/location' },
-						{ label: 'Business Hours', href: '/home/settings/brand/business-hours' },
-						{ label: 'Your links', href: '/home/settings/brand/links' }
+						{ label: 'Brand details', href: resolve('/home/settings/brand/brand-details') },
+						{ label: 'Appearance', href: resolve('/home/settings/brand/appearance') },
+						{ label: 'Contact details', href: resolve('/home/settings/brand/contact') },
+						{ label: 'Location', href: resolve('/home/settings/brand/location') },
+						{ label: 'Business Hours', href: resolve('/home/settings/brand/business-hours') },
+						{ label: 'Your links', href: resolve('/home/settings/brand/links') }
 					]
 				},
-				{ label: 'Your profile', icon: User, href: '/home/settings/profile' },
-				{ label: 'Your team', icon: Users, href: '/home/settings/team' },
-				{ label: 'General', icon: AdjustmentsHorizontal, href: '/home/settings/general' }
+				{ label: 'Your profile', icon: User, href: resolve('/home/settings/profile') },
+				{ label: 'Your team', icon: Users, href: resolve('/home/settings/team') },
+				{
+					label: 'General',
+					icon: AdjustmentsHorizontal,
+					href: resolve('/home/settings/general')
+				}
 			]
 		},
 		{
@@ -66,16 +71,19 @@
 					children: [
 						{
 							label: 'Booking policies',
-							href: '/home/settings/booking-preferences/booking-policies'
+							href: resolve('/home/settings/booking-preferences/booking-policies')
 						},
-						{ label: 'Booking setup', href: '/home/settings/booking-preferences/booking-setup' },
+						{
+							label: 'Booking setup',
+							href: resolve('/home/settings/booking-preferences/booking-setup')
+						},
 						{
 							label: 'Customization',
-							href: '/home/settings/booking-preferences/customization'
+							href: resolve('/home/settings/booking-preferences/customization')
 						},
 						{
 							label: 'Booking page visibility',
-							href: '/home/settings/booking-preferences/booking-page-visibility'
+							href: resolve('/home/settings/booking-preferences/booking-page-visibility')
 						}
 					]
 				},
@@ -87,16 +95,19 @@
 					children: [
 						{
 							label: 'Payment integrations',
-							href: '/home/settings/payments/payment-integrations'
+							href: resolve('/home/settings/payments/payment-integrations')
 						},
 						{
 							label: 'Booking Page payments',
-							href: '/home/settings/payments/booking-page-payments'
+							href: resolve('/home/settings/payments/booking-page-payments')
 						},
-						{ label: 'Payments history', href: '/home/settings/payments/payments-history' }
+						{
+							label: 'Payments history',
+							href: resolve('/home/settings/payments/payments-history')
+						}
 					]
 				},
-				{ label: 'Reports', icon: ChartBar, href: '/home/settings/reports' },
+				{ label: 'Reports', icon: ChartBar, href: resolve('/home/settings/reports') },
 				{ label: 'Billing', icon: CreditCard, href: '#' },
 				{
 					label: 'Notifications',
@@ -105,21 +116,24 @@
 					children: [
 						{
 							label: 'Your notifications',
-							href: '/home/settings/notifications/your-notifications'
+							href: resolve('/home/settings/notifications/your-notifications')
 						},
 						{
 							label: 'Team notifications',
-							href: '/home/settings/notifications/team-notifications'
+							href: resolve('/home/settings/notifications/team-notifications')
 						},
 						{
 							label: 'Customer notifications',
-							href: '/home/settings/notifications/customer-notifications'
+							href: resolve('/home/settings/notifications/customer-notifications')
 						},
-						{ label: 'Customization', href: '/home/settings/notifications/customization' }
+						{
+							label: 'Customization',
+							href: resolve('/home/settings/notifications/customization')
+						}
 					]
 				},
-				{ label: 'Reviews', icon: Star, href: '/home/settings/reviews' },
-				{ label: 'Security', icon: Lock, href: '/home/settings/security' }
+				{ label: 'Reviews', icon: Star, href: resolve('/home/settings/reviews') },
+				{ label: 'Security', icon: Lock, href: resolve('/home/settings/security') }
 			]
 		}
 	];
@@ -202,9 +216,15 @@
 								{:else}
 									<Sidebar.MenuButton isActive={isItemActive(item)}>
 										{#snippet child({ props })}
-											<a href={item.href} {...props}>
-												<item.icon /><span>{item.label}</span>
-											</a>
+											{#if item.href && item.href !== '#'}
+												<a href={item.href} {...props}>
+													<item.icon /><span>{item.label}</span>
+												</a>
+											{:else}
+												<span {...props} class="cursor-not-allowed opacity-60">
+													<item.icon /><span>{item.label}</span>
+												</span>
+											{/if}
 										{/snippet}
 									</Sidebar.MenuButton>
 								{/if}

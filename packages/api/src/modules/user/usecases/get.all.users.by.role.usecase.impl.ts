@@ -11,7 +11,7 @@ import type {
   GetAllUsersByRoleUseCase,
   UserRepository,
 } from '@pikslots/domain';
-import { err, ok } from '@pikslots/domain';
+import { err } from '@pikslots/domain';
 
 @Injectable()
 export class GetAllUsersByRoleUseCaseImpl implements GetAllUsersByRoleUseCase {

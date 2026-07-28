@@ -45,12 +45,14 @@
 		{#if customer.primaryPhone}
 			<span class="text-sm">{customer.primaryPhone}</span>
 		{:else}
+			<!-- eslint-disable svelte/no-navigation-without-resolve -- /home/customers/[id]/edit doesn't exist yet, so resolve() can't type-check this route -->
 			<button
 				class="text-sm text-primary underline underline-offset-2"
 				onclick={() => goto(`/home/customers/${customer.id}/edit`)}
 			>
 				Add phone
 			</button>
+			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		{/if}
 	</div>
 

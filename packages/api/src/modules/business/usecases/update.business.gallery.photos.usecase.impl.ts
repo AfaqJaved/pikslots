@@ -63,7 +63,7 @@ export class UpdateBusinessGalleryPhotosUseCaseImpl implements UpdateBusinessGal
     );
 
     if (keysToDelete.length > 0) {
-      await Promise.all(
+      await Promise.allSettled(
         keysToDelete.map((key) => this.s3Service.deleteFile(key)),
       );
     }

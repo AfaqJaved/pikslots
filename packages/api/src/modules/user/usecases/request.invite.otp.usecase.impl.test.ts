@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IUserRepository } from '@pikslots/domain';
+import { IUserRepository, ok, err, UserNotFoundError } from '@pikslots/domain';
+import { InviteJwtPayload } from '@pikslots/shared';
 import { UserRepositoryTestImpl } from '../repository/user.repository.fake.impl';
 import { RequestInviteOtpUseCaseImpl } from './request.invite.otp.usecase.impl';
 import { OtpService } from 'src/shared/cache/otp/otp.service';
@@ -11,7 +12,7 @@ describe('RequestInviteOtpUseCaseImpl', () => {
   let otpService: jest.Mocked<OtpService>;
   let jwtService: jest.Mocked<JwtInviteService>;
   let emailService: jest.Mocked<PikslotEmailService>;
-  let repo: any;
+  let repo: UserRepositoryTestImpl;
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -35,25 +36,30 @@ describe('RequestInviteOtpUseCaseImpl', () => {
   });
 
   it('returns success when token valid and user invited', async () => {
-    jwtService.verifyInviteToken.mockReturnValue({
-      ok: true,
-      value: { userId: 'user-standard-1', businessId: 'business-1' },
-    } as any);
+    jwtService.verifyInviteToken.mockReturnValue(
+      ok<InviteJwtPayload>({
+        userId: 'user-standard-1',
+        businessId: 'business-1',
+      }),
+    );
     otpService.generate.mockResolvedValue('123456');
     (emailService.sendEmail as jest.Mock).mockResolvedValue({ ok: true });
-    const result = await useCase.execute({ token: 'tok' } as any);
+    const result = await useCase.execute({ token: 'tok' });
 
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.value.message).toBe('success');
   });
 
   it('returns unauthorized when token invalid', async () => {
-    jwtService.verifyInviteToken.mockReturnValue({
-      ok: false,
-      error: { kind: 'unauthorized' },
-    } as any);
+    jwtService.verifyInviteToken.mockReturnValue(
+      err({
+        kind: 'unauthorized',
+        message: 'Invalid invite token',
+        timestamp: new Date(),
+      }),
+    );
 
-    const result = await useCase.execute({ token: 'bad' } as any);
+    const result = await useCase.execute({ token: 'bad' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -63,34 +69,38 @@ describe('RequestInviteOtpUseCaseImpl', () => {
   });
 
   it('returns user_not_found when user missing', async () => {
-    jwtService.verifyInviteToken.mockReturnValue({
-      ok: true,
-      value: { userId: 'non-existent', businessId: 'business-1' },
-    } as any);
+    jwtService.verifyInviteToken.mockReturnValue(
+      ok<InviteJwtPayload>({
+        userId: 'non-existent',
+        businessId: 'business-1',
+      }),
+    );
 
-    const result = await useCase.execute({ token: 'tok' } as any);
+    const result = await useCase.execute({ token: 'tok' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('user_not_found');
       expect(result.error.message).toBeDefined();
-      expect((result.error as any).by).toBe('id');
-      expect((result.error as any).value).toBe('non-existent');
+      expect((result.error as UserNotFoundError).by).toBe('id');
+      expect((result.error as UserNotFoundError).value).toBe('non-existent');
     }
   });
 
   it('returns invite_already_accepted when user already accepted', async () => {
-    jwtService.verifyInviteToken.mockReturnValue({
-      ok: true,
-      value: { userId: 'user-standard-1', businessId: 'business-1' },
-    } as any);
+    jwtService.verifyInviteToken.mockReturnValue(
+      ok<InviteJwtPayload>({
+        userId: 'user-standard-1',
+        businessId: 'business-1',
+      }),
+    );
     // activate user
     const find = await repo.findById('user-standard-1');
-    const user = find.value;
-    const accepted = user.acceptInvite('pw', 'test');
+    if (!find.ok || !find.value) throw new Error('user not found in fixture');
+    const accepted = find.value.acceptInvite('pw', 'test');
     await repo.update(accepted);
 
-    const result = await useCase.execute({ token: 'tok' } as any);
+    const result = await useCase.execute({ token: 'tok' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {

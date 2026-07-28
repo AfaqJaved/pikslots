@@ -37,7 +37,7 @@ function buildCommand(
     redirectLabel: 'Back to site',
     redirectLink: 'https://example.com',
     ...overrides,
-  } as UpdateBusinessBookingCustomizationCommand;
+  };
 }
 
 describe('UpdateBusinessBookingCustomizationUseCaseImpl', () => {
@@ -55,7 +55,7 @@ describe('UpdateBusinessBookingCustomizationUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

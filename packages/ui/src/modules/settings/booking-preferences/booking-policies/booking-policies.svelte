@@ -4,7 +4,6 @@
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 	import type { TimeUnit } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
@@ -25,9 +24,6 @@
 
 	let schedulingWindowValue = $state('0');
 	let schedulingWindowUnit = $state<TimeUnit>('days');
-
-	let slotSizeValue = $state('15');
-	let slotSizeUnit = $state<TimeUnit>('minutes');
 
 	let cancellationPolicyValue = $state('0');
 	let cancellationPolicyUnit = $state<TimeUnit | 'none'>('none');

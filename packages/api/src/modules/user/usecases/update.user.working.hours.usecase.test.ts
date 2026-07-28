@@ -1,8 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { IUserRepository } from '@pikslots/domain';
+import { Test } from '@nestjs/testing';
+import {
+  IUserRepository,
+  UserNotFoundError,
+  WorkingHoursUpdateNotAuthorizedError,
+} from '@pikslots/domain';
 import { UserRepositoryTestImpl } from '../repository/user.repository.fake.impl';
 import { UpdateUserWorkingHoursUseCaseImpl } from './update.user.working.hours.usecase.impl';
 import { SecurityContext } from 'src/shared/security/context/security.context';
+
+const WORKING_HOURS = {
+  monday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+  tuesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+  wednesday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+  thursday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+  friday: { enabled: true, openTime: '09:00', closeTime: '17:00' },
+  saturday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+  sunday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
+};
 
 describe('UpdateUserWorkingHoursUseCaseImpl', () => {
   it('returns user_not_found when user missing', async () => {
@@ -21,15 +35,15 @@ describe('UpdateUserWorkingHoursUseCaseImpl', () => {
 
     const result = await useCase.execute({
       userId: 'non-existent',
-      userWorkingHours: {},
-    } as any);
+      userWorkingHours: WORKING_HOURS,
+    });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('user_not_found');
       expect(result.error.message).toBeDefined();
-      expect((result.error as any).by).toBe('id');
-      expect((result.error as any).value).toBe('non-existent');
+      expect((result.error as UserNotFoundError).by).toBe('id');
+      expect((result.error as UserNotFoundError).value).toBe('non-existent');
     }
   });
 
@@ -53,14 +67,16 @@ describe('UpdateUserWorkingHoursUseCaseImpl', () => {
 
     const result = await useCase.execute({
       userId: 'user-standard-1',
-      userWorkingHours: {},
-    } as any);
+      userWorkingHours: WORKING_HOURS,
+    });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('working_hours_update_not_authorized');
       expect(result.error.message).toBeDefined();
-      expect((result.error as any).updaterRole).toBe('Standard');
+      expect(
+        (result.error as WorkingHoursUpdateNotAuthorizedError).updaterRole,
+      ).toBe('Standard');
     }
   });
 
@@ -95,7 +111,7 @@ describe('UpdateUserWorkingHoursUseCaseImpl', () => {
     const result = await useCase.execute({
       userId: 'user-standard-1',
       userWorkingHours: newHours,
-    } as any);
+    });
 
     expect(result.ok).toBe(true);
     if (result.ok)

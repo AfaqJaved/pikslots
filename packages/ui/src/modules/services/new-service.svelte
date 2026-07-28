@@ -27,6 +27,8 @@
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { color } from '../core/store/utlis/color';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import EditServiceAvatar from './dialog/update-service-image-dialog.svelte';
@@ -119,7 +121,7 @@
 	$effect(() => {
 		if (registerMutation.isSuccess) {
 			toast.success('Service created successfully');
-			goto('/home/services');
+			goto(resolve('/home/services'));
 		}
 		if (registerMutation.isError) {
 			toast.error(registerMutation.error?.response?.data?.message ?? 'Failed to create service');
@@ -144,8 +146,8 @@
 
 	// ── State ────────────────────────────────────────────────────────────────────
 
-	let selectedMemberIds = $state<Set<string>>(new Set());
-	let selectedGroupIds = $state<Set<string>>(new Set());
+	const selectedMemberIds = new SvelteSet<string>();
+	const selectedGroupIds = new SvelteSet<string>();
 	let groupComboOpen = $state(false);
 	let imageFile = $state<File | null>(null);
 	let imagePreview = $state<string | null>(null);
@@ -176,24 +178,20 @@
 	}
 
 	function toggleGroup(id: string) {
-		const next = new Set(selectedGroupIds);
-		if (next.has(id)) next.delete(id);
-		else next.add(id);
-		selectedGroupIds = next;
+		if (selectedGroupIds.has(id)) selectedGroupIds.delete(id);
+		else selectedGroupIds.add(id);
 	}
 
 	function toggleMember(id: string) {
-		const next = new Set(selectedMemberIds);
-		if (next.has(id)) next.delete(id);
-		else next.add(id);
-		selectedMemberIds = next;
+		if (selectedMemberIds.has(id)) selectedMemberIds.delete(id);
+		else selectedMemberIds.add(id);
 	}
 
 	function toggleAll() {
 		if (allSelected) {
-			selectedMemberIds = new Set();
+			selectedMemberIds.clear();
 		} else {
-			selectedMemberIds = new Set(teamMembers.map((m) => m.id));
+			for (const m of teamMembers) selectedMemberIds.add(m.id);
 		}
 	}
 

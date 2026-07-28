@@ -5,7 +5,7 @@ import { GetUserProfileUseCaseImpl } from './get.user.profile.usecase.impl';
 
 describe('GetUserProfileUseCaseImpl', () => {
   let useCase: GetUserProfileUseCaseImpl;
-  let repo: any;
+  let repo: UserRepositoryTestImpl;
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -21,6 +21,7 @@ describe('GetUserProfileUseCaseImpl', () => {
 
   it('returns user when active', async () => {
     const find = await repo.findById('user-standard-1');
+    if (!find.ok || !find.value) throw new Error('user not found in fixture');
     const accepted = find.value.acceptInvite('pw', 'test');
     await repo.update(accepted);
 

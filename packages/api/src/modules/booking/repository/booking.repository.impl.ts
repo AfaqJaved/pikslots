@@ -9,8 +9,7 @@ import {
   ok,
   Result,
 } from '@pikslots/domain';
-import type { BookingProps } from '@pikslots/domain';
-import { sql, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
 import { PikSlotsDatabase } from 'src/shared/database/schema';
 import { BookingPersistenceMapper } from '../mappers/booking.database.mapper';

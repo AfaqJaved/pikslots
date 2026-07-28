@@ -19,7 +19,7 @@ const serviceGroupAssignmentErrorMap: Record<
     new PikslotsBaseErrorResponse(error.message, HttpStatus.CONFLICT),
   service_group_assignment_not_found: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.NOT_FOUND),
-  infrastructure: (error) =>
+  infrastructure: () =>
     new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',
       HttpStatus.INTERNAL_SERVER_ERROR,

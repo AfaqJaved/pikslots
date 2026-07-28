@@ -23,7 +23,7 @@ function buildCommand(
     bookingPolicyText: 'No refunds within 48 hours of appointment.',
     showPolicyOnBookingPage: true,
     ...overrides,
-  } as UpdateBusinessBookingPoliciesCommand;
+  };
 }
 
 describe('UpdateBusinessBookingPoliciesUseCaseImpl', () => {
@@ -41,7 +41,7 @@ describe('UpdateBusinessBookingPoliciesUseCaseImpl', () => {
       userId: 'user-business-owner-1',
       role: 'Business Owner',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

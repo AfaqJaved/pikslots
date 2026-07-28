@@ -7,7 +7,6 @@ import { PasswordHashingService } from 'src/shared/security/hashing/password.has
 
 describe('LoginUserUseCaseImpl', () => {
   let useCase: LoginUserUseCaseImpl;
-  let jwt: jest.Mocked<JwtLoginService>;
   let hash: jest.Mocked<PasswordHashingService>;
 
   beforeEach(async () => {
@@ -27,7 +26,6 @@ describe('LoginUserUseCaseImpl', () => {
     }).compile();
 
     useCase = moduleRef.get(LoginUserUseCaseImpl);
-    jwt = moduleRef.get(JwtLoginService);
     hash = moduleRef.get(PasswordHashingService);
   });
 
@@ -37,7 +35,7 @@ describe('LoginUserUseCaseImpl', () => {
     const result = await useCase.execute({
       usernameOrEmail: 'admin_user',
       password: 'pw',
-    } as any);
+    });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -52,7 +50,7 @@ describe('LoginUserUseCaseImpl', () => {
     const result = await useCase.execute({
       usernameOrEmail: 'admin_user',
       password: 'bad',
-    } as any);
+    });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.kind).toBe('unauthorized');
@@ -68,7 +66,7 @@ describe('LoginUserUseCaseImpl', () => {
     const result = await useCase.execute({
       usernameOrEmail: 'no_access_user',
       password: 'pw',
-    } as any);
+    });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.kind).toBe('user_no_access');
@@ -83,7 +81,7 @@ describe('LoginUserUseCaseImpl', () => {
     const result = await useCase.execute({
       usernameOrEmail: 'inactive_user',
       password: 'pw',
-    } as any);
+    });
 
     expect(result.ok).toBe(false);
 
@@ -98,7 +96,7 @@ describe('LoginUserUseCaseImpl', () => {
     const result = await useCase.execute({
       usernameOrEmail: 'suspended_user',
       password: 'pw',
-    } as any);
+    });
 
     expect(result.ok).toBe(false);
 

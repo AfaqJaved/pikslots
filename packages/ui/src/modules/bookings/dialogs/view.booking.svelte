@@ -115,7 +115,7 @@
 									<span class="text-sm"
 										>{booking.guests.length} guest{booking.guests.length !== 1 ? 's' : ''}</span
 									>
-									{#each booking.guests as guest}
+									{#each booking.guests as guest, i (i)}
 										<div class="flex items-center gap-2">
 											<div class="flex size-6 items-center justify-center rounded-full bg-muted">
 												<User size={12} class="text-muted-foreground" />

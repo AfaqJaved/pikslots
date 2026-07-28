@@ -32,7 +32,7 @@ function buildCommand(
     industry: 'fitness',
     defaultTimeZone: 'America/New_York',
     ...overrides,
-  } as CreateBusinessCommand;
+  };
 }
 
 describe('RegisterBusinessUseCaseImpl', () => {

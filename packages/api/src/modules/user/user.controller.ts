@@ -255,7 +255,9 @@ export class UserController {
   ): Promise<
     PikslotsBaseErrorResponse | PikslotsBaseResponse<RefreshUserSessionResponse>
   > {
-    const currentRefreshToken = req.cookies?.jid;
+    const jidCookie: unknown = req.cookies?.jid;
+    const currentRefreshToken =
+      typeof jidCookie === 'string' ? jidCookie : undefined;
     if (!currentRefreshToken) throw new UnauthorizedException();
     const result =
       await this.userUseCaseFactory.refreshUserSessionUseCase.execute({

@@ -51,7 +51,7 @@ export class RequestInviteOtpUseCaseImpl implements RequestInviteOtpUseCase {
 
     if (!tokenResult.ok) return err(UNAUTHORIZED_ERROR);
 
-    const { userId, businessId } = tokenResult.value;
+    const { userId } = tokenResult.value;
 
     const findResult = await this.userRepository.findById(userId);
 

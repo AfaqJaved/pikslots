@@ -60,7 +60,7 @@
 
 	$effect(() => {
 		// Selecting a new date invalidates the previously chosen slot.
-		dateString;
+		void dateString;
 		selectedSlotStart = null;
 	});
 </script>

@@ -9,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
@@ -146,7 +147,7 @@
 
 	// Derive initial extra fields from existing customer data
 	function initialExtraFields(c: CustomerModel): Set<ExtraField> {
-		const fields = new Set<ExtraField>();
+		const fields = new SvelteSet<ExtraField>();
 		if (c.additionalPhone) fields.add('phone');
 		if (c.profileImageUrl) fields.add('profileImageUrl');
 		if (c.additionalEmail) fields.add('email');
