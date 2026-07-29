@@ -20,7 +20,6 @@ const PUBLIC_ROUTES: string[] = [
 
 function isPublicRoute(originalUrl: string): boolean {
   const path = originalUrl.split('?')[0];
-  console.log(path);
 
   return PUBLIC_ROUTES.some((route) => {
     if (!route.includes('*')) return path === route;
