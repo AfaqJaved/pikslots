@@ -27,7 +27,7 @@ describe('FindTimeOffByIdUseCaseImpl', () => {
       userId: 'user-standard-1',
       role: 'Standard',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

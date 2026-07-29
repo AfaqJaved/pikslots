@@ -1,0 +1,158 @@
+import { Booking } from '@pikslots/domain';
+
+export const BOOKING_TEST_DATA: Booking[] = [
+  // Active: user-standard-1's haircut booking, business-1
+  Booking.reconstitute({
+    id: 'booking-1',
+    bookingId: 'BK0000001',
+    bookingDate: '2024-08-10',
+    bookingStartTime: '2024-08-10T09:00:00.000Z',
+    bookingEndTime: '2024-08-10T09:30:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-haircut-1',
+    userId: 'user-standard-1',
+    customerId: 'customer-1',
+    serviceSnapshot: {
+      title: 'Haircut',
+      durationInMins: 30,
+      cost: 25,
+    },
+    createdAt: new Date('2024-08-01T00:00:00Z'),
+    createdBy: 'customer-1',
+    updatedAt: new Date('2024-08-01T00:00:00Z'),
+    updatedBy: 'customer-1',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: same user, second booking (non-overlapping time), business-1
+  Booking.reconstitute({
+    id: 'booking-2',
+    bookingId: 'BK0000002',
+    bookingDate: '2024-08-12',
+    bookingStartTime: '2024-08-12T14:00:00.000Z',
+    bookingEndTime: '2024-08-12T15:00:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-color-1',
+    userId: 'user-standard-1',
+    customerId: 'customer-2',
+    serviceSnapshot: {
+      title: 'Hair Coloring',
+      durationInMins: 60,
+      cost: 80,
+    },
+    createdAt: new Date('2024-08-02T00:00:00Z'),
+    createdBy: 'customer-2',
+    updatedAt: new Date('2024-08-02T00:00:00Z'),
+    updatedBy: 'customer-2',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: different user (user-enhanced-1), same business-1
+  Booking.reconstitute({
+    id: 'booking-3',
+    bookingId: 'BK0000003',
+    bookingDate: '2024-08-15',
+    bookingStartTime: '2024-08-15T10:00:00.000Z',
+    bookingEndTime: '2024-08-15T10:45:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-massage-1',
+    userId: 'user-enhanced-1',
+    customerId: 'customer-3',
+    serviceSnapshot: {
+      title: 'Massage',
+      durationInMins: 45,
+      cost: 60,
+    },
+    createdAt: new Date('2024-08-05T00:00:00Z'),
+    createdBy: 'customer-3',
+    updatedAt: new Date('2024-08-05T00:00:00Z'),
+    updatedBy: 'customer-3',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Soft-deleted: cancelled booking, business-1
+  // (excluded from findById, findAllByBusiness, findAllByBusinessForUser,
+  // and hasConflict — real repo filters is_deleted=false on all of these)
+  Booking.reconstitute({
+    id: 'booking-4',
+    bookingId: 'BK0000004',
+    bookingDate: '2024-08-20',
+    bookingStartTime: '2024-08-20T11:00:00.000Z',
+    bookingEndTime: '2024-08-20T11:30:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-haircut-1',
+    userId: 'user-standard-1',
+    customerId: 'customer-4',
+    serviceSnapshot: {
+      title: 'Haircut',
+      durationInMins: 30,
+      cost: 25,
+    },
+    createdAt: new Date('2024-08-10T00:00:00Z'),
+    createdBy: 'customer-4',
+    updatedAt: new Date('2024-08-11T00:00:00Z'),
+    updatedBy: 'user-standard-1',
+    deletedAt: new Date('2024-08-11T00:00:00Z'),
+    deletedBy: 'user-standard-1',
+    isDeleted: true,
+  }),
+
+  // Active: booking in a different business entirely (isolation checks)
+  Booking.reconstitute({
+    id: 'booking-5',
+    bookingId: 'BK0000005',
+    bookingDate: '2024-08-13',
+    bookingStartTime: '2024-08-13T09:00:00.000Z',
+    bookingEndTime: '2024-08-13T09:30:00.000Z',
+    businessId: 'business-2',
+    serviceId: 'service-manicure-1',
+    userId: 'user-standard-2',
+    customerId: 'customer-5',
+    serviceSnapshot: {
+      title: 'Manicure',
+      durationInMins: 30,
+      cost: 35,
+    },
+    createdAt: new Date('2024-08-01T00:00:00Z'),
+    createdBy: 'customer-5',
+    updatedAt: new Date('2024-08-01T00:00:00Z'),
+    updatedBy: 'customer-5',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+
+  // Active: overlap fixture for hasConflict tests.
+  // Occupies business-1, 2024-09-01T10:00Z–11:00Z. Use this to test
+  // hasConflict('business-1', overlappingStart, overlappingEnd) => true,
+  // and hasConflict(..., excludeBookingId: 'booking-6') => false (self-exclusion).
+  Booking.reconstitute({
+    id: 'booking-6',
+    bookingId: 'BK0000006',
+    bookingDate: '2024-09-01',
+    bookingStartTime: '2024-09-01T10:00:00.000Z',
+    bookingEndTime: '2024-09-01T11:00:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-color-1',
+    userId: 'user-enhanced-1',
+    customerId: 'customer-6',
+    serviceSnapshot: {
+      title: 'Hair Coloring',
+      durationInMins: 60,
+      cost: 80,
+    },
+    createdAt: new Date('2024-08-25T00:00:00Z'),
+    createdBy: 'customer-6',
+    updatedAt: new Date('2024-08-25T00:00:00Z'),
+    updatedBy: 'customer-6',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
+];
