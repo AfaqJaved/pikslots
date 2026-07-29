@@ -11,6 +11,51 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    # Real, hardcoded env vars for every step in this job (not a written
+    # .test.env file). @nestjs/config's ConfigModule.forRoot() always merges
+    # `process.env` over whatever it loaded from a file
+    # (config = {...fileConfig, ...process.env}), so real env vars here are
+    # picked up regardless of envFilePath resolution, cwd, or which
+    # ConfigModule.forRoot() call happens to run first — a file written to
+    # disk in an earlier step doesn't have that guarantee. Not real secrets;
+    # throwaway values for an ephemeral, isolated test run.
+    env:
+      NODE_ENV: test
+      PORT: '3000'
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pikslots_test
+
+      JWT_SECRET: e2e-ci-jwt-secret
+      JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_SECRET: e2e-ci-jwt-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 1d
+
+      INVITE_JWT_SECRET: e2e-ci-invite-jwt-secret
+      INVITE_JWT_EXPIRES_IN: 5m
+
+      CORS_ORIGINS: http://localhost:5173
+      BACKEND_PUBLIC_URL: http://localhost:3000
+      FRONTEND_PUBLIC_URL: http://localhost:5173
+
+      ENABLE_API_DOCS: 'false'
+
+      REDIS_HOST: localhost
+      REDIS_PORT: '6379'
+      REDIS_PASSWORD: ''
+
+      MAIL_HOST: localhost
+      MAIL_PORT: '1025'
+      MAIL_USER: ci@pikslots.com
+      MAIL_PASS: unused-in-ci
+      MAIL_FROM: '"No Reply" <noreply@example.com>'
+
+      S3_ENABLED: 'true'
+      S3_ACCESS_KEY: admin
+      S3_SECRET_KEY: admin
+      S3_HOST: http://localhost:9000
+      S3_REGION: eu-east-1
+      S3_BUCKET_NAME: pikslots-test
+      S3_FORCED_PATH_STYLE: 'true'
+
     # Real Postgres, Redis, and S3 (RustFS) for packages/api/test — this
     # suite hits real infra end-to-end (Kysely, BullMQ worker, S3), it
     # never mocks these. Only email sending is mocked (see
@@ -21,7 +66,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          # Matches DATABASE_URL in the .test.env written below.
+          # Matches DATABASE_URL in the job-level env block above.
           POSTGRES_DB: pikslots_test
         ports:
           - 5432:5432
@@ -42,7 +87,7 @@ jobs:
           --health-retries 10
         # No --requirepass: GitHub Actions service containers can't override
         # a service's command, and the official redis image has no env var
-        # for a password. REDIS_PASSWORD is left empty in .test.env below;
+        # for a password. REDIS_PASSWORD is left empty in the env block above;
         # BullMQ/ioredis skip AUTH entirely when the password is empty, so
         # this connects fine against an unauthenticated Redis.
 
@@ -80,49 +125,6 @@ jobs:
         # unrelated type error and isn't needed anyway — jest reads api's
         # TS source directly.
         run: bunx nx run-many -t build -p @pikslots/domain,@pikslots/shared
-
-      - name: Write .test.env
-        # Gitignored locally; regenerated here for CI with the same shape,
-        # pointed at the service containers above. Not real secrets — these
-        # are throwaway values for an ephemeral, isolated test run.
-        run: |
-          cat > .test.env <<'EOF'
-          NODE_ENV=test
-          PORT=3000
-          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pikslots_test
-
-          JWT_SECRET=e2e-ci-jwt-secret
-          JWT_EXPIRES_IN=1h
-          JWT_REFRESH_SECRET=e2e-ci-jwt-refresh-secret
-          JWT_REFRESH_EXPIRES_IN=1d
-
-          INVITE_JWT_SECRET=e2e-ci-invite-jwt-secret
-          INVITE_JWT_EXPIRES_IN=5m
-
-          CORS_ORIGINS=http://localhost:5173
-          BACKEND_PUBLIC_URL=http://localhost:3000
-          FRONTEND_PUBLIC_URL=http://localhost:5173
-
-          ENABLE_API_DOCS=false
-
-          REDIS_HOST=localhost
-          REDIS_PORT=6379
-          REDIS_PASSWORD=
-
-          MAIL_HOST=localhost
-          MAIL_PORT=1025
-          MAIL_USER=ci@pikslots.com
-          MAIL_PASS=unused-in-ci
-          MAIL_FROM='"No Reply" <noreply@example.com>'
-
-          S3_ENABLED=true
-          S3_ACCESS_KEY=admin
-          S3_SECRET_KEY=admin
-          S3_HOST=http://localhost:9000
-          S3_REGION=eu-east-1
-          S3_BUCKET_NAME=pikslots-test
-          S3_FORCED_PATH_STYLE=true
-          EOF
 
       - name: E2E tests (Business module, real infra)
         run: bun run test-e2e
