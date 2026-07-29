@@ -43,7 +43,7 @@ export class RegisterBookingUseCaseImpl implements RegisterBookingUseCase {
     const isPartOfSameBusiness = callerBusinessId === command.businessId;
     const isSelf = callerUserId === command.userId; // booking for self
 
-    if (Booking.canRegisterBooking(callerRole, isPartOfSameBusiness, isSelf))
+    if (!Booking.canRegisterBooking(callerRole, isPartOfSameBusiness, isSelf))
       return err(UNAUTHORIZED_ERROR);
 
     const conflict = await this.bookingRepository.hasConflict(

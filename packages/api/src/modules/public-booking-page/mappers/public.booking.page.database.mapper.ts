@@ -23,6 +23,7 @@ export class PublicBookingPagePresistenceMapper {
       businessHours: row.business_hours,
       businessLinks: row.business_links,
       locationDetails: row.location_details,
+      contactDetails: row.contact_details,
     };
   }
 
