@@ -1,9 +1,5 @@
 // public-booking-page.test.data.ts
-import {
-  BusinessDetails,
-  Services,
-  TeamMemberDetails,
-} from '@pikslots/domain';
+import { BusinessDetails, Services, TeamMemberDetails } from '@pikslots/domain';
 
 // ── Business details (business-1) ─────────────────────────────────────────
 // NOTE: nested type shapes (BrandDetails, BookingPolicies, LocationDetails,
@@ -135,7 +131,11 @@ export const SERVICES_TEST_DATA_BUSINESS_2: Services[] = [
 ];
 
 // ── Service groups (business-1) ────────────────────────────────────────────
-export const SERVICE_GROUPS_TEST_DATA: { id: string; name: string; businessId: string }[] = [
+export const SERVICE_GROUPS_TEST_DATA: {
+  id: string;
+  name: string;
+  businessId: string;
+}[] = [
   { id: 'group-styling-1', name: 'Styling', businessId: 'business-1' },
   { id: 'group-grooming-1', name: 'Grooming', businessId: 'business-1' },
 ];
