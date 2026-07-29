@@ -28,7 +28,7 @@ function buildCommand(
     timeZone: 'UTC',
     recurrence: null,
     ...overrides,
-  } as CreateTimeoffCommand;
+  };
 }
 
 describe('RegisterTimeOffUseCaseImpl', () => {
@@ -46,7 +46,7 @@ describe('RegisterTimeOffUseCaseImpl', () => {
       userId: 'user-standard-1',
       role: 'Standard',
       businessId: 'business-1',
-    } as SecurityContext;
+    };
 
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [

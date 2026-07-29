@@ -13,12 +13,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getBookingPageDetailsQueryOptions } from '../api/public-booking-page/get.booking.page.details.by.business.query';
 	import UngroupedServicesSection from './sections/ungrouped-service-section.svelte';
+	import BookingPageWrapper from './booking-theme-wrapper.svelte';
 
 	let { slug }: { slug: string } = $props();
-
-	// const serviceGroups = getMockServiceGroups();
-	// const teamMembers = getMockTeamMembers();
-	// const galleryPhotos = getMockGalleryPhotos();
 
 	const flow = createBookingFlowState();
 
@@ -47,6 +44,7 @@
 	);
 
 	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
+
 	const tabs = $derived(
 		(
 			[
@@ -96,84 +94,86 @@
 	}
 </script>
 
-<div class="min-h-screen bg-background">
-	{#if view === 'browse'}
-		<PublicNav {activeTab} {tabs} onSelect={handleNavSelect} />
-	{/if}
-	{#if business}
-		<Banner {business} />
-	{/if}
-	<div class="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-8 lg:flex-row">
-		{#if view === 'booking'}
-			{#if business && serviceGroups && teamMembers}
-				<div class="mx-auto w-full max-w-2xl">
-					<BookingFlow
-						{flow}
-						{business}
-						serviceGroups={allServiceGroups}
-						ungroupedService={ungroupedServices}
-						{teamMembers}
-						onClose={handleCloseBooking}
-					/>
-				</div>
-			{/if}
-		{:else}
-			<div class="flex flex-1 flex-col gap-10">
-				{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
-					<section id="section-services">
-						<ServicesSection
-							serviceGroups={allServiceGroups}
-							currency={business.locationDetails.currency}
-							showPrices={business.bookingCustomization.showServiceAndClassPrices}
-							showDuration={business.bookingCustomization.showServiceAndClassDuration}
-							onSelectService={handleSelectService}
-						/>
-					</section>
-				{/if}
-
-				{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length == 0 && ungroupedServices}
-					<section id="section-services">
-						<UngroupedServicesSection
-							services={ungroupedServices}
-							currency={business.locationDetails.currency}
-							showPrices={business.bookingCustomization.showServiceAndClassPrices}
-							showDuration={business.bookingCustomization.showServiceAndClassDuration}
-							onSelectService={handleSelectService}
-						/>
-					</section>
-				{/if}
-
-				{#if business && business.bookingSetup.ourTeamSectionVisible}
-					<section id="section-team">
-						<TeamSection
-							{teamMembers}
-							bookingPolicyText={business.bookingPolicies.bookingPolicyText}
-							showPolicy={business.bookingPolicies.showPolicyOnBookingPage}
-							onSelectTeamMember={handleSelectTeamMember}
-						/>
-					</section>
-				{/if}
-
-				<section id="section-gallery">
-					<GallerySection
-						photos={galleryPhotos}
-						onShowAllPhotos={() => (galleryLightboxOpen = true)}
-					/>
-				</section>
-
-				<section id="section-reviews">
-					<ReviewsSection />
-				</section>
-			</div>
-			{#if business}
-				<aside class="order-first w-full shrink-0 lg:order-last lg:w-80">
-					<div class="lg:sticky lg:top-20">
-						<BusinessInfoCard {business} onBook={handleBook} />
-					</div>
-				</aside>
-			{/if}
+{#if business !== undefined}
+	<BookingPageWrapper {business}>
+		{#if view === 'browse'}
+			<PublicNav {activeTab} {tabs} onSelect={handleNavSelect} />
 		{/if}
-	</div>
-</div>
+		{#if business}
+			<Banner {business} />
+		{/if}
+		<div class="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-8 lg:flex-row">
+			{#if view === 'booking'}
+				{#if business && serviceGroups && teamMembers}
+					<div class="mx-auto w-full max-w-2xl">
+						<BookingFlow
+							{flow}
+							{business}
+							serviceGroups={allServiceGroups}
+							ungroupedService={ungroupedServices}
+							{teamMembers}
+							onClose={handleCloseBooking}
+						/>
+					</div>
+				{/if}
+			{:else}
+				<div class="flex flex-1 flex-col gap-10">
+					{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
+						<section id="section-services">
+							<ServicesSection
+								serviceGroups={allServiceGroups}
+								currency={business.locationDetails.currency}
+								showPrices={business.bookingCustomization.showServiceAndClassPrices}
+								showDuration={business.bookingCustomization.showServiceAndClassDuration}
+								onSelectService={handleSelectService}
+							/>
+						</section>
+					{/if}
+
+					{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length == 0 && ungroupedServices}
+						<section id="section-services">
+							<UngroupedServicesSection
+								services={ungroupedServices}
+								currency={business.locationDetails.currency}
+								showPrices={business.bookingCustomization.showServiceAndClassPrices}
+								showDuration={business.bookingCustomization.showServiceAndClassDuration}
+								onSelectService={handleSelectService}
+							/>
+						</section>
+					{/if}
+
+					{#if business && business.bookingSetup.ourTeamSectionVisible}
+						<section id="section-team">
+							<TeamSection
+								{teamMembers}
+								bookingPolicyText={business.bookingPolicies.bookingPolicyText}
+								showPolicy={business.bookingPolicies.showPolicyOnBookingPage}
+								onSelectTeamMember={handleSelectTeamMember}
+							/>
+						</section>
+					{/if}
+
+					<section id="section-gallery">
+						<GallerySection
+							photos={galleryPhotos}
+							onShowAllPhotos={() => (galleryLightboxOpen = true)}
+						/>
+					</section>
+
+					<section id="section-reviews">
+						<ReviewsSection />
+					</section>
+				</div>
+				{#if business}
+					<aside class="order-first w-full shrink-0 lg:order-last lg:w-80">
+						<div class="lg:sticky lg:top-20">
+							<BusinessInfoCard {business} onBook={handleBook} />
+						</div>
+					</aside>
+				{/if}
+			{/if}
+		</div>
+	</BookingPageWrapper>
+{/if}
 
 <GalleryLightbox bind:open={galleryLightboxOpen} photos={galleryPhotos} />

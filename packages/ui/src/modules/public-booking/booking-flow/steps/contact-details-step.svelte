@@ -8,10 +8,14 @@
 	let {
 		contact,
 		fields,
+		brandColor,
+		buttonShape,
 		onSubmit
 	}: {
 		contact: ContactDetails;
 		fields: BookingContactFields;
+		brandColor: string;
+		buttonShape: string;
 		onSubmit: () => void;
 	} = $props();
 
@@ -48,5 +52,14 @@
 		{/if}
 	</FieldGroup>
 
-	<Button class="w-fit" disabled={!isValid} onclick={onSubmit}>Confirm booking</Button>
+	<Button
+		class="{buttonShape === 'pill'
+			? 'rounded-full'
+			: buttonShape === 'rounded '
+				? 'rounded-xl'
+				: 'rounded-none'} w-fit text-white"
+		style="background-color:{brandColor}"
+		disabled={!isValid}
+		onclick={onSubmit}>Confirm booking</Button
+	>
 </div>

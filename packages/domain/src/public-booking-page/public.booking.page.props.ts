@@ -6,6 +6,7 @@ import type {
   BookingSetup,
   BrandApperanceDetails,
   BrandDetails,
+  BusinessContactDetails,
   BusinessHours,
   BusinessLinks,
   LocationDetails,
@@ -46,6 +47,7 @@ export interface BusinessDetails {
   bookingLabelOverrides: BookingLabelOverrides;
   businessHours: BusinessHours;
   businessLinks: BusinessLinks;
+  contactDetails: BusinessContactDetails;
 }
 
 export type ServicesDetails = {
