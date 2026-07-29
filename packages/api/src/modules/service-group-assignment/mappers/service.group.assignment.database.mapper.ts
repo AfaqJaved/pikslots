@@ -18,7 +18,7 @@ export class ServiceGroupAssignmentPersistenceMapper {
       serviceGroupId: row.service_group_id,
       businessId: row.business_id,
       ...persistenceAuditToDomain(row),
-    } as unknown as ServiceGroupAssignment);
+    });
   }
 
   public domainToPersistence(
