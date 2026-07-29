@@ -9,7 +9,7 @@
 </script>
 
 {#if photos.length > 0}
-	<div class="flex flex-col gap-4">
+	<div class="flex flex-col gap-4 border-t py-2">
 		<h2 class="text-xl font-semibold">Gallery</h2>
 
 		<div class="relative grid grid-cols-2 gap-1 overflow-hidden">

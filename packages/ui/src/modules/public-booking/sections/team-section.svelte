@@ -4,16 +4,23 @@
 	import ChevronRight from '@tabler/icons-svelte/icons/chevron-right';
 	import FileText from '@tabler/icons-svelte/icons/file-text';
 	import type { PublicTeamMember } from '../types';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let {
 		teamMembers,
 		bookingPolicyText,
 		showPolicy,
+		cancellationPolicyValue,
+		cancellationPolicyUnit,
+		label,
 		onSelectTeamMember
 	}: {
 		teamMembers: PublicTeamMember[];
 		bookingPolicyText: string;
 		showPolicy: boolean;
+		cancellationPolicyValue: number | undefined;
+		cancellationPolicyUnit: string | undefined;
+		label: string;
 		onSelectTeamMember: (member: PublicTeamMember) => void;
 	} = $props();
 
@@ -25,7 +32,7 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<h2 class="text-xl font-semibold">Team</h2>
+	<h2 class="text-xl font-semibold">{label || 'Team'}</h2>
 
 	<div class="grid grid-cols-2 gap-3">
 		{#each teamMembers as member (member.id)}
@@ -50,7 +57,7 @@
 	</div>
 
 	{#if showPolicy && bookingPolicyText}
-		<div class="flex flex-col gap-2 border-t pt-4">
+		<div class="flex flex-col gap-2 border-t pt-4 pb-4">
 			<span class="text-xs font-semibold text-muted-foreground">Good to know</span>
 			<button
 				type="button"
@@ -63,11 +70,25 @@
 		</div>
 
 		<Dialog.Root bind:open={policyDialogOpen}>
-			<Dialog.Content>
+			<Dialog.Content class="sm:max-w-lg md:max-w-xl lg:max-w-xl">
 				<Dialog.Header>
 					<Dialog.Title>Booking policy</Dialog.Title>
 				</Dialog.Header>
 				<p class="text-sm text-muted-foreground">{bookingPolicyText}</p>
+				<p class="rounded-xl p-4 text-base shadow-xl" style="background-color: #1a1a1a">
+					Cancellation policy You can cancel or reschedule
+					{cancellationPolicyUnit
+						? `${cancellationPolicyValue == 0 ? '' : cancellationPolicyValue} ${cancellationPolicyUnit}`
+						: 'anytime'}
+					before the appointment time.
+				</p>
+
+				<div class="flex justify-end">
+					<Button
+						class=" w-fit rounded-full border-2 border-amber-50 bg-transparent px-8 py-4 text-base"
+						onclick={() => (policyDialogOpen = false)}>Okay</Button
+					>
+				</div>
 			</Dialog.Content>
 		</Dialog.Root>
 	{/if}

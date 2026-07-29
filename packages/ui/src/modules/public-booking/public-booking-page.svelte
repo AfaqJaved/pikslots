@@ -14,6 +14,7 @@
 	import { getBookingPageDetailsQueryOptions } from '../api/public-booking-page/get.booking.page.details.by.business.query';
 	import UngroupedServicesSection from './sections/ungrouped-service-section.svelte';
 	import BookingPageWrapper from './booking-theme-wrapper.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let { slug }: { slug: string } = $props();
 
@@ -22,6 +23,7 @@
 	let view = $state<'browse' | 'booking'>('browse');
 	let activeTab = $state<PublicTabId>('services');
 	let galleryLightboxOpen = $state(false);
+	let policyDismissed = $state(false);
 
 	//______query____________________________
 	const bookingPageDetailsQuery = createQuery(() => ({
@@ -43,6 +45,14 @@
 			: serviceGroups
 	);
 
+	let policy = $derived(
+		!!(
+			business?.bookingPolicies.showPolicyOnBookingPage &&
+			business.bookingPolicies.bookingPolicyText &&
+			!policyDismissed
+		)
+	);
+
 	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
 
 	const tabs = $derived(
@@ -50,12 +60,12 @@
 			[
 				{
 					id: 'services',
-					label: 'Services',
+					label: business?.bookingLabelOverrides.service || 'Services',
 					visible: business?.bookingSetup.servicesSectionVisible ?? false
 				},
 				{
 					id: 'team',
-					label: 'Team',
+					label: business?.bookingLabelOverrides.teamMember || 'Team',
 					visible: business?.bookingSetup.ourTeamSectionVisible ?? false
 				},
 				{ id: 'gallery', label: 'Gallery', visible: galleryPhotos.length > 0 },
@@ -117,11 +127,27 @@
 					</div>
 				{/if}
 			{:else}
-				<div class="flex flex-1 flex-col gap-10">
+				<div class="flex flex-1 flex-col gap-2">
+					{#if policy}
+						<div class="felx-row mb-6 gap-10 rounded-xl" style="background-color: #1a1a1a">
+							<p class="px-4 py-2 text-lg font-bold text-white">Our Booking Policy</p>
+							<p class="px-4 py-2 text-sm text-muted-foreground">
+								{business.bookingPolicies.bookingPolicyText}
+							</p>
+
+							<div class="flex justify-end p-4">
+								<Button
+									class=" w-fit rounded-full border-2 border-amber-50 bg-black px-8 py-4 text-base"
+									onclick={() => (policyDismissed = true)}>Okay</Button
+								>
+							</div>
+						</div>
+					{/if}
 					{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
 						<section id="section-services">
 							<ServicesSection
 								serviceGroups={allServiceGroups}
+								label={business.bookingLabelOverrides.service}
 								currency={business.locationDetails.currency}
 								showPrices={business.bookingCustomization.showServiceAndClassPrices}
 								showDuration={business.bookingCustomization.showServiceAndClassDuration}
@@ -134,6 +160,7 @@
 						<section id="section-services">
 							<UngroupedServicesSection
 								services={ungroupedServices}
+								label={business.bookingLabelOverrides.service}
 								currency={business.locationDetails.currency}
 								showPrices={business.bookingCustomization.showServiceAndClassPrices}
 								showDuration={business.bookingCustomization.showServiceAndClassDuration}
@@ -146,8 +173,11 @@
 						<section id="section-team">
 							<TeamSection
 								{teamMembers}
+								label={business.bookingLabelOverrides.teamMember}
 								bookingPolicyText={business.bookingPolicies.bookingPolicyText}
 								showPolicy={business.bookingPolicies.showPolicyOnBookingPage}
+								cancellationPolicyValue={business.bookingPolicies.cancellationPolicy?.value}
+								cancellationPolicyUnit={business.bookingPolicies.cancellationPolicy?.unit}
 								onSelectTeamMember={handleSelectTeamMember}
 							/>
 						</section>

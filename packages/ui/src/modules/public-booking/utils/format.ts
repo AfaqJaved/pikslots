@@ -8,8 +8,18 @@ export function formatDuration(durationInMins: number): string {
 	return parts.length ? parts.join(' ') : '0 mins';
 }
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+	PKR: 'Rs',
+	USD: '$',
+	RUB: '₽'
+};
+
 /** 0 -> 'Free', 25 -> '$25.00' */
 export function formatCost(cost: number, currency: string): string {
 	if (cost === 0) return 'Free';
+	if (CURRENCY_SYMBOLS[currency]) {
+		return `${CURRENCY_SYMBOLS[currency]} ${cost.toFixed(2)}`;
+	}
+
 	return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cost);
 }
