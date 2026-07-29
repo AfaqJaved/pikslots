@@ -125,5 +125,4 @@ jobs:
           EOF
 
       - name: E2E tests (Business module, real infra)
-        working-directory: packages/api
-        run: bun run test:e2e
+        run: bun run test-e2e
