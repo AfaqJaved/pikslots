@@ -1,22 +1,15 @@
 name: E2E
 
-# Chained after CI (by workflow name, not filename) instead of triggering on
-# the same pull_request event, so these expensive, real-infra tests never
-# start when format/lint/unit tests have already failed. workflow_run always
-# fires (even on failure/skip); the job itself is gated by the `if` below.
 on:
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+  pull_request:
+    branches:
+      - main
 
 jobs:
   e2e:
     name: Business Module E2E (real infra)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event.workflow_run.conclusion == 'success'
 
     # Real Postgres, Redis, and S3 (RustFS) for packages/api/test — this
     # suite hits real infra end-to-end (Kysely, BullMQ worker, S3), it
@@ -69,11 +62,7 @@ jobs:
 
     steps:
       - name: Checkout
-        # workflow_run defaults to the base branch, not the PR — pin to the
-        # exact commit CI just ran against so e2e tests the same code.
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
