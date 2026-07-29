@@ -1,9 +1,5 @@
 import { ClassGroup, ClassGroupProps } from '@pikslots/domain';
 
-// ── Fixture data ─────────────────────────────────────────────────────────────
-// Built via ClassGroup.reconstitute() so entities are fully-formed domain objects,
-// not raw persistence rows.
-
 function buildClassGroupProps(
   overrides: Partial<ClassGroupProps>,
 ): ClassGroupProps {

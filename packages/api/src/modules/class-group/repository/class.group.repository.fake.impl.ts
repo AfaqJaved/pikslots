@@ -14,7 +14,7 @@ export class ClassGroupRepositoryTestImpl implements ClassGroupRepository {
   private readonly data: ClassGroup[];
 
   constructor(data: ClassGroup[] = CLASS_GROUP_TEST_DATA) {
-    this.data = [...data];
+    this.data = data; // same reference — mutations are visible to callers holding CLASS_GROUP_TEST_DATA
   }
 
   async save(
