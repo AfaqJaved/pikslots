@@ -36,7 +36,7 @@
 		<span class="text-xs text-muted-foreground">
 			{#if showDuration}{formatDuration(service.durationInMins)}{/if}
 			{#if showDuration && showPrices}&nbsp;·&nbsp;{/if}
-			{#if showPrices}{formatCost(service.cost / 100, currency)}{/if}
+			<!-- {#if showPrices}{formatCost(service.cost / 100, currency)}{/if} -->
 		</span>
 	</div>
 	<ChevronRight size={16} class="ml-auto shrink-0 text-muted-foreground" />

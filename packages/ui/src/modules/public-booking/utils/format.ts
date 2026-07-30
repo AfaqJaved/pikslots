@@ -10,8 +10,8 @@ export function formatDuration(durationInMins: number): string {
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
 	PKR: 'Rs',
-	USD: '$',
-	RUB: '₽'
+	USD: 'USD',
+	RUB: 'RUB'
 };
 
 /** 0 -> 'Free', 25 -> '$25.00' */
