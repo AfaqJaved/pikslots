@@ -7,18 +7,20 @@
 		currency,
 		showPrices,
 		showDuration,
+		label,
 		onSelect
 	}: {
 		serviceGroups: PublicServiceGroup[];
 		currency: string;
 		showPrices: boolean;
 		showDuration: boolean;
+		label: string;
 		onSelect: (service: PublicService) => void;
 	} = $props();
 </script>
 
 <div class="flex flex-col gap-4">
-	<h2 class="text-lg font-semibold">Select a service</h2>
+	<h2 class="text-lg font-semibold">Select a {label || 'service'}</h2>
 
 	<div class="flex flex-col gap-6">
 		{#each serviceGroups as group (group.id)}

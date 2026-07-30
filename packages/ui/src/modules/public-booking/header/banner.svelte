@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="relative mx-auto flex h-64 max-w-5xl items-center justify-between overflow-hidden px-8"
+	class="relative mx-auto flex h-48 max-w-5xl items-center justify-between overflow-hidden px-8 sm:h-64"
 	style={business.brandDetail.bannerImageUrl
 		? `background-image: url(${business.brandDetail.bannerImageUrl}); background-size: cover; background-position: center;`
 		: `background-image: linear-gradient(135deg, ${business.brandApperanceDetails.brandColor} 0%, color-mix(in srgb, ${business.brandApperanceDetails.brandColor} 40%, black) 60%, black 100%);`}

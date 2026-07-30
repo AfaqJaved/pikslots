@@ -56,6 +56,12 @@ export const PUBLIC_BOOKING_PAGE_BUSINESS_TEST_DATA: (BusinessDetails & {
     businessLinks: {
       website: 'https://glowhairstudio.example.com',
     } as unknown as BusinessDetails['businessLinks'],
+    contactDetails: {
+      primaryEmail: 'contact@glowhairstudio.example.com',
+      primaryPhone: { countryCode: '+92', number: '3001234567' },
+      additionalEmails: [],
+      additionalPhones: [],
+    } as unknown as BusinessDetails['contactDetails'],
     isDeleted: false,
   },
   {
@@ -100,6 +106,12 @@ export const PUBLIC_BOOKING_PAGE_BUSINESS_TEST_DATA: (BusinessDetails & {
     businessLinks: {
       website: 'https://zenspa.example.com',
     } as unknown as BusinessDetails['businessLinks'],
+    contactDetails: {
+      primaryEmail: 'contact@zenspa.example.com',
+      primaryPhone: { countryCode: '+92', number: '3007654321' },
+      additionalEmails: [],
+      additionalPhones: [],
+    } as unknown as BusinessDetails['contactDetails'],
     isDeleted: false,
   },
   {
@@ -121,6 +133,7 @@ export const PUBLIC_BOOKING_PAGE_BUSINESS_TEST_DATA: (BusinessDetails & {
       {} as unknown as BusinessDetails['bookingLabelOverrides'],
     businessHours: {} as unknown as BusinessDetails['businessHours'],
     businessLinks: {} as unknown as BusinessDetails['businessLinks'],
+    contactDetails: {} as unknown as BusinessDetails['contactDetails'],
     // soft-deleted — proves findBusinessDetailsByBusinessSlug excludes it
     isDeleted: true,
   },
