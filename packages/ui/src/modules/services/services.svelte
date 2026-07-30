@@ -210,7 +210,7 @@
 		visibleClasses().filter((c) => c.title.toLowerCase().includes(search.toLowerCase()))
 	);
 
-	const business =  $derived(businessStore.selectedBusiness ?? null)
+	const business = $derived(businessStore.selectedBusiness ?? null);
 
 	// ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -220,9 +220,6 @@
 		const m = mins % 60;
 		return m > 0 ? `${h} hr ${m} mins` : `${h} hr`;
 	}
-
-
-
 
 	async function copyLink(serviceId: string) {
 		await navigator.clipboard.writeText(`https://${bookingUrl}/service/${serviceId}`);
@@ -629,7 +626,10 @@
 								<div class="flex flex-1 flex-col">
 									<span class="text-sm font-medium">{service.title}</span>
 									<span class="text-xs text-muted-foreground">
-										{formatDuration(service.durationInMins)} · {formatCost(service.cost / 100 , business.locationDetails?.currency ?? '')}
+										{formatDuration(service.durationInMins)} · {formatCost(
+											service.cost / 100,
+											business.locationDetails?.currency ?? ''
+										)}
 									</span>
 								</div>
 

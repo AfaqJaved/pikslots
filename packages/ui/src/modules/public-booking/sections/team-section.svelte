@@ -29,7 +29,7 @@
 	}
 </script>
 
-<div class="flex flex-col gap-4 ">
+<div class="flex flex-col gap-4">
 	<h2 class="text-xl font-semibold">{label || 'Team Member'}</h2>
 
 	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -54,38 +54,38 @@
 		{/each}
 	</div>
 
-		<div class="flex flex-col gap-2 border-t pt-4 pb-4">
-			<span class="text-xs font-semibold text-muted-foreground">Good to know</span>
-			<button
-				type="button"
-				onclick={() => (policyDialogOpen = true)}
-				class="flex w-fit cursor-pointer items-center gap-2 text-sm underline underline-offset-2 hover:text-muted-foreground"
-			>
-				<FileText size={16} />
-			 Booking policy
-			</button>
-		</div>
+	<div class="flex flex-col gap-2 border-t pt-4 pb-4">
+		<span class="text-xs font-semibold text-muted-foreground">Good to know</span>
+		<button
+			type="button"
+			onclick={() => (policyDialogOpen = true)}
+			class="flex w-fit cursor-pointer items-center gap-2 text-sm underline underline-offset-2 hover:text-muted-foreground"
+		>
+			<FileText size={16} />
+			Booking policy
+		</button>
+	</div>
 
-		<Dialog.Root bind:open={policyDialogOpen}>
-			<Dialog.Content class="sm:max-w-lg md:max-w-xl lg:max-w-xl">
-				<Dialog.Header>
-					<Dialog.Title class='text-lg font-bold text-white'>Our Booking policy</Dialog.Title>
-				</Dialog.Header>
-				<p class="text-sm text-muted-foreground">{bookingPolicyText}</p>
-				<p class="rounded-xl p-4 text-base shadow-xl" style="background-color: #1a1a1a">
-					Cancellation policy You can cancel or reschedule
-					{cancellationPolicyUnit
-						? `${cancellationPolicyValue == 0 ? '' : cancellationPolicyValue} ${cancellationPolicyUnit}`
-						: 'anytime'}
-					before the appointment time.
-				</p>
+	<Dialog.Root bind:open={policyDialogOpen}>
+		<Dialog.Content class="sm:max-w-lg md:max-w-xl lg:max-w-xl">
+			<Dialog.Header>
+				<Dialog.Title class="text-lg font-bold text-white">Our Booking policy</Dialog.Title>
+			</Dialog.Header>
+			<p class="text-sm text-muted-foreground">{bookingPolicyText}</p>
+			<p class="rounded-xl p-4 text-base shadow-xl" style="background-color: #1a1a1a">
+				Cancellation policy You can cancel or reschedule
+				{cancellationPolicyUnit
+					? `${cancellationPolicyValue == 0 ? '' : cancellationPolicyValue} ${cancellationPolicyUnit}`
+					: 'anytime'}
+				before the appointment time.
+			</p>
 
-				<div class="flex justify-end">
-					<Button
-						class=" w-fit rounded-full border-2 border-amber-50 bg-transparent px-8 py-4 text-base"
-						onclick={() => (policyDialogOpen = false)}>Okay</Button
-					>
-				</div>
-			</Dialog.Content>
-		</Dialog.Root>
+			<div class="flex justify-end">
+				<Button
+					class=" w-fit rounded-full border-2 border-amber-50 bg-transparent px-8 py-4 text-base"
+					onclick={() => (policyDialogOpen = false)}>Okay</Button
+				>
+			</div>
+		</Dialog.Content>
+	</Dialog.Root>
 </div>

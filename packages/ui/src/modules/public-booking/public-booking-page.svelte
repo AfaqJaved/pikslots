@@ -112,7 +112,9 @@
 		{#if business}
 			<Banner {business} />
 		{/if}
-		<div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:px-6 lg:py-8">
+		<div
+			class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:px-6 lg:py-8"
+		>
 			{#if view === 'booking'}
 				{#if business && serviceGroups && teamMembers}
 					<div class="mx-auto w-full max-w-2xl">

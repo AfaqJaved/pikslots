@@ -169,7 +169,7 @@
 	const allSelected = $derived(
 		teamMembers.length > 0 && selectedMemberIds.size === teamMembers.length
 	);
-		const currency = $derived(businessStore.selectedBusiness?.locationDetails?.currency)
+	const currency = $derived(businessStore.selectedBusiness?.locationDetails?.currency);
 
 	const someSelected = $derived(selectedMemberIds.size > 0 && !allSelected);
 

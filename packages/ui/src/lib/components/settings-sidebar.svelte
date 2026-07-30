@@ -221,7 +221,7 @@
 													<item.icon /><span>{item.label}</span>
 												</a>
 											{:else}
-												<a  {...props} style='cursor:not-allowed; opacity: 60%;'>
+												<a {...props} style="cursor:not-allowed; opacity: 60%;">
 													<item.icon /><span>{item.label}</span>
 												</a>
 											{/if}
