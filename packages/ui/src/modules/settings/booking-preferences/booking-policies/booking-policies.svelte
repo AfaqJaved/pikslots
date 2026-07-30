@@ -31,6 +31,12 @@
 	let bookingPolicyText = $state('');
 	let addPolicyToHome = $state(false);
 
+	$effect(() => {
+		if (!bookingPolicyText.trim()) {
+			addPolicyToHome = false;
+		}
+	});
+
 	const leadTimeUnits: { value: TimeUnit; label: string }[] = [
 		{ value: 'minutes', label: 'Minutes' },
 		{ value: 'hours', label: 'Hours' }
@@ -273,7 +279,7 @@
 					{#if business === null}
 						<Skeleton class="mt-0.5 h-5 w-9 rounded-full" />
 					{:else}
-						<Switch bind:checked={addPolicyToHome} class="mt-0.5" />
+						<Switch bind:checked={addPolicyToHome} class="mt-0.5" disabled={!bookingPolicyText.trim()} />
 					{/if}
 					<div class="flex flex-col gap-0.5">
 						<span class="text-xs font-medium">Add policy to home</span>

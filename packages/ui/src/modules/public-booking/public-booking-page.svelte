@@ -112,7 +112,7 @@
 		{#if business}
 			<Banner {business} />
 		{/if}
-		<div class="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-8 lg:flex-row">
+		<div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:px-6 lg:py-8">
 			{#if view === 'booking'}
 				{#if business && serviceGroups && teamMembers}
 					<div class="mx-auto w-full max-w-2xl">
@@ -137,7 +137,7 @@
 
 							<div class="flex justify-end p-4">
 								<Button
-									class=" w-fit rounded-full border-2 border-amber-50 bg-black px-8 py-4 text-base"
+									class=" w-fit rounded-full border-2 border-amber-50 bg-black px-6 py-2 text-sm lg:px-8 lg:py-4 lg:text-base"
 									onclick={() => (policyDismissed = true)}>Okay</Button
 								>
 							</div>
@@ -175,7 +175,6 @@
 								{teamMembers}
 								label={business.bookingLabelOverrides.teamMember}
 								bookingPolicyText={business.bookingPolicies.bookingPolicyText}
-								showPolicy={business.bookingPolicies.showPolicyOnBookingPage}
 								cancellationPolicyValue={business.bookingPolicies.cancellationPolicy?.value}
 								cancellationPolicyUnit={business.bookingPolicies.cancellationPolicy?.unit}
 								onSelectTeamMember={handleSelectTeamMember}

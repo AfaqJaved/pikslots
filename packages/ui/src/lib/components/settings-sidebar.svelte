@@ -221,9 +221,9 @@
 													<item.icon /><span>{item.label}</span>
 												</a>
 											{:else}
-												<span {...props} class="cursor-not-allowed opacity-60">
+												<a  {...props} style='cursor:not-allowed; opacity: 60%;'>
 													<item.icon /><span>{item.label}</span>
-												</span>
+												</a>
 											{/if}
 										{/snippet}
 									</Sidebar.MenuButton>

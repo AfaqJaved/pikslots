@@ -169,6 +169,8 @@
 	const allSelected = $derived(
 		teamMembers.length > 0 && selectedMemberIds.size === teamMembers.length
 	);
+		const currency = $derived(businessStore.selectedBusiness?.locationDetails?.currency)
+
 	const someSelected = $derived(selectedMemberIds.size > 0 && !allSelected);
 
 	// ── Handlers ─────────────────────────────────────────────────────────────────
@@ -392,7 +394,7 @@
 						<div class="relative">
 							<span
 								class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs text-muted-foreground"
-								>Rs</span
+								>{currency ?? 'PKR'}</span
 							>
 							<Input
 								id="cost"
@@ -400,7 +402,7 @@
 								min="0"
 								bind:value={$form.cost}
 								placeholder="Enter cost"
-								class="[appearance:textfield] pl-8 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								class="[appearance:textfield] pl-10 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 							/>
 						</div>
 						<FieldError errors={$errors.cost?.map((e) => ({ message: e }))} />

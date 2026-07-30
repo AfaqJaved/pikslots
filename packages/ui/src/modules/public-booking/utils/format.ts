@@ -10,8 +10,14 @@ export function formatDuration(durationInMins: number): string {
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
 	PKR: 'Rs',
-	USD: 'USD',
-	RUB: 'RUB'
+	USD: '$',
+	RUB: '₽'
+};
+
+const SYMBOL_TO_CODE: Record<string, string> = {
+	Rs: 'PKR',
+	$: 'USD',
+	'₽': 'RUB'
 };
 
 /** 0 -> 'Free', 25 -> '$25.00' */
@@ -19,6 +25,9 @@ export function formatCost(cost: number, currency: string): string {
 	if (cost === 0) return 'Free';
 	if (CURRENCY_SYMBOLS[currency]) {
 		return `${CURRENCY_SYMBOLS[currency]} ${cost.toFixed(2)}`;
+	}
+	if (SYMBOL_TO_CODE[currency]) {
+		return `${currency}${cost.toFixed(2)}`;
 	}
 
 	return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cost);

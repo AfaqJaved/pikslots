@@ -48,7 +48,7 @@
 	);
 </script>
 
-<div class="flex flex-col border p-6">
+<div class="flex flex-col border p-4 sm:p-6">
 	<h2 class="text-center text-xl font-semibold">{business.name}</h2>
 
 	<Button
@@ -117,7 +117,7 @@
 			</Button>
 		{/if}
 	</div>
-	<div class="flex w-full items-center justify-center">
+	<div class="flex w-full flex-wrap items-center justify-center">
 		{#if business.businessLinks.Website}
 			<a href={business.businessLinks.Website} target="_blank" rel="noopener noreferrer">
 				<Button class="bg-transparent">
