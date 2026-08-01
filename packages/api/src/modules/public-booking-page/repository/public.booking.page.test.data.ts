@@ -61,7 +61,7 @@ export const PUBLIC_BOOKING_PAGE_BUSINESS_TEST_DATA: (BusinessDetails & {
       primaryPhone: { countryCode: '+92', number: '3001234567' },
       additionalEmails: [],
       additionalPhones: [],
-    } as unknown as BusinessDetails['contactDetails'],
+    },
     isDeleted: false,
   },
   {
@@ -111,7 +111,7 @@ export const PUBLIC_BOOKING_PAGE_BUSINESS_TEST_DATA: (BusinessDetails & {
       primaryPhone: { countryCode: '+92', number: '3007654321' },
       additionalEmails: [],
       additionalPhones: [],
-    } as unknown as BusinessDetails['contactDetails'],
+    },
     isDeleted: false,
   },
   {

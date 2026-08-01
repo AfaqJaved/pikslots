@@ -31,9 +31,7 @@ const businessErrorMap: Record<
     new PikslotsBaseErrorResponse(error.message, HttpStatus.FORBIDDEN),
   unauthorized: (error) =>
     new PikslotsBaseErrorResponse(error.message, HttpStatus.UNAUTHORIZED),
-  infrastructure: (error) => {
-    //@ts-expect-error cause is untyped on InfrastructureError
-    console.log(error.cause);
+  infrastructure: () => {
     return new PikslotsBaseErrorResponse(
       'Something went wrong. Please try again later.',
       HttpStatus.INTERNAL_SERVER_ERROR,

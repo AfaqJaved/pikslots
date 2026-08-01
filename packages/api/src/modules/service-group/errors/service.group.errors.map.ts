@@ -29,6 +29,5 @@ const serviceGroupErrorMap: Record<
 export function mapServiceGroupError(
   error: ServiceGroupError,
 ): PikslotsBaseErrorResponse {
-  console.log(error);
   return serviceGroupErrorMap[error.kind](error);
 }
