@@ -27,6 +27,7 @@ describe(`DELETE ${CUSTOMER_ENDPOINTS.DELETE}`, () => {
       'Admin',
       businessId,
     );
+
     expect(response.status).toBe(200);
 
     const row = await ctx.db
@@ -43,6 +44,7 @@ describe(`DELETE ${CUSTOMER_ENDPOINTS.DELETE}`, () => {
       'Admin',
       businessId,
     );
+
     expect(getResponse.status).toBe(404);
   });
 

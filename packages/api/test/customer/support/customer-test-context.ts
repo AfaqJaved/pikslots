@@ -69,19 +69,20 @@ export function setupCustomerTestContext(): CustomerTestContext {
     // before the pool/app close underneath it.
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // if (ctx.createdBusinessIds.length > 0) {
-    //   await ctx.db
-    //     .deleteFrom('businesses')
-    //     .where('id', 'in', ctx.createdBusinessIds)
-    //     .execute();
-    // }
+    // NOTE removing businesses deletes the customer and the users since using cascade
+    if (ctx.createdBusinessIds.length > 0) {
+      await ctx.db
+        .deleteFrom('businesses')
+        .where('id', 'in', ctx.createdBusinessIds)
+        .execute();
+    }
 
-    // if (ctx.createdUserIds.length > 0) {
-    //   await ctx.db
-    //     .deleteFrom('users')
-    //     .where('id', 'in', ctx.createdUserIds)
-    //     .execute();
-    // }
+    if (ctx.createdUserIds.length > 0) {
+      await ctx.db
+        .deleteFrom('users')
+        .where('id', 'in', ctx.createdUserIds)
+        .execute();
+    }
 
     for (const key of ctx.createdS3Keys) {
       try {
