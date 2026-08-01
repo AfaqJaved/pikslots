@@ -30,6 +30,7 @@ export interface CustomerTestContext {
    */
   createdBusinessIds: string[];
   createdUserIds: string[];
+  createdCustomerIds: string[];
   createdS3Keys: string[];
 }
 
@@ -45,6 +46,7 @@ export function setupCustomerTestContext(): CustomerTestContext {
   const ctx: CustomerTestContext = {
     createdBusinessIds: [],
     createdUserIds: [],
+    createdCustomerIds: [],
     createdS3Keys: [],
   } as unknown as CustomerTestContext;
 
@@ -67,19 +69,19 @@ export function setupCustomerTestContext(): CustomerTestContext {
     // before the pool/app close underneath it.
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    if (ctx.createdBusinessIds.length > 0) {
-      await ctx.db
-        .deleteFrom('businesses')
-        .where('id', 'in', ctx.createdBusinessIds)
-        .execute();
-    }
+    // if (ctx.createdBusinessIds.length > 0) {
+    //   await ctx.db
+    //     .deleteFrom('businesses')
+    //     .where('id', 'in', ctx.createdBusinessIds)
+    //     .execute();
+    // }
 
-    if (ctx.createdUserIds.length > 0) {
-      await ctx.db
-        .deleteFrom('users')
-        .where('id', 'in', ctx.createdUserIds)
-        .execute();
-    }
+    // if (ctx.createdUserIds.length > 0) {
+    //   await ctx.db
+    //     .deleteFrom('users')
+    //     .where('id', 'in', ctx.createdUserIds)
+    //     .execute();
+    // }
 
     for (const key of ctx.createdS3Keys) {
       try {

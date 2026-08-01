@@ -29,6 +29,5 @@ const classGroupErrorMap: Record<
 export function mapClassGroupError(
   error: ClassGroupError,
 ): PikslotsBaseErrorResponse {
-  console.log(error);
   return classGroupErrorMap[error.kind](error);
 }
