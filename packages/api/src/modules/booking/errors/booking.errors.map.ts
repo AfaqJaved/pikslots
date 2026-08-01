@@ -33,6 +33,5 @@ const bookingErrorMap: Record<
 export function mapBookingError(
   error: BookingError,
 ): PikslotsBaseErrorResponse {
-  console.log(error);
   return bookingErrorMap[error.kind](error);
 }

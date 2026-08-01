@@ -33,6 +33,5 @@ const customerErrorMap: Record<
 export function mapCustomerError(
   error: CustomerError,
 ): PikslotsBaseErrorResponse {
-  console.log(error);
   return customerErrorMap[error.kind](error);
 }

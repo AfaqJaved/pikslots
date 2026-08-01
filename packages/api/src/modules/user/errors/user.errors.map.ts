@@ -70,6 +70,5 @@ const userErrorMap: Record<
 };
 
 export function mapUserError(error: UserError): PikslotsBaseErrorResponse {
-  console.log(error);
   return userErrorMap[error.kind](error);
 }

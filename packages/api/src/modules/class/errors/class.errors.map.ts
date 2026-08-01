@@ -24,6 +24,5 @@ const classErrorMap: Record<
 };
 
 export function mapClassError(error: ClassError): PikslotsBaseErrorResponse {
-  console.log(error);
   return classErrorMap[error.kind](error);
 }
