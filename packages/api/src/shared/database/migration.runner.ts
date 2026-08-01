@@ -32,9 +32,9 @@ export async function runMigrations(db: Kysely<PikSlotsDatabase>) {
 
   results?.forEach((result) => {
     if (result.status === 'Success') {
-      console.log(`Migration applied: ${result.migrationName}`);
+      logger.fatal(`Migration Applied : ${result.migrationName}`);
     } else if (result.status === 'Error') {
-      console.error(`Migration failed: ${result.migrationName}`);
+      logger.error(`Migration Failed ${result.migrationName} `);
     }
   });
 

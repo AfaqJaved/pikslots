@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
@@ -15,12 +15,13 @@ const KyselyProvider = {
   useFactory: async (
     configService: ConfigService<Env, true>,
   ): Promise<PikSlotsPersistence> => {
+    const logger = new Logger('Pikslots Database Module');
     const dialect = new PostgresDialect({
       pool: new Pool({
         connectionString: configService.get('DATABASE_URL', { infer: true }),
         max: 10,
       }).on('error', (error) => {
-        console.log('Database error : ' + error.message);
+        logger.log('Database error : ' + error.message);
       }),
     });
     const db = new Kysely<PikSlotsDatabase>({ dialect });
