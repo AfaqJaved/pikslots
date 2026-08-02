@@ -128,7 +128,7 @@
 				for (let i = 0; i < galleryPhotosFile.length; i++) {
 					photoKey = await uploadS3Mutations.mutateAsync({
 						id: business.id,
-						folder: 'BusinessGallery',
+						folder: 'business_gallery',
 						businessSlug: business.slug,
 						file: galleryPhotosFile[i],
 						type: 'gallery_photo'
