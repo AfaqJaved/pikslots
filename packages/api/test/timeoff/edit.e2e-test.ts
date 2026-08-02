@@ -42,7 +42,13 @@ describe(`PATCH ${TIMEOFF_ENDPOINTS.UPDATE}`, () => {
     );
     expect(response.status).toBe(200);
 
-    const getResponse = await getTimeoffById(ctx, timeoff.id, 'Admin');
+    const getResponse = await getTimeoffById(
+      ctx,
+      timeoff.id,
+      'Admin',
+      null,
+      businessId,
+    );
     const body = successBody<Record<string, unknown>>(getResponse);
     expect(body.data.title).toBe('After-Edit');
     expect(body.data.allDay).toBe(true);

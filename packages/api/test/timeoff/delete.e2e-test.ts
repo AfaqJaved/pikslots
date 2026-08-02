@@ -27,7 +27,13 @@ describe(`DELETE ${TIMEOFF_ENDPOINTS.DELETE}`, () => {
       title: 'To-Be-Hard-Deleted',
     });
 
-    const response = await deleteTimeoff(ctx, timeoff.id, 'Admin');
+    const response = await deleteTimeoff(
+      ctx,
+      timeoff.id,
+      'Admin',
+      null,
+      businessId,
+    );
     expect(response.status).toBe(200);
 
     const row = await ctx.db
@@ -95,14 +101,20 @@ describe(`DELETE ${TIMEOFF_ENDPOINTS.DELETE}`, () => {
     const timeoff = await createTimeoff(ctx, standardUserId, businessId, {
       title: 'Delete-Twice',
     });
-    await deleteTimeoff(ctx, timeoff.id, 'Admin').then((r) =>
+    await deleteTimeoff(ctx, timeoff.id, 'Admin', null, businessId).then((r) =>
       expect(r.status).toBe(200),
     );
     ctx.createdTimeoffIds = ctx.createdTimeoffIds.filter(
       (id) => id !== timeoff.id,
     );
 
-    const response = await deleteTimeoff(ctx, timeoff.id, 'Admin');
+    const response = await deleteTimeoff(
+      ctx,
+      timeoff.id,
+      'Admin',
+      null,
+      businessId,
+    );
     expect(response.status).toBe(404);
   });
 });

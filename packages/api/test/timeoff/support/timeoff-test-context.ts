@@ -1,6 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import type { App } from 'supertest/types';
 import type { Kysely } from 'kysely';
+import type { S3Client } from '@aws-sdk/client-s3';
 
 import type { PikSlotsDatabase } from '../../../src/shared/database/schema';
 import type { JwtLoginService } from '../../../src/shared/security/jwt/jwt.login.service';
@@ -8,12 +9,27 @@ import {
   createRealInfraTestApp,
   closeRealInfraTestApp,
 } from '../../common/real-infra-test-app';
+import {
+  createTestS3Client,
+  deleteS3Object,
+} from '../../common/s3-test-client';
 
 export interface TimeoffTestContext {
   app: INestApplication<App>;
   db: Kysely<PikSlotsDatabase>;
   jwtLoginService: JwtLoginService;
   sentEmails: jest.Mock;
+  /**
+   * s3Client/s3Bucket/createdS3Keys exist purely so this context is
+   * structurally assignable to BusinessTestContext -- createOwningBusiness
+   * reuses the real createBusiness() from the Business suite's fixtures,
+   * and that function's parameter type requires these fields even though
+   * a plain business registration never touches S3. Nothing in the
+   * Timeoff suite itself populates createdS3Keys.
+   */
+  s3Client: S3Client;
+  s3Bucket: string;
+  createdS3Keys: string[];
   /**
    * Unlike Customer (customers.business_id has ON DELETE CASCADE), the
    * timeoffs table's `user_id` and `business_id` FKs were created with no
@@ -34,6 +50,7 @@ export function setupTimeoffTestContext(): TimeoffTestContext {
     createdTimeoffIds: [],
     createdBusinessIds: [],
     createdUserIds: [],
+    createdS3Keys: [],
   } as unknown as TimeoffTestContext;
 
   beforeAll(async () => {
@@ -42,6 +59,10 @@ export function setupTimeoffTestContext(): TimeoffTestContext {
     ctx.db = infra.db;
     ctx.jwtLoginService = infra.jwtLoginService;
     ctx.sentEmails = infra.sentEmails;
+
+    const { client, bucket } = createTestS3Client(infra.configService);
+    ctx.s3Client = client;
+    ctx.s3Bucket = bucket;
   });
 
   afterAll(async () => {
@@ -69,6 +90,17 @@ export function setupTimeoffTestContext(): TimeoffTestContext {
         .deleteFrom('users')
         .where('id', 'in', ctx.createdUserIds)
         .execute();
+    }
+
+    for (const key of ctx.createdS3Keys) {
+      try {
+        await deleteS3Object(
+          { client: ctx.s3Client, bucket: ctx.s3Bucket },
+          key,
+        );
+      } catch {
+        // best-effort cleanup
+      }
     }
 
     await closeRealInfraTestApp({ app: ctx.app, db: ctx.db });

@@ -29,7 +29,13 @@ describe(`GET ${TIMEOFF_ENDPOINTS.FIND}`, () => {
       allDay: true,
     });
 
-    const response = await getTimeoffById(ctx, timeoff.id, 'Admin');
+    const response = await getTimeoffById(
+      ctx,
+      timeoff.id,
+      'Admin',
+      null,
+      businessId,
+    );
     expect(response.status).toBe(200);
 
     const body = successBody<Record<string, unknown>>(response);

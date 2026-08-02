@@ -30,7 +30,7 @@ describe(`GET ${TIMEOFF_ENDPOINTS.FINDALL}`, () => {
     const removed = await createTimeoff(ctx, standardUserId, businessId, {
       title: 'FindAll-Removed',
     });
-    await deleteTimeoff(ctx, removed.id, 'Admin').then((r) =>
+    await deleteTimeoff(ctx, removed.id, 'Admin', null, businessId).then((r) =>
       expect(r.status).toBe(200),
     );
     ctx.createdTimeoffIds = ctx.createdTimeoffIds.filter(

@@ -53,9 +53,13 @@ export async function createStaffUser(
   role: UserRole = 'Standard',
 ): Promise<{ id: string; email: string }> {
   const id = uuidv7();
-  const suffix = unique('staff')
-    .replace(/[^a-z0-9]/gi, '')
-    .slice(0, 16);
+  // Derived from this row's own fresh uuidv7 `id`, NOT from unique(): a
+  // uuidv7's first ~11-12 hex chars are a millisecond timestamp, so two
+  // calls a few ms apart (e.g. two createStaffUser calls back to back in
+  // the same beforeAll) share that prefix. Taking the LAST 16 hex chars
+  // instead guarantees we're reading from the random portion of the uuid,
+  // not the shared timestamp portion -- so no cross-call collision.
+  const suffix = id.replace(/-/g, '').slice(-16);
 
   await ctx.db
     .insertInto('users')

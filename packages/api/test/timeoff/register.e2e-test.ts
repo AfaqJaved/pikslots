@@ -58,6 +58,14 @@ describe(`POST ${TIMEOFF_ENDPOINTS.REGISTER}`, () => {
       )
       .send(payload)
       .expect(201);
+
+    const row = await ctx.db
+      .selectFrom('timeoffs')
+      .select('id')
+      .where('title', '=', payload.title)
+      .where('user_id', '=', anotherUserId)
+      .executeTakeFirstOrThrow();
+    ctx.createdTimeoffIds.push(row.id);
   });
 
   it('denies a Business Owner creating a timeoff outside their own business', async () => {
@@ -96,6 +104,14 @@ describe(`POST ${TIMEOFF_ENDPOINTS.REGISTER}`, () => {
       )
       .send(payload)
       .expect(201);
+
+    const row = await ctx.db
+      .selectFrom('timeoffs')
+      .select('id')
+      .where('title', '=', payload.title)
+      .where('user_id', '=', standardUserId)
+      .executeTakeFirstOrThrow();
+    ctx.createdTimeoffIds.push(row.id);
   });
 
   it('denies a Standard user creating a timeoff for someone else', async () => {
