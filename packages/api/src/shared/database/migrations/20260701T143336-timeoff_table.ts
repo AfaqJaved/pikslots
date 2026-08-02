@@ -43,5 +43,5 @@ export async function up(db: Kysely<PikSlotsDatabase>): Promise<void> {
 }
 
 export async function down(db: Kysely<PikSlotsDatabase>): Promise<void> {
-  await db.schema.dropTable('timeoff').execute();
+  await db.schema.dropTable('timeoffs').execute();
 }
