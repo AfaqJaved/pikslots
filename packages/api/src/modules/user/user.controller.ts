@@ -39,6 +39,7 @@ import { PikslotsBaseErrorResponse } from 'src/shared/types/base.error.response'
 import { PikslotsBaseResponse } from 'src/shared/types/base.response';
 import type {
   AcceptInviteResponse,
+  GetAvailableDatesForBookingResponse,
   GetFreeSlotsForUserResponse,
   InviteUserResponse,
   LoginUserResponse,
@@ -66,6 +67,7 @@ import {
   IPikslotS3Service,
   type PikslotS3Service,
 } from 'src/shared/s3/s3.service';
+import { GetAvailableDatesDto } from './dto/get.available.dates.for.booking.dto';
 
 @ApiTags('Users')
 @Controller('')
@@ -439,6 +441,36 @@ export class UserController {
 
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<GetFreeSlotsForUserResponse>(
+      result.value,
+      HttpStatus.OK,
+    );
+  }
+
+  @Post(USER_ENDPOINTS.AVAILABLE_DATES)
+  async getAvailableDatesForBooking(
+    @Param('userId') userId: string,
+    @Body() query: GetAvailableDatesDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<GetAvailableDatesForBookingResponse>
+  > {
+    const result =
+      await this.userUseCaseFactory.getAvailableDatesForBookingUseCase.execute({
+        userId,
+        businessId: query.businessId,
+        serviceId: query.serviceId,
+        businessTimezone: query.businessTimezone,
+      });
+
+    if (!result.ok) {
+      const errorResponse = mapUserError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<GetAvailableDatesForBookingResponse>(
       result.value,
       HttpStatus.OK,
     );

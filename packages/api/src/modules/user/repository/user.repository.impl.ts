@@ -12,6 +12,7 @@ import {
   UserRepository,
   UserRole,
   WeekDay,
+  ShedulingWindow,
 } from '@pikslots/domain';
 import { Kysely } from 'kysely';
 import { PIKSLOTS_DB } from 'src/shared/database/pikslots.database.module';
@@ -274,6 +275,30 @@ export class UserRepositoryImpl implements UserRepository {
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to find booked slots for user',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+  async findShedulingWindow(
+    businessId: string,
+  ): Promise<Result<ShedulingWindow, InfrastructureError>> {
+    try {
+      const row = await this.db
+        .selectFrom('businesses')
+        .select(['booking_policies'])
+        .where('id', '=', businessId)
+        .where('is_deleted', '=', false)
+        .executeTakeFirstOrThrow();
+
+      return ok({
+        unit: row.booking_policies.scheduleWindow.unit,
+        value: row.booking_policies.scheduleWindow.value,
+      });
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find available dates for booking',
         timestamp: new Date(),
         cause,
       });

@@ -5,12 +5,16 @@
 	import { generateMockSlots } from '../../utils/mock-slots';
 	import type { PublicBusiness, PublicSlot } from '../../types';
 	import type { WeekdayKey } from '$utils/working-hours';
+	import { getAvailableDatesQueryOptions } from '../../../api/public-booking-page/get.available.dates.query';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
 		durationInMins,
 		bufferTimeInMins,
 		businessHours,
 		timeZone,
+		serviceId,
+		userId,
 		business,
 		onSelect
 	}: {
@@ -18,6 +22,8 @@
 		bufferTimeInMins: number;
 		businessHours: BusinessHours;
 		timeZone: string;
+		userId: string;
+		serviceId: string;
 		business: PublicBusiness;
 		onSelect: (date: string, slot: PublicSlot) => void;
 	} = $props();
@@ -25,9 +31,25 @@
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));
 	let selectedSlotStart = $state<string | null>(null);
 
+	// _____Query________________________
+	const getAvailableDates = createQuery(() => ({
+		...getAvailableDatesQueryOptions({
+			userId,
+			businessId: business.id,
+			serviceId,
+			businessTimezone: timeZone
+		}),
+		enabled: !!business && !!userId && !!serviceId
+	}));
+
+	//  ______derived_________________________
+
+	const dates = $derived(getAvailableDates.data?.dates);
+
 	const dateString = $derived(
 		`${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`
 	);
+	
 
 	const slots = $derived(
 		generateMockSlots({
@@ -36,13 +58,20 @@
 			timeZone,
 			durationInMins,
 			bufferTimeInMins
-		})
+		}) 
 	);
 
 	const brandColor = $derived(business.brandApperanceDetails.brandColor);
-	const selectedDateStyle = $derived(`background-color: ${brandColor}; }`);
+	const selectedDateStyle = $derived(`background-color: ${brandColor};`);
+
+	function formatDateKey(date: DateValue): string {
+		return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+	}
 
 	function isDateDisabled(date: DateValue): boolean {
+		if (dates && !dates.includes(formatDateKey(date))) {
+			return true;
+		}
 		const jsDate = date.toDate(getLocalTimeZone());
 		const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
 			.format(jsDate)
@@ -68,47 +97,70 @@
 		void dateString;
 		selectedSlotStart = null;
 	});
+
+	
 </script>
 
 {#snippet calendarDay({ day: dateValue, outsideMonth }: { day: DateValue; outsideMonth: boolean })}
+	<!-- selected date color change according to the brandcolor -->
 	<CalendarDay
-		style={!outsideMonth && dateValue.compare(selectedDate) === 0 ? selectedDateStyle : ''}
+		class="rounded-2xl  shadow-sm"
+		style={!outsideMonth && selectedDate && dateValue.compare(selectedDate) === 0 ? selectedDateStyle : ''}
 	/>
 {/snippet}
 
 <div class="flex flex-col gap-4">
-	<h2 class="text-lg font-semibold">Select a date &amp; time</h2>
-
-	<div class="flex flex-col gap-6 md:flex-row">
-		<Calendar
-			type="single"
-			bind:value={selectedDate}
-			minValue={today(getLocalTimeZone())}
-			{isDateDisabled}
-			class="border"
-			day={calendarDay}
-		/>
-		<div class="flex min-w-48 flex-1 flex-col gap-2">
-			<span class="text-xs font-medium text-muted-foreground">
-				Times shown in {timeZone}
-			</span>
-			{#if slots.length === 0}
-				<p class="py-6 text-sm text-muted-foreground">No availability on this day.</p>
-			{:else}
-				<div class="grid max-h-80 grid-cols-2 gap-2 overflow-y-auto pr-1">
-					{#each slots as slot (slot.startTime)}
-						<button
-							type="button"
-							onclick={() => selectSlot(slot)}
-							class="cursor-pointer border px-3 py-2 text-sm {selectedSlotStart === slot.startTime
-								? 'border-primary bg-primary text-primary-foreground'
-								: 'hover:border-foreground'}"
-						>
-							{formatSlotTime(slot.startTime)}
-						</button>
-					{/each}
-				</div>
-			{/if}
+	{#if getAvailableDates.isPending && !!userId && !!business.id && serviceId}
+		<div class="flex flex-col items-center justify-center gap-2 py-16 text-center">
+			<p class="text-sm text-muted-foreground">Checking availability...</p>
 		</div>
-	</div>
+	{:else if dates && dates.length > 0}
+		<h2 class="text-lg font-semibold">Select a date &amp; time</h2>
+
+		<div class="flex flex-col gap-6 md:flex-row">
+			<Calendar
+				type="single"
+				bind:value={selectedDate}
+				minValue={today(getLocalTimeZone())}
+				preventDeselect
+				{isDateDisabled}
+				class="rounded-2xl border shadow-sm"
+				day={calendarDay}
+			/>
+			<div class="flex min-w-48 flex-1 flex-col gap-2">
+				<span class="text-xs font-medium text-muted-foreground">
+					Times shown in {timeZone}
+				</span>
+				{#if slots.length === 0}
+					<p class="py-6 text-sm text-muted-foreground">No availability on this day.</p>
+				{:else}
+					<div
+						class="scrollbar dark:scrollbar-track-dark light:scrollbar-track-gray-200 grid
+					 max-h-80 scrollbar-thin scrollbar-thumb-gray-500 grid-cols-2 gap-2 overflow-y-auto pr-1"
+					>
+						{#each slots as slot (slot.startTime)}
+							<button
+								type="button"
+								onclick={() => selectSlot(slot)}
+								class="cursor-pointer border px-3 py-2 text-sm {selectedSlotStart === slot.startTime
+									? 'border-primary bg-primary text-primary-foreground'
+									: 'hover:border-foreground'}"
+							>
+								{formatSlotTime(slot.startTime)}
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+	{:else}
+		<div class="flex flex-col items-center justify-center gap-2 py-16 text-center">
+			<p class="text-xl font-medium text-muted-foreground">
+				Sorry, this service is not available for now.
+			</p>
+			<p class="text-xs text-muted-foreground/80">
+				Please check back later or choose a different service.
+			</p>
+		</div>
+	{/if}
 </div>

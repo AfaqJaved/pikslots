@@ -11,5 +11,6 @@ export const USER_ENDPOINTS = {
   REQUEST_INVITE_OTP: '/users/invite/request-otp',
   ACCEPT_INVITE: '/users/invite/accept',
   FREE_SLOTS: '/users/free-slots/:userId',
+  AVAILABLE_DATES: 'users/available-dates/:userId',
   UPDATE_AVATAR: '/users/:userId/avatar',
 } as const;

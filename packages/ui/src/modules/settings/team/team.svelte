@@ -46,7 +46,7 @@
 	$effect(() => {
 		void businessStore.selectedBusiness?.id;
 		selectedId = null;
-		if (usersQuery.data) {
+		if (usersQuery.data && usersQuery.data.length > 0) {
 			selectedId = usersQuery.data[0].id;
 		}
 	});

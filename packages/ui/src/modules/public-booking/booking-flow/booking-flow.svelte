@@ -151,6 +151,8 @@
 			bufferTimeInMins={flow.selectedService.bufferTimeInMins}
 			businessHours={business.businessHours}
 			timeZone={business.locationDetails.timeZone}
+			serviceId={flow.selectedService.id}
+			userId={flow.selectedTeamMember?.id ?? null}
 			{business}
 			onSelect={handleDatetimeSelected}
 		/>
