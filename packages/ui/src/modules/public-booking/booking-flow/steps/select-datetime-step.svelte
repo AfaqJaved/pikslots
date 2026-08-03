@@ -49,7 +49,6 @@
 	const dateString = $derived(
 		`${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`
 	);
-	
 
 	const slots = $derived(
 		generateMockSlots({
@@ -58,7 +57,7 @@
 			timeZone,
 			durationInMins,
 			bufferTimeInMins
-		}) 
+		})
 	);
 
 	const brandColor = $derived(business.brandApperanceDetails.brandColor);
@@ -97,15 +96,15 @@
 		void dateString;
 		selectedSlotStart = null;
 	});
-
-	
 </script>
 
 {#snippet calendarDay({ day: dateValue, outsideMonth }: { day: DateValue; outsideMonth: boolean })}
 	<!-- selected date color change according to the brandcolor -->
 	<CalendarDay
 		class="rounded-2xl  shadow-sm"
-		style={!outsideMonth && selectedDate && dateValue.compare(selectedDate) === 0 ? selectedDateStyle : ''}
+		style={!outsideMonth && selectedDate && dateValue.compare(selectedDate) === 0
+			? selectedDateStyle
+			: ''}
 	/>
 {/snippet}
 
