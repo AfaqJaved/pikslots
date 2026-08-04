@@ -49,6 +49,7 @@
 	import PikslotEmpty from '$lib/components/pikslot-empty.svelte';
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
+	import { formatCost } from './utils/service-format';
 
 	// ── State ───────────────────────────────────────────────────────────────────
 
@@ -209,6 +210,8 @@
 		visibleClasses().filter((c) => c.title.toLowerCase().includes(search.toLowerCase()))
 	);
 
+	const business = $derived(businessStore.selectedBusiness ?? null);
+
 	// ── Helpers ─────────────────────────────────────────────────────────────────
 
 	function formatDuration(mins: number): string {
@@ -216,10 +219,6 @@
 		const h = Math.floor(mins / 60);
 		const m = mins % 60;
 		return m > 0 ? `${h} hr ${m} mins` : `${h} hr`;
-	}
-
-	function formatCost(cost: number): string {
-		return cost === 0 ? 'Free' : `$${(cost / 100).toFixed(2)}`;
 	}
 
 	async function copyLink(serviceId: string) {
@@ -627,7 +626,10 @@
 								<div class="flex flex-1 flex-col">
 									<span class="text-sm font-medium">{service.title}</span>
 									<span class="text-xs text-muted-foreground">
-										{formatDuration(service.durationInMins)} · {formatCost(service.cost)}
+										{formatDuration(service.durationInMins)} · {formatCost(
+											service.cost / 100,
+											business.locationDetails?.currency ?? ''
+										)}
 									</span>
 								</div>
 

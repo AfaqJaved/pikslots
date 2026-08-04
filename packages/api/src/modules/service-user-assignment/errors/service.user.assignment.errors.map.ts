@@ -29,6 +29,5 @@ const serviceUserAssignmentErrorMap: Record<
 export function mapServiceUserAssignmentError(
   error: ServiceUserAssignmentError,
 ): PikslotsBaseErrorResponse {
-  console.log(error);
   return serviceUserAssignmentErrorMap[error.kind](error);
 }

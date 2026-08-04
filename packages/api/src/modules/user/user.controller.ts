@@ -200,8 +200,6 @@ export class UserController {
   ): Promise<
     PikslotsBaseErrorResponse | PikslotsBaseResponse<InviteUserResponse>
   > {
-    console.log('called');
-
     const result =
       await this.userUseCaseFactory.inviteUserUseCase.execute(inviteUserDto);
 

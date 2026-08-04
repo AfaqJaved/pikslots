@@ -123,6 +123,7 @@
 		{#if serviceGroups && serviceGroups.length > 0}
 			<SelectServiceStep
 				serviceGroups={flow.previousStep === 'first' ? filterServiceGroups : serviceGroups}
+				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}
@@ -131,6 +132,7 @@
 		{:else if ungroupedService && ungroupedService.length > 0}
 			<UngroupedSerivice
 				services={flow.previousStep === 'first' ? filterUngroupedServices : ungroupedService}
+				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}
@@ -138,7 +140,11 @@
 			/>
 		{/if}
 	{:else if flow.step === 'team-member'}
-		<SelectTeamMemberStep {teamMembers} onSelect={handleTeamMemberSelected} />
+		<SelectTeamMemberStep
+			{teamMembers}
+			label={business.bookingLabelOverrides.teamMember}
+			onSelect={handleTeamMemberSelected}
+		/>
 	{:else if flow.step === 'datetime' && flow.selectedService}
 		<SelectDatetimeStep
 			durationInMins={flow.selectedService.durationInMins}

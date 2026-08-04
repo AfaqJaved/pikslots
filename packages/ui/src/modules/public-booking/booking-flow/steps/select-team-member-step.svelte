@@ -6,9 +6,11 @@
 
 	let {
 		teamMembers,
+		label,
 		onSelect
 	}: {
 		teamMembers: PublicTeamMember[];
+		label: string;
 		onSelect: (member: PublicTeamMember | null) => void;
 	} = $props();
 
@@ -18,7 +20,7 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<h2 class="text-lg font-semibold">Select a team member</h2>
+	<h2 class="text-lg font-semibold">Select a {label || 'team member'}</h2>
 
 	<div class="flex flex-col gap-2">
 		<button

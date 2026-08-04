@@ -31,6 +31,5 @@ const breakErrorMap: Record<
 };
 
 export function mapBreakError(error: BreakError): PikslotsBaseErrorResponse {
-  console.log(error);
   return breakErrorMap[error.kind](error);
 }

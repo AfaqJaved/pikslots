@@ -18,7 +18,7 @@
 <header
 	class="sticky top-0 z-20 mx-auto flex max-w-5xl items-center justify-between border-b bg-background px-6"
 >
-	<nav class="flex items-center gap-6">
+	<nav class="flex items-center gap-4 overflow-x-auto sm:gap-6">
 		{#each tabs as tab (tab.id)}
 			<button
 				type="button"

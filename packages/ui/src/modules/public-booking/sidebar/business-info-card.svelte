@@ -22,9 +22,33 @@
 	const status = $derived(
 		getBusinessHoursStatus(business.businessHours, business.locationDetails.timeZone)
 	);
+
+	const hasContactDetails = $derived(() => {
+		const { contactDetails } = business;
+
+		const hasPrimaryPhone =
+			!!contactDetails.primaryPhone.countryCode && !!contactDetails.primaryPhone.number;
+
+		const hasAdditionalPhone = contactDetails.additionalPhones.some(
+			(phone) => !!phone.countryCode && !!phone.number
+		);
+
+		return (
+			!!contactDetails.primaryEmail ||
+			hasPrimaryPhone ||
+			contactDetails.additionalEmails.length > 0 ||
+			hasAdditionalPhone
+		);
+	});
+
+	const hasLocationDetails = $derived(
+		business.locationDetails.address ||
+			business.locationDetails.city ||
+			business.locationDetails.country
+	);
 </script>
 
-<div class="flex flex-col border p-6">
+<div class="flex flex-col border p-4 sm:p-6">
 	<h2 class="text-center text-xl font-semibold">{business.name}</h2>
 
 	<Button
@@ -60,37 +84,40 @@
 		{/if}
 	{/if}
 	<div class="flex flex-col gap-2 p-2 text-white">
-		<Button
-			class={`flex w-full items-center gap-2  ${
-				business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
-					? 'rounded-full'
-					: business.brandApperanceDetails.brandButtonShape.trim() === 'rounded'
-						? 'rounded-xl'
-						: 'rounded-none'
-			}`}
-			style="background-color: {business.brandApperanceDetails.brandColor}"
-			onclick={() => (contactDialogOpen = true)}
-		>
-			<Headset size={16} />
-			Contact Us
-		</Button>
-
-		<Button
-			class={`flex w-full items-center gap-2  ${
-				business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
-					? 'rounded-full'
-					: business.brandApperanceDetails.brandButtonShape.trim() === 'rounded'
-						? 'rounded-xl'
-						: 'rounded-none'
-			}`}
-			style="background-color: {business.brandApperanceDetails.brandColor}"
-			onclick={() => (LocationDialogOpen = true)}
-		>
-			<Location size={16} />
-			Location
-		</Button>
+		{#if hasContactDetails()}
+			<Button
+				class={`flex w-full items-center gap-2  ${
+					business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
+						? 'rounded-full'
+						: business.brandApperanceDetails.brandButtonShape.trim() === 'rounded'
+							? 'rounded-xl'
+							: 'rounded-none'
+				}`}
+				style="background-color: {business.brandApperanceDetails.brandColor}"
+				onclick={() => (contactDialogOpen = true)}
+			>
+				<Headset size={16} />
+				Contact Us
+			</Button>
+		{/if}
+		{#if hasLocationDetails}
+			<Button
+				class={`flex w-full items-center gap-2  ${
+					business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
+						? 'rounded-full'
+						: business.brandApperanceDetails.brandButtonShape.trim() === 'rounded'
+							? 'rounded-xl'
+							: 'rounded-none'
+				}`}
+				style="background-color: {business.brandApperanceDetails.brandColor}"
+				onclick={() => (LocationDialogOpen = true)}
+			>
+				<Location size={16} />
+				Location
+			</Button>
+		{/if}
 	</div>
-	<div class="flex w-full items-center justify-center">
+	<div class="flex w-full flex-wrap items-center justify-center">
 		{#if business.businessLinks.Website}
 			<a href={business.businessLinks.Website} target="_blank" rel="noopener noreferrer">
 				<Button class="bg-transparent">

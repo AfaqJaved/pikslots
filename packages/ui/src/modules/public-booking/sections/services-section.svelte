@@ -10,10 +10,12 @@
 		currency,
 		showPrices,
 		showDuration,
+		label,
 		onSelectService
 	}: {
 		serviceGroups: PublicServiceGroup[];
 		currency: string;
+		label: string;
 		showPrices: boolean;
 		showDuration: boolean;
 		onSelectService: (service: PublicService) => void;
@@ -22,10 +24,14 @@
 	// Intentionally captures only the initial groups — all expanded by default,
 	// independent of later prop changes so user-toggled state isn't reset.
 	let openGroups = $state<string[]>(untrack(() => serviceGroups.map((g) => g.id)));
+
+	let priceSymbol = $derived(
+		currency === 'PKR' ? 'Rs' : currency === 'USD' ? '$' : currency === 'RUB' ? '₽' : ''
+	);
 </script>
 
 <div class="flex flex-col gap-1">
-	<h2 class="text-xl font-semibold">Services</h2>
+	<h2 class="text-xl font-semibold">{label || 'Services'}</h2>
 
 	<Accordion.Root type="multiple" bind:value={openGroups}>
 		{#each serviceGroups as group (group.id)}
@@ -54,7 +60,7 @@
 						{#each group.services as service (service.id)}
 							<ServiceRow
 								{service}
-								{currency}
+								currency={priceSymbol}
 								{showPrices}
 								{showDuration}
 								onclick={() => onSelectService(service)}
