@@ -92,8 +92,6 @@ export class GetAvailableDatesForBookingUseCaseImpl implements GetAvailableDates
     const allDayBlock = new Set<string>();
 
     for (const timeoff of timeoffsResult.value) {
-      if (!timeoff.allDay) continue;
-
       const start = new Date(timeoff.startDateTime);
       const end = new Date(timeoff.endDateTime);
 

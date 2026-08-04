@@ -221,6 +221,7 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
       const result = await useCase.execute(buildCommand());
 
       expect(result.ok).toBe(true);
+
       if (!result.ok) return;
 
       expect(result.value).toEqual({
@@ -352,29 +353,6 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           '2026-08-19',
         ],
       });
-    });
-
-    it('ignores non-all-day timeoffs', async () => {
-      jest
-        .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
-        .mockResolvedValueOnce(
-          ok([
-            {
-              title: 'Lunch',
-              startDateTime: '2026-08-13T12:00:00.000Z',
-              endDateTime: '2026-08-13T13:00:00.000Z',
-              allDay: false,
-              timeZone: TEST_TIMEZONE,
-            },
-          ]),
-        );
-
-      const result = await useCase.execute(buildCommand());
-
-      expect(result.ok).toBe(true);
-      if (!result.ok) return;
-
-      expect(result.value.dates).toContain('2026-08-13');
     });
 
     it('returns an empty list when every working day is disabled', async () => {
