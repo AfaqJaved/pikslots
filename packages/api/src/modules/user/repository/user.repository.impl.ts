@@ -392,4 +392,61 @@ export class UserRepositoryImpl implements UserRepository {
       });
     }
   }
+
+  async findUserTimeoffsWithinShedulingWindow(
+    userId: string,
+    businessId: string,
+    windowStartDate: string,
+    windowEndDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  > {
+    try {
+      const windowStart = new Date(`${windowStartDate}T00:00:00.000Z`);
+      const windowEnd = new Date(`${windowEndDate}T00:00:00.000Z`);
+      windowEnd.setUTCDate(windowEnd.getUTCDate() + 1);
+
+      const rows = await this.db
+        .selectFrom('timeoffs')
+        .select([
+          'title',
+          'start_date_time',
+          'end_date_time',
+          'all_day',
+          'time_zone',
+        ])
+        .where('user_id', '=', userId)
+        .where('business_id', '=', businessId)
+        .where('start_date_time', '<', windowEnd)
+        .where('end_date_time', '>', windowStart)
+        .where('is_deleted', '=', false)
+        .execute();
+
+      return ok(
+        rows.map((row) => ({
+          title: row.title,
+          startDateTime: row.start_date_time.toISOString(),
+          endDateTime: row.end_date_time.toISOString(),
+          allDay: row.all_day,
+          timeZone: row.time_zone,
+        })),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to find user timeoffs within scheduling window',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
 }

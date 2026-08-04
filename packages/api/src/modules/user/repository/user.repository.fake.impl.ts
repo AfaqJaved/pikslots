@@ -161,4 +161,24 @@ export class UserRepositoryTestImpl implements UserRepository {
     await Promise.resolve('');
     return ok({ unit: 'days', value: 30 });
   }
+
+  async findUserTimeoffsWithinShedulingWindow(
+    _userId: string,
+    _businessId: string,
+    _timezone: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  > {
+    await Promise.resolve('');
+    return ok([]);
+  }
 }

@@ -30,11 +30,6 @@ const DISABLED_SUNDAY: UserWorkingHours = {
   sunday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
 };
 
-const DISABLED_MONDAY: UserWorkingHours = {
-  ...ALL_DAYS_ENABLED_9_TO_5,
-  monday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
-};
-
 const ALL_DAYS_DISABLED: UserWorkingHours = {
   monday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
   tuesday: { enabled: false, openTime: '09:00', closeTime: '17:00' },
@@ -138,7 +133,9 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
     jest
       .spyOn(repository, 'findShedulingWindow')
       .mockResolvedValue(ok(TEN_DAY_WINDOW));
-    jest.spyOn(repository, 'findUserTimeoffsByDate').mockResolvedValue(ok([]));
+    jest
+      .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
+      .mockResolvedValue(ok([]));
   });
 
   afterEach(() => {
@@ -207,9 +204,9 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
       if (!result.ok) expect(result.error).toEqual(INFRA_ERROR);
     });
 
-    it('propagates an InfrastructureError from findUserTimeoffsByDate', async () => {
+    it('propagates an InfrastructureError from findUserTimeoffsWithinShedulingWindow', async () => {
       jest
-        .spyOn(repository, 'findUserTimeoffsByDate')
+        .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
         .mockResolvedValueOnce(err(INFRA_ERROR));
 
       const result = await useCase.execute(buildCommand());
@@ -250,7 +247,6 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
             buildUser({ userWorkingHours: DISABLED_SUNDAY, status: 'active' }),
           ),
         );
-      const timeoffsSpy = jest.spyOn(repository, 'findUserTimeoffsByDate');
 
       const result = await useCase.execute(buildCommand());
 
@@ -270,57 +266,41 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           '2026-08-19',
         ],
       });
-      expect(timeoffsSpy).not.toHaveBeenCalledWith(
-        'user-under-test',
-        'business-1',
-        '2026-08-16',
-      );
     });
 
-    it('skips the timeoff lookup for working days the user has off', async () => {
-      jest
-        .spyOn(repository, 'findById')
-        .mockResolvedValueOnce(
-          ok(
-            buildUser({ userWorkingHours: DISABLED_MONDAY, status: 'active' }),
-          ),
-        );
-      const timeoffsSpy = jest.spyOn(repository, 'findUserTimeoffsByDate');
+    it('queries timeoffs once for the whole scheduling window', async () => {
+      const timeoffsSpy = jest.spyOn(
+        repository,
+        'findUserTimeoffsWithinShedulingWindow',
+      );
 
       const result = await useCase.execute(buildCommand());
 
       expect(result.ok).toBe(true);
       if (!result.ok) return;
 
-      expect(timeoffsSpy).not.toHaveBeenCalledWith(
+      expect(timeoffsSpy).toHaveBeenCalledTimes(1);
+      expect(timeoffsSpy).toHaveBeenCalledWith(
         'user-under-test',
         'business-1',
         '2026-08-10',
+        '2026-08-19',
       );
-      expect(result.value.dates).not.toContain('2026-08-10');
     });
 
-    it('excludes dates covered by an all-day timeoff', async () => {
+    it('excludes a single day covered by an all-day timeoff', async () => {
       jest
-        .spyOn(repository, 'findById')
-        .mockResolvedValueOnce(ok(buildUser({ status: 'active' })));
-      jest
-        .spyOn(repository, 'findUserTimeoffsByDate')
-        .mockImplementation(
-          (_userId: string, _businessId: string, date: string) =>
-            Promise.resolve(
-              date === '2026-08-13'
-                ? ok([
-                    {
-                      title: 'Vacation',
-                      startDateTime: '2026-08-13T09:00:00.000Z',
-                      endDateTime: '2026-08-13T09:15:00.000Z',
-                      allDay: true,
-                      timeZone: TEST_TIMEZONE,
-                    },
-                  ])
-                : ok([]),
-            ),
+        .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
+        .mockResolvedValueOnce(
+          ok([
+            {
+              title: 'Vacation',
+              startDateTime: '2026-08-13T00:00:00.000Z',
+              endDateTime: '2026-08-14T00:00:00.000Z',
+              allDay: true,
+              timeZone: TEST_TIMEZONE,
+            },
+          ]),
         );
 
       const result = await useCase.execute(buildCommand());
@@ -333,7 +313,6 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           '2026-08-10',
           '2026-08-11',
           '2026-08-12',
-          '2026-08-14',
           '2026-08-15',
           '2026-08-16',
           '2026-08-17',
@@ -341,6 +320,61 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           '2026-08-19',
         ],
       });
+    });
+
+    it('blocks every day an all-day timeoff spans', async () => {
+      jest
+        .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
+        .mockResolvedValueOnce(
+          ok([
+            {
+              title: 'Conference',
+              startDateTime: '2026-08-12T00:00:00.000Z',
+              endDateTime: '2026-08-15T00:00:00.000Z',
+              allDay: true,
+              timeZone: TEST_TIMEZONE,
+            },
+          ]),
+        );
+
+      const result = await useCase.execute(buildCommand());
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      expect(result.value).toEqual({
+        dates: [
+          '2026-08-10',
+          '2026-08-11',
+          '2026-08-16',
+          '2026-08-17',
+          '2026-08-18',
+          '2026-08-19',
+        ],
+      });
+    });
+
+    it('ignores non-all-day timeoffs', async () => {
+      jest
+        .spyOn(repository, 'findUserTimeoffsWithinShedulingWindow')
+        .mockResolvedValueOnce(
+          ok([
+            {
+              title: 'Lunch',
+              startDateTime: '2026-08-13T12:00:00.000Z',
+              endDateTime: '2026-08-13T13:00:00.000Z',
+              allDay: false,
+              timeZone: TEST_TIMEZONE,
+            },
+          ]),
+        );
+
+      const result = await useCase.execute(buildCommand());
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      expect(result.value.dates).toContain('2026-08-13');
     });
 
     it('returns an empty list when every working day is disabled', async () => {
@@ -352,7 +386,6 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           }),
         ),
       );
-      const timeoffsSpy = jest.spyOn(repository, 'findUserTimeoffsByDate');
 
       const result = await useCase.execute(buildCommand());
 
@@ -360,7 +393,6 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
       if (!result.ok) return;
 
       expect(result.value).toEqual({ dates: [] });
-      expect(timeoffsSpy).not.toHaveBeenCalled();
     });
 
     it('honours the business timezone when crossing midnight in UTC', async () => {

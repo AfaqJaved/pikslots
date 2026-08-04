@@ -43,6 +43,23 @@ export interface UserRepository {
       InfrastructureError
     >
   >;
+  findUserTimeoffsWithinShedulingWindow(
+    userId: string,
+    businessId: string,
+    windowStartDate: string,
+    windowEndDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  >;
 }
 
 export const IUserRepository = Symbol('IUserRepository');

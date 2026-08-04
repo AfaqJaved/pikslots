@@ -79,6 +79,42 @@ export class GetAvailableDatesForBookingUseCaseImpl implements GetAvailableDates
       scheduleingWindow,
     );
 
+    const timeoffsResult =
+      await this.userRepository.findUserTimeoffsWithinShedulingWindow(
+        command.userId,
+        command.businessId,
+        candidateDates[0],
+        candidateDates[candidateDates.length - 1],
+      );
+
+    if (!timeoffsResult.ok) return err(timeoffsResult.error);
+
+    const allDayBlock = new Set<string>();
+
+    for (const timeoff of timeoffsResult.value) {
+      if (!timeoff.allDay) continue;
+
+      const start = new Date(timeoff.startDateTime);
+      const end = new Date(timeoff.endDateTime);
+
+      const current = new Date(
+        Date.UTC(
+          start.getUTCFullYear(),
+          start.getUTCMonth(),
+          start.getUTCDate(),
+        ),
+      );
+
+      const endUTC = new Date(
+        Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()),
+      );
+
+      while (current <= endUTC) {
+        allDayBlock.add(current.toISOString().slice(0, 10));
+        current.setUTCDate(current.getUTCDate() + 1);
+      }
+    }
+
     const dates: string[] = [];
 
     //   check: user working hours is not off on that day
@@ -89,16 +125,8 @@ export class GetAvailableDatesForBookingUseCaseImpl implements GetAvailableDates
       // Working day is off, e.g. monday is off.
       if (!userResult.value.userWorkingHours[weekDay].enabled) continue;
 
-      const timeoffsResult = await this.userRepository.findUserTimeoffsByDate(
-        command.userId,
-        command.businessId,
-        date,
-      );
-
-      if (!timeoffsResult.ok) return err(timeoffsResult.error);
-
       // An all-day timeoff blocks the whole day.
-      if (timeoffsResult.value.some((timeoff) => timeoff.allDay)) continue;
+      if (allDayBlock.has(date)) continue;
 
       dates.push(date);
     }
