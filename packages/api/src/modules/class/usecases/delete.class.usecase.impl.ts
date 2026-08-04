@@ -21,8 +21,8 @@ const UNAUTHORIZED_ERROR: UnauthorizedError = {
 const CLASS_NOT_FOUND_ERROR: ClassNotFoundError = {
   kind: 'class_not_found',
   by: 'id',
-  message: 'Failed to find the class',
-  value: 'Failed to find the class',
+  message: `Class not found`,
+  value: 'Class not found',
   timestamp: new Date(),
 };
 
