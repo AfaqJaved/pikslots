@@ -32,7 +32,7 @@
 	let selectedSlotStart = $state<string | null>(null);
 
 	// _____available Dates________________________
-	
+
 	const getAvailableDates = createQuery(() => ({
 		...getAvailableDatesQueryOptions({
 			userId,
@@ -51,20 +51,19 @@
 		`${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`
 	);
 
-	const getFreeSlots = createQuery(()=> ({
+	const getFreeSlots = createQuery(() => ({
 		...getFreeSlotsForUserQueryOptions({
-			userId ,
-			 businessId: business.id, 
-			 date: dateString,
-			 durationInMins ,
-			 bufferTimeInMins , 
-			 businessTimezone : timeZone
+			userId,
+			businessId: business.id,
+			date: dateString,
+			durationInMins,
+			bufferTimeInMins,
+			businessTimezone: timeZone
 		}),
 		enabled: dateString.length > 0 && !!userId && !!business
-	}))
+	}));
 
-	const slots = $derived(getFreeSlots.data ?? [])
-
+	const slots = $derived(getFreeSlots.data ?? []);
 
 	const brandColor = $derived(business.brandApperanceDetails.brandColor);
 	const selectedDateStyle = $derived(`background-color: ${brandColor};`);

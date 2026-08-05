@@ -206,11 +206,13 @@
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
 	const canSave = $derived(
-		$form.title.trim().length > 0 && $form.title !== service?.title &&
-		 Number($form.durationInMins) >= 1 && Number($form.bufferTimeInMins) !== Number(service?.durationInMins)
-		  || imageFile
-		);
-		
+		($form.title.trim().length > 0 &&
+			$form.title !== service?.title &&
+			Number($form.durationInMins) >= 1 &&
+			Number($form.bufferTimeInMins) !== Number(service?.durationInMins)) ||
+			imageFile
+	);
+
 	const isSaving = $derived(
 		uploadMutation.isPending || updateMutation.isPending || updateServiceAvatarMutation.isPending
 	);
