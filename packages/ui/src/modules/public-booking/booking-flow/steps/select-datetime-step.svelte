@@ -2,11 +2,11 @@
 	import { Calendar, Day as CalendarDay } from '$lib/components/ui/calendar/index.js';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
 	import type { BusinessHours } from '@pikslots/shared';
-	import { generateMockSlots } from '../../utils/mock-slots';
 	import type { PublicBusiness, PublicSlot } from '../../types';
 	import type { WeekdayKey } from '$utils/working-hours';
 	import { getAvailableDatesQueryOptions } from '../../../api/public-booking-page/get.available.dates.query';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { getFreeSlotsForUserQueryOptions } from '../../../api/public-booking-page/get.free.slots.query';
 
 	let {
 		durationInMins,
@@ -31,7 +31,8 @@
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));
 	let selectedSlotStart = $state<string | null>(null);
 
-	// _____Query________________________
+	// _____available Dates________________________
+	
 	const getAvailableDates = createQuery(() => ({
 		...getAvailableDatesQueryOptions({
 			userId,
@@ -42,23 +43,28 @@
 		enabled: !!business && !!userId && !!serviceId
 	}));
 
-	//  ______derived_________________________
-
 	const dates = $derived(getAvailableDates.data?.dates);
+
+	//  ______free Slots_________________________
 
 	const dateString = $derived(
 		`${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`
 	);
 
-	const slots = $derived(
-		generateMockSlots({
-			date: dateString,
-			businessHours,
-			timeZone,
-			durationInMins,
-			bufferTimeInMins
-		})
-	);
+	const getFreeSlots = createQuery(()=> ({
+		...getFreeSlotsForUserQueryOptions({
+			userId ,
+			 businessId: business.id, 
+			 date: dateString,
+			 durationInMins ,
+			 bufferTimeInMins , 
+			 businessTimezone : timeZone
+		}),
+		enabled: dateString.length > 0 && !!userId && !!business
+	}))
+
+	const slots = $derived(getFreeSlots.data ?? [])
+
 
 	const brandColor = $derived(business.brandApperanceDetails.brandColor);
 	const selectedDateStyle = $derived(`background-color: ${brandColor};`);
