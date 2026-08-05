@@ -372,7 +372,6 @@ export class UserRepositoryImpl implements UserRepository {
         .where('start_date_time', '<', dayEnd)
         .where('end_date_time', '>', dayStart)
         .where('is_deleted', '=', false)
-        .where('all_day', '=', true)
         .execute();
 
       return ok(
@@ -430,6 +429,7 @@ export class UserRepositoryImpl implements UserRepository {
         .where('start_date_time', '<', windowEnd)
         .where('end_date_time', '>', windowStart)
         .where('is_deleted', '=', false)
+        // .where('all_day', '=', true)
         .execute();
 
       return ok(

@@ -107,7 +107,7 @@ export class GetAvailableDatesForBookingUseCaseImpl implements GetAvailableDates
         Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()),
       );
 
-      while (current <= endUTC) {
+      while (current < endUTC) {
         allDayBlock.add(current.toISOString().slice(0, 10));
         current.setUTCDate(current.getUTCDate() + 1);
       }
