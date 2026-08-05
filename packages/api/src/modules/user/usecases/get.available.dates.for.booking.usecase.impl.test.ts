@@ -314,6 +314,7 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
           '2026-08-10',
           '2026-08-11',
           '2026-08-12',
+          '2026-08-14',
           '2026-08-15',
           '2026-08-16',
           '2026-08-17',
@@ -347,6 +348,7 @@ describe('GetAvailableDatesForBookingUseCaseImpl', () => {
         dates: [
           '2026-08-10',
           '2026-08-11',
+          '2026-08-15',
           '2026-08-16',
           '2026-08-17',
           '2026-08-18',
