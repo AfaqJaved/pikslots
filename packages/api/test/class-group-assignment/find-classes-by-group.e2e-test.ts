@@ -37,7 +37,7 @@ describe(`GET ${CLASS_GROUP_ASSIGNMENT_ENDPOINTS.FIND_BY_GROUP}`, () => {
       .set(authHeader(tokenForRole(ctx, 'Admin', businessId)))
       .expect(200);
 
-    expect(successBody(response).data).toEqual([{ id: classId, title }]);
+    expect(successBody(response).data).toEqual([{ id: classId, name: title }]);
   });
 
   it('returns an empty array for a group with no class assignments', async () => {
@@ -79,8 +79,8 @@ describe(`GET ${CLASS_GROUP_ASSIGNMENT_ENDPOINTS.FIND_BY_GROUP}`, () => {
 
     expect(successBody(response).data).toEqual(
       expect.arrayContaining([
-        { id: classA.id, title: classA.title },
-        { id: classB.id, title: classB.title },
+        { id: classA.id, name: classA.title },
+        { id: classB.id, name: classB.title },
       ]),
     );
     expect(successBody(response).data).toHaveLength(2);
