@@ -102,3 +102,38 @@ export function diffInCalendarDays(
   const end = DateTime.fromISO(endIsoString, { zone: 'utc' }).setZone(timezone).startOf('day');
   return Math.round(end.diff(start, 'days').days) + 1;
 }
+
+export type SchedulingWindowUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
+
+export interface SchedulingWindowInput {
+  unit: SchedulingWindowUnit;
+  value: number;
+}
+
+/**
+ * Returns the calendar dates ('YYYY-MM-DD') in `timezone` that fall within a
+ * scheduling window, starting from today (in `timezone`) up to but excluding
+ * `start + value units`. e.g. unit: 'days', value: 10 → today .. today+9.
+ *
+ * @param timezone - IANA timezone, e.g. 'America/New_York'
+ * @param window   - how far out the business accepts bookings
+ * @param fromIso  - optional UTC ISO 8601 instant to anchor the window (defaults to now)
+ * @returns 'YYYY-MM-DD' dates inside the window
+ */
+export function createDatesWithinShedulingWindow(
+  timezone: string,
+  window: SchedulingWindowInput,
+  fromIso?: string,
+): string[] {
+  const base = fromIso ? DateTime.fromISO(fromIso, { zone: 'utc' }) : DateTime.utc();
+  const start = base.setZone(timezone).startOf('day');
+  const end = start.plus({ [window.unit]: window.value });
+
+  const dates: string[] = [];
+  let cursor = start;
+  while (cursor < end) {
+    dates.push(cursor.toFormat('yyyy-MM-dd'));
+    cursor = cursor.plus({ days: 1 });
+  }
+  return dates;
+}

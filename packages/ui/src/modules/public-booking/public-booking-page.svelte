@@ -31,7 +31,7 @@
 		enabled: !!slug
 	}));
 
-	//_____derived_____________________________
+	//_____derived____________________________
 
 	const business = $derived(bookingPageDetailsQuery.data?.business);
 	const galleryPhotos = $derived(
@@ -44,6 +44,7 @@
 			? [...serviceGroups, { id: 'ungrouped', name: 'OTHER', services: ungroupedServices }]
 			: serviceGroups
 	);
+	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
 
 	let policy = $derived(
 		!!(
@@ -52,8 +53,6 @@
 			!policyDismissed
 		)
 	);
-
-	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
 
 	const tabs = $derived(
 		(
