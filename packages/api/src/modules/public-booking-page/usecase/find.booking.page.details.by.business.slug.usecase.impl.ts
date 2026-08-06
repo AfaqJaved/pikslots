@@ -137,7 +137,9 @@ export class FindBookingPageDetailsByBusinessSlugUseCaseImpl implements FindBook
       .map((group) => {
         const groupServices = assignmentGroupToServiceIds.get(group.id);
         if (!groupServices) return null;
-        const services = [...groupServices].map((id) => serviceById[id]);
+        const services = [...groupServices]
+          .map((id) => serviceById[id])
+          .filter((s) => s !== undefined || null);
         return {
           id: group.id,
           name: group.name,

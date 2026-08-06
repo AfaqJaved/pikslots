@@ -130,20 +130,6 @@ describe(`GET ${PUBLIC_BOOKING_PAGE_ENDPOINTS.GET_PUBLIC_BOOKING_PAGE_DETAILS}`,
     expect(stylist?.serviceIds).toEqual([service.id]);
   });
 
-  // NOTE: this test documents the CORRECT expected behavior and currently
-  // FAILS against production code. FindBookingPageDetailsByBusinessSlugUseCaseImpl
-  // filters `services.services` (the ungrouped list) down to
-  // `!isHiddenFromBookingPage`, but never applies that same filter to
-  // `serviceById` before mapping a group's assignment ids through it:
-  //   const services = [...groupServices].map((id) => serviceById[id]);
-  // `serviceById` is only built from the already-filtered visible services,
-  // so a hidden service's id maps to `undefined` — the public page ships a
-  // real `undefined` entry in `services.groups[].services` instead of
-  // quietly omitting the hidden service. This is the same shape of bug
-  // flagged in the unit-test pass (stale/missing lookups producing
-  // `undefined` entries), just reachable here via a hidden service rather
-  // than a stale assignment. Flagging rather than silently asserting
-  // `undefined` is "correct" output for a public API.
   it("excludes a hidden service from its group's service list, rather than leaving a gap", async () => {
     const { id: businessId, slug } = await createBusiness(ctx);
     const visible = await registerService(ctx, businessId, {
