@@ -11,3 +11,13 @@ export function endpointFor(
     template,
   );
 }
+
+export function endpointForParams(
+  template: string,
+  params: Record<string, string>,
+): string {
+  return Object.entries(params).reduce(
+    (path, [key, value]) => path.replace(`:${key}`, value),
+    template,
+  );
+}

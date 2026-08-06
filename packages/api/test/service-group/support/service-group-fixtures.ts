@@ -4,7 +4,8 @@ import type { UserRole, UserWorkingHours } from '@pikslots/domain';
 import { BUSINESS_ENDPOINTS, SERVICE_GROUP_ENDPOINTS } from '@pikslots/shared';
 
 import { unique } from '../../common/unique-id';
-import { endpointFor } from '../../common/endpoint-path';
+// import { endpointFor } from '../../common/endpoint-path';
+import { endpointForParams } from '../../common/endpoint-path';
 import { authHeader, tokenFor } from '../../common/auth';
 import type { ServiceGroupTestContext } from './service-group-test-context';
 
@@ -134,17 +135,17 @@ export interface EditServiceGroupOverrides {
 }
 
 export function editServiceGroupPath(serviceGroupId: string): string {
-  return endpointFor(SERVICE_GROUP_ENDPOINTS.EDIT, { serviceGroupId });
+  return endpointForParams(SERVICE_GROUP_ENDPOINTS.EDIT, { serviceGroupId });
 }
 
 export function deleteServiceGroupPath(serviceGroupId: string): string {
-  return endpointFor(SERVICE_GROUP_ENDPOINTS.DELETE, {
+  return endpointForParams(SERVICE_GROUP_ENDPOINTS.DELETE, {
     serviceGroupId,
   });
 }
 
 export function findAllByBusinessPath(businessId: string): string {
-  return endpointFor(SERVICE_GROUP_ENDPOINTS.FIND_ALL_BY_BUSINESS, {
+  return endpointForParams(SERVICE_GROUP_ENDPOINTS.FIND_ALL_BY_BUSINESS, {
     businessId,
   });
 }
