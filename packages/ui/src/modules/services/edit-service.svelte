@@ -37,7 +37,6 @@
 	import EditServiceAvatar from './dialog/update-service-image-dialog.svelte';
 	import { uploadAvatarMutationOptions } from '../api/s3/upload.avatar.mutation';
 	import { UpdateServiceAvatarMututionOptions } from '../api/service/update.service.avatar.mutation';
-	import { formatCost } from './utils/service-format';
 
 	// ── Props ────────────────────────────────────────────────────────────────────
 
@@ -134,7 +133,7 @@
 						bufferTimeInMins: form.data.bufferTimeInMins,
 						cost: Math.round(form.data.cost * 100),
 						isHiddenFromBookingPage: form.data.isHiddenFromBookingPage,
-						serviceAvatar: avatarKey,
+						serviceAvatar: avatarKey.length > 0 ? avatarKey : form.data.serviceAvatar,
 						associatedUsers: [...selectedMemberIds],
 						associatedServiceGroups: [...selectedGroupIds],
 						businessId: businessStore.selectedBusiness.id,
@@ -206,7 +205,14 @@
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
-	const canSave = $derived($form.title.trim().length > 0 && Number($form.durationInMins) >= 1);
+	const canSave = $derived(
+		($form.title.trim().length > 0 &&
+			$form.title !== service?.title &&
+			Number($form.durationInMins) >= 1 &&
+			Number($form.bufferTimeInMins) !== Number(service?.durationInMins)) ||
+			imageFile
+	);
+
 	const isSaving = $derived(
 		uploadMutation.isPending || updateMutation.isPending || updateServiceAvatarMutation.isPending
 	);

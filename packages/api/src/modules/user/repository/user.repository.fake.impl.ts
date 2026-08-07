@@ -6,6 +6,7 @@ import {
   Slot,
   User,
   UserAlreadyExistsError,
+  ShedulingWindow,
   UserBreak,
   UserNotFoundError,
   UserRepository,
@@ -138,6 +139,33 @@ export class UserRepositoryTestImpl implements UserRepository {
     _userId: string,
     _businessId: string,
     _startDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  > {
+    await Promise.resolve('');
+    return ok([]);
+  }
+
+  async findShedulingWindow(
+    _businessId: string,
+  ): Promise<Result<ShedulingWindow, InfrastructureError>> {
+    await Promise.resolve('');
+    return ok({ unit: 'days', value: 30 });
+  }
+
+  async findUserTimeoffsWithinShedulingWindow(
+    _userId: string,
+    _businessId: string,
+    _timezone: string,
   ): Promise<
     Result<
       {
