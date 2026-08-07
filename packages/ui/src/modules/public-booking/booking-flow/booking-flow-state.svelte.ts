@@ -6,6 +6,8 @@ export interface ContactDetails {
 	name: string;
 	email: string;
 	phone: string;
+	address: string;
+	customFields: Record<string, string>;
 }
 
 /** `null` team member selection means "Any available". */
@@ -15,7 +17,13 @@ export function createBookingFlowState() {
 	let selectedTeamMember = $state<PublicTeamMember | null>(null);
 	let selectedDate = $state<string | null>(null); // 'YYYY-MM-DD'
 	let selectedSlot = $state<PublicSlot | null>(null);
-	let contact = $state<ContactDetails>({ name: '', email: '', phone: '' });
+	let contact = $state<ContactDetails>({
+		name: '',
+		email: '',
+		phone: '',
+		address: '',
+		customFields: {}
+	});
 	let bookingReference = $state<string | null>(null);
 	let previousStep = $state<string>('');
 
@@ -25,7 +33,7 @@ export function createBookingFlowState() {
 		selectedTeamMember = null;
 		selectedDate = null;
 		selectedSlot = null;
-		contact = { name: '', email: '', phone: '' };
+		contact = { name: '', email: '', phone: '', address: '', customFields: {} };
 		bookingReference = null;
 		previousStep = '';
 	}

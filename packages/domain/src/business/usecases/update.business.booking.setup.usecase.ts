@@ -1,6 +1,7 @@
 import type { InfrastructureError, Result } from '../../shared';
 import type { BusinessNotFoundError } from '../errors';
 import type { Business } from '../business.entity';
+import type { CustomContactField } from '../value-objects';
 
 export interface UpdateBusinessBookingSetupCommand {
   id: string;
@@ -32,6 +33,7 @@ export interface UpdateBusinessBookingSetupCommand {
   phoneRequired: boolean;
   addressEnabled: boolean;
   addressRequired: boolean;
+  customFields: CustomContactField[];
 }
 
 export const IUpdateBusinessBookingSetupUseCase = Symbol('IUpdateBusinessBookingSetupUseCase');

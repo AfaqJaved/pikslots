@@ -408,6 +408,7 @@ export class BusinessController {
           phoneRequired: dto.phoneRequired,
           addressEnabled: dto.addressEnabled,
           addressRequired: dto.addressRequired,
+          customFields: dto.customFields,
         },
       );
 

@@ -2,8 +2,11 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 	import Plus from '@tabler/icons-svelte/icons/plus';
+	import Trash from '@tabler/icons-svelte/icons/trash';
+	import type { CustomContactField } from '@pikslots/shared';
 	import { businessStore } from '../../../core/store/business.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { updateBusinessBookingSetup } from '../../../api/business/update.business.booking.setup.mutation';
@@ -47,6 +50,10 @@
 		{ label: 'Address', enabled: false, required: false, locked: false }
 	]);
 
+	let customFields = $state<CustomContactField[]>([]);
+
+	let editingFieldIndex = $state<number | null>(null);
+
 	$effect(() => {
 		if (business) {
 			const s = business.bookingSetup;
@@ -87,8 +94,19 @@
 					locked: false
 				}
 			];
+
+			customFields = cf.customFields.map((f) => ({ ...f }));
 		}
 	});
+
+	const customFieldsChanged = $derived(
+		!!business &&
+			(customFields.length !== business.bookingContactFields.customFields.length ||
+				customFields.some((f, i) => {
+					const b = business.bookingContactFields.customFields[i];
+					return !b || f.label !== b.label || f.enabled !== b.enabled || f.required !== b.required;
+				}))
+	);
 
 	const isDirty = $derived(
 		!!business &&
@@ -114,7 +132,8 @@
 				contactFields[2].enabled !== business.bookingContactFields.email.enabled ||
 				contactFields[2].required !== business.bookingContactFields.email.required ||
 				contactFields[3].enabled !== business.bookingContactFields.address.enabled ||
-				contactFields[3].required !== business.bookingContactFields.address.required)
+				contactFields[3].required !== business.bookingContactFields.address.required ||
+				customFieldsChanged)
 	);
 
 	const updateMutation = createMutation<
@@ -136,6 +155,14 @@
 			);
 		}
 	});
+
+	function addCustomField() {
+		customFields = [...customFields, { label: '', enabled: true, required: false }];
+	}
+
+	function removeCustomField(index: number) {
+		customFields = customFields.filter((_, i) => i !== index);
+	}
 
 	function handleSave() {
 		if (!business) return;
@@ -165,7 +192,8 @@
 			phoneEnabled: contactFields[1].enabled,
 			phoneRequired: contactFields[1].required,
 			addressEnabled: contactFields[3].enabled,
-			addressRequired: contactFields[3].required
+			addressRequired: contactFields[3].required,
+			customFields: customFields.map((f) => ({ ...f }))
 		});
 	}
 </script>
@@ -326,7 +354,7 @@
 							<span class="text-xs {field.locked ? 'text-muted-foreground' : ''}"
 								>{field.label}</span
 							>
-							<div class="ml-auto flex items-center gap-2">
+							<div class="ml-auto mr-9 flex items-center gap-2">
 								<span class="text-xs text-muted-foreground">Required</span>
 								<Switch
 									bind:checked={field.required}
@@ -336,10 +364,57 @@
 							</div>
 						</div>
 					{/each}
+
+					{#each customFields as field, i (i)}
+						<div class="flex flex-wrap items-center gap-3">
+							<Switch bind:checked={field.enabled} />
+							{#if editingFieldIndex === i}
+								<Input
+									type="text"
+									bind:value={field.label}
+									placeholder="Field label"
+									class="h-8 w-48 text-xs"
+									onblur={() => (editingFieldIndex = null)}
+									onkeydown={(e) => {
+										if (e.key === 'Enter') editingFieldIndex = null;
+									}}
+								/>
+							{:else}
+								<button
+									type="button"
+									class="cursor-pointer text-xs"
+									onclick={() => (editingFieldIndex = i)}
+								>
+									{field.label || 'Add Field....'}
+								</button>
+							{/if}
+							<div class="ml-auto flex items-center gap-2">
+								<span class="text-xs text-muted-foreground">Required</span>
+								<Switch
+									bind:checked={field.required}
+									disabled={!field.enabled}
+									class={!field.enabled ? 'opacity-40' : ''}
+								/>
+								<Button
+									variant="ghost"
+									size="icon"
+									class="h-7 w-7 text-muted-foreground hover:text-destructive "
+									onclick={() => removeCustomField(i)}
+									aria-label="Remove field"
+								>
+									<Trash size={14} />
+								</Button>
+							</div>
+						</div>
+					{/each}
 				{/if}
 			</div>
 
-			<Button variant="ghost" class="w-fit gap-1.5 px-0 text-xs font-medium">
+			<Button
+				variant="ghost"
+				class="w-fit gap-1.5 px-0 text-xs font-medium"
+				onclick={addCustomField}
+			>
 				<Plus size={14} />
 				Add field
 			</Button>

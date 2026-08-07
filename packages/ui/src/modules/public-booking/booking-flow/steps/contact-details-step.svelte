@@ -1,9 +1,22 @@
 <script lang="ts">
-	import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field/index.js';
+	import { Field, FieldGroup, FieldLabel, FieldError } from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import type { BookingContactFields } from '@pikslots/shared';
+	import { z } from 'zod';
+	import type { BookingContactFields, StandardContactField } from '@pikslots/shared';
 	import type { ContactDetails } from '../booking-flow-state.svelte';
+
+	type StandardFieldKey = 'name' | 'email' | 'phone' | 'address';
+
+	const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const PHONE_REGEX = /^[+\d][\d\s().-]*$/;
+
+	const MESSAGES: Record<StandardFieldKey, string> = {
+		name: 'Full name is required',
+		email: 'Email is required',
+		phone: 'Phone is required',
+		address: 'Address is required'
+	};
 
 	let {
 		contact,
@@ -19,37 +32,155 @@
 		onSubmit: () => void;
 	} = $props();
 
-	const isValid = $derived(
-		(!fields.name.required || contact.name.trim().length > 0) &&
-			(!fields.email.required || contact.email.trim().length > 0) &&
-			(!fields.phone.required || contact.phone.trim().length > 0)
+	const standardFields = $derived([
+		{
+			key: 'name' as const,
+			label: 'Full name',
+			type: 'text',
+			placeholder: 'Jane Doe',
+			...fields.name
+		},
+		{
+			key: 'phone' as const,
+			label: 'Phone Number',
+			type: 'tel',
+			placeholder: '+92 03423 22...',
+			...fields.phone
+		},
+		{
+			key: 'email' as const,
+			label: 'Email',
+			type: 'email',
+			placeholder: 'jane@example.com',
+			...fields.email
+		},
+		{
+			key: 'address' as const,
+			label: 'Address',
+			type: 'text',
+			placeholder: '123 Main St',
+			...fields.address
+		}
+	]);
+
+	const customFields = $derived(fields.customFields.filter((field) => field.enabled));
+
+	const touched = $state<Record<string, boolean>>({});
+
+	$effect(() => {
+		for (const field of customFields) {
+			if (!Object.hasOwn(contact.customFields, field.label)) {
+				contact.customFields[field.label] = '';
+			}
+		}
+	});
+
+	// _____zod validation__________________________
+
+	function fieldSchema(key: StandardFieldKey, config: StandardContactField) {
+		if (!config.enabled) return z.string();
+
+		if (key === 'email') {
+			const email = z.string().trim().regex(EMAIL_REGEX, 'Enter a valid email address');
+			return config.required
+				? z.string().trim().min(1, MESSAGES.email).regex(EMAIL_REGEX, 'Enter a valid email address')
+				: z.union([z.literal(''), email]);
+		}
+
+		if (key === 'phone') {
+			const phone = z.string().trim().regex(PHONE_REGEX, 'Enter a valid phone number');
+			return config.required
+				? z.string().trim().min(1, MESSAGES.phone).regex(PHONE_REGEX, 'Enter a valid phone number')
+				: z.union([z.literal(''), phone]);
+		}
+
+		return config.required ? z.string().trim().min(1, MESSAGES[key]) : z.string();
+	}
+
+	const schema = $derived(
+		z.object({
+			name: fieldSchema('name', fields.name),
+			email: fieldSchema('email', fields.email),
+			phone: fieldSchema('phone', fields.phone),
+			address: fieldSchema('address', fields.address),
+			customFields: z.object(
+				customFields.reduce<Record<string, z.ZodType<string>>>((shape, field) => {
+					shape[field.label] = field.required
+						? z.string().trim().min(1, `${field.label} is required`)
+						: z.string();
+					return shape;
+				}, {})
+			)
+		})
 	);
+
+	const payload = $derived.by(() => ({
+		name: contact.name ?? '',
+		email: contact.email ?? '',
+		phone: contact.phone ?? '',
+		address: contact.address ?? '',
+		customFields: Object.fromEntries(
+			customFields.map((field) => [
+				field.label,
+				typeof contact.customFields[field.label] === 'string'
+					? contact.customFields[field.label]
+					: ''
+			])
+		)
+	}));
+
+	const validation = $derived.by(() => {
+		const result = schema.safeParse(payload);
+		const errors: Record<string, string> = Object.create(null);
+		if (!result.success) {
+			for (const issue of result.error.issues) {
+				const isCustom = issue.path[0] === 'customFields';
+				const key = isCustom ? issue.path[1] : issue.path[0];
+				if (key !== undefined && !(key in errors)) {
+					errors[String(key)] = issue.message;
+				}
+			}
+		}
+		return { valid: result.success, errors };
+	});
+
+	const isValid = $derived(validation.valid);
 </script>
 
 <div class="flex flex-col gap-4">
 	<h2 class="text-lg font-semibold">Your details</h2>
 
 	<FieldGroup class="max-w-sm">
-		{#if fields.name.enabled}
-			<Field>
-				<FieldLabel>Full name{fields.name.required ? ' *' : ''}</FieldLabel>
-				<Input bind:value={contact.name} placeholder="Jane Doe" />
-			</Field>
-		{/if}
+		{#each standardFields as field (field.key)}
+			{#if field.enabled}
+				<Field>
+					<FieldLabel>{field.label}{field.required ? ' *' : ''}</FieldLabel>
+					<Input
+						type={field.type}
+						bind:value={contact[field.key]}
+						placeholder={field.placeholder}
+						onblur={() => (touched[field.key] = true)}
+					/>
+					{#if touched[field.key] && Object.hasOwn(validation.errors, field.key)}
+						<FieldError>{validation.errors[field.key]}</FieldError>
+					{/if}
+				</Field>
+			{/if}
+		{/each}
 
-		{#if fields.email.enabled}
+		{#each customFields as field, i (i)}
 			<Field>
-				<FieldLabel>Email{fields.email.required ? ' *' : ''}</FieldLabel>
-				<Input type="email" bind:value={contact.email} placeholder="jane@example.com" />
+				<FieldLabel>{field.label}{field.required ? ' *' : ''}</FieldLabel>
+				<Input
+					bind:value={contact.customFields[field.label]}
+					placeholder={field.label}
+					onblur={() => (touched[field.label] = true)}
+				/>
+				{#if touched[field.label] && Object.hasOwn(validation.errors, field.label)}
+					<FieldError>{validation.errors[field.label]}</FieldError>
+				{/if}
 			</Field>
-		{/if}
-
-		{#if fields.phone.enabled}
-			<Field>
-				<FieldLabel>Phone{fields.phone.required ? ' *' : ''}</FieldLabel>
-				<Input type="tel" bind:value={contact.phone} placeholder="+1 555 123 4567" />
-			</Field>
-		{/if}
+		{/each}
 	</FieldGroup>
 
 	<Button

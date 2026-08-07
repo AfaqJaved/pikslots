@@ -17,6 +17,7 @@ import type {
   BookingPolicies,
   BookingSetup,
   BookingContactFields,
+  CustomContactField,
   BookingCustomization,
   BookingLabelOverrides,
   BusinessHours,
@@ -144,6 +145,7 @@ export interface UpdateBusinessBookingSetupInput {
   phoneRequired: boolean;
   addressEnabled: boolean;
   addressRequired: boolean;
+  customFields: CustomContactField[];
 }
 
 export interface UpdateBusinessBookingPoliciesInput {
