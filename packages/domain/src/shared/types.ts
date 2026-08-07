@@ -15,10 +15,17 @@ export interface DayHours {
   closeTime: string; // 'HH:mm' 24-hour, e.g. '17:00'
 }
 
+export interface ShedulingWindow {
+  unit: TimeUnit;
+  value: number;
+}
+
 export interface FullName {
   readonly firstName: string;
   readonly lastName: string;
 }
+
+type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
 
 export type WeekDay =
   | 'monday'

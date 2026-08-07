@@ -13,6 +13,7 @@ import {
   IRequestInviteOtpUseCase,
   IUpdateUserWorkingHoursUseCase,
   IUpdateUserAvatarUseCase,
+  IGetAvailableDatesForBookingUseCase,
 } from '@pikslots/domain';
 import type {
   AcceptInviteUseCase,
@@ -28,6 +29,7 @@ import type {
   RequestInviteOtpUseCase,
   UpdateUserWorkingHoursUseCase,
   UpdateUserAvatarUseCase,
+  GetAvailableDatesForBookingUseCase,
 } from '@pikslots/domain';
 
 @Injectable()
@@ -67,6 +69,9 @@ export class UserUsecasesFactory {
 
   @Inject(IGetFreeSlotsForUser)
   public readonly getFreeSlotsForUserUseCase: GetFreeSlotsForUser;
+
+  @Inject(IGetAvailableDatesForBookingUseCase)
+  public readonly getAvailableDatesForBookingUseCase: GetAvailableDatesForBookingUseCase;
 
   @Inject(IUpdateUserAvatarUseCase)
   public readonly updateUserAvatarUseCase: UpdateUserAvatarUseCase;
