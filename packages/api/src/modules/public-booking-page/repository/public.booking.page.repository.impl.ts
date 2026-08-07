@@ -104,6 +104,7 @@ export class PublicBookingPageRepositoryImpl implements PublicBookingPageReposit
         .selectFrom('service_group_assignments')
         .selectAll()
         .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
         .execute();
 
       return ok(
@@ -155,6 +156,7 @@ export class PublicBookingPageRepositoryImpl implements PublicBookingPageReposit
         .selectFrom('service_user_assignments')
         .selectAll()
         .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
         .execute();
 
       return ok(
