@@ -78,8 +78,6 @@
 	// _____zod validation__________________________
 
 	function fieldSchema(key: StandardFieldKey, config: StandardContactField) {
-		if (!config.enabled) return z.string();
-
 		if (key === 'email') {
 			const email = z.string().trim().regex(EMAIL_REGEX, 'Enter a valid email address');
 			return config.required
@@ -94,7 +92,10 @@
 				: z.union([z.literal(''), phone]);
 		}
 
-		return config.required ? z.string().trim().min(1, MESSAGES[key]) : z.string();
+		if (!config.enabled) return z.union([z.string(), z.number()]);
+		return config.required
+			? z.string().trim().min(1, MESSAGES[key])
+			: z.union([z.string(), z.number()]);
 	}
 
 	const schema = $derived(
@@ -104,10 +105,10 @@
 			phone: fieldSchema('phone', fields.phone),
 			address: fieldSchema('address', fields.address),
 			customFields: z.object(
-				customFields.reduce<Record<string, z.ZodType<string>>>((shape, field) => {
+				customFields.reduce<Record<string, z.ZodType<string | number>>>((shape, field) => {
 					shape[field.label] = field.required
 						? z.string().trim().min(1, `${field.label} is required`)
-						: z.string();
+						: z.union([z.string(), z.number()]);
 					return shape;
 				}, {})
 			)
@@ -131,9 +132,10 @@
 
 	const validation = $derived.by(() => {
 		const result = schema.safeParse(payload);
-		const errors: Record<string, string> = Object.create(null);
+		const errors: Record<string, string> = {};
 		if (!result.success) {
 			for (const issue of result.error.issues) {
+				console.log(issue);
 				const isCustom = issue.path[0] === 'customFields';
 				const key = isCustom ? issue.path[1] : issue.path[0];
 				if (key !== undefined && !(key in errors)) {
