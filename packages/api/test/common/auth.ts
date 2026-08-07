@@ -30,6 +30,30 @@ export function tokenFor(
   return jwtLoginService.signAccessToken(payload);
 }
 
+/** Signs a real access token via the real JwtLoginService, for role-gated real-infra tests. */
+export function tokenForBreak(
+  jwtLoginService: JwtLoginService,
+  role: UserRole,
+  businessId: string | null = null,
+  // Some use cases (e.g. Break's canCreateBreak/canUpdateBreak/...) grant
+  // access via `isSelf` — the caller's own userId matching the resource's
+  // userId — rather than just role/business. Passing a specific userId lets
+  // tests sign a token *as* an existing row's owner to exercise that path.
+  userId: string = randomUUID(),
+): string {
+  const payload: LoginJwtPayload = {
+    // Several usecases persist securityContext.userId as a real
+    // audit_fields.updated_by uuid column, so this must be a real uuid.
+    userId,
+    role,
+    businessId,
+  };
+  return jwtLoginService.signAccessToken(payload);
+}
 export function authHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
+
+// export function authHeader(token: string): Record<string, string> {
+//   return { Authorization: `Bearer ${token}` };
+// }
