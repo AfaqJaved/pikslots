@@ -1,5 +1,5 @@
 import type { Result } from '../../shared/result';
-import type { InfrastructureError, Slot, UserBreak, WeekDay } from '../../shared';
+import type { InfrastructureError, ShedulingWindow, Slot, UserBreak, WeekDay } from '../../shared';
 import type { UserAlreadyExistsError, UserNotFoundError } from '../errors';
 import type { User } from '../user.entity';
 import type { UserRole } from '../types';
@@ -26,10 +26,28 @@ export interface UserRepository {
     busniessId: string,
     day: WeekDay,
   ): Promise<Result<UserBreak[], InfrastructureError>>;
+  findShedulingWindow(businessId: string): Promise<Result<ShedulingWindow, InfrastructureError>>;
   findUserTimeoffsByDate(
     userId: string,
     businessId: string,
     startDate: string,
+  ): Promise<
+    Result<
+      {
+        title: string;
+        startDateTime: string;
+        endDateTime: string;
+        allDay: boolean;
+        timeZone: string;
+      }[],
+      InfrastructureError
+    >
+  >;
+  findUserTimeoffsWithinShedulingWindow(
+    userId: string,
+    businessId: string,
+    windowStartDate: string,
+    windowEndDate: string,
   ): Promise<
     Result<
       {

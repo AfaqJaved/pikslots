@@ -160,3 +160,15 @@ export interface GetFreeSlotsForUserInput {
 }
 
 export type GetFreeSlotsForUserResponse = SlotResponse[];
+
+// --- Available Dates ----
+
+export interface GetAvailableDatesForBookingInput {
+  businessId: string;
+  serviceId: string;
+  businessTimezone: string; // IANA timezone, e.g. 'America/New_York' — needed to convert HH:mm working hours to UTC
+}
+
+export interface GetAvailableDatesForBookingResponse {
+  dates: string[];
+}
