@@ -4,8 +4,8 @@ import type { UserRole, UserWorkingHours, WeekDay } from '@pikslots/domain';
 import { BREAK_ENDPOINTS, BUSINESS_ENDPOINTS } from '@pikslots/shared';
 
 import { unique } from '../../common/unique-id';
-import { endpointFor } from '../../common/endpoint-path';
-import { authHeader, tokenForBreak } from '../../common/auth';
+import { endpointForParams } from '../../common/endpoint-path';
+import { authHeader, tokenFor } from '../../common/auth';
 import type { BreakTestContext } from './break-test-context';
 
 const DEFAULT_WORKING_HOURS: UserWorkingHours = {
@@ -157,19 +157,19 @@ export async function createBreak(
 // ── Endpoint path helpers ────────────────────────────────────────────────
 
 export function findByIdPath(breakId: string): string {
-  return endpointFor(BREAK_ENDPOINTS.FIND_BY_ID, { breakId });
+  return endpointForParams(BREAK_ENDPOINTS.FIND_BY_ID, { breakId });
 }
 
 export function updatePath(breakId: string): string {
-  return endpointFor(BREAK_ENDPOINTS.UPDATE, { breakId });
+  return endpointForParams(BREAK_ENDPOINTS.UPDATE, { breakId });
 }
 
 export function deletePath(breakId: string): string {
-  return endpointFor(BREAK_ENDPOINTS.DELETE, { breakId });
+  return endpointForParams(BREAK_ENDPOINTS.DELETE, { breakId });
 }
 
 export function findAllByUserPath(userId: string, businessId: string): string {
-  return endpointFor(BREAK_ENDPOINTS.FIND_ALL_BY_USER, {
+  return endpointForParams(BREAK_ENDPOINTS.FIND_ALL_BY_USER, {
     userId,
     businessId,
   });
@@ -181,5 +181,5 @@ export function tokenForRole(
   businessId: string | null = null,
   userId?: string,
 ): string {
-  return tokenForBreak(ctx.jwtLoginService, role, businessId, userId);
+  return tokenFor(ctx.jwtLoginService, role, businessId, userId);
 }
