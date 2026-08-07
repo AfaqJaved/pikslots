@@ -1,6 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 import type { UpdateBusinessBookingSetupInput } from '@pikslots/shared';
-import { IsBoolean } from 'class-validator';
+import { IsArray, IsBoolean, IsString, ValidateNested } from 'class-validator';
+
+export class CustomFieldDto {
+  @ApiProperty({
+    example: 'Phone Number',
+  })
+  @IsString()
+  label: string;
+
+  @ApiProperty({
+    example: true,
+  })
+  @IsBoolean()
+  enabled: boolean;
+
+  @ApiProperty({
+    example: false,
+  })
+  @IsBoolean()
+  required: boolean;
+}
 
 export class UpdateBusinessBookingSetupDto implements UpdateBusinessBookingSetupInput {
   @ApiProperty() @IsBoolean() bookAppointmentSectionVisible: boolean;
@@ -28,4 +48,8 @@ export class UpdateBusinessBookingSetupDto implements UpdateBusinessBookingSetup
   @ApiProperty() @IsBoolean() phoneRequired: boolean;
   @ApiProperty() @IsBoolean() addressEnabled: boolean;
   @ApiProperty() @IsBoolean() addressRequired: boolean;
+  @ApiProperty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  customFields: CustomFieldDto[];
 }

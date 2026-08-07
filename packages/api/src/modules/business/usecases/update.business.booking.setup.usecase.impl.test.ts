@@ -42,6 +42,7 @@ function buildCommand(
     phoneRequired: false,
     addressEnabled: true,
     addressRequired: true,
+    customFields: [{ label: 'city', enabled: true, required: true }],
     ...overrides,
   };
 }
@@ -263,20 +264,14 @@ describe('UpdateBusinessBookingSetupUseCaseImpl', () => {
       }
     });
 
-    it('preserves customFields on bookingContactFields, since the command has no field for it', async () => {
-      // The entity's updateBookingSetup spreads ...this.props.bookingContactFields
-      // before overriding name/email/phone/address, so customFields should
-      // survive untouched.
-      const before = BUSINESS_TEST_DATA.find((b) => b.id === 'business-1');
-      const originalCustomFields = before?.bookingContactFields.customFields;
-
+    it('sets customFields on bookingContactFields from the command', async () => {
       const result = await useCase.execute(buildCommand({ id: 'business-1' }));
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.bookingContactFields.customFields).toEqual(
-          originalCustomFields,
-        );
+        expect(result.value.bookingContactFields.customFields).toEqual([
+          { label: 'city', enabled: true, required: true },
+        ]);
       }
     });
 

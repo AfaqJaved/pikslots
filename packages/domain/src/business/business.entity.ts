@@ -9,7 +9,7 @@ import type {
   BrandTheme,
   TimeUnit,
 } from './types/';
-import type { BrandDetails, BrandApperanceDetails } from './value-objects';
+import type { BrandDetails, BrandApperanceDetails, CustomContactField } from './value-objects';
 import type { LocationDetails } from './value-objects';
 import type {
   BookingPolicies,
@@ -580,6 +580,7 @@ export class Business {
     phoneRequired: boolean;
     addressEnabled: boolean;
     addressRequired: boolean;
+    customFields: CustomContactField[];
     updatedBy: string;
   }): Business {
     return new Business({
@@ -604,11 +605,11 @@ export class Business {
         showBookNewButton: value.showBookNewButton,
       },
       bookingContactFields: {
-        ...this.props.bookingContactFields,
         name: { enabled: value.nameEnabled, required: value.nameRequired },
         email: { enabled: value.emailEnabled, required: value.emailRequired },
         phone: { enabled: value.phoneEnabled, required: value.phoneRequired },
         address: { enabled: value.addressEnabled, required: value.addressRequired },
+        customFields: [...value.customFields],
       },
       updatedAt: new Date(),
       updatedBy: value.updatedBy,
