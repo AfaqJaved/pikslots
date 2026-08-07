@@ -354,7 +354,7 @@
 							<span class="text-xs {field.locked ? 'text-muted-foreground' : ''}"
 								>{field.label}</span
 							>
-							<div class="ml-auto mr-9 flex items-center gap-2">
+							<div class="mr-9 ml-auto flex items-center gap-2">
 								<span class="text-xs text-muted-foreground">Required</span>
 								<Switch
 									bind:checked={field.required}
