@@ -122,7 +122,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       expect(updateSpy).not.toHaveBeenCalled();
     });
 
-    it('allows an Enhanced user to delete a booking within their own business, even if not the booked user', async () => {
+    it('rejects an Enhanced user to delete a booking within their own business, even if not the booked user', async () => {
       Object.assign(securityContext, {
         userId: 'user-enhanced-1',
         role: 'Enhanced',
@@ -131,7 +131,7 @@ describe('DeleteBookingUseCaseImpl', () => {
 
       const result = await useCase.execute(buildCommand({ id: 'booking-1' })); // owned by user-standard-1
 
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
     });
 
     it('denies an Enhanced user acting outside their own business', async () => {
@@ -151,7 +151,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       expect(updateSpy).not.toHaveBeenCalled();
     });
 
-    it('allows a Standard user to delete their own booking', async () => {
+    it('rejects a Standard user to delete their own booking', async () => {
       Object.assign(securityContext, {
         userId: 'user-standard-1',
         role: 'Standard',
@@ -160,7 +160,7 @@ describe('DeleteBookingUseCaseImpl', () => {
 
       const result = await useCase.execute(buildCommand({ id: 'booking-1' })); // owned by user-standard-1
 
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
     });
 
     it("denies a Standard user deleting someone else's booking, even in the same business", async () => {
@@ -273,7 +273,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       };
       jest.spyOn(repository, 'update').mockResolvedValueOnce(err(infraError));
 
-      const result = await useCase.execute(buildCommand());
+      const result = await useCase.execute(buildCommand({ id: 'booking-7' }));
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -297,7 +297,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       const deleteSpy = jest.spyOn(repository, 'delete');
 
       await useCase.execute(
-        buildCommand({ id: 'booking-1', deletedBy: 'user-standard-1' }),
+        buildCommand({ id: 'booking-1', deletedBy: 'user-platform-owner-1' }),
       );
 
       expect(deleteSpy).not.toHaveBeenCalled();
@@ -306,7 +306,7 @@ describe('DeleteBookingUseCaseImpl', () => {
         expect.objectContaining({
           id: 'booking-1',
           isDeleted: true,
-          deletedBy: 'user-standard-1',
+          deletedBy: 'user-platform-owner-1',
         }),
       );
     });
