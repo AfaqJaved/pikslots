@@ -205,15 +205,14 @@
 					for="terms"
 					class="text-sm  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 				>
-					I agree to the {businessTermsAndCondition.label}
+					I agree to the <a
+						href={businessTermsAndCondition.link}
+						class="text-sm underline decoration-2 underline-offset-4"
+						style={`color: ${brandColor}`}
+					>
+						{businessTermsAndCondition.label}
+					</a>
 				</Label.Root>
-
-				<a
-					href={businessTermsAndCondition.link}
-					class="text-sm underline decoration-2 underline-offset-4"
-				>
-					{businessTermsAndCondition.link}
-				</a>
 			</div>
 		</div>
 	{/if}

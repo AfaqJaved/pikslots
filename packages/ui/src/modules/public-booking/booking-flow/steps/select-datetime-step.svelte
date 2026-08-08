@@ -1,9 +1,19 @@
 <script lang="ts">
 	import { Calendar, Day as CalendarDay } from '$lib/components/ui/calendar/index.js';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
-	import type { BusinessHours } from '@pikslots/shared';
+	import type { BusinessHours, WeekDay } from '@pikslots/shared';
 	import type { PublicBusiness, PublicSlot } from '../../types';
 	import type { WeekdayKey } from '$utils/working-hours';
+
+	const WEEKDAY_TO_NUMBER: Record<WeekDay, 0 | 1 | 2 | 3 | 4 | 5 | 6> = {
+		sunday: 0,
+		monday: 1,
+		tuesday: 2,
+		wednesday: 3,
+		thursday: 4,
+		friday: 5,
+		saturday: 6
+	};
 	import { getAvailableDatesQueryOptions } from '../../../api/public-booking-page/get.available.dates.query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getFreeSlotsForUserQueryOptions } from '../../../api/public-booking-page/get.free.slots.query';
@@ -31,6 +41,7 @@
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));
 	let selectedSlotStart = $state<string | null>(null);
 
+	let timeFormat = business.bookingCustomization.timeFormat;
 	// _____available Dates________________________
 
 	const getAvailableDates = createQuery(() => ({
@@ -88,6 +99,7 @@
 		return new Intl.DateTimeFormat('en-US', {
 			hour: 'numeric',
 			minute: '2-digit',
+			hour12: timeFormat === '12 hours',
 			timeZone
 		}).format(new Date(iso));
 	}
@@ -127,6 +139,7 @@
 				type="single"
 				bind:value={selectedDate}
 				minValue={today(getLocalTimeZone())}
+				weekStartsOn={WEEKDAY_TO_NUMBER[business.bookingCustomization.weekStartsOn]}
 				preventDeselect
 				{isDateDisabled}
 				class="rounded-2xl border shadow-sm"
