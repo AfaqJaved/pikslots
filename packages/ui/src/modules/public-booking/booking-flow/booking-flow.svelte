@@ -159,7 +159,7 @@
 	{:else if flow.step === 'contact'}
 		<ContactDetailsStep
 			contact={flow.contact}
-			business={business}
+			{business}
 			fields={business.bookingContactFields}
 			onSubmit={handleContactSubmit}
 			brandColor={business.brandApperanceDetails.brandColor}

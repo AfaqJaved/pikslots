@@ -63,7 +63,7 @@
 	let redirectLink = $state('');
 
 	$effect(() => {
-		console.log(business?.bookingLabelOverrides.termsAndConditions)
+		console.log(business?.bookingLabelOverrides.termsAndConditions);
 		if (business) {
 			const c = business.bookingCustomization;
 			const l = business.bookingLabelOverrides;

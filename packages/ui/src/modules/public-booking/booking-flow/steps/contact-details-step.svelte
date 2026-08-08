@@ -37,7 +37,7 @@
 		onSubmit: () => void;
 	} = $props();
 
-	let isChecked = $state<boolean>(false)
+	let isChecked = $state<boolean>(false);
 
 	const standardFields = $derived([
 		{
@@ -71,8 +71,7 @@
 	]);
 
 	const customFields = $derived(fields.customFields.filter((field) => field.enabled));
-	const businessTermsAndCondition = $derived(business.bookingLabelOverrides.termsAndConditions)
-
+	const businessTermsAndCondition = $derived(business.bookingLabelOverrides.termsAndConditions);
 
 	const touched = $state<Record<string, boolean>>({});
 
@@ -193,30 +192,32 @@
 		{/each}
 	</FieldGroup>
 	{#if businessTermsAndCondition.label.length > 0}
-	<div class='flex gap-2 justify-start items- p-2'>
-		<Checkbox 
-	 bind:checked={isChecked} id='terms'  
-	 aria-labelledby="terms-label"
-     class="border-muted bg-foreground data-[state=unchecked]:border-border-input data-[state=unchecked]:bg-background data-[state=unchecked]:hover:border-dark-40 peer inline-flex size-5.25 items-center justify-center rounded-xl border  transition-all duration-150 ease-in-out active:scale-[0.98]"
-     />
-	 <div class='flex flex-col gap-2  justify-start'>
-		<Label.Root
-       id="terms-label"
-       for="terms"
-       class="text-sm  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-       I agree to the {businessTermsAndCondition.label}
-	</Label.Root>
+		<div class="items- flex justify-start gap-2 p-2">
+			<Checkbox
+				bind:checked={isChecked}
+				id="terms"
+				aria-labelledby="terms-label"
+				class="data-[state=unchecked]:border-border-input data-[state=unchecked]:hover:border-dark-40 peer inline-flex size-5.25 items-center justify-center rounded-xl border border-muted bg-foreground transition-all  duration-150 ease-in-out active:scale-[0.98] data-[state=unchecked]:bg-background"
+			/>
+			<div class="flex flex-col justify-start gap-2">
+				<Label.Root
+					id="terms-label"
+					for="terms"
+					class="text-sm  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+				>
+					I agree to the {businessTermsAndCondition.label}
+				</Label.Root>
 
-	 <a href={businessTermsAndCondition.link} 
-	 class='text-sm underline decoration-2 underline-offset-4'>
-	 {businessTermsAndCondition.link}
-	</a>
-     </div>
-   </div>
-	
-	 {/if}
-			
+				<a
+					href={businessTermsAndCondition.link}
+					class="text-sm underline decoration-2 underline-offset-4"
+				>
+					{businessTermsAndCondition.link}
+				</a>
+			</div>
+		</div>
+	{/if}
+
 	<Button
 		class="{buttonShape === 'pill'
 			? 'rounded-full'
@@ -224,7 +225,7 @@
 				? 'rounded-xl'
 				: 'rounded-none'} w-fit text-white"
 		style="background-color:{brandColor}"
-		disabled={!isValid || (businessTermsAndCondition.requireTermsAcceptance ? !isChecked : false )}
+		disabled={!isValid || (businessTermsAndCondition.requireTermsAcceptance ? !isChecked : false)}
 		onclick={onSubmit}>Confirm booking</Button
 	>
 </div>
