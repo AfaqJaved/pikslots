@@ -5,6 +5,9 @@
 	import { z } from 'zod';
 	import type { BookingContactFields, StandardContactField } from '@pikslots/shared';
 	import type { ContactDetails } from '../booking-flow-state.svelte';
+	import type { PublicBusiness } from '../../types';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+	import { Label } from 'bits-ui';
 
 	type StandardFieldKey = 'name' | 'email' | 'phone' | 'address';
 
@@ -20,17 +23,21 @@
 
 	let {
 		contact,
+		business,
 		fields,
 		brandColor,
 		buttonShape,
 		onSubmit
 	}: {
 		contact: ContactDetails;
+		business: PublicBusiness;
 		fields: BookingContactFields;
 		brandColor: string;
 		buttonShape: string;
 		onSubmit: () => void;
 	} = $props();
+
+	let isChecked = $state<boolean>(false);
 
 	const standardFields = $derived([
 		{
@@ -64,6 +71,7 @@
 	]);
 
 	const customFields = $derived(fields.customFields.filter((field) => field.enabled));
+	const businessTermsAndCondition = $derived(business.bookingLabelOverrides.termsAndConditions);
 
 	const touched = $state<Record<string, boolean>>({});
 
@@ -135,7 +143,6 @@
 		const errors: Record<string, string> = {};
 		if (!result.success) {
 			for (const issue of result.error.issues) {
-				console.log(issue);
 				const isCustom = issue.path[0] === 'customFields';
 				const key = isCustom ? issue.path[1] : issue.path[0];
 				if (key !== undefined && !(key in errors)) {
@@ -184,6 +191,32 @@
 			</Field>
 		{/each}
 	</FieldGroup>
+	{#if businessTermsAndCondition.label.length > 0}
+		<div class="items- flex justify-start gap-2 p-2">
+			<Checkbox
+				bind:checked={isChecked}
+				id="terms"
+				aria-labelledby="terms-label"
+				class="data-[state=unchecked]:border-border-input data-[state=unchecked]:hover:border-dark-40 peer inline-flex size-5.25 items-center justify-center rounded-xl border border-muted bg-foreground transition-all  duration-150 ease-in-out active:scale-[0.98] data-[state=unchecked]:bg-background"
+			/>
+			<div class="flex flex-col justify-start gap-2">
+				<Label.Root
+					id="terms-label"
+					for="terms"
+					class="text-sm  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+				>
+					I agree to the {businessTermsAndCondition.label}
+				</Label.Root>
+
+				<a
+					href={businessTermsAndCondition.link}
+					class="text-sm underline decoration-2 underline-offset-4"
+				>
+					{businessTermsAndCondition.link}
+				</a>
+			</div>
+		</div>
+	{/if}
 
 	<Button
 		class="{buttonShape === 'pill'
@@ -192,7 +225,7 @@
 				? 'rounded-xl'
 				: 'rounded-none'} w-fit text-white"
 		style="background-color:{brandColor}"
-		disabled={!isValid}
+		disabled={!isValid || (businessTermsAndCondition.requireTermsAcceptance ? !isChecked : false)}
 		onclick={onSubmit}>Confirm booking</Button
 	>
 </div>
