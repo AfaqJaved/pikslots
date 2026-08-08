@@ -45,6 +45,13 @@ describe(`PATCH ${BUSINESS_ENDPOINTS.UPDATE_BOOKING_SETUP}`, () => {
         phoneRequired: true,
         addressEnabled: true,
         addressRequired: true,
+        customFields: [
+          {
+            label: 'city',
+            enabled: true,
+            required: true,
+          },
+        ],
       })
       .expect(200);
 

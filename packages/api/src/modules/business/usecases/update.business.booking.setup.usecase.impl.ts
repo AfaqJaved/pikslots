@@ -68,6 +68,7 @@ export class UpdateBusinessBookingSetupUseCaseImpl implements UpdateBusinessBook
       phoneRequired: command.phoneRequired,
       addressEnabled: command.addressEnabled,
       addressRequired: command.addressRequired,
+      customFields: command.customFields,
       updatedBy: this.securityContext.userId,
     });
 
