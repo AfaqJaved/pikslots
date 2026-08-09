@@ -20,6 +20,10 @@ import { SecurityContext } from 'src/shared/security/context/security.context';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
+import {
+  IPikslotS3Service,
+  type PikslotS3Service,
+} from 'src/shared/s3/s3.service';
 
 const UNAUTHORIZED_ERROR: UnauthorizedError = {
   kind: 'unauthorized',
@@ -47,6 +51,7 @@ export class EditServiceUseCaseImpl implements EditServiceUseCase {
       void,
       typeof PIKSLOT_EVENTS.SERVICE_USER_ASSIGNMENT.SYNC_SERVICE_TO_USERS
     >,
+    @Inject(IPikslotS3Service) private readonly s3Service: PikslotS3Service,
   ) {}
 
   async execute(
@@ -78,7 +83,7 @@ export class EditServiceUseCaseImpl implements EditServiceUseCase {
     const updated = found.value.update({
       title: command.title,
       description: command.description,
-      serviceAvatar: command.serviceAvatar,
+      serviceAvatar: this.s3Service.extractKeyFromUrl(command.serviceAvatar),
       durationInMins: command.durationInMins,
       bufferTimeInMins: command.bufferTimeInMins,
       cost: command.cost,

@@ -34,7 +34,7 @@ export class EditServiceDto implements Omit<UpdateServiceInput, 'id'> {
   @ApiProperty({
     type: String,
   })
-  @PikSlotsOptionalStringValidation(300)
+  @PikSlotsOptionalStringValidation(3000)
   serviceAvatar: string;
 
   @ApiProperty({ example: 30, description: 'Service duration in minutes' })
