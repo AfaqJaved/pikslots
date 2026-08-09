@@ -39,29 +39,33 @@
 	// first) route through the 'team-member' step — auto-advance past it here
 	// whenever it isn't actually needed, so the logic lives in one place.
 	$effect(() => {
-		if (flow.step === 'team-member' && (teamStep.skip || flow.selectedTeamMember)) {
+		if (flow.step === 'team-member' && teamStep.skip) {
 			if (!flow.selectedTeamMember) flow.selectedTeamMember = teamStep.defaultMember;
 			flow.step = 'datetime';
 		}
+		flow.previousStep = 'first';
 	});
 
+	/** filter team member services */
 	const filterServiceGroups = $derived(
-		flow.selectedTeamMember?.serviceIds !== null
-			? serviceGroups
-					.map((g) => ({
-						...g,
-						services: g.services.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
-					}))
-					.filter((g) => g.services.length > 0)
-			: serviceGroups
+		flow.selectedTeamMember?.serviceIds !== null ? serviceGroups : []
 	);
 
 	const filterUngroupedServices = $derived(
-		flow.selectedTeamMember?.serviceIds !== null
-			? ungroupedService
-					.filter((s) => flow.selectedTeamMember?.serviceIds?.includes(s.id))
-					.filter((s) => s !== null)
-			: ungroupedService
+		flow.selectedTeamMember?.serviceIds !== null ? ungroupedService : []
+	);
+
+	const selectedMemberName = $derived(
+		flow.selectedTeamMember
+			? `${flow.selectedTeamMember.name.firstName} ${flow.selectedTeamMember.name.lastName}`
+			: ''
+	);
+
+	const memberHasNoServices = $derived(
+		flow.previousStep === 'first' &&
+			!!flow.selectedTeamMember &&
+			filterServiceGroups.length === 0 &&
+			filterUngroupedServices.length === 0
 	);
 
 	function handleServiceSelected(service: PublicService) {
@@ -71,7 +75,7 @@
 
 	function handleTeamMemberSelected(member: PublicTeamMember | null) {
 		flow.selectedTeamMember = member;
-		flow.step = 'datetime';
+		flow.step = 'member-service';
 	}
 
 	function handleDatetimeSelected(date: string, slot: PublicSlot) {
@@ -86,7 +90,7 @@
 	}
 
 	function handleBack() {
-		if (flow.step === 'service') {
+		if (flow.step === 'service' || (flow.previousStep == 'first' && flow.step === 'team-member')) {
 			onClose();
 		} else {
 			flow.goToPreviousStep(teamStep.skip || !!flow.selectedTeamMember);
@@ -119,30 +123,46 @@
 		{/if}
 	</div>
 
-	{#if flow.step === 'service'}
-		{#if serviceGroups && serviceGroups.length > 0}
+	{#if flow.step === 'service' || flow.step === 'member-service'}
+		{#if serviceGroups && serviceGroups.length > 0 && !memberHasNoServices}
 			<SelectServiceStep
 				serviceGroups={flow.previousStep === 'first' ? filterServiceGroups : serviceGroups}
 				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				unavailable={!business.bookingSetup.bookAppointmentSectionVisible}
 				onSelect={handleServiceSelected}
 			/>
-		{:else if ungroupedService && ungroupedService.length > 0}
+		{:else if ungroupedService && ungroupedService.length > 0 && !memberHasNoServices}
 			<UngroupedSerivice
 				services={flow.previousStep === 'first' ? filterUngroupedServices : ungroupedService}
 				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
 				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				unavailable={!business.bookingSetup.bookAppointmentSectionVisible}
+				onSelect={handleServiceSelected}
+			/>
+		{:else if memberHasNoServices}
+			<SelectServiceStep
+				serviceGroups={[]}
+				label={business.bookingLabelOverrides.service}
+				currency={business.locationDetails.currency}
+				showPrices={business.bookingCustomization.showServiceAndClassPrices}
+				showDuration={business.bookingCustomization.showServiceAndClassDuration}
+				unavailable={!business.bookingSetup.bookAppointmentSectionVisible}
+				memberHasNoServices
+				memberName={selectedMemberName}
 				onSelect={handleServiceSelected}
 			/>
 		{/if}
 	{:else if flow.step === 'team-member'}
 		<SelectTeamMemberStep
 			{teamMembers}
+			{business}
 			label={business.bookingLabelOverrides.teamMember}
+			unavailable={!business.bookingSetup.bookAppointmentSectionVisible}
 			onSelect={handleTeamMemberSelected}
 		/>
 	{:else if flow.step === 'datetime' && flow.selectedService}
@@ -174,6 +194,7 @@
 			bookingReference={flow.bookingReference}
 			showBookAnotherAppointmentButton={business.bookingCustomization
 				.showBookAnotherAppointmentButton}
+			{business}
 			onBookAnother={handleBookAnother}
 		/>
 	{/if}

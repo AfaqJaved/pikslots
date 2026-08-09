@@ -10,9 +10,6 @@ export function resolveTeamStep(
 	business: PublicBusiness,
 	teamMembers: PublicTeamMember[]
 ): TeamStepResolution {
-	const skip =
-		business.bookingSetup.bypassTeamMemberSelection ||
-		business.bookingSetup.skipTeamSelection ||
-		teamMembers.length <= 1;
+	const skip = business.bookingSetup.skipTeamSelection || teamMembers.length <= 1;
 	return { skip, defaultMember: skip ? (teamMembers[0] ?? null) : null };
 }

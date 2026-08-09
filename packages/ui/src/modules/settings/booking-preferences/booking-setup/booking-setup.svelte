@@ -256,12 +256,13 @@
 						</div>
 					{/each}
 				{:else}
-					<!-- First available appointment -->
-					<div class="flex items-center gap-3">
+					<!-- First available appointment
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={firstAvailable} />
 						<span class="text-xs">First available appointment</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
-					</div>
+					</div> -->
+					-->
 
 					<!-- Skip team members -->
 					<div class="flex items-center gap-3">
@@ -271,11 +272,11 @@
 					</div>
 
 					<!-- Provide multiple services -->
-					<div class="flex items-center gap-3">
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={multipleServices} />
 						<span class="text-xs">Provide multiple services</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
-					</div>
+					</div> -->
 
 					<!-- Any team member -->
 					<div class="flex items-center gap-3">
@@ -285,7 +286,7 @@
 					</div>
 
 					<!-- Customer login + Required -->
-					<div class="flex items-center gap-3">
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={customerLogin} />
 						<span class="text-xs">Customer login</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
@@ -293,7 +294,7 @@
 							<span class="text-xs text-muted-foreground">Required</span>
 							<Switch bind:checked={customerLoginRequired} disabled={!customerLogin} />
 						</div>
-					</div>
+					</div> -->
 
 					<!-- Accordion view -->
 					<div class="flex items-center gap-3">

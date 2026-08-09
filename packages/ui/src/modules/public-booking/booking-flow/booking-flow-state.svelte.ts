@@ -1,6 +1,12 @@
 import type { PublicService, PublicSlot, PublicTeamMember } from '../types';
 
-export type BookingStep = 'service' | 'team-member' | 'datetime' | 'contact' | 'confirmation';
+export type BookingStep =
+	| 'service'
+	| 'member-service'
+	| 'team-member'
+	| 'datetime'
+	| 'contact'
+	| 'confirmation';
 
 export interface ContactDetails {
 	name: string;
@@ -76,6 +82,9 @@ export function createBookingFlowState() {
 		},
 		get previousStep() {
 			return previousStep;
+		},
+		set previousStep(v: string) {
+			previousStep = v;
 		},
 		set step(v: BookingStep) {
 			step = v;

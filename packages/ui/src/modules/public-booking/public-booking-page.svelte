@@ -9,7 +9,7 @@
 	import ReviewsSection from './sections/reviews-section.svelte';
 	import BookingFlow from './booking-flow/booking-flow.svelte';
 	import { createBookingFlowState } from './booking-flow/booking-flow-state.svelte';
-	import type { PublicService, PublicTeamMember } from './types';
+	import type { PublicService, PublicServiceGroup, PublicTeamMember } from './types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getBookingPageDetailsQueryOptions } from '../api/public-booking-page/get.booking.page.details.by.business.query';
 	import UngroupedServicesSection from './sections/ungrouped-service-section.svelte';
@@ -24,6 +24,8 @@
 	let activeTab = $state<PublicTabId>('services');
 	let galleryLightboxOpen = $state(false);
 	let policyDismissed = $state(false);
+	let memberServiceGroups = $state<PublicServiceGroup[] | null>(null);
+	let memberUngroupedServices = $state<PublicService[] | null>(null);
 
 	//______query____________________________
 	const bookingPageDetailsQuery = createQuery(() => ({
@@ -84,21 +86,50 @@
 	}
 
 	function handleSelectService(service: PublicService) {
+		memberServiceGroups = null;
+		memberUngroupedServices = null;
 		flow.startWithService(service);
 		view = 'booking';
 	}
 
 	function handleSelectTeamMember(member: PublicTeamMember) {
+		if (member.serviceIds && member.serviceIds.length > 0) {
+			memberServiceGroups = handleTeamMemberServices(member.serviceIds, allServiceGroups);
+			memberUngroupedServices = ungroupedServices.filter((service) =>
+				member.serviceIds!.includes(service.id)
+			);
+		} else {
+			memberServiceGroups = null;
+			memberUngroupedServices = null;
+		}
 		flow.startWithTeamMember(member);
 		view = 'booking';
 	}
 
+	/** parse user (team member) services */
+	function handleTeamMemberServices(
+		serviceIds: string[],
+		allServices: PublicServiceGroup[]
+	): PublicServiceGroup[] {
+		if (!serviceIds || serviceIds.length === 0) return [];
+		return allServices
+			.map((group) => ({
+				...group,
+				services: group.services.filter((service) => serviceIds.includes(service.id))
+			}))
+			.filter((group) => group.services.length > 0);
+	}
+
 	function handleBook() {
+		memberServiceGroups = null;
+		memberUngroupedServices = null;
 		flow.startBlank();
 		view = 'booking';
 	}
 
 	function handleCloseBooking() {
+		memberServiceGroups = null;
+		memberUngroupedServices = null;
 		view = 'browse';
 	}
 </script>
@@ -120,8 +151,8 @@
 						<BookingFlow
 							{flow}
 							{business}
-							serviceGroups={allServiceGroups}
-							ungroupedService={ungroupedServices}
+							serviceGroups={memberServiceGroups ?? allServiceGroups}
+							ungroupedService={memberUngroupedServices ?? ungroupedServices}
 							{teamMembers}
 							onClose={handleCloseBooking}
 						/>
@@ -144,33 +175,41 @@
 							</div>
 						</div>
 					{/if}
-					{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
-						<section id="section-services">
-							<ServicesSection
-								serviceGroups={allServiceGroups}
-								label={business.bookingLabelOverrides.service}
-								currency={business.locationDetails.currency}
-								showPrices={business.bookingCustomization.showServiceAndClassPrices}
-								showDuration={business.bookingCustomization.showServiceAndClassDuration}
-								onSelectService={handleSelectService}
-							/>
-						</section>
+					{#if !business.bookingSetup.bookAppointmentSectionVisible}
+						<div
+							class="mb-6 rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500"
+						>
+							Online Booking isn't available at the moment - please try again later.
+						</div>
+					{:else}
+						{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length > 0}
+							<section id="section-services">
+								<ServicesSection
+									serviceGroups={allServiceGroups}
+									label={business.bookingLabelOverrides.service}
+									currency={business.locationDetails.currency}
+									showPrices={business.bookingCustomization.showServiceAndClassPrices}
+									showDuration={business.bookingCustomization.showServiceAndClassDuration}
+									onSelectService={handleSelectService}
+								/>
+							</section>
+						{/if}
+
+						{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length == 0 && ungroupedServices}
+							<section id="section-services">
+								<UngroupedServicesSection
+									services={ungroupedServices}
+									label={business.bookingLabelOverrides.service}
+									currency={business.locationDetails.currency}
+									showPrices={business.bookingCustomization.showServiceAndClassPrices}
+									showDuration={business.bookingCustomization.showServiceAndClassDuration}
+									onSelectService={handleSelectService}
+								/>
+							</section>
+						{/if}
 					{/if}
 
-					{#if business && business.bookingSetup.servicesSectionVisible && serviceGroups.length == 0 && ungroupedServices}
-						<section id="section-services">
-							<UngroupedServicesSection
-								services={ungroupedServices}
-								label={business.bookingLabelOverrides.service}
-								currency={business.locationDetails.currency}
-								showPrices={business.bookingCustomization.showServiceAndClassPrices}
-								showDuration={business.bookingCustomization.showServiceAndClassDuration}
-								onSelectService={handleSelectService}
-							/>
-						</section>
-					{/if}
-
-					{#if business && business.bookingSetup.ourTeamSectionVisible}
+					{#if business && (business.bookingSetup.ourTeamSectionVisible || business.bookingSetup.skipTeamSelection)}
 						<section id="section-team">
 							<TeamSection
 								{teamMembers}
