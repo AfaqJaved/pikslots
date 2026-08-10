@@ -15,7 +15,7 @@ import { EditServiceUseCaseImpl } from './edit.service.usecase.impl';
 import { ServiceRepositoryTestImpl } from '../repository/service.repository.fake.impl';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
-import { IPikslotS3Service, PikslotS3Service } from 'src/shared/s3/s3.service';
+import { IPikslotS3Service } from 'src/shared/s3/s3.service';
 
 function buildCommand(
   overrides: Partial<EditServiceCommand> = {},
@@ -46,7 +46,6 @@ describe('EditServiceUseCaseImpl', () => {
   let groupAddSpy: jest.SpyInstance;
   let userAddSpy: jest.SpyInstance;
   let securityContext: SecurityContext;
-  let s3Service: PikslotS3Service;
   let originalData: Service[];
 
   beforeEach(async () => {
