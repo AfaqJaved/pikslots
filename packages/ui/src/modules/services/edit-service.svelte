@@ -125,6 +125,7 @@
 							serviceId
 						});
 					}
+
 					updateMutation.mutate({
 						id: serviceId,
 						title: form.data.title,
@@ -205,12 +206,20 @@
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
+	const assignedUserIds = $derived(new Set((usersByServiceQuery.data ?? []).map((u) => u.id)));
+
+	const hasTeamChanges = $derived(
+		selectedMemberIds.size !== assignedUserIds.size ||
+			[...selectedMemberIds].some((id) => !assignedUserIds.has(id))
+	);
+
 	const canSave = $derived(
 		($form.title.trim().length > 0 &&
 			$form.title !== service?.title &&
 			Number($form.durationInMins) >= 1 &&
 			Number($form.bufferTimeInMins) !== Number(service?.durationInMins)) ||
-			imageFile
+			imageFile ||
+			hasTeamChanges
 	);
 
 	const isSaving = $derived(

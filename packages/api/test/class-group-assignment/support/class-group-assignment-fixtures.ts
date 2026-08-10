@@ -8,7 +8,7 @@ import {
 } from '@pikslots/shared';
 
 import { unique } from '../../common/unique-id';
-import { endpointForParams } from '../../common/endpoint-path';
+import { endpointFor } from '../../common/endpoint-path';
 import { authHeader, tokenFor } from '../../common/auth';
 import { waitFor } from '../../common/wait-for';
 import type { ClassGroupAssignmentTestContext } from './class-group-assignment-test-context';
@@ -158,7 +158,7 @@ export async function editClass(
   overrides: EditClassOverrides,
 ): Promise<void> {
   await request(ctx.app.getHttpServer())
-    .patch(endpointForParams(CLASS_ENDPOINTS.UPDATE, { classId }))
+    .patch(endpointFor(CLASS_ENDPOINTS.UPDATE, { classId }))
     .set(authHeader(tokenFor(ctx.jwtLoginService, 'Admin', businessId)))
     .send({
       title: overrides.title,
@@ -222,7 +222,7 @@ export async function editClassGroup(
   overrides: EditClassGroupOverrides,
 ): Promise<void> {
   await request(ctx.app.getHttpServer())
-    .patch(endpointForParams(CLASS_GROUP_ENDPOINTS.EDIT, { classGroupId }))
+    .patch(endpointFor(CLASS_GROUP_ENDPOINTS.EDIT, { classGroupId }))
     .set(authHeader(tokenFor(ctx.jwtLoginService, 'Admin', businessId)))
     .send({
       name: overrides.name,
