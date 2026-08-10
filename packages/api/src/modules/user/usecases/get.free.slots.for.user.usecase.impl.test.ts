@@ -132,9 +132,7 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
     // (which compares against the real wall clock) never kicks in for tests
     // that aren't specifically exercising that behavior. Tests that do
     // exercise it override this with their own mockReturnValue.
-    jest
-      .spyOn(Date, 'now')
-      .mockReturnValue(new Date(toUtc('00:00')).getTime());
+    jest.spyOn(Date, 'now').mockReturnValue(new Date(toUtc('00:00')).getTime());
   });
 
   afterEach(() => {
