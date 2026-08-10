@@ -139,8 +139,6 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_BY_ID}`, () => {
       token,
     );
 
-    // Deleted by an Admin (Standard is blocked at the RolesGuard for
-    // DELETE -- see delete.e2e-test.ts's "known bug" block).
     const admin = await createStaffUser(ctx, businessId, 'Admin');
     await deleteBooking(
       ctx,

@@ -248,21 +248,6 @@ describe(`POST ${BOOKING_ENDPOINTS.REGISTER}`, () => {
   });
 
   describe('known bug: persisted userId does not honor command.userId', () => {
-    // RegisterBookingUseCaseImpl authorizes against command.userId (the
-    // "book for" target) but then hardcodes
-    // `userId: this.securityContext.userId` (the caller) onto the created
-    // Booking entity -- see the note on registerBookingPayload in
-    // booking-fixtures.ts, and the equivalent unit test in
-    // register.booking.usecase.impl.test.ts ("builds and saves a Booking
-    // entity, sourcing userId from securityContext rather than the
-    // command"), which documents this as known, current behavior.
-    //
-    // This test asserts the INTENDED behavior -- that a Business Owner
-    // booking "for" a Standard user results in a row assigned to that
-    // Standard user -- and will currently FAIL, since the row is actually
-    // assigned to the Business Owner (the caller) instead. This is a real
-    // data-integrity bug: any booking made by staff "on behalf of" someone
-    // else silently reassigns itself to the staff member.
     it('assigns the persisted booking to command.userId (the target), not the calling Business Owner', async () => {
       const businessId = await createOwningBusiness(ctx);
       const owner = await createStaffUser(ctx, businessId, 'Business Owner');
