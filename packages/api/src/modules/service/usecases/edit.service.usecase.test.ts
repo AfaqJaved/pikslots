@@ -24,7 +24,7 @@ function buildCommand(
     id: 'service-haircut-1',
     title: 'Haircut & Style - Updated',
     description: 'Updated description.',
-    serviceAvatar: 'https://cdn.example.com/services/haircut-1-updated.jpg',
+    imagesUrls: ['https://cdn.example.com/services/haircut-1-updated.jpg'],
     durationInMins: 50,
     bufferTimeInMins: 20,
     cost: 45,
@@ -35,7 +35,7 @@ function buildCommand(
     associatedServiceGroups: ['service-group-1', 'service-group-2'],
     associatedUsers: ['user-standard-1', 'user-enhanced-1'],
     ...overrides,
-  };
+  } as EditServiceCommand;
 }
 
 describe('EditServiceUseCaseImpl', () => {
@@ -87,7 +87,6 @@ describe('EditServiceUseCaseImpl', () => {
 
     useCase = moduleRef.get(EditServiceUseCaseImpl);
     repository = moduleRef.get(IServiceRepository);
-    s3Service = moduleRef.get(IPikslotS3Service);
     groupQueue = moduleRef.get(
       getQueueToken(
         PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
@@ -194,7 +193,6 @@ describe('EditServiceUseCaseImpl', () => {
         buildCommand({ id: 'service-massage-1', businessId: 'business-1' }),
       );
 
-      expect(s3Service.extractKeyFromUrl).toHaveBeenCalled();
       expect(result.ok).toBe(true);
     });
 
