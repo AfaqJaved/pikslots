@@ -127,6 +127,12 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
     repository = moduleRef.get(IUserRepository);
 
     jest.spyOn(repository, 'findById').mockResolvedValue(ok(buildUser()));
+
+    // Fix "now" to midnight UTC on TEST_DATE so the window-start clamping
+    // (which compares against the real wall clock) never kicks in for tests
+    // that aren't specifically exercising that behavior. Tests that do
+    // exercise it override this with their own mockReturnValue.
+    jest.spyOn(Date, 'now').mockReturnValue(new Date(toUtc('00:00')).getTime());
   });
 
   afterEach(() => {
@@ -299,6 +305,7 @@ describe('GetFreeSlotsForUserUseCaseImpl', () => {
       );
 
       expect(result.ok).toBe(true);
+
       if (!result.ok) return;
 
       const expected: Slot[] = [
