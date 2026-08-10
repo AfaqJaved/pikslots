@@ -31,7 +31,7 @@ export function createBookingFlowState() {
 		customFields: {}
 	});
 	let bookingReference = $state<string | null>(null);
-	let previousStep = $state<string>('');
+	const history: BookingStep[] = [];
 
 	function reset() {
 		step = 'service';
@@ -41,7 +41,7 @@ export function createBookingFlowState() {
 		selectedSlot = null;
 		contact = { name: '', email: '', phone: '', address: '', customFields: {} };
 		bookingReference = null;
-		previousStep = '';
+		history.length = 0;
 	}
 
 	/**
@@ -52,7 +52,7 @@ export function createBookingFlowState() {
 	function startWithService(service: PublicService) {
 		selectedService = service;
 		step = 'team-member';
-		previousStep = '';
+		history.length = 0;
 	}
 
 	/** Enter the flow already knowing which team member the customer wants. */
@@ -60,7 +60,6 @@ export function createBookingFlowState() {
 		reset();
 		selectedTeamMember = member;
 		step = 'service';
-		previousStep = 'first';
 	}
 
 	/** Enter the flow via the sidebar "Book" button — nothing preselected yet. */
@@ -68,27 +67,31 @@ export function createBookingFlowState() {
 		reset();
 	}
 
-	function goToPreviousStep(skipTeamMemberStep = false) {
-		const order: BookingStep[] = skipTeamMemberStep
-			? ['service', 'datetime', 'contact', 'confirmation']
-			: ['service', 'team-member', 'datetime', 'contact', 'confirmation'];
-		const index = order.indexOf(step);
-		if (index > 0) step = order[index - 1];
+	/** Move to the next step, remembering the current one so Back can return to it. */
+	function goTo(next: BookingStep) {
+		if (next === step) return;
+		history.push(step);
+		step = next;
+	}
+
+	/** Jump to a step without recording history (auto-advancing past a skipped step). */
+	function advance(next: BookingStep) {
+		if (next !== step) step = next;
+	}
+
+	/** Return to the previously visited step. Returns false when already at the first step. */
+	function back(): boolean {
+		const prev = history.pop();
+		if (prev === undefined) return false;
+		step = prev;
+		return true;
 	}
 
 	return {
 		get step() {
 			return step;
 		},
-		get previousStep() {
-			return previousStep;
-		},
-		set previousStep(v: string) {
-			previousStep = v;
-		},
-		set step(v: BookingStep) {
-			step = v;
-		},
+
 		get selectedService() {
 			return selectedService;
 		},
@@ -126,7 +129,9 @@ export function createBookingFlowState() {
 		startWithService,
 		startWithTeamMember,
 		startBlank,
-		goToPreviousStep
+		goTo,
+		advance,
+		back
 	};
 }
 

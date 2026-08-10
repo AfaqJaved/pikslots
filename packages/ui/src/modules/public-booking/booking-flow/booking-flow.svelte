@@ -41,18 +41,23 @@
 	$effect(() => {
 		if (flow.step === 'team-member' && teamStep.skip) {
 			if (!flow.selectedTeamMember) flow.selectedTeamMember = teamStep.defaultMember;
-			flow.step = 'datetime';
+			flow.advance('datetime');
 		}
-		flow.previousStep = 'first';
 	});
 
 	/** filter team member services */
 	const filterServiceGroups = $derived(
-		flow.selectedTeamMember?.serviceIds !== null ? serviceGroups : []
+		flow.selectedTeamMember?.serviceIds && flow.selectedTeamMember.serviceIds.length > 0
+			? handleTeamMemberServices(flow.selectedTeamMember.serviceIds, serviceGroups)
+			: serviceGroups
 	);
 
 	const filterUngroupedServices = $derived(
-		flow.selectedTeamMember?.serviceIds !== null ? ungroupedService : []
+		flow.selectedTeamMember?.serviceIds && flow.selectedTeamMember.serviceIds.length > 0
+			? ungroupedService.filter((service) =>
+					flow.selectedTeamMember!.serviceIds!.includes(service.id)
+				)
+			: ungroupedService
 	);
 
 	const selectedMemberName = $derived(
@@ -61,44 +66,55 @@
 			: ''
 	);
 
-	const memberHasNoServices = $derived(
-		flow.previousStep === 'first' &&
-			!!flow.selectedTeamMember &&
-			filterServiceGroups.length === 0 &&
-			filterUngroupedServices.length === 0
-	);
+	const memberHasNoServices = $derived(!flow.selectedTeamMember?.serviceIds?.length);
 
 	function handleServiceSelected(service: PublicService) {
 		flow.selectedService = service;
-		flow.step = 'team-member';
+		flow.goTo(flow.selectedTeamMember ? 'datetime' : 'team-member');
 	}
 
 	function handleTeamMemberSelected(member: PublicTeamMember | null) {
-		flow.selectedTeamMember = member;
-		flow.step = 'member-service';
+		if (member !== null) {
+			flow.selectedTeamMember = member;
+			flow.goTo('member-service');
+		} else {
+			let defaultNumber = Math.floor(Math.random() * teamMembers.length - 1) + 1;
+			flow.selectedTeamMember = teamMembers[defaultNumber];
+			flow.goTo('datetime');
+		}
+	}
+
+	/** parse user (team member) services */
+	function handleTeamMemberServices(
+		serviceIds: string[],
+		allServices: PublicServiceGroup[]
+	): PublicServiceGroup[] {
+		if (!serviceIds || serviceIds.length === 0) return [];
+		return allServices
+			.map((group) => ({
+				...group,
+				services: group.services.filter((service) => serviceIds.includes(service.id))
+			}))
+			.filter((group) => group.services.length > 0);
 	}
 
 	function handleDatetimeSelected(date: string, slot: PublicSlot) {
 		flow.selectedDate = date;
 		flow.selectedSlot = slot;
-		flow.step = 'contact';
+		flow.goTo('contact');
 	}
 
 	function handleContactSubmit() {
 		flow.bookingReference = `BK${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-		flow.step = 'confirmation';
+		flow.goTo('confirmation');
 	}
 
 	function handleBack() {
-		if (flow.step === 'service' || (flow.previousStep == 'first' && flow.step === 'team-member')) {
-			onClose();
-		} else {
-			flow.goToPreviousStep(teamStep.skip || !!flow.selectedTeamMember);
-		}
+		if (!flow.back()) onClose();
 	}
 
 	function handleBookAnother() {
-		flow.reset();
+		onClose();
 	}
 </script>
 
@@ -126,7 +142,7 @@
 	{#if flow.step === 'service' || flow.step === 'member-service'}
 		{#if serviceGroups && serviceGroups.length > 0 && !memberHasNoServices}
 			<SelectServiceStep
-				serviceGroups={flow.previousStep === 'first' ? filterServiceGroups : serviceGroups}
+				serviceGroups={flow.selectedTeamMember ? filterServiceGroups : serviceGroups}
 				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}
@@ -136,7 +152,7 @@
 			/>
 		{:else if ungroupedService && ungroupedService.length > 0 && !memberHasNoServices}
 			<UngroupedSerivice
-				services={flow.previousStep === 'first' ? filterUngroupedServices : ungroupedService}
+				services={flow.selectedTeamMember ? filterUngroupedServices : ungroupedService}
 				label={business.bookingLabelOverrides.service}
 				currency={business.locationDetails.currency}
 				showPrices={business.bookingCustomization.showServiceAndClassPrices}

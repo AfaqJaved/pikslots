@@ -15,6 +15,8 @@
 	import UngroupedServicesSection from './sections/ungrouped-service-section.svelte';
 	import BookingPageWrapper from './booking-theme-wrapper.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import FileText from '@tabler/icons-svelte/icons/file-text';
 
 	let { slug }: { slug: string } = $props();
 
@@ -24,6 +26,7 @@
 	let activeTab = $state<PublicTabId>('services');
 	let galleryLightboxOpen = $state(false);
 	let policyDismissed = $state(false);
+	let policyDialogOpen = $state(false);
 	let memberServiceGroups = $state<PublicServiceGroup[] | null>(null);
 	let memberUngroupedServices = $state<PublicService[] | null>(null);
 
@@ -47,6 +50,11 @@
 			: serviceGroups
 	);
 	const teamMembers = $derived(bookingPageDetailsQuery.data?.teamMembers ?? []);
+	const showTeamSection = $derived(
+		business?.bookingSetup.skipTeamSelection
+			? !business.bookingSetup.skipTeamSelection
+			: business?.bookingSetup.ourTeamSectionVisible
+	);
 
 	let policy = $derived(
 		!!(
@@ -128,6 +136,7 @@
 	}
 
 	function handleCloseBooking() {
+		flow.reset();
 		memberServiceGroups = null;
 		memberUngroupedServices = null;
 		view = 'browse';
@@ -190,6 +199,7 @@
 									currency={business.locationDetails.currency}
 									showPrices={business.bookingCustomization.showServiceAndClassPrices}
 									showDuration={business.bookingCustomization.showServiceAndClassDuration}
+									accordionView={business.bookingSetup.accordionView}
 									onSelectService={handleSelectService}
 								/>
 							</section>
@@ -209,17 +219,28 @@
 						{/if}
 					{/if}
 
-					{#if business && (business.bookingSetup.ourTeamSectionVisible || business.bookingSetup.skipTeamSelection)}
+					{#if !!business && showTeamSection}
 						<section id="section-team">
 							<TeamSection
 								{teamMembers}
 								label={business.bookingLabelOverrides.teamMember}
-								bookingPolicyText={business.bookingPolicies.bookingPolicyText}
-								cancellationPolicyValue={business.bookingPolicies.cancellationPolicy?.value}
-								cancellationPolicyUnit={business.bookingPolicies.cancellationPolicy?.unit}
 								onSelectTeamMember={handleSelectTeamMember}
 							/>
 						</section>
+					{/if}
+
+					{#if business}
+						<div class="flex flex-col gap-2 border-t pt-4 pb-4">
+							<span class="text-xs font-semibold text-muted-foreground">Good to know</span>
+							<button
+								type="button"
+								onclick={() => (policyDialogOpen = true)}
+								class="flex w-fit cursor-pointer items-center gap-2 text-sm underline underline-offset-2 hover:text-muted-foreground"
+							>
+								<FileText size={16} />
+								Booking policy
+							</button>
+						</div>
 					{/if}
 
 					<section id="section-gallery">
@@ -246,3 +267,39 @@
 {/if}
 
 <GalleryLightbox bind:open={galleryLightboxOpen} photos={galleryPhotos} />
+
+{#if business}
+	<Dialog.Root bind:open={policyDialogOpen}>
+		<Dialog.Content
+			class="
+			duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0
+			data-[state=closed]:zoom-out-95
+			data-[state=open]:animate-in
+			data-[state=open]:fade-in-0
+			data-[state=open]:zoom-in-95
+			sm:max-w-lg
+			md:max-w-xl
+			lg:max-w-xl
+		"
+		>
+			<Dialog.Header>
+				<Dialog.Title class="text-lg font-bold text-white">Our Booking policy</Dialog.Title>
+			</Dialog.Header>
+			<p class="text-sm text-muted-foreground">{business.bookingPolicies.bookingPolicyText}</p>
+			<p class="rounded-xl p-4 text-base shadow-xl" style="background-color: #1a1a1a">
+				Cancellation policy You can cancel or reschedule
+				{business.bookingPolicies.cancellationPolicy?.unit
+					? `${business.bookingPolicies.cancellationPolicy?.value == 0 ? '' : business.bookingPolicies.cancellationPolicy?.value} ${business.bookingPolicies.cancellationPolicy?.unit}`
+					: 'anytime'}
+				before the appointment time.
+			</p>
+
+			<div class="flex justify-end">
+				<Button
+					class=" w-fit rounded-full border-2 border-amber-50 bg-transparent px-8 py-4 text-base"
+					onclick={() => (policyDialogOpen = false)}>Okay</Button
+				>
+			</div>
+		</Dialog.Content>
+	</Dialog.Root>
+{/if}

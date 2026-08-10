@@ -262,7 +262,6 @@
 						<span class="text-xs">First available appointment</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
 					</div> -->
-					-->
 
 					<!-- Skip team members -->
 					<div class="flex items-center gap-3">

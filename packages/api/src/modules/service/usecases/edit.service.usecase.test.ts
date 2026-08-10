@@ -15,6 +15,7 @@ import { EditServiceUseCaseImpl } from './edit.service.usecase.impl';
 import { ServiceRepositoryTestImpl } from '../repository/service.repository.fake.impl';
 import { SecurityContext } from 'src/shared/security/context/security.context';
 import { PIKSLOT_EVENTS } from 'src/shared/queue/jobs/pikslot.events';
+import { IPikslotS3Service, PikslotS3Service } from 'src/shared/s3/s3.service';
 
 function buildCommand(
   overrides: Partial<EditServiceCommand> = {},
@@ -23,7 +24,7 @@ function buildCommand(
     id: 'service-haircut-1',
     title: 'Haircut & Style - Updated',
     description: 'Updated description.',
-    imagesUrls: ['https://cdn.example.com/services/haircut-1-updated.jpg'],
+    serviceAvatar: 'https://cdn.example.com/services/haircut-1-updated.jpg',
     durationInMins: 50,
     bufferTimeInMins: 20,
     cost: 45,
@@ -34,7 +35,7 @@ function buildCommand(
     associatedServiceGroups: ['service-group-1', 'service-group-2'],
     associatedUsers: ['user-standard-1', 'user-enhanced-1'],
     ...overrides,
-  } as EditServiceCommand;
+  };
 }
 
 describe('EditServiceUseCaseImpl', () => {
@@ -42,6 +43,7 @@ describe('EditServiceUseCaseImpl', () => {
   let repository: ServiceRepositoryTestImpl;
   let groupQueue: jest.Mocked<Queue>;
   let userQueue: jest.Mocked<Queue>;
+  let s3Service: jest.Mocked<PikslotS3Service>;
   let groupAddSpy: jest.SpyInstance;
   let userAddSpy: jest.SpyInstance;
   let securityContext: SecurityContext;
@@ -75,11 +77,18 @@ describe('EditServiceUseCaseImpl', () => {
           ),
           useValue: { add: jest.fn().mockResolvedValue(undefined) },
         },
+        {
+          provide: IPikslotS3Service,
+          useValue: {
+            extractKeyFromUrl: jest.fn((url: string) => url),
+          },
+        },
       ],
     }).compile();
 
     useCase = moduleRef.get(EditServiceUseCaseImpl);
     repository = moduleRef.get(IServiceRepository);
+    s3Service = moduleRef.get(IPikslotS3Service);
     groupQueue = moduleRef.get(
       getQueueToken(
         PIKSLOT_EVENTS.SERVICE_GROUP_ASSIGNMENT.SYNC_SERVICE_SERVICE_GROUPS,
