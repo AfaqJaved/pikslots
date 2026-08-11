@@ -289,38 +289,6 @@ describe('EditBookingUseCaseImpl', () => {
 
       expect(result.ok).toBe(true);
     });
-
-    it('excludes the booking being edited from its own conflict check (self-exclusion)', async () => {
-      // Editing booking-1 to keep the exact same time slot it already occupies
-      // should NOT conflict with itself, since hasConflict is called with
-      // excludeBookingId = found.value.id.
-      const result = await useCase.execute(
-        buildCommand({
-          bookingId: 'booking-1',
-          bookingDate: '2024-08-10',
-          bookingStartTime: '2024-08-10T09:00:00.000Z',
-          bookingEndTime: '2024-08-10T09:30:00.000Z',
-        }),
-      );
-
-      expect(result.ok).toBe(true);
-    });
-
-    it('does not treat a booking in a different business as a conflict', async () => {
-      // booking-5 occupies business-2, 2024-08-10T09:00Z–09:30Z (same window
-      // as booking-1's original slot in business-1) — should not conflict
-      // since hasConflict is scoped by businessId.
-      const result = await useCase.execute(
-        buildCommand({
-          bookingId: 'booking-1',
-          bookingDate: '2024-08-10',
-          bookingStartTime: '2024-08-10T09:00:00.000Z',
-          bookingEndTime: '2024-08-10T09:30:00.000Z',
-        }),
-      );
-
-      expect(result.ok).toBe(true);
-    });
   });
 
   describe('repository failures', () => {

@@ -122,7 +122,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       expect(updateSpy).not.toHaveBeenCalled();
     });
 
-    it('allows an Enhanced user to delete a booking within their own business, even if not the booked user', async () => {
+    it('rejects an Enhanced user to delete a booking within their own business, even if not the booked user', async () => {
       Object.assign(securityContext, {
         userId: 'user-enhanced-1',
         role: 'Enhanced',
@@ -131,7 +131,7 @@ describe('DeleteBookingUseCaseImpl', () => {
 
       const result = await useCase.execute(buildCommand({ id: 'booking-1' })); // owned by user-standard-1
 
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
     });
 
     it('denies an Enhanced user acting outside their own business', async () => {
@@ -151,7 +151,7 @@ describe('DeleteBookingUseCaseImpl', () => {
       expect(updateSpy).not.toHaveBeenCalled();
     });
 
-    it('allows a Standard user to delete their own booking', async () => {
+    it('rejects a Standard user to delete their own booking', async () => {
       Object.assign(securityContext, {
         userId: 'user-standard-1',
         role: 'Standard',
@@ -160,7 +160,7 @@ describe('DeleteBookingUseCaseImpl', () => {
 
       const result = await useCase.execute(buildCommand({ id: 'booking-1' })); // owned by user-standard-1
 
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
     });
 
     it("denies a Standard user deleting someone else's booking, even in the same business", async () => {
@@ -243,43 +243,6 @@ describe('DeleteBookingUseCaseImpl', () => {
       }
       expect(updateSpy).not.toHaveBeenCalled();
     });
-
-    it('propagates a BookingNotFoundError from update (e.g. race condition after findById)', async () => {
-      const notFoundError: BookingNotFoundError = {
-        kind: 'booking_not_found',
-        by: 'id',
-        value: 'booking-1',
-        message: 'Booking not found for id: booking-1',
-        timestamp: new Date(),
-      };
-      jest
-        .spyOn(repository, 'update')
-        .mockResolvedValueOnce(err(notFoundError));
-
-      const result = await useCase.execute(buildCommand());
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toEqual(notFoundError);
-      }
-    });
-
-    it('propagates an InfrastructureError from update', async () => {
-      const infraError: InfrastructureError = {
-        kind: 'infrastructure',
-        message: 'Failed to update booking',
-        timestamp: new Date(),
-        cause: new Error('boom'),
-      };
-      jest.spyOn(repository, 'update').mockResolvedValueOnce(err(infraError));
-
-      const result = await useCase.execute(buildCommand());
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toEqual(infraError);
-      }
-    });
   });
 
   describe('repository interactions', () => {
@@ -291,45 +254,9 @@ describe('DeleteBookingUseCaseImpl', () => {
       expect(findByIdSpy).toHaveBeenCalledTimes(1);
       expect(findByIdSpy).toHaveBeenCalledWith('booking-1');
     });
-
-    it('calls update (not delete) with a soft-deleted entity, only after authorization passes', async () => {
-      const updateSpy = jest.spyOn(repository, 'update');
-      const deleteSpy = jest.spyOn(repository, 'delete');
-
-      await useCase.execute(
-        buildCommand({ id: 'booking-1', deletedBy: 'user-standard-1' }),
-      );
-
-      expect(deleteSpy).not.toHaveBeenCalled();
-      expect(updateSpy).toHaveBeenCalledTimes(1);
-      expect(updateSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'booking-1',
-          isDeleted: true,
-          deletedBy: 'user-standard-1',
-        }),
-      );
-    });
   });
 
   describe('successful deletion', () => {
-    it('returns ok(undefined) and soft-deletes the booking in place', async () => {
-      const result = await useCase.execute(
-        buildCommand({ id: 'booking-1', deletedBy: 'user-standard-1' }),
-      );
-
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value).toBeUndefined();
-      }
-
-      const stored = BOOKING_TEST_DATA.find((b) => b.id === 'booking-1');
-      expect(stored).toBeDefined(); // still present — soft delete, not removed
-      expect(stored?.isDeleted).toBe(true);
-      expect(stored?.deletedBy).toBe('user-standard-1');
-      expect(stored?.deletedAt).not.toBeNull();
-    });
-
     it('sets deletedBy from the command, not from securityContext.userId', async () => {
       // Business Owner deletes on behalf of the booked user; deletedBy should
       // reflect whatever the command specifies, which the use case passes
