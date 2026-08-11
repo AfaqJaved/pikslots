@@ -39,26 +39,33 @@
 		label?: string;
 		items: MenuItem[];
 	};
+
 	const currentUserRole = $derived(authStore.getPayloadData());
 	const privilegedRoles: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin'];
 
 	const menuGroups: MenuGroup[] = [
 		{
 			items: [
-				{
-					label: 'Your brand',
-					icon: BuildingStore,
-					activePrefix: '/home/settings/brand',
-					roles: privilegedRoles,
-					children: [
-						{ label: 'Brand details', href: resolve('/home/settings/brand/brand-details') },
-						{ label: 'Appearance', href: resolve('/home/settings/brand/appearance') },
-						{ label: 'Contact details', href: resolve('/home/settings/brand/contact') },
-						{ label: 'Location', href: resolve('/home/settings/brand/location') },
-						{ label: 'Business Hours', href: resolve('/home/settings/brand/business-hours') },
-						{ label: 'Your links', href: resolve('/home/settings/brand/links') }
-					]
-				},
+				currentUserRole?.role === 'Standard' || currentUserRole?.role === 'Enhanced'
+					? {
+							label: 'Your brand',
+							icon: BuildingStore,
+							href: resolve('/home/settings/your-brand')
+						}
+					: {
+							label: 'Your brand',
+							icon: BuildingStore,
+							activePrefix: '/home/settings/brand',
+							roles: privilegedRoles,
+							children: [
+								{ label: 'Brand details', href: resolve('/home/settings/brand/brand-details') },
+								{ label: 'Appearance', href: resolve('/home/settings/brand/appearance') },
+								{ label: 'Contact details', href: resolve('/home/settings/brand/contact') },
+								{ label: 'Location', href: resolve('/home/settings/brand/location') },
+								{ label: 'Business Hours', href: resolve('/home/settings/brand/business-hours') },
+								{ label: 'Your links', href: resolve('/home/settings/brand/links') }
+							]
+						},
 				{ label: 'Your profile', icon: User, href: resolve('/home/settings/profile') },
 				{
 					label: 'Your team',
