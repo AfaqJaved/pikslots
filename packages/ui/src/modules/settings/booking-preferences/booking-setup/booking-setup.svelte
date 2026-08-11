@@ -267,22 +267,19 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={skipTeamMembers} />
 						<span class="text-xs">Skip team members</span>
-						<div class="relative group">
-        <InfoCircle
-            size={14}
-            class="text-muted-foreground cursor-help"
-        />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
-        <div
-            class="absolute left-1/2 bottom-full z-50 mt-2
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
                    hidden w-48 -translate-x-1/2
                    rounded-md bg-popover px-3 py-2
                    text-xs text-popover-foreground
                    shadow-md group-hover:block"
-        >
-            This allows customers to book with any available team member.
-        </div>
-    </div>
+							>
+								This allows customers to book with any available team member.
+							</div>
+						</div>
 					</div>
 
 					<!-- Provide multiple services -->
@@ -296,14 +293,11 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={anyTeamMember} />
 						<span class="text-xs">Any team member</span>
-						<div class="relative group">
-							<InfoCircle
-								size={14}
-								class="text-muted-foreground cursor-help"
-							/>
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
 							<div
-								class="absolute left-1/2 bottom-full z-50 mt-2
+								class="absolute bottom-full left-1/2 z-50 mt-2
 					   hidden w-48 -translate-x-1/2
 					   rounded-md bg-popover px-3 py-2
 					   text-xs text-popover-foreground
@@ -329,14 +323,11 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={accordionView} />
 						<span class="text-xs">Accordion view</span>
-						<div class="relative group">
-							<InfoCircle
-								size={14}
-								class="text-muted-foreground cursor-help"
-							/>
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
 							<div
-								class="absolute left-1/2 bottom-full z-50 mt-2
+								class="absolute bottom-full left-1/2 z-50 mt-2
 					   hidden w-48 -translate-x-1/2
 					   rounded-md bg-popover px-3 py-2
 					   text-xs text-popover-foreground
@@ -351,14 +342,11 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={allowRescheduling} />
 						<span class="text-xs">Allow online rescheduling</span>
-						<div class="relative group">
-							<InfoCircle
-								size={14}
-								class="text-muted-foreground cursor-help"
-							/>
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
 							<div
-								class="absolute left-1/2 bottom-full z-50 mt-2
+								class="absolute bottom-full left-1/2 z-50 mt-2
 					   hidden w-48 -translate-x-1/2
 					   rounded-md bg-popover px-3 py-2
 					   text-xs text-popover-foreground
@@ -373,14 +361,11 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={allowCancellations} />
 						<span class="text-xs">Allow online cancellations</span>
-						<div class="relative group">
-							<InfoCircle
-								size={14}
-								class="text-muted-foreground cursor-help"
-							/>
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
 							<div
-								class="absolute left-1/2 bottom-full z-50 mt-2
+								class="absolute bottom-full left-1/2 z-50 mt-2
 					   hidden w-48 -translate-x-1/2
 					   rounded-md bg-popover px-3 py-2
 					   text-xs text-popover-foreground
@@ -395,14 +380,11 @@
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={bookNewButton} />
 						<span class="text-xs">'Book new appointment' button</span>
-						<div class="relative group">
-							<InfoCircle
-								size={14}
-								class="text-muted-foreground cursor-help"
-							/>
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
 
 							<div
-								class="absolute left-1/2 bottom-full z-50 mt-2
+								class="absolute bottom-full left-1/2 z-50 mt-2
 					   hidden w-48 -translate-x-1/2
 					   rounded-md bg-popover px-3 py-2
 					   text-xs text-popover-foreground

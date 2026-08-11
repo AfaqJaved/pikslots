@@ -29,8 +29,7 @@
 	<h2 class="text-lg font-semibold">Select a {label || 'service'}</h2>
 
 	{#if unavailable}
-	
-			<div class="rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+		<div class="rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500">
 			Online Booking isn't available at the moment - please try again later.
 		</div>
 	{:else if memberHasNoServices}
