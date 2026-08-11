@@ -72,6 +72,7 @@
 		}
 	});
 
+
 	const uploadMutation = createMutation(uploadAvatarMutationOptions);
 
 	const updateBrnndDetailsImageMutation = createMutation(

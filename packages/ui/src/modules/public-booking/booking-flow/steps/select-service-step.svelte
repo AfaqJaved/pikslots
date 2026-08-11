@@ -28,7 +28,12 @@
 <div class="flex flex-col gap-4">
 	<h2 class="text-lg font-semibold">Select a {label || 'service'}</h2>
 
-	{#if memberHasNoServices}
+	{#if unavailable}
+	
+			<div class="rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+			Online Booking isn't available at the moment - please try again later.
+		</div>
+	{:else if memberHasNoServices}
 		<div class="flex flex-col items-center justify-center gap-3 py-16 text-center">
 			<h2 class="text-lg font-semibold">No Service Available</h2>
 			<p class="text-sm text-muted-foreground">
@@ -37,10 +42,6 @@
 			<p class="text-xs text-muted-foreground/80">
 				Please check back later or choose a different team member.
 			</p>
-		</div>
-	{:else if unavailable}
-		<div class="rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500">
-			Online Booking isn't available at the moment - please try again later.
 		</div>
 	{:else}
 		<div class="flex flex-col gap-6">

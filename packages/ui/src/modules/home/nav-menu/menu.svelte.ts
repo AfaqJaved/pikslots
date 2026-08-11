@@ -10,13 +10,21 @@ import type { Icon } from '@tabler/icons-svelte';
 import { settingsStore } from '$stores/settings.svelte.js';
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
+import type { UserRole } from '@pikslots/shared';
 
-export const navPrimary: { name: string; url: ResolvedPathname; icon: Icon }[] = [
+const privilegedRoles: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin'];
+
+export const navPrimary: {
+	name: string;
+	url: ResolvedPathname;
+	icon: Icon;
+	roles?: UserRole[];
+}[] = [
 	{ name: 'Bookings', url: resolve('/home/bookings'), icon: IconCalendarCheck },
 	{ name: 'Services', url: resolve('/home/services'), icon: Briefcase },
-	{ name: 'Customers', url: resolve('/home/customers'), icon: UserHeart },
-	{ name: 'Payments', url: resolve('/home/payments'), icon: Cash },
-	{ name: 'Integrations', url: resolve('/home/integrations'), icon: Puzzle }
+	{ name: 'Customers', url: resolve('/home/customers'), icon: UserHeart, roles: privilegedRoles },
+	{ name: 'Payments', url: resolve('/home/payments'), icon: Cash, roles: privilegedRoles },
+	{ name: 'Integrations', url: resolve('/home/integrations'), icon: Puzzle, roles: privilegedRoles }
 ];
 
 export const navSecondary: {

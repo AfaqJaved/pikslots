@@ -50,7 +50,7 @@
 
 <div class="flex flex-col border p-4 sm:p-6">
 	<h2 class="text-center text-xl font-semibold">{business.name}</h2>
-
+	{#if business.bookingSetup.bookAppointmentSectionVisible}
 	<Button
 		class={`mt-4 w-full  ${
 			business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
@@ -62,6 +62,7 @@
 		style="background-color: {business.brandApperanceDetails.brandColor}"
 		onclick={onBook}>Book</Button
 	>
+	{/if}
 
 	{#if business.bookingCustomization.showBusinessHours}
 		<button
