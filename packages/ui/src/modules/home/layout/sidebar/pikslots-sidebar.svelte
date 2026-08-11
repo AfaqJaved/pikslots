@@ -2,7 +2,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { navPrimary, navSecondary } from '../../nav-menu/menu.svelte';
+	import { navPrimary, navSecondary } from '../../nav-menu/menu';
 	import NavPrimary from './nav-primary.svelte';
 	import NavSecondary from './nav-secondary.svelte';
 	import NavUser from './nav-user.svelte';
