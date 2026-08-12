@@ -4,6 +4,8 @@ import {
   IBookingRepository,
   BookingNotFoundError,
   UnauthorizedError,
+  InfrastructureError,
+  err,
 } from '@pikslots/domain';
 import { BOOKING_TEST_DATA } from '../repository/booking.test.data';
 import { BookingRepositoryTestImpl } from '../repository/booking.repository.fake.impl';
@@ -219,6 +221,27 @@ describe('DeleteBookingUseCaseImpl', () => {
           'booking_not_found',
         );
       }
+    });
+  });
+
+  describe('repository failures', () => {
+    it('propagates an InfrastructureError from findById', async () => {
+      const infraError: InfrastructureError = {
+        kind: 'infrastructure',
+        message: 'DB unreachable',
+        timestamp: new Date(),
+        cause: new Error('boom'),
+      };
+      jest.spyOn(repository, 'findById').mockResolvedValueOnce(err(infraError));
+      const updateSpy = jest.spyOn(repository, 'update');
+
+      const result = await useCase.execute(buildCommand());
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toEqual(infraError);
+      }
+      expect(updateSpy).not.toHaveBeenCalled();
     });
   });
 
