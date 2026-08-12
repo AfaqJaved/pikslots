@@ -235,13 +235,8 @@ export class Booking {
   ): boolean {
     if (callerRole === 'Platform Owner') return true;
 
-    if (
-      (callerRole === 'Business Owner' || callerRole === 'Admin' || callerRole === 'Enhanced') &&
-      isPartOfSameBusiness
-    )
+    if ((callerRole === 'Business Owner' || callerRole === 'Admin') && isPartOfSameBusiness)
       return true;
-
-    if (isPartOfSameBusiness && isSelf && callerRole === 'Standard') return true;
 
     // No acess
     return false;

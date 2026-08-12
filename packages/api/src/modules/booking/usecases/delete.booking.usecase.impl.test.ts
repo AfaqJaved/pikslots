@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   DeleteBookingCommand,
-  err,
   IBookingRepository,
-  InfrastructureError,
   BookingNotFoundError,
   UnauthorizedError,
+  InfrastructureError,
+  err,
 } from '@pikslots/domain';
 import { BOOKING_TEST_DATA } from '../repository/booking.test.data';
 import { BookingRepositoryTestImpl } from '../repository/booking.repository.fake.impl';

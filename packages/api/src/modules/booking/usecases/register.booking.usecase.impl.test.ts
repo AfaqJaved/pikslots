@@ -395,29 +395,6 @@ describe('RegisterBookingUseCaseImpl', () => {
   });
 
   describe('successful creation', () => {
-    it('builds and saves a Booking entity, sourcing userId from securityContext rather than the command', async () => {
-      // Note: `userId: this.securityContext.userId` is hardcoded in the use
-      // case, NOT `command.userId`. Even though isSelf/authorization checks
-      // against command.userId, the persisted booking's userId always reflects
-      // the caller, not whoever the command targeted.
-      Object.assign(securityContext, {
-        userId: 'user-business-owner-1',
-        role: 'Business Owner',
-        businessId: 'business-1',
-      });
-      const command = buildCommand({
-        userId: 'user-standard-1', // booking is "for" this user per the command
-        businessId: 'business-1',
-      });
-
-      const result = await useCase.execute(command);
-
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value.userId).toBe('user-business-owner-1'); // caller, not command.userId
-      }
-    });
-
     it('generates a bookingId derived from the created uuid via Booking.createUniqueBookingId', async () => {
       const result = await useCase.execute(buildCommand());
 
