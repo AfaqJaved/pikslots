@@ -25,6 +25,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [pathname])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirrors header theme context, intentionally sticky across resets
     if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
