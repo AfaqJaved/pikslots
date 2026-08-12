@@ -6,6 +6,6 @@
 	let currentUserData = $derived(authStore.getPayloadData() ?? null);
 </script>
 
-{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin'], currentUserData?.role ?? null)}
+{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin', 'Enhanced'], currentUserData?.role ?? null)}
 	<Customer></Customer>
 {/if}

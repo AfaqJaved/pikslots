@@ -13,6 +13,7 @@ import type { ResolvedPathname } from '$app/types';
 import type { UserRole } from '@pikslots/shared';
 
 const privilegedRoles: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin'];
+const customerAccess: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin', 'Enhanced'];
 
 export const navPrimary: {
 	name: string;
@@ -22,7 +23,7 @@ export const navPrimary: {
 }[] = [
 	{ name: 'Bookings', url: resolve('/home/bookings'), icon: IconCalendarCheck },
 	{ name: 'Services', url: resolve('/home/services'), icon: Briefcase },
-	{ name: 'Customers', url: resolve('/home/customers'), icon: UserHeart, roles: privilegedRoles },
+	{ name: 'Customers', url: resolve('/home/customers'), icon: UserHeart, roles: customerAccess },
 	{ name: 'Payments', url: resolve('/home/payments'), icon: Cash, roles: privilegedRoles },
 	{ name: 'Integrations', url: resolve('/home/integrations'), icon: Puzzle, roles: privilegedRoles }
 ];
