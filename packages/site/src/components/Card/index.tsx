@@ -35,8 +35,7 @@ export const Card: React.FC<{
         'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
         className,
       )}
-      // eslint-disable-next-line react-hooks/refs -- forwards a stable ref object from useClickableCard, not a `.current` read
-      ref={card.ref}
+      ref={card}
     >
       <div className="relative w-full ">
         {!metaImage && <div className="">No image</div>}
@@ -68,12 +67,7 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
-              <Link
-                className="not-prose"
-                href={href}
-                // eslint-disable-next-line react-hooks/refs -- forwards a stable ref object from useClickableCard, not a `.current` read
-                ref={link.ref}
-              >
+              <Link className="not-prose" href={href} ref={link}>
                 {titleToUse}
               </Link>
             </h3>

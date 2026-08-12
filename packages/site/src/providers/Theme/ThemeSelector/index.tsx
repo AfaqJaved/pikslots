@@ -29,8 +29,9 @@ export const ThemeSelector: React.FC = () => {
   }
 
   React.useEffect(() => {
+    // Reading localStorage is only safe client-side, so the initial value must be set post-mount
     const preference = window.localStorage.getItem(themeLocalStorageKey)
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs from localStorage, unavailable during SSR
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(preference ?? 'auto')
   }, [])
 

@@ -48,7 +48,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     document.documentElement.setAttribute('data-theme', themeToSet)
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs from localStorage/DOM, unavailable during SSR
+    // Reading localStorage/DOM preference is only safe client-side, so theme must be set post-mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeState(themeToSet)
   }, [])
 
