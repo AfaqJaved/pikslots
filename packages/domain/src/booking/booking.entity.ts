@@ -13,8 +13,8 @@ export interface BookingProps {
   readonly id: string;
   readonly bookingId: string;
   readonly bookingDate: string;
-  readonly bookingStartTime: string; /** ISO 8601 UTC datetime string, e.g. "2025-06-16T09:00:00.000Z" */
-  readonly bookingEndTime: string; /** ISO 8601 UTC datetime string, e.g. "2025-06-16T10:00:00.000Z" */
+  readonly bookingStartTime: string /** ISO 8601 UTC datetime string, e.g. "2025-06-16T09:00:00.000Z" */;
+  readonly bookingEndTime: string /** ISO 8601 UTC datetime string, e.g. "2025-06-16T10:00:00.000Z" */;
   readonly businessId: string;
   readonly serviceSnapshot: ServiceSnapshot;
 
@@ -39,8 +39,8 @@ export interface CreateBookingInput {
   id: string;
   bookingId: string;
   bookingDate: string;
-  bookingStartTime: string; /** ISO 8601 UTC datetime string, e.g. "2025-06-16T09:00:00.000Z" */
-  bookingEndTime: string; /** ISO 8601 UTC datetime string, e.g. "2025-06-16T10:00:00.000Z" */
+  bookingStartTime: string /** ISO 8601 UTC datetime string, e.g. "2025-06-16T09:00:00.000Z" */;
+  bookingEndTime: string /** ISO 8601 UTC datetime string, e.g. "2025-06-16T10:00:00.000Z" */;
   businessId: string;
   serviceId: string;
   userId: string;
