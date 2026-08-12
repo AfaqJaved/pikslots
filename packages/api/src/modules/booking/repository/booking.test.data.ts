@@ -155,4 +155,28 @@ export const BOOKING_TEST_DATA: Booking[] = [
     deletedBy: null,
     isDeleted: false,
   }),
+
+  Booking.reconstitute({
+    id: 'booking-7',
+    bookingId: 'BK0000007',
+    bookingDate: '2024-08-12',
+    bookingStartTime: '2024-08-12T14:00:00.000Z',
+    bookingEndTime: '2024-08-12T15:00:00.000Z',
+    businessId: 'business-1',
+    serviceId: 'service-color-1',
+    userId: 'user-platform-owner-1',
+    customerId: 'customer-2',
+    serviceSnapshot: {
+      title: 'Hair Coloring',
+      durationInMins: 60,
+      cost: 80,
+    },
+    createdAt: new Date('2024-08-02T00:00:00Z'),
+    createdBy: 'customer-2',
+    updatedAt: new Date('2024-08-02T00:00:00Z'),
+    updatedBy: 'customer-2',
+    deletedAt: null,
+    deletedBy: null,
+    isDeleted: false,
+  }),
 ];
