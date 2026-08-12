@@ -11,18 +11,46 @@
 	import Briefcase from '@tabler/icons-svelte/icons/briefcase';
 	import UserPlus from '@tabler/icons-svelte/icons/user-plus';
 	import School from '@tabler/icons-svelte/icons/school';
+	import type { UserRole } from '@pikslots/shared';
+	import { authStore } from '$stores/auth.svelte';
 
 	const pageTitle = $derived(
 		$page.url.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') ?? 'Home'
 	);
 
+	const privilegedRoles: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin'];
+	const currentUserRole = $derived(authStore.getPayloadData());
+
 	const actions = [
 		{ label: 'New booking', icon: CalendarPlus, href: '/home/bookings/new' },
-		{ label: 'Add team member', icon: UsersPlus, href: '/home/settings/team/invite' },
-		{ label: 'Create service', icon: Briefcase, href: '/home/services/new' },
-		{ label: 'Add customer', icon: UserPlus, href: '/home/customers/new' },
-		{ label: 'Create class', icon: School, href: '/home/services/classes/new' }
+		{
+			label: 'Add team member',
+			icon: UsersPlus,
+			href: '/home/settings/team/invite',
+			roles: privilegedRoles
+		},
+		{
+			label: 'Create service',
+			icon: Briefcase,
+			href: '/home/services/new',
+			roles: privilegedRoles
+		},
+		{ label: 'Add customer', icon: UserPlus, href: '/home/customers/new', roles: privilegedRoles },
+		{
+			label: 'Create class',
+			icon: School,
+			href: '/home/services/classes/new',
+			roles: privilegedRoles
+		}
 	];
+
+	function isItemAllowed(roles: UserRole[] | null): boolean {
+		if (!currentUserRole) return false;
+		if (!roles) return true;
+		return roles.includes(currentUserRole.role);
+	}
+
+	const mainOptions = $derived(actions.filter((item) => isItemAllowed(item?.roles ?? null)));
 </script>
 
 <header
@@ -47,7 +75,7 @@
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" class="w-48">
 					<!-- eslint-disable svelte/no-navigation-without-resolve -- some of these action routes (bookings/new, settings/team/invite, customers/new) aren't built yet, so resolve() can't type-check them -->
-					{#each actions as action (action.href)}
+					{#each mainOptions as action (action.href)}
 						<DropdownMenu.Item class="cursor-pointer gap-2.5" onclick={() => goto(action.href)}>
 							<action.icon size={15} class="text-muted-foreground" />
 							{action.label}

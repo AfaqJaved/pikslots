@@ -7,8 +7,20 @@
 	import NavSecondary from './nav-secondary.svelte';
 	import NavUser from './nav-user.svelte';
 	import BusinessSwitcher from './business-switcher/business-switcher.svelte';
+	import { authStore } from '$stores/auth.svelte';
+	import type { UserRole } from '@pikslots/shared';
 
 	let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
+
+	const currentUserRole = $derived(authStore.getPayloadData());
+
+	function isItemAllowed(roles: UserRole[] | null): boolean {
+		if (!currentUserRole) return false;
+		if (!roles) return true;
+		return roles.includes(currentUserRole.role);
+	}
+
+	const mainOptions = $derived(navPrimary.filter((item) => isItemAllowed(item?.roles ?? null)));
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>
@@ -32,7 +44,7 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<!-- <NavMain items={data.navMain} /> -->
-		<NavPrimary items={navPrimary} />
+		<NavPrimary items={mainOptions} />
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>

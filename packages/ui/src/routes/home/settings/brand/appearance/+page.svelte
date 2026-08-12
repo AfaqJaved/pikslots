@@ -1,5 +1,11 @@
 <script>
 	import Appearance from '../../../../../modules/settings/brand/appearance/appearance.svelte';
+	import { authStore } from '$stores/auth.svelte';
+	import { routeRolesGuard } from '$utils/routes.roles.guard';
+
+	let currentUserData = $derived(authStore.getPayloadData() ?? null);
 </script>
 
-<Appearance />
+{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin'], currentUserData?.role ?? null)}
+	<Appearance />
+{/if}

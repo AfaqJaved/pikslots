@@ -12,8 +12,9 @@ export const getBookingPageDetails = async (slug: string): Promise<PublicBooking
 	return data.data;
 };
 
-export const getBookingPageDetailsQueryOptions = (slug: string) =>
-	queryOptions({
+export const getBookingPageDetailsQueryOptions = (slug: string) => {
+	return queryOptions({
 		queryKey: ['booking-page-details', slug],
 		queryFn: () => getBookingPageDetails(slug)
 	});
+};

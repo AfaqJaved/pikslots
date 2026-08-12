@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Check from '@tabler/icons-svelte/icons/check';
 	import { formatDuration } from '../../utils/format';
-	import type { PublicService, PublicSlot, PublicTeamMember } from '../../types';
+	import type { PublicBusiness, PublicService, PublicSlot, PublicTeamMember } from '../../types';
 
 	let {
 		service,
@@ -11,6 +12,7 @@
 		timeZone,
 		bookingReference,
 		showBookAnotherAppointmentButton,
+		business,
 		onBookAnother
 	}: {
 		service: PublicService;
@@ -18,6 +20,7 @@
 		slot: PublicSlot;
 		timeZone: string;
 		bookingReference: string;
+		business: PublicBusiness;
 		showBookAnotherAppointmentButton: boolean;
 		onBookAnother: () => void;
 	} = $props();
@@ -32,6 +35,17 @@
 			timeZone
 		}).format(new Date(slot.startTime))
 	);
+
+	const redirection = $derived(business.bookingLabelOverrides.redirection);
+	const shouldRedirect = $derived(!!redirection?.label && !!redirection?.link);
+
+	onMount(() => {
+		if (!shouldRedirect) return;
+		const timeout = setTimeout(() => {
+			window.location.href = redirection.link;
+		}, 3000);
+		return () => clearTimeout(timeout);
+	});
 </script>
 
 <div class="flex flex-col items-center gap-4 py-6 text-center">
@@ -70,6 +84,23 @@
 	</div>
 
 	{#if showBookAnotherAppointmentButton}
-		<Button variant="outline" onclick={onBookAnother}>Book another appointment</Button>
+		<Button
+			variant="outline"
+			class={` ${
+				business.brandApperanceDetails.brandButtonShape.trim() === 'pill'
+					? 'rounded-full'
+					: business.brandApperanceDetails.brandButtonShape.trim() === 'rounded'
+						? 'rounded-xl'
+						: 'rounded-none'
+			}`}
+			style="background-color: {business.brandApperanceDetails.brandColor}"
+			onclick={onBookAnother}>Book another appointment</Button
+		>
+	{/if}
+
+	{#if shouldRedirect}
+		<p class="text-sm text-muted-foreground">
+			Redirecting to {redirection.label}...
+		</p>
 	{/if}
 </div>

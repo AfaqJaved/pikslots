@@ -1,5 +1,11 @@
 <script>
 	import Customization from '../../../../../modules/settings/booking-preferences/customization/customization.svelte';
+	import { authStore } from '$stores/auth.svelte';
+	import { routeRolesGuard } from '$utils/routes.roles.guard';
+
+	let currentUserData = $derived(authStore.getPayloadData() ?? null);
 </script>
 
-<Customization />
+{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin'], currentUserData?.role ?? null)}
+	<Customization />
+{/if}

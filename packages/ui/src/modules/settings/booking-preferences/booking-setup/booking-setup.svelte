@@ -256,36 +256,60 @@
 						</div>
 					{/each}
 				{:else}
-					<!-- First available appointment -->
-					<div class="flex items-center gap-3">
+					<!-- First available appointment
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={firstAvailable} />
 						<span class="text-xs">First available appointment</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
-					</div>
+					</div> -->
 
 					<!-- Skip team members -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={skipTeamMembers} />
 						<span class="text-xs">Skip team members</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+                   hidden w-48 -translate-x-1/2
+                   rounded-md bg-popover px-3 py-2
+                   text-xs text-popover-foreground
+                   shadow-md group-hover:block"
+							>
+								This allows customers to book with any available team member.
+							</div>
+						</div>
 					</div>
 
 					<!-- Provide multiple services -->
-					<div class="flex items-center gap-3">
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={multipleServices} />
 						<span class="text-xs">Provide multiple services</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
-					</div>
+					</div> -->
 
 					<!-- Any team member -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={anyTeamMember} />
 						<span class="text-xs">Any team member</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+					   hidden w-48 -translate-x-1/2
+					   rounded-md bg-popover px-3 py-2
+					   text-xs text-popover-foreground
+					   shadow-md group-hover:block"
+							>
+								This allows customers to pick any team member for their booking.
+							</div>
+						</div>
 					</div>
 
 					<!-- Customer login + Required -->
-					<div class="flex items-center gap-3">
+					<!-- <div class="flex items-center gap-3">
 						<Switch bind:checked={customerLogin} />
 						<span class="text-xs">Customer login</span>
 						<InfoCircle size={14} class="text-muted-foreground" />
@@ -293,34 +317,82 @@
 							<span class="text-xs text-muted-foreground">Required</span>
 							<Switch bind:checked={customerLoginRequired} disabled={!customerLogin} />
 						</div>
-					</div>
+					</div> -->
 
 					<!-- Accordion view -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={accordionView} />
 						<span class="text-xs">Accordion view</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+					   hidden w-48 -translate-x-1/2
+					   rounded-md bg-popover px-3 py-2
+					   text-xs text-popover-foreground
+					   shadow-md group-hover:block"
+							>
+								Shows booking steps in an accordion layout for a compact experience.
+							</div>
+						</div>
 					</div>
 
 					<!-- Allow online rescheduling -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={allowRescheduling} />
 						<span class="text-xs">Allow online rescheduling</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+					   hidden w-48 -translate-x-1/2
+					   rounded-md bg-popover px-3 py-2
+					   text-xs text-popover-foreground
+					   shadow-md group-hover:block"
+							>
+								This lets customers reschedule their existing bookings online.
+							</div>
+						</div>
 					</div>
 
 					<!-- Allow online cancellations -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={allowCancellations} />
 						<span class="text-xs">Allow online cancellations</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+					   hidden w-48 -translate-x-1/2
+					   rounded-md bg-popover px-3 py-2
+					   text-xs text-popover-foreground
+					   shadow-md group-hover:block"
+							>
+								This lets customers cancel their existing bookings online.
+							</div>
+						</div>
 					</div>
 
 					<!-- 'Book new appointment' button -->
 					<div class="flex items-center gap-3">
 						<Switch bind:checked={bookNewButton} />
 						<span class="text-xs">'Book new appointment' button</span>
-						<InfoCircle size={14} class="text-muted-foreground" />
+						<div class="group relative">
+							<InfoCircle size={14} class="cursor-help text-muted-foreground" />
+
+							<div
+								class="absolute bottom-full left-1/2 z-50 mt-2
+					   hidden w-48 -translate-x-1/2
+					   rounded-md bg-popover px-3 py-2
+					   text-xs text-popover-foreground
+					   shadow-md group-hover:block"
+							>
+								This shows a button for customers to book a new appointment after completing one.
+							</div>
+						</div>
 					</div>
 				{/if}
 			</div>
