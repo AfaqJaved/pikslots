@@ -73,7 +73,7 @@ export class RegisterBookingUseCaseImpl implements RegisterBookingUseCase {
       bookingEndTime: command.bookingEndTime,
       businessId: command.businessId,
       serviceId: command.serviceId,
-      userId: this.securityContext.userId,
+      userId: command.userId,
       serviceSnapshot: command.serviceSnapshot,
       customerId: command.customerId,
       createdBy: command.createdBy,
