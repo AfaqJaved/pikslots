@@ -18,7 +18,7 @@
 
 	const timeoffsQuery = createQuery(() => getTimeoffsByUserQueryOptions(userId, businessId));
 	const deleteMutation = createMutation(() => deleteTimeoffMutationOptions());
-
+	
 	let hoveredId = $state<string | null>(null);
 	let dialogOpen = $state(false);
 	let editDialogOpen = $state(false);

@@ -71,7 +71,8 @@
 			bufferTimeInMins,
 			businessTimezone: timeZone
 		}),
-		enabled: dateString.length > 0 && !!userId && !!business
+		enabled: dateString.length > 0 && !!userId && !!business ,
+		placeholderData: (keepPreviousData) => keepPreviousData
 	}));
 
 	const slots = $derived(getFreeSlots.data ?? []);
@@ -153,7 +154,8 @@
 					<p class="py-6 text-sm text-muted-foreground">No availability on this day.</p>
 				{:else}
 					<div
-						class="scrollbar dark:scrollbar-track-dark light:scrollbar-track-gray-200 grid
+						class:opacity-40={getFreeSlots.isFetching}
+						class="scrollbar  dark:scrollbar-track-dark light:scrollbar-track-gray-200 grid
 					 max-h-80 scrollbar-thin scrollbar-thumb-gray-500 grid-cols-2 gap-2 overflow-y-auto pr-1"
 					>
 						{#each slots as slot (slot.startTime)}
