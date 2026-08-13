@@ -333,9 +333,7 @@ export async function login(
 
 /** Pulls just the `jid=...` cookie value out of a Set-Cookie response header, for forwarding on the next request. */
 export function extractRefreshCookie(response: SupertestResponse): string {
-  const raw = response.headers['set-cookie'] as unknown as
-    | string[]
-    | undefined;
+  const raw = response.headers['set-cookie'] as unknown as string[] | undefined;
   const jidCookie = raw?.find((c) => c.startsWith('jid='));
   if (!jidCookie) {
     throw new Error(
