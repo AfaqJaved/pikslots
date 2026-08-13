@@ -35,7 +35,7 @@ export interface UserTestContext {
  * than reaching into Redis or JWT internals itself.
  */
 export function setupUserTestContext(): UserTestContext {
-  jest.setTimeout(30000);
+  jest.setTimeout(45000);
 
   const ctx: UserTestContext = {
     createdBusinessIds: [],
@@ -55,6 +55,18 @@ export function setupUserTestContext(): UserTestContext {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     if (ctx.createdBusinessIds.length > 0) {
+      // timeoffs.business_id has NO ON DELETE CASCADE (unlike bookings and
+      // breaks, which do — see the timeoff_table migration vs
+      // break_table/booking_table). This suite's free-slots/available-dates
+      // fixtures (insertTimeoff) insert real timeoff rows directly, so they
+      // must be cleared explicitly before businesses, or the business
+      // delete below fails with a live fk violation
+      // ("timeoffs_business_id_fkey").
+      await ctx.db
+        .deleteFrom('timeoffs')
+        .where('business_id', 'in', ctx.createdBusinessIds)
+        .execute();
+
       await ctx.db
         .deleteFrom('businesses')
         .where('id', 'in', ctx.createdBusinessIds)

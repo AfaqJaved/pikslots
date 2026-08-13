@@ -63,3 +63,16 @@ export async function deleteS3Object(
 ): Promise<void> {
   await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
+
+/**
+ * AWS SDK v3 clients keep an internal keep-alive HTTP agent (via
+ * @smithy/node-http-handler) that does NOT close itself when the client
+ * just goes out of scope — only going out of scope. `client.destroy()`
+ * must be called explicitly, or the open socket is exactly the kind of
+ * handle that produces Jest's "did not exit one second after the test run
+ * has completed" warning. Call this in every suite's afterAll that called
+ * createTestS3Client.
+ */
+export function destroyTestS3Client({ client }: TestS3Client): void {
+  client.destroy();
+}

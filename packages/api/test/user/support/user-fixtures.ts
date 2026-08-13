@@ -1,7 +1,12 @@
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import type { UserRole, UserWorkingHours } from '@pikslots/domain';
-import { BUSINESS_ENDPOINTS, USER_ENDPOINTS } from '@pikslots/shared';
+import {
+  BUSINESS_ENDPOINTS,
+  USER_ENDPOINTS,
+  SERVICE_ENDPOINTS,
+  CUSTOMER_ENDPOINTS,
+} from '@pikslots/shared';
 
 import { unique } from '../../common/unique-id';
 import { endpointForParams } from '../../common/endpoint-path';
@@ -110,14 +115,21 @@ export async function createBusiness(
   // Callers that only need a businessId to embed in a JWT (most of this
   // suite) don't care about this ordering, but anything that reads the
   // owner back out of the real `users` table (e.g. getBusinessUsers) does.
-  await waitFor(async () => {
-    const ownerRow = await ctx.db
-      .selectFrom('users')
-      .select('business_id')
-      .where('id', '=', owner.id)
-      .executeTakeFirstOrThrow();
-    return ownerRow.business_id === row.id;
-  });
+  await waitFor(
+    async () => {
+      const ownerRow = await ctx.db
+        .selectFrom('users')
+        .select('business_id')
+        .where('id', '=', owner.id)
+        .executeTakeFirstOrThrow();
+      return ownerRow.business_id === row.id;
+    },
+    // Two sequential real BullMQ jobs (not one), so this needs more
+    // headroom than a typical single-hop wait, especially under a full
+    // test-suite run where the shared worker is processing jobs for many
+    // suites concurrently.
+    { timeoutMs: 20000 },
+  );
 
   return { id: row.id, ownerId: owner.id };
 }
@@ -321,7 +333,9 @@ export async function login(
 
 /** Pulls just the `jid=...` cookie value out of a Set-Cookie response header, for forwarding on the next request. */
 export function extractRefreshCookie(response: SupertestResponse): string {
-  const raw = response.headers['set-cookie'] as unknown as string[] | undefined;
+  const raw = response.headers['set-cookie'] as unknown as
+    | string[]
+    | undefined;
   const jidCookie = raw?.find((c) => c.startsWith('jid='));
   if (!jidCookie) {
     throw new Error(
@@ -414,4 +428,254 @@ export async function getAllBusinessOwners(
   return request(ctx.app.getHttpServer())
     .get(USER_ENDPOINTS.BUSINESS_OWNERS)
     .set(authHeader(actorToken));
+}
+
+// ── Free slots / available dates (public booking-page endpoints) ────────────
+// These need a real Service + Customer for a realistic booking-exclusion
+// test. Kept self-contained here (real HTTP registration, minimal fields)
+// rather than importing the Service/Customer suites' own fixtures, since
+// those are typed against test contexts carrying an S3 client/bucket this
+// suite has no other use for.
+
+export async function registerServiceForBusiness(
+  ctx: UserTestContext,
+  businessId: string,
+): Promise<{ id: string }> {
+  const title = unique('E2E Service');
+  await request(ctx.app.getHttpServer())
+    .post(SERVICE_ENDPOINTS.REGISTER)
+    .set(authHeader(tokenFor(ctx.jwtLoginService, 'Admin', businessId)))
+    .send({
+      title,
+      description: 'An e2e test service',
+      serviceAvatar: '',
+      durationInMins: 30,
+      bufferTimeInMins: 10,
+      cost: 2500,
+      associatedUsers: [],
+      associatedServiceGroups: [],
+      businessId,
+      isHiddenFromBookingPage: false,
+      colorCode: '#F54927',
+    })
+    .expect(201);
+
+  const row = await ctx.db
+    .selectFrom('services')
+    .select('id')
+    .where('title', '=', title)
+    .where('business_id', '=', businessId)
+    .executeTakeFirstOrThrow();
+  return { id: row.id };
+}
+
+export async function registerCustomerForBusiness(
+  ctx: UserTestContext,
+  businessId: string,
+): Promise<{ id: string }> {
+  const suffix = unique('customer');
+  await request(ctx.app.getHttpServer())
+    .post(CUSTOMER_ENDPOINTS.REGISTER)
+    .set(authHeader(tokenFor(ctx.jwtLoginService, 'Admin', businessId)))
+    .send({
+      firstName: 'E2E',
+      lastName: 'Customer',
+      profileImageUrl: null,
+      email: `${suffix}@example.com`,
+      additionalEmail: null,
+      primaryPhone: null,
+      additionalPhone: null,
+      company: null,
+      country: null,
+      address: null,
+      city: null,
+      state: null,
+      zipCode: null,
+      notes: null,
+      customerSocialLinks: {},
+      businessId,
+    })
+    .expect(201);
+
+  const row = await ctx.db
+    .selectFrom('customers')
+    .select('id')
+    .where('email', '=', `${suffix}@example.com`)
+    .where('business_id', '=', businessId)
+    .executeTakeFirstOrThrow();
+  return { id: row.id };
+}
+
+/**
+ * Direct insert rather than the real Booking module's HTTP flow — this
+ * suite is only using a booking as a blocked-slot fixture for
+ * GetFreeSlotsForUser, not testing booking creation itself (see the
+ * Booking module's own e2e suite for that).
+ */
+export async function insertBooking(
+  ctx: UserTestContext,
+  params: {
+    businessId: string;
+    serviceId: string;
+    customerId: string;
+    userId: string;
+    bookingDate: string;
+    startTimeIso: string;
+    endTimeIso: string;
+  },
+): Promise<void> {
+  const id = randomUUID();
+  await ctx.db
+    .insertInto('bookings')
+    .values({
+      id,
+      booking_id: `BK${unique('')
+        .replace(/[^0-9]/g, '')
+        .slice(0, 10)}`,
+      booking_date: params.bookingDate,
+      booking_start_time: new Date(params.startTimeIso),
+      booking_end_time: new Date(params.endTimeIso),
+      business_id: params.businessId,
+      service_id: params.serviceId,
+      service_snapshot: {
+        title: 'E2E Service',
+        durationInMins: 30,
+        cost: 2500,
+      },
+      customer_id: params.customerId,
+      user_id: params.userId,
+      created_at: new Date(),
+      created_by: params.userId,
+      updated_at: new Date(),
+      updated_by: params.userId,
+      deleted_at: null,
+      deleted_by: null,
+      is_deleted: false,
+    })
+    .execute();
+}
+
+/** Direct insert — this suite is exercising GetFreeSlotsForUser, not the Break module itself. */
+export async function insertBreak(
+  ctx: UserTestContext,
+  params: {
+    businessId: string;
+    userId: string;
+    day: string; // lowercase weekday, e.g. 'monday'
+    startTime: string; // HH:mm
+    endTime: string; // HH:mm
+  },
+): Promise<void> {
+  const id = randomUUID();
+  await ctx.db
+    .insertInto('breaks')
+    .values({
+      id,
+      day: params.day,
+      start_time: params.startTime,
+      end_time: params.endTime,
+      user_id: params.userId,
+      business_id: params.businessId,
+      created_at: new Date(),
+      created_by: params.userId,
+      updated_at: new Date(),
+      updated_by: params.userId,
+      deleted_at: null,
+      deleted_by: null,
+      is_deleted: false,
+    })
+    .execute();
+}
+
+/** Direct insert — this suite is exercising GetFreeSlotsForUser / GetAvailableDatesForBooking, not the Timeoff module itself. */
+export async function insertTimeoff(
+  ctx: UserTestContext,
+  params: {
+    businessId: string;
+    userId: string;
+    startDateTimeIso: string;
+    endDateTimeIso: string;
+    allDay: boolean;
+  },
+): Promise<void> {
+  const id = randomUUID();
+  await ctx.db
+    .insertInto('timeoffs')
+    .values({
+      id,
+      title: 'E2E Timeoff',
+      user_id: params.userId,
+      business_id: params.businessId,
+      start_date_time: new Date(params.startDateTimeIso),
+      end_date_time: new Date(params.endDateTimeIso),
+      all_day: params.allDay,
+      time_zone: 'UTC',
+      recurrence: null,
+      created_at: new Date(),
+      created_by: params.userId,
+      updated_at: new Date(),
+      updated_by: params.userId,
+      deleted_at: null,
+      deleted_by: null,
+      is_deleted: false,
+    })
+    .execute();
+}
+
+export interface GetFreeSlotsOverrides {
+  durationInMins?: number;
+  bufferTimeInMins?: number;
+  businessTimezone?: string;
+}
+
+export async function getFreeSlotsForUser(
+  ctx: UserTestContext,
+  userId: string,
+  businessId: string,
+  date: string,
+  overrides: GetFreeSlotsOverrides = {},
+  actorToken?: string,
+): Promise<SupertestResponse> {
+  const req = request(ctx.app.getHttpServer())
+    .get(endpointForParams(USER_ENDPOINTS.FREE_SLOTS, { userId }))
+    .query({
+      businessId,
+      date,
+      durationInMins: overrides.durationInMins ?? 30,
+      bufferTimeInMins: overrides.bufferTimeInMins ?? 0,
+      businessTimezone: overrides.businessTimezone ?? 'UTC',
+    });
+  if (actorToken) req.set(authHeader(actorToken));
+  return req;
+}
+
+export async function getAvailableDatesForBooking(
+  ctx: UserTestContext,
+  userId: string,
+  businessId: string,
+  serviceId: string,
+  businessTimezone = 'UTC',
+  actorToken?: string,
+): Promise<SupertestResponse> {
+  const req = request(ctx.app.getHttpServer())
+    .post(endpointForParams(USER_ENDPOINTS.AVAILABLE_DATES, { userId }))
+    .send({ businessId, serviceId, businessTimezone });
+  if (actorToken) req.set(authHeader(actorToken));
+  return req;
+}
+
+// ── Date helpers (deterministic, timezone-free — tests use businessTimezone: 'UTC') ──
+
+/** Returns a YYYY-MM-DD string at least `minDaysAhead` days out, landing on `targetDow` (0=Sun..6=Sat). Always in the future, so slot-generation's "clamp to now" logic never kicks in. */
+export function futureDateOnWeekday(
+  targetDow: number,
+  minDaysAhead = 7,
+): string {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() + minDaysAhead);
+  while (d.getUTCDay() !== targetDow) {
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return d.toISOString().slice(0, 10);
 }
