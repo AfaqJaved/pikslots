@@ -1,5 +1,10 @@
 <script>
+	import { authStore } from '$stores/auth.svelte';
+	import { routeRolesGuard } from '$utils/routes.roles.guard';
 	import Integrations from '../../../modules/integrations/integrations.svelte';
+	let currentUserData = $derived(authStore.getPayloadData() ?? null);
 </script>
 
-<Integrations></Integrations>
+{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin'], currentUserData?.role ?? null)}
+	<Integrations></Integrations>
+{/if}

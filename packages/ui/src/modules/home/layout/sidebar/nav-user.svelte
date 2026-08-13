@@ -17,8 +17,10 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUserProfileQueryOptions } from '../../../api/user/get.user.profile.query';
 	import { logoutUser } from '../../../api/user/logout.user.mutation';
+	import type { UserRole } from '@pikslots/shared';
 
 	const userProfileQuery = createQuery(() => getUserProfileQueryOptions());
+	const currentUserRole = $derived(authStore.getPayloadData());
 
 	const sidebar = Sidebar.useSidebar();
 	const logOut = async () => {
@@ -28,6 +30,13 @@
 			goto(resolve('/login'));
 		}
 		goto(resolve('/login'));
+	};
+
+	const isItemAllowed = (role: UserRole | null) => {
+		if (role) {
+			if (role !== 'Platform Owner' && role !== 'Business Owner' && role !== 'Admin') return false;
+			return true;
+		}
 	};
 </script>
 
@@ -89,10 +98,12 @@
 							<UserCircleIcon />
 							Profile
 						</DropdownMenu.Item>
-						<DropdownMenu.Item>
-							<CreditCardIcon />
-							Billing
-						</DropdownMenu.Item>
+						{#if isItemAllowed(currentUserRole?.role ?? null)}
+							<DropdownMenu.Item>
+								<CreditCardIcon />
+								Billing
+							</DropdownMenu.Item>
+						{/if}
 						<DropdownMenu.Item>
 							<NotificationIcon />
 							Notifications

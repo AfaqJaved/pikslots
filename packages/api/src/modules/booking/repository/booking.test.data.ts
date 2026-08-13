@@ -155,7 +155,6 @@ export const BOOKING_TEST_DATA: Booking[] = [
     deletedBy: null,
     isDeleted: false,
   }),
-
   Booking.reconstitute({
     id: 'booking-7',
     bookingId: 'BK0000007',

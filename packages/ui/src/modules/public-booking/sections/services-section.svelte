@@ -11,6 +11,7 @@
 		showPrices,
 		showDuration,
 		label,
+		accordionView = true,
 		onSelectService
 	}: {
 		serviceGroups: PublicServiceGroup[];
@@ -18,6 +19,7 @@
 		label: string;
 		showPrices: boolean;
 		showDuration: boolean;
+		accordionView?: boolean;
 		onSelectService: (service: PublicService) => void;
 	} = $props();
 
@@ -33,29 +35,54 @@
 <div class="flex flex-col gap-1">
 	<h2 class="text-xl font-semibold">{label || 'Services'}</h2>
 
-	<Accordion.Root type="multiple" bind:value={openGroups}>
-		{#each serviceGroups as group (group.id)}
-			<Accordion.Item value={group.id} class="border-b-0">
-				<div class="flex items-center justify-between py-3">
-					<span class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+	{#if accordionView}
+		<Accordion.Root type="multiple" bind:value={openGroups}>
+			{#each serviceGroups as group (group.id)}
+				<Accordion.Item value={group.id} class="border-b-0">
+					<div class="flex items-center justify-between py-3">
+						<span class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+							{group.name}
+						</span>
+						<button
+							type="button"
+							class="cursor-pointer text-muted-foreground hover:text-foreground"
+							onclick={() =>
+								(openGroups = openGroups.includes(group.id)
+									? openGroups.filter((id) => id !== group.id)
+									: [...openGroups, group.id])}
+						>
+							<ChevronDown
+								size={16}
+								class="transition-transform {openGroups.includes(group.id) ? 'rotate-180' : ''}"
+							/>
+						</button>
+					</div>
+
+					<Accordion.Content class="p-0">
+						<div class="flex flex-col gap-2 pb-2">
+							{#each group.services as service (service.id)}
+								<ServiceRow
+									{service}
+									currency={priceSymbol}
+									{showPrices}
+									{showDuration}
+									onclick={() => onSelectService(service)}
+								/>
+							{/each}
+						</div>
+					</Accordion.Content>
+				</Accordion.Item>
+			{/each}
+		</Accordion.Root>
+	{:else}
+		<div class="flex flex-col gap-6">
+			{#each serviceGroups as group (group.id)}
+				<div class="flex flex-col gap-2">
+					<span
+						class="p-2 pt-4 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+					>
 						{group.name}
 					</span>
-					<button
-						type="button"
-						class="cursor-pointer text-muted-foreground hover:text-foreground"
-						onclick={() =>
-							(openGroups = openGroups.includes(group.id)
-								? openGroups.filter((id) => id !== group.id)
-								: [...openGroups, group.id])}
-					>
-						<ChevronDown
-							size={16}
-							class="transition-transform {openGroups.includes(group.id) ? 'rotate-180' : ''}"
-						/>
-					</button>
-				</div>
-
-				<Accordion.Content class="p-0">
 					<div class="flex flex-col gap-2 pb-2">
 						{#each group.services as service (service.id)}
 							<ServiceRow
@@ -67,8 +94,8 @@
 							/>
 						{/each}
 					</div>
-				</Accordion.Content>
-			</Accordion.Item>
-		{/each}
-	</Accordion.Root>
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>

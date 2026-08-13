@@ -13,6 +13,5 @@ export const getServicesByUser = async (userId: string): Promise<ServiceTitleRes
 export const getServicesByUserQueryOptions = (userId: string | null) =>
 	queryOptions({
 		queryKey: ['service-user-assignments', 'by-user', userId],
-		queryFn: () => getServicesByUser(userId!),
-		enabled: !!userId
+		queryFn: () => getServicesByUser(userId!)
 	});

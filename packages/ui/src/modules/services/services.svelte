@@ -36,6 +36,7 @@
 	import { ConfirmDialog } from '$lib/components/ui/confirm-dialog/index.js';
 	import { toast } from 'svelte-sonner';
 	import { businessStore } from '$stores/business.svelte';
+	import { authStore } from '$stores/auth.svelte';
 	import { IconBriefcase } from '@tabler/icons-svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -115,10 +116,24 @@
 	}));
 
 	const servicesByGroupQuery = createQuery(() => getServicesByGroupQueryOptions(selectedGroupId));
-	const servicesByUserQuery = createQuery(() => getServicesByUserQueryOptions(selectedUserId));
+	const servicesByUserQuery = createQuery(() => ({
+		...getServicesByUserQueryOptions(selectedUserId),
+		enabled: !!selectedUserId
+	}));
 	const classesByGroupQuery = createQuery(() =>
 		getClassesByGroupQueryOptions(selectedClassGroupId)
 	);
+
+	const currentUserPayload = $derived(authStore.getPayloadData());
+	const isRestrictedRole = $derived(
+		currentUserPayload?.role === 'Standard' || currentUserPayload?.role === 'Enhanced'
+	);
+	const currentUserId = $derived(isRestrictedRole ? (currentUserPayload?.userId ?? null) : null);
+
+	const servicesByCurrentUserQuery = createQuery(() => ({
+		...getServicesByUserQueryOptions(currentUserId),
+		enabled: isRestrictedRole && currentUserId !== null
+	}));
 
 	const users = $derived(usersQuery.data ?? []);
 
@@ -182,6 +197,10 @@
 
 	const visibleServices = $derived(() => {
 		let result = services;
+		if (isRestrictedRole) {
+			const userServiceIds = new Set(servicesByCurrentUserQuery.data?.map((s) => s.id) ?? []);
+			result = result.filter((s) => userServiceIds.has(s.id));
+		}
 		if (selectedGroupId) {
 			const groupServiceIds = new Set(servicesByGroupQuery.data?.map((s) => s.id) ?? []);
 			result = result.filter((s) => groupServiceIds.has(s.id));
@@ -275,7 +294,7 @@
 	onCancel={() => (deleteClassId = null)}
 />
 
-{#if !servicesQuery.isPending && services.length === 0 && !classesQuery.isPending && classes.length === 0}
+{#if !isRestrictedRole && !servicesQuery.isPending && services.length === 0 && !classesQuery.isPending && classes.length === 0}
 	<div class="flex h-full min-h-0 flex-1 items-center justify-center">
 		<PikslotEmpty
 			icon={Briefcase}
@@ -304,7 +323,7 @@
 									selectedGroupId = null;
 									rightPanelView = 'services';
 								}}
-								class="text-sm font-medium">Services ({servicesQuery.data?.length ?? 0})</button
+								class="text-sm font-medium">Services ({filteredServices.length ?? 0})</button
 							>
 							<button
 								type="button"
@@ -502,6 +521,9 @@
 											{#if selectedUserId}
 												{@const u = users.find((m) => m.id === selectedUserId)}
 												{u ? u.name.firstName[0] + u.name.lastName[0] : '?'}
+											{:else if isRestrictedRole && currentUserId !== null}
+												{@const u = users.find((m) => m.id === currentUserId)}
+												{u ? u.name.firstName[0] + u.name.lastName[0] : '?'}
 											{:else}
 												All
 											{/if}
@@ -510,6 +532,9 @@
 									{#if selectedUserId}
 										{@const u = users.find((m) => m.id === selectedUserId)}
 										{u ? u.name.firstName + ' ' + u.name.lastName : 'Staff'}
+									{:else if isRestrictedRole && currentUserId !== null}
+										{@const u = users.find((m) => m.id === currentUserId)}
+										{u ? u.name.firstName + ' ' + u.name.lastName : 'staff'}
 									{:else}
 										All staff
 									{/if}
@@ -577,7 +602,7 @@
 			<!-- Content rows -->
 			<div class="flex flex-1 flex-col overflow-y-auto">
 				{#if rightPanelView === 'services'}
-					{#if servicesQuery.isPending || (selectedGroupId && servicesByGroupQuery.isPending) || (selectedUserId && servicesByUserQuery.isPending)}
+					{#if servicesQuery.isPending || (isRestrictedRole && servicesByCurrentUserQuery.isPending) || (selectedGroupId && servicesByGroupQuery.isPending) || (selectedUserId && servicesByUserQuery.isPending)}
 						<div class="flex flex-1 items-center justify-center">
 							<p class="text-sm text-muted-foreground">Loading...</p>
 						</div>
@@ -596,6 +621,17 @@
 								}
 							}}
 						/>
+					{:else if isRestrictedRole && filteredServices.length === 0}
+						<div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+							<InfoCircle size={36} class="text-muted-foreground" />
+							<div class="flex flex-col gap-1">
+								<p class="text-sm font-medium">No services assigned to you yet</p>
+								<p class="text-xs text-muted-foreground">
+									You don't have any services assigned to your account. Contact your business owner
+									or an admin to get assigned to a service.
+								</p>
+							</div>
+						</div>
 					{:else if filteredServices.length === 0}
 						<div class="flex flex-1 items-center justify-center">
 							<p class="text-sm text-muted-foreground">No services found.</p>
@@ -628,7 +664,7 @@
 									<span class="text-xs text-muted-foreground">
 										{formatDuration(service.durationInMins)} · {formatCost(
 											service.cost / 100,
-											business.locationDetails?.currency ?? ''
+											business?.locationDetails?.currency ?? ''
 										)}
 									</span>
 								</div>

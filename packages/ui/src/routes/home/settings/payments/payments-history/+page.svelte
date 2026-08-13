@@ -1,5 +1,11 @@
 <script>
 	import PaymentsHistory from '../../../../../modules/settings/payments/payments-history/payments-history.svelte';
+	import { authStore } from '$stores/auth.svelte';
+	import { routeRolesGuard } from '$utils/routes.roles.guard';
+
+	let currentUserData = $derived(authStore.getPayloadData() ?? null);
 </script>
 
-<PaymentsHistory />
+{#if routeRolesGuard(['Platform Owner', 'Business Owner', 'Admin'], currentUserData?.role ?? null)}
+	<PaymentsHistory />
+{/if}
