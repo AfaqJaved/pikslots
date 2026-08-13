@@ -39,7 +39,6 @@ export function endpointForParams(
     }
     return path.replace(`:${key}`, value);
   }, template);
-
   if (/:[a-zA-Z_]+/.test(result)) {
     throw new Error(
       `endpointForParams: result "${result}" still has an unsubstituted param — check for a typo in the param name passed in.`,

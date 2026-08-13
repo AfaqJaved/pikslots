@@ -655,8 +655,9 @@ export async function getAvailableDatesForBooking(
   businessTimezone = 'UTC',
   actorToken?: string,
 ): Promise<SupertestResponse> {
+  const url = USER_ENDPOINTS.AVAILABLE_DATES.replace(':userId', userId);
   const req = request(ctx.app.getHttpServer())
-    .post(endpointForParams(USER_ENDPOINTS.AVAILABLE_DATES, { userId }))
+    .post(url)
     .send({ businessId, serviceId, businessTimezone });
   if (actorToken) req.set(authHeader(actorToken));
   return req;
