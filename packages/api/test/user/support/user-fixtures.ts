@@ -13,6 +13,10 @@ import { endpointForParams } from '../../common/endpoint-path';
 import { authHeader, tokenFor } from '../../common/auth';
 import { waitFor } from '../../common/wait-for';
 import type { SupertestResponse } from '../../common/http-envelope';
+import type {
+  EmailTemplateContextMap,
+  SendEmailOptions,
+} from '../../../src/shared/email/pikslot.email.service';
 import type { UserTestContext } from './user-test-context';
 
 export const DEFAULT_WORKING_HOURS: UserWorkingHours = {
@@ -193,6 +197,25 @@ export async function inviteUser(
     .send(payload);
 }
 
+function findCapturedEmail<T extends keyof EmailTemplateContextMap>(
+  ctx: UserTestContext,
+  template: T,
+  recipientEmail: string,
+): SendEmailOptions<T> {
+  const calls = ctx.sentEmails.mock.calls as Array<
+    Array<SendEmailOptions<keyof EmailTemplateContextMap>>
+  >;
+  const call = calls.find(
+    (c) => c[0]?.template === template && c[0]?.to === recipientEmail,
+  );
+  if (!call) {
+    throw new Error(
+      `findCapturedEmail: no '${template}' email found for ${recipientEmail}`,
+    );
+  }
+  return call[0] as SendEmailOptions<T>;
+}
+
 /**
  * Pulls the real invite JWT out of the captured 'user-invite' email — the
  * only place the token is ever exposed (it's embedded in the emailed
@@ -203,15 +226,8 @@ export function extractInviteToken(
   ctx: UserTestContext,
   recipientEmail: string,
 ): string {
-  const call = ctx.sentEmails.mock.calls.find(
-    (c) => c[0]?.template === 'user-invite' && c[0]?.to === recipientEmail,
-  );
-  if (!call) {
-    throw new Error(
-      `extractInviteToken: no 'user-invite' email found for ${recipientEmail}`,
-    );
-  }
-  const acceptUrl: string = call[0].context.acceptUrl;
+  const email = findCapturedEmail(ctx, 'user-invite', recipientEmail);
+  const acceptUrl: string = email.context.acceptUrl;
   const token = new URL(acceptUrl).searchParams.get('jid');
   if (!token) {
     throw new Error(
@@ -235,13 +251,8 @@ export function extractOtp(
   ctx: UserTestContext,
   recipientEmail: string,
 ): string {
-  const call = ctx.sentEmails.mock.calls.find(
-    (c) => c[0]?.template === 'otp' && c[0]?.to === recipientEmail,
-  );
-  if (!call) {
-    throw new Error(`extractOtp: no 'otp' email found for ${recipientEmail}`);
-  }
-  return call[0].context.otp as string;
+  const email = findCapturedEmail(ctx, 'otp', recipientEmail);
+  return email.context.otp;
 }
 
 export async function acceptInvite(
