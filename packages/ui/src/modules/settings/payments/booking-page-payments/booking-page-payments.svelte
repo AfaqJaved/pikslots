@@ -75,10 +75,7 @@
 				<InfoCircle size={15} class="mt-0.5 shrink-0" />
 				<p>
 					To verify that your new settings have taken effect, open your
-					<button
-						type="button"
-						class="font-medium text-foreground underline underline-offset-2"
-					>
+					<button type="button" class="font-medium text-foreground underline underline-offset-2">
 						Booking Page</button
 					>
 					and schedule a test appointment.
