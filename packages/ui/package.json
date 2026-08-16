@@ -11,7 +11,9 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"format-check": "prettier --check ."
+		"format-check": "prettier --check .",
+		"test:e2e": "playwright install && playwright test",
+		"test": "echo \"No unit tests configured for ui\""
 	},
 	"devDependencies": {
 		"@dnd-kit-svelte/svelte": "^0.1.5",
@@ -21,6 +23,7 @@
 		"@eslint/js": "^10.0.1",
 		"@fontsource-variable/roboto": "^5.2.10",
 		"@internationalized/date": "^3.12.0",
+		"@playwright/test": "^1.60.0",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.57.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",

@@ -43,7 +43,7 @@
 	const currentUserRole = $derived(authStore.getPayloadData());
 	const privilegedRoles: UserRole[] = ['Platform Owner', 'Business Owner', 'Admin'];
 
-	const menuGroups: MenuGroup[] = [
+	const menuGroups: MenuGroup[] = $derived([
 		{
 			items: [
 				currentUserRole?.role === 'Standard' || currentUserRole?.role === 'Enhanced'
@@ -176,7 +176,7 @@
 				}
 			]
 		}
-	];
+	]);
 
 	let openState = $state<Record<string, boolean>>({
 		'Your brand': $page.url.pathname.startsWith('/home/settings/brand'),

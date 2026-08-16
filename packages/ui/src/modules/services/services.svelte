@@ -639,9 +639,17 @@
 					{:else}
 						{#each filteredServices as service (service.id)}
 							<div
+								role="button"
+								tabindex="0"
 								onclick={() =>
 									goto(resolve('/home/services/[serviceId]/edit', { serviceId: service.id }))}
-								class={`flex cursor-pointer items-center gap-4 border-b  border-l-4 
+								onkeydown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										goto(resolve('/home/services/[serviceId]/edit', { serviceId: service.id }));
+									}
+								}}
+								class={`flex cursor-pointer items-center gap-4 border-b  border-l-4
 								px-5 py-3.5 hover:bg-accent/40
 								`}
 								style:border-left-color={service.colorCode}
@@ -651,7 +659,7 @@
 									{#if service.serviceAvatar}
 										<img
 											src={service.serviceAvatar}
-											alt="image"
+											alt={service.title}
 											class="max-w-12 rounded-md object-cover"
 										/>
 									{:else}
@@ -785,8 +793,16 @@
 					{:else}
 						{#each filteredClasses as cls (cls.id)}
 							<div
+								role="button"
+								tabindex="0"
 								onclick={() =>
 									goto(resolve('/home/services/classes/[classId]/edit', { classId: cls.id }))}
+								onkeydown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										goto(resolve('/home/services/classes/[classId]/edit', { classId: cls.id }));
+									}
+								}}
 								class="flex cursor-pointer items-center gap-4 border-b px-5 py-3.5 hover:bg-accent/40"
 							>
 								<!-- Icon -->

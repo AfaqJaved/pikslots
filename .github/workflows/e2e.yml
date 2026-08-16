@@ -7,7 +7,7 @@ on:
 
 jobs:
   e2e:
-    name: Business Module E2E (real infra)
+    name: Backend E2E (real infra)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

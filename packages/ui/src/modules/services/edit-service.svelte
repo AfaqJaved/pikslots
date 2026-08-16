@@ -202,7 +202,7 @@
 	let imagePreview = $state<string | null>(null);
 	let teamSearch = $state('');
 	let DialogOpen = $state<boolean>(false);
-	let fileInput: HTMLInputElement;
+	let fileInput: HTMLInputElement | undefined = $state();
 
 	// ── Derived ──────────────────────────────────────────────────────────────────
 
@@ -363,7 +363,7 @@
 								size="sm"
 								class="mt-1 cursor-pointer gap-2"
 								tabindex={-1}
-								onclick={() => fileInput.click()}
+								onclick={() => fileInput?.click()}
 							>
 								<Upload size={14} />
 								Upload

@@ -22,12 +22,10 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton isActive={isActive(item.url)}>
 					{#snippet child({ props })}
-						<div on:click={() => settingsStore.close()}>
-							<a {...props} href={item.url}>
-								<item.icon />
-								<span>{item.name}</span>
-							</a>
-						</div>
+						<a {...props} href={item.url} onclick={() => settingsStore.close()}>
+							<item.icon />
+							<span>{item.name}</span>
+						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
 				<!-- <DropdownMenu.Root> -->

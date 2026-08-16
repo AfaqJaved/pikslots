@@ -67,15 +67,15 @@
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-center gap-2 md:justify-start">
-			<a href="##" class="font-code flex items-center gap-2 text-2xl">Pikslots</a>
+			<a href="/" class="font-code flex items-center gap-2 text-2xl">Pikslots</a>
 		</div>
 		<div class="flex flex-1 items-center justify-center">
 			<div class="w-full max-w-xs">
 				<form class={cn('flex flex-col gap-6')} use:enhance>
 					<FieldGroup>
 						<div class="flex flex-col items-center gap-1 text-center">
-							<h1 class="text-2xl font-bold">Login to your account</h1>
-							<p class="text-sm text-balance text-muted-foreground">
+							<h1 data-testid="login-heading" class="text-2xl font-bold">Login to your account</h1>
+							<p data-testid="login-paragraph" class="text-sm text-balance text-muted-foreground">
 								Enter your email below to login to your account
 							</p>
 						</div>
@@ -83,6 +83,7 @@
 						<Field>
 							<FieldLabel for="userNameOrEmail">Username or Email</FieldLabel>
 							<Input
+								data-testid="email"
 								id="userNameOrEmail"
 								name="userNameOrEmail"
 								type="text"
@@ -99,12 +100,18 @@
 									Forgot your password?
 								</a>
 							</div>
-							<Input id="password" name="password" type="password" bind:value={$form.password} />
+							<Input
+								data-testid="password"
+								id="password"
+								name="password"
+								type="password"
+								bind:value={$form.password}
+							/>
 							<FieldError errors={$errors.password?.map((e) => ({ message: e }))} />
 						</Field>
 
 						<Field>
-							<Button type="submit" disabled={loginMutation.isPending}>
+							<Button data-testid="login-btn" type="submit" disabled={loginMutation.isPending}>
 								{loginMutation.isPending ? 'Please wait...' : 'Login'}
 							</Button>
 						</Field>

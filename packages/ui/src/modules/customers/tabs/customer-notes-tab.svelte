@@ -11,7 +11,7 @@
 
 	let { customer }: { customer: FullCustomerModel } = $props();
 
-	let notesValue = $state(customer.notes ?? '');
+	let notesValue = $state('');
 	let editingNotes = $state(false);
 
 	$effect(() => {
