@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('should display proper field validation errors when credentials are removed', async ({ page }) => {
+test('should display proper field validation errors when credentials are removed', async ({
+	page
+}) => {
 	await page.goto('/login');
 
 	const email = page.getByTestId('email');

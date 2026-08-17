@@ -9,13 +9,13 @@ test('should be disabled login button if any credential is not provided', async 
 
 	await email.fill('');
 	await password.fill('');
-    
+
 	// Button will be disabled if both are empty
 	await expect(loginBtn).toBeDisabled();
 
 	await email.fill('test@example.com');
 	await password.fill('');
-    
+
 	// Email provided, password empty button will be disabled
 	await expect(loginBtn).toBeDisabled();
 

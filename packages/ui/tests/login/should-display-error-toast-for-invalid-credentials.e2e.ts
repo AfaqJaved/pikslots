@@ -14,6 +14,6 @@ test('should display error toast when credentials are incorrect', async ({ page 
 
 	const toast = page.locator('[data-sonner-toast]');
 
-    await expect(toast).toBeVisible();
-    await expect(toast).toContainText('Access denied : please provide valid credentials');
+	await expect(toast).toBeVisible();
+	await expect(toast).toContainText('Access denied : please provide valid credentials');
 });
