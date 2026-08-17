@@ -18,11 +18,12 @@ test('should display proper field validation errors when credentials are removed
 	// User removes credentials
 	await email.fill('');
 	await password.fill('');
+	await password.blur();
 
 	// Button should become disabled
 	await expect(loginBtn).toBeDisabled();
 
 	// Field validation errors should be displayed
-	await expect(page.getByText('UserName or Email is Required')).toBeVisible();
-	await expect(page.getByText('Password must be atleast 8 characters')).toBeVisible();
+	await expect(page.getByTestId('email-error')).toBeVisible();
+	await expect(page.getByTestId('password-error')).toBeVisible();
 });

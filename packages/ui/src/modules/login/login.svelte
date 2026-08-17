@@ -90,7 +90,10 @@
 								placeholder="m@example.com"
 								bind:value={$form.userNameOrEmail}
 							/>
-							<FieldError errors={$errors.userNameOrEmail?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="email-error"
+								errors={$errors.userNameOrEmail?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<Field>
@@ -107,7 +110,10 @@
 								type="password"
 								bind:value={$form.password}
 							/>
-							<FieldError errors={$errors.password?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="password-error"
+								errors={$errors.password?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<Field>

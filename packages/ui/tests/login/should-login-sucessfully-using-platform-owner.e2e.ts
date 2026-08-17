@@ -10,7 +10,7 @@ test('should login sucessfully for the platform owner', async ({ page }) => {
 	await email.fill('afaq@afaqjaved.com');
 	await password.fill('admin12345');
 
-	await page.screenshot({ path: 'login.png', fullPage: true });
+	//	await page.screenshot({ path: 'login.png', fullPage: true });
 
 	await loginBtn.click();
 
