@@ -90,7 +90,10 @@
 								placeholder="m@example.com"
 								bind:value={$form.userNameOrEmail}
 							/>
-							<FieldError errors={$errors.userNameOrEmail?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="email-error"
+								errors={$errors.userNameOrEmail?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<Field>
@@ -107,11 +110,21 @@
 								type="password"
 								bind:value={$form.password}
 							/>
-							<FieldError errors={$errors.password?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="password-error"
+								errors={$errors.password?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<Field>
-							<Button data-testid="login-btn" type="submit" disabled={loginMutation.isPending}>
+							<Button
+								data-testid="login-btn"
+								type="submit"
+								disabled={loginMutation.isPending ||
+									!$form.userNameOrEmail.trim() ||
+									!$form.password.trim()}
+								class="disabled:cursor-not-allowed disabled:opacity-50"
+							>
 								{loginMutation.isPending ? 'Please wait...' : 'Login'}
 							</Button>
 						</Field>
