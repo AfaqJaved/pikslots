@@ -41,7 +41,7 @@
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));
 	let selectedSlotStart = $state<string | null>(null);
 
-	let timeFormat = business.bookingCustomization.timeFormat;
+	const timeFormat = $derived(business.bookingCustomization.timeFormat);
 	// _____available Dates________________________
 
 	const getAvailableDates = createQuery(() => ({

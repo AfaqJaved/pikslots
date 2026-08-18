@@ -30,7 +30,7 @@
 	let crop = $state({ x: 0, y: 0 });
 	let zoom = $state(1);
 	let croppedPixels = $state<CropArea | null>(null);
-	let file = $state<File | null>(initialFile);
+	let file = $state<File | null>(null);
 
 	// _________effect_______________________________
 

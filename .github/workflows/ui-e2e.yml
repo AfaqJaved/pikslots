@@ -1,0 +1,174 @@
+name: UI E2E
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ui-e2e:
+    name: Frontend E2E (Playwright, real backend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Real, hardcoded env vars for every step in this job (not a written
+    # .test.env file) — see e2e.yml for why. Not real secrets; throwaway
+    # values for an ephemeral, isolated test run.
+    env:
+      NODE_ENV: test
+      PORT: '3000'
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pikslots_test
+
+      JWT_SECRET: ui-e2e-ci-jwt-secret
+      JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_SECRET: ui-e2e-ci-jwt-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 1d
+
+      INVITE_JWT_SECRET: ui-e2e-ci-invite-jwt-secret
+      INVITE_JWT_EXPIRES_IN: 5m
+
+      # The frontend under test is Playwright's own webServer, which serves
+      # the built SvelteKit app via `vite preview` on port 4173 (see
+      # packages/ui/playwright.config.ts) — not the 5173 dev-server port.
+      CORS_ORIGINS: http://localhost:4173
+      BACKEND_PUBLIC_URL: http://localhost:3000
+      FRONTEND_PUBLIC_URL: http://localhost:4173
+
+      ENABLE_API_DOCS: 'false'
+
+      REDIS_HOST: localhost
+      REDIS_PORT: '6379'
+      REDIS_PASSWORD: ''
+
+      MAIL_HOST: localhost
+      MAIL_PORT: '1025'
+      MAIL_USER: ci@pikslots.com
+      MAIL_PASS: unused-in-ci
+      MAIL_FROM: '"No Reply" <noreply@example.com>'
+
+      S3_ENABLED: 'true'
+      S3_ACCESS_KEY: admin
+      S3_SECRET_KEY: admin
+      S3_HOST: http://localhost:9000
+      S3_REGION: eu-east-1
+      S3_BUCKET_NAME: pikslots-test
+      S3_FORCED_PATH_STYLE: 'true'
+
+      # Baked into the SvelteKit build at build time (Vite inlines
+      # import.meta.env.VITE_* statically), so this must be set before the
+      # `npm run build` that Playwright's webServer runs, not just before
+      # the API starts.
+      VITE_API_URL: http://localhost:3000
+      VITE_APP_ROOT_DOMAIN: localhost
+
+    # Real Postgres, Redis, and S3 (RustFS) — the login test hits a real
+    # NestJS API backed by a seeded Platform Owner user, not a mock.
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pikslots_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:8.0.6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      rustfs:
+        image: rustfs/rustfs:latest
+        env:
+          RUSTFS_ACCESS_KEY: admin
+          RUSTFS_SECRET_KEY: admin
+        ports:
+          - 9000:9000
+          - 9001:9001
+        options: >-
+          --health-cmd "curl -s -o /dev/null http://localhost:9000/"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build workspace packages
+        # @pikslots/domain + @pikslots/shared are needed by the API,
+        # @pikslots/shared + @pikslots/datetime by the UI — both resolve to
+        # built dist/ output, not source.
+        run: bunx nx run-many -t build -p @pikslots/domain,@pikslots/shared,@pikslots/datetime
+
+      - name: Build API
+        working-directory: packages/api
+        run: bun run build
+
+      - name: Start API (background)
+        # The app runs its own pending migrations on boot (see the
+        # [Migrations] log lines from PikslotsDatabaseModule), so there's no
+        # separate migration step here — just wait for it to come up.
+        working-directory: packages/api
+        run: |
+          node dist/main.js > api.log 2>&1 &
+          echo "Waiting for API on http://localhost:3000..."
+          for i in $(seq 1 30); do
+            if (exec 3<>/dev/tcp/localhost/3000) 2>/dev/null; then
+              exec 3>&-
+              echo "API is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API failed to start within 30s"
+          cat api.log
+          exit 1
+
+      - name: Seed platform owner user
+        # Applied after the API is up so the migrations it ran on boot have
+        # already created the tables this seed inserts into.
+        run: psql "$DATABASE_URL" -f packages/api/src/shared/database/seeders/01-seed.platform.owner.sql
+
+      - name: Install Playwright browsers
+        working-directory: packages/ui
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run Playwright e2e tests
+        working-directory: packages/ui
+        run: bun run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: packages/ui/playwright-report/
+          retention-days: 14
+
+      - name: Upload API logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-logs
+          path: packages/api/api.log
+          retention-days: 14

@@ -26,19 +26,17 @@
 					<Sidebar.MenuButton isActive={isActive(item.url)}
 						>>
 						{#snippet child({ props })}
-							<div on:click={item.onclick}>
-								{#if item.url !== '#'}
-									<a href={item.url} {...props}>
-										<item.icon />
-										<span>{item.title}</span>
-									</a>
-								{:else}
-									<a href={'#'} {...props}>
-										<item.icon />
-										<span>{item.title}</span>
-									</a>
-								{/if}
-							</div>
+							{#if item.url !== '#'}
+								<a href={item.url} {...props} onclick={item.onclick}>
+									<item.icon />
+									<span>{item.title}</span>
+								</a>
+							{:else}
+								<a href={'#'} {...props} onclick={item.onclick}>
+									<item.icon />
+									<span>{item.title}</span>
+								</a>
+							{/if}
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>

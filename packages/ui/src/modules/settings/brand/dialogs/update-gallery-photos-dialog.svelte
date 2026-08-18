@@ -23,7 +23,7 @@
 	//______________image variables____________________________________
 	const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 	const MAX_SIZE_MB = 10;
-	let fileInput: HTMLInputElement;
+	let fileInput: HTMLInputElement | undefined = $state();
 	let softDeleteUrls = $state<string[] | null>(null);
 	let pendingTempUrls = $state<string[]>([]);
 	let pendingFiles = $state<File[]>([]);
@@ -140,7 +140,7 @@
 
 					<Button
 						class="flex h-full w-full items-center justify-center bg-primary "
-						onclick={() => fileInput.click()}
+						onclick={() => fileInput?.click()}
 					>
 						<PlusIcon class="text-white" />
 					</Button>
@@ -181,7 +181,7 @@
 					class="hidden"
 					onchange={onFileChange}
 				/>
-				<Button variant="outline" size="sm" onclick={() => fileInput.click()}>
+				<Button variant="outline" size="sm" onclick={() => fileInput?.click()}>
 					<Photo size={14} />
 					Upload photos
 				</Button>

@@ -134,7 +134,7 @@
 	let customerProfileImageDialog = $state<boolean>(false);
 	let imageFile = $state<File | null>(null);
 	let previewUrl = $state<string | null>(null);
-	let fileInput: HTMLInputElement;
+	let fileInput: HTMLInputElement | undefined = $state();
 
 	const queryClient = useQueryClient();
 	const registerMutation = createMutation(() => registerCustomerMutationOptions());
@@ -324,7 +324,7 @@
 					{#if imageFile}
 						<Button
 							class="size-18 shrink-0 cursor-pointer rounded-full bg-transparent p-0"
-							onclick={() => fileInput.click()}
+							onclick={() => fileInput?.click()}
 						>
 							<img
 								src={previewUrl}
@@ -342,7 +342,7 @@
 					{:else}
 						<Avatar.Root
 							class="size-16 cursor-pointer text-base opacity-60 hover:opacity-100"
-							onclick={() => fileInput.click()}
+							onclick={() => fileInput?.click()}
 						>
 							{#if initials}
 								<Avatar.Fallback class="text-lg">{initials}</Avatar.Fallback>

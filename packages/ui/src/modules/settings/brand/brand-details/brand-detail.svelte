@@ -54,7 +54,7 @@
 	let bannerDialogOpen = $state(false);
 	let bannerFile = $state<File | null>(null);
 	let bannerPreview = $state<string | null>(null);
-	let bannerInput: HTMLInputElement;
+	let bannerInput: HTMLInputElement | undefined = $state();
 
 	let logoDialogOpen = $state(false);
 	let logoFile = $state<File | null>(null);
@@ -277,7 +277,7 @@
 				<Button
 					class="h-40 w-full cursor-pointer bg-transparent p-0"
 					onclick={() => {
-						bannerInput.click();
+						bannerInput?.click();
 					}}
 				>
 					<img
@@ -297,7 +297,7 @@
 				<Button
 					class="h-40 w-full cursor-pointer bg-transparent p-0"
 					onclick={() => {
-						bannerInput.click();
+						bannerInput?.click();
 					}}
 				>
 					<img
@@ -327,7 +327,7 @@
 						class="hidden"
 						onchange={handleBannerUpload}
 					/>
-					<Button variant="outline" size="sm" onclick={() => bannerInput.click()}>
+					<Button variant="outline" size="sm" onclick={() => bannerInput?.click()}>
 						<Upload size={14} />
 						Upload banner image
 					</Button>
