@@ -104,7 +104,7 @@
 	<div class="flex w-62.5 shrink-0 flex-col border-r">
 		<!-- Header -->
 		<div class="flex items-center justify-between px-4 py-3">
-			<h2 class="text-base font-semibold">Customers</h2>
+			<h2 data-testid="customer-heading" class="text-base font-semibold">Customers</h2>
 			<Button onclick={() => (addCustomerOpen = true)}><Plus />Add</Button>
 		</div>
 
