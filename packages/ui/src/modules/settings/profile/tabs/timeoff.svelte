@@ -101,6 +101,7 @@
 			{#each timeoffsQuery.data ?? [] as entry (entry.id)}
 				<div
 					class="flex items-center justify-between py-3"
+					role="group"
 					onmouseenter={() => (hoveredId = entry.id)}
 					onmouseleave={() => (hoveredId = null)}
 				>
