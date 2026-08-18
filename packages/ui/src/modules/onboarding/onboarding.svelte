@@ -112,17 +112,18 @@
 	}
 
 	function handleBusinessNext() {
-		const payload = buildPayload()
-		if( (`${payload.platformOwner.name.firstName} ${payload.platformOwner.name.lastName}`.trim())
-		 === 
-		(`${payload.businessOwner.name.firstName} ${payload.businessOwner.name.lastName}`.trim()) ){
+		const payload = buildPayload();
+		if (
+			`${payload.platformOwner.name.firstName} ${payload.platformOwner.name.lastName}`.trim() ===
+			`${payload.businessOwner.name.firstName} ${payload.businessOwner.name.lastName}`.trim()
+		) {
 			toast.error('Platform owner and business owner names must be different!');
-		   return
+			return;
 		}
 
-		if( payload.platformOwner.email === payload.businessOwner.email) {
+		if (payload.platformOwner.email === payload.businessOwner.email) {
 			toast.error('Platform owner and business owner emails must be different!');
-		   return	
+			return;
 		}
 
 		completeOnboardingMutation.mutate(payload, {
@@ -131,13 +132,10 @@
 				setTimeout(() => goto(resolve('/login')), 3000);
 			},
 			onError: (error) => {
-				toast.error(
-					error?.response?.data?.message ?? 'Onboarding failed. Please try again.'
-				);
+				toast.error(error?.response?.data?.message ?? 'Onboarding failed. Please try again.');
 			}
 		});
 	}
-
 </script>
 
 <div class="r flex min-h-screen items-center justify-center p-4">
