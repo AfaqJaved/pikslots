@@ -14,5 +14,6 @@ import { BUSINESS_EVENTS } from './events';
     BusinessUseCaseFactory,
   ],
   controllers: [BusinessController],
+  exports: [IBusinessRepository],
 })
 export class BusinessModule {}

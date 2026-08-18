@@ -14,6 +14,6 @@ import { USER_EVENTS } from './events';
     UserUsecasesFactory,
     ...USER_EVENTS,
   ],
-  exports: [],
+  exports: [IUserRepository],
 })
 export class UserModule {}

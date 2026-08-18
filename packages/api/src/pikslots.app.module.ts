@@ -21,6 +21,7 @@ import { BookingModule } from './modules/booking/booking.module';
 import { BreakModule } from './modules/break/break.module';
 import { PikslotS3Module } from './shared/s3/s3.module';
 import { PublicBookingPage } from './modules/public-booking-page/public.booking.page.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PublicBookingPage } from './modules/public-booking-page/public.booking.
     BookingModule,
     BreakModule,
     PublicBookingPage,
+    OnboardingModule,
   ],
   controllers: [],
   providers: [],
