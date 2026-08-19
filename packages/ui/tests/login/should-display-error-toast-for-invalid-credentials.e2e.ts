@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { USER } from '../common/user-data';
 
 test('should display error toast when credentials are incorrect', async ({ page }) => {
 	await page.goto('/login');
@@ -7,8 +8,8 @@ test('should display error toast when credentials are incorrect', async ({ page 
 	const password = page.getByTestId('password');
 	const loginBtn = page.getByTestId('login-btn');
 
-	await email.fill('wrong@example.com');
-	await password.fill('wrongpassword');
+	await email.fill(USER.NO_ACCESS.username);
+	await password.fill(USER.NO_ACCESS.password);
 
 	await loginBtn.click();
 
