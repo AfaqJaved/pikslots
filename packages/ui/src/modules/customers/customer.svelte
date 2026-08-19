@@ -99,20 +99,20 @@
 	});
 </script>
 
-<div class="flex h-full overflow-hidden">
+<div data-testid="customer-page" class="flex h-full overflow-hidden">
 	<!-- ── Left panel ──────────────────────────────────────────────────────── -->
 	<div class="flex w-62.5 shrink-0 flex-col border-r">
 		<!-- Header -->
 		<div class="flex items-center justify-between px-4 py-3">
 			<h2 data-testid="customer-heading" class="text-base font-semibold">Customers</h2>
-			<Button onclick={() => (addCustomerOpen = true)}><Plus />Add</Button>
+			<Button data-testid="customer-add" onclick={() => (addCustomerOpen = true)}><Plus />Add</Button>
 		</div>
 
 		<!-- Tabs row: All | Options -->
 		<div class="flex items-center gap-4 border-b px-4 pb-0">
 			<button class="border-b-2 border-foreground pb-2 text-sm font-medium"> All </button>
 			<DropdownMenu.Root>
-				<DropdownMenu.Trigger>
+				<DropdownMenu.Trigger data-testid="customer-options">
 					{#snippet child({ props })}
 						<button
 							{...props}
@@ -123,10 +123,10 @@
 					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="start" class="w-40 cursor-pointer">
-					<DropdownMenu.Item class="cursor-pointer"
+					<DropdownMenu.Item class="cursor-pointer" data-testid="customer-import"
 						><IconFileImport></IconFileImport>Import Customers</DropdownMenu.Item
 					>
-					<DropdownMenu.Item class="cursor-pointer"
+					<DropdownMenu.Item class="cursor-pointer" data-testid="customer-export"
 						><IconFileExport></IconFileExport>Export Customers</DropdownMenu.Item
 					>
 				</DropdownMenu.Content>
@@ -137,24 +137,24 @@
 		<div class="px-4 py-2">
 			<div class="relative">
 				<Search class="absolute top-2 left-2.5 size-3.5 text-muted-foreground" />
-				<Input bind:value={search} placeholder="Search" class="pl-8" />
+				<Input bind:value={search} placeholder="Search" class="pl-8" data-testid="customer-search"/>
 			</div>
 		</div>
 
 		<!-- Customer list -->
-		<div class="flex-1 overflow-y-auto">
+		<div class="flex-1 overflow-y-auto" data-testid="customer-list">
 			{#if customersQuery.isPending}
-				<div class="flex items-center justify-center py-8 text-xs text-muted-foreground">
+				<div class="flex items-center justify-center py-8 text-xs text-muted-foreground" data-testid="customer-loading">
 					Loading...
 				</div>
 			{:else if filteredCustomers.length === 0}
-				<div class="flex items-center justify-center py-8 text-xs text-muted-foreground">
+				<div data-testid="customer-empty" class="flex items-center justify-center py-8 text-xs text-muted-foreground">
 					No customers found
 				</div>
 			{:else}
 				{#each filteredCustomers as customer (customer.id)}
 					<div class="mx-auto w-55">
-						<button
+						<button data-testid={`customer-item-${customer.id}`}
 							onclick={() => {
 								selectedCustomerId = customer.id;
 								activeTab = 'about';
@@ -181,12 +181,12 @@
 
 	<!-- ── Right panel ─────────────────────────────────────────────────────── -->
 	{#if selectedCustomerId && selectedCustomerQuery.isPending}
-		<div class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+		<div  class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 			Loading...
 		</div>
 	{:else if selectedCustomer}
 		{@const customer = selectedCustomer}
-		<div class="flex flex-1 flex-col overflow-hidden">
+		<div data-testid="customer-detail" class="flex flex-1 flex-col overflow-hidden">
 			<!-- Detail header -->
 			<div class="flex items-center gap-3 px-6 py-4">
 				<Avatar.Root class="size-12 text-base">
@@ -202,6 +202,7 @@
 
 				<div class="ml-auto flex items-center gap-1">
 					<Button
+						data-testid="customer-edit"
 						variant="ghost"
 						size="icon"
 						class="size-8"
@@ -211,7 +212,7 @@
 					</Button>
 
 					<DropdownMenu.Root>
-						<DropdownMenu.Trigger>
+						<DropdownMenu.Trigger data-testid="customer-actions">
 							{#snippet child({ props })}
 								<Button variant="ghost" size="icon" class="size-8" {...props}>
 									<DotsVertical class="size-4" />
@@ -220,6 +221,7 @@
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end">
 							<DropdownMenu.Item
+								data-testid="customer-delete"
 								class="text-destructive focus:text-destructive"
 								onclick={() => confirmDelete(customer)}
 							>
@@ -229,7 +231,7 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 
-					<Button variant="outline" size="sm" class="gap-1.5">
+					<Button data-testid="customer-book-appointment" variant="outline" size="sm" class="gap-1.5">
 						<CalendarPlus class="size-4" />
 						Book appointment
 					</Button>
@@ -239,10 +241,10 @@
 			<!-- Tabs -->
 			<Tabs.Root bind:value={activeTab} class="flex flex-1 flex-col overflow-hidden">
 				<Tabs.List variant="line" class="h-auto justify-start rounded-none px-6">
-					<Tabs.Trigger value="about" class="pb-2">About</Tabs.Trigger>
-					<Tabs.Trigger value="notes" class="pb-2">Notes</Tabs.Trigger>
-					<Tabs.Trigger value="appointments" class="pb-2">Appointments</Tabs.Trigger>
-					<Tabs.Trigger value="updates" class="pb-2">Updates</Tabs.Trigger>
+					<Tabs.Trigger data-testid="customer-tab-about" value="about" class="pb-2">About</Tabs.Trigger>
+					<Tabs.Trigger data-testid="customer-tab-notes" value="notes" class="pb-2">Notes</Tabs.Trigger>
+					<Tabs.Trigger data-testid="customer-tab-appointments" value="appointments" class="pb-2">Appointments</Tabs.Trigger>
+					<Tabs.Trigger data-testid="customer-tab-updates" value="updates" class="pb-2">Updates</Tabs.Trigger>
 				</Tabs.List>
 
 				<Tabs.Content value="about" class="flex-1 overflow-y-auto px-6 py-4">
