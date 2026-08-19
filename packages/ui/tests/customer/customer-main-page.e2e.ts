@@ -1,281 +1,218 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Customer Page - Main Page', () => {
-  test('customer page should have proper heading', async ({ page }) => {
-	await page.goto('/customers');
+	test('customer page should have proper heading', async ({ page }) => {
+		await page.goto('/customers');
 
-	const heading = page.getByTestId('customer-heading');
+		const heading = page.getByTestId('customer-heading');
 
-	await expect(heading).toHaveText('Customers');
-});
+		await expect(heading).toHaveText('Customers');
+	});
 
+	//   test('should display loading state while customers are loading', async ({
+	//     page,
+	//   }) => {
+	//     await page.route('**/customers**', async (route) => {
+	//       await new Promise((resolve) => setTimeout(resolve, 1000));
+	//       await route.continue();
+	//     });
 
-//   test('should display loading state while customers are loading', async ({
-//     page,
-//   }) => {
-//     await page.route('**/customers**', async (route) => {
-//       await new Promise((resolve) => setTimeout(resolve, 1000));
-//       await route.continue();
-//     });
+	//     await page.goto('/customers');
 
-//     await page.goto('/customers');
+	//     await expect(page.getByTestId('customer-loading')).toBeVisible();
+	//   });
 
-//     await expect(page.getByTestId('customer-loading')).toBeVisible();
-//   });
+	test('should display empty state when there are no customers', async ({ page }) => {
+		await page.route('**/customers**', async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify([])
+			});
+		});
 
-    test('should display empty state when there are no customers', async ({
-    page,
-    }) => {
-    await page.route('**/customers**', async (route) => {
-        await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([]),
-        });
-    });
+		await page.goto('/customers');
 
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-empty')).toBeVisible();
+	});
 
-    await expect(page.getByTestId('customer-empty')).toBeVisible();
-    });
+	test('should display customers', async ({ page }) => {
+		await page.goto('/customers');
 
-  test('should display customers', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-list')).toBeVisible();
 
-    await expect(page.getByTestId('customer-list')).toBeVisible();
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
-  });
+	test('should automatically select the first customer', async ({ page }) => {
+		await page.goto('/customers');
 
+		await expect(page.getByTestId('customer-item-customer-1')).toHaveAttribute(
+			'data-selected',
+			'true'
+		);
 
-  test('should automatically select the first customer', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-detail')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toHaveAttribute('data-selected', 'true');
+	test('should select another customer', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(page.getByTestId('customer-detail')).toBeVisible();
-  });
+		await page.getByTestId('customer-item-customer-2').click();
 
-  test('should select another customer', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-item-customer-2')).toHaveAttribute(
+			'data-selected',
+			'true'
+		);
 
-    await page.getByTestId('customer-item-customer-2').click();
+		await expect(page.getByTestId('customer-detail')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-item-customer-2')
-    ).toHaveAttribute('data-selected', 'true');
+	test('should reset to About tab when selecting another customer', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(page.getByTestId('customer-detail')).toBeVisible();
-  });
+		await page.getByTestId('customer-tab-notes').click();
 
-  test('should reset to About tab when selecting another customer', async ({
-    page,
-  }) => {
-    await page.goto('/customers');
+		await page.getByTestId('customer-item-customer-2').click();
 
-    await page.getByTestId('customer-tab-notes').click();
+		await expect(page.getByTestId('customer-tab-about')).toHaveAttribute('data-state', 'active');
+	});
 
-    await page.getByTestId('customer-item-customer-2').click();
+	test('should search customers by first name', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-tab-about')
-    ).toHaveAttribute('data-state', 'active');
-  });
+		await page.getByTestId('customer-search').fill('John');
 
-  test('should search customers by first name', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
 
-    await page
-      .getByTestId('customer-search')
-      .fill('John');
+		await expect(page.getByTestId('customer-item-customer-2')).not.toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
+	test('should search customers by last name', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-item-customer-2')
-    ).not.toBeVisible();
-  });
+		await page.getByTestId('customer-search').fill('Smith');
 
-  test('should search customers by last name', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
+	});
 
-    await page
-      .getByTestId('customer-search')
-      .fill('Smith');
+	test('should search customers by full name', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
-  });
+		await page.getByTestId('customer-search').fill('John Smith');
 
-  test('should search customers by full name', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
+	});
 
-    await page
-      .getByTestId('customer-search')
-      .fill('John Smith');
+	test('should perform case-insensitive search', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
-  });
+		await page.getByTestId('customer-search').fill('jOhN sMiTh');
 
-  test('should perform case-insensitive search', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
+	});
 
-    await page
-      .getByTestId('customer-search')
-      .fill('jOhN sMiTh');
+	test('should display empty state when search has no results', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
-  });
+		await page.getByTestId('customer-search').fill('DoesNotExist');
 
-  test('should display empty state when search has no results', async ({
-    page,
-  }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-empty')).toBeVisible();
+	});
 
-    await page
-      .getByTestId('customer-search')
-      .fill('DoesNotExist');
+	test('should display all customers after clearing search', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-empty')
-    ).toBeVisible();
-  });
+		const search = page.getByTestId('customer-search');
 
-  test('should display all customers after clearing search', async ({
-    page,
-  }) => {
-    await page.goto('/customers');
+		await search.fill('John');
 
-    const search = page.getByTestId('customer-search');
+		await search.fill('');
 
-    await search.fill('John');
+		await expect(page.getByTestId('customer-item-customer-1')).toBeVisible();
 
-    await search.fill('');
+		await expect(page.getByTestId('customer-item-customer-2')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-item-customer-1')
-    ).toBeVisible();
+	test('should open the customer options menu', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-item-customer-2')
-    ).toBeVisible();
-  });
+		await page.getByTestId('customer-options').click();
 
-  test('should open the customer options menu', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-import')).toBeVisible();
 
-    await page.getByTestId('customer-options').click();
+		await expect(page.getByTestId('customer-export')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-import')
-    ).toBeVisible();
+	test('should display all customer tabs', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-export')
-    ).toBeVisible();
-  });
+		await expect(page.getByTestId('customer-tab-about')).toBeVisible();
 
-  test('should display all customer tabs', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-tab-notes')).toBeVisible();
 
-    await expect(
-      page.getByTestId('customer-tab-about')
-    ).toBeVisible();
+		await expect(page.getByTestId('customer-tab-appointments')).toBeVisible();
 
-    await expect(
-      page.getByTestId('customer-tab-notes')
-    ).toBeVisible();
+		await expect(page.getByTestId('customer-tab-updates')).toBeVisible();
+	});
 
-    await expect(
-      page.getByTestId('customer-tab-appointments')
-    ).toBeVisible();
+	test('should switch between customer tabs', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-tab-updates')
-    ).toBeVisible();
-  });
+		await page.getByTestId('customer-tab-notes').click();
 
-  test('should switch between customer tabs', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-tab-notes')).toHaveAttribute('data-state', 'active');
 
-    await page.getByTestId('customer-tab-notes').click();
+		await page.getByTestId('customer-tab-appointments').click();
 
-    await expect(
-      page.getByTestId('customer-tab-notes')
-    ).toHaveAttribute('data-state', 'active');
+		await expect(page.getByTestId('customer-tab-appointments')).toHaveAttribute(
+			'data-state',
+			'active'
+		);
 
-    await page.getByTestId('customer-tab-appointments').click();
+		await page.getByTestId('customer-tab-updates').click();
 
-    await expect(
-      page.getByTestId('customer-tab-appointments')
-    ).toHaveAttribute('data-state', 'active');
+		await expect(page.getByTestId('customer-tab-updates')).toHaveAttribute('data-state', 'active');
 
-    await page.getByTestId('customer-tab-updates').click();
+		await page.getByTestId('customer-tab-about').click();
 
-    await expect(
-      page.getByTestId('customer-tab-updates')
-    ).toHaveAttribute('data-state', 'active');
+		await expect(page.getByTestId('customer-tab-about')).toHaveAttribute('data-state', 'active');
+	});
 
-    await page.getByTestId('customer-tab-about').click();
+	test('should open customer actions menu', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-tab-about')
-    ).toHaveAttribute('data-state', 'active');
-  });
+		await page.getByTestId('customer-actions').click();
 
-  test('should open customer actions menu', async ({ page }) => {
-    await page.goto('/customers');
+		await expect(page.getByTestId('customer-delete')).toBeVisible();
+	});
 
-    await page.getByTestId('customer-actions').click();
+	test('should display edit customer action', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-delete')
-    ).toBeVisible();
-  });
+		await expect(page.getByTestId('customer-edit')).toBeVisible();
+	});
 
-  test('should display edit customer action', async ({ page }) => {
-    await page.goto('/customers');
+	test('should display book appointment action', async ({ page }) => {
+		await page.goto('/customers');
 
-    await expect(
-      page.getByTestId('customer-edit')
-    ).toBeVisible();
-  });
+		await expect(page.getByTestId('customer-book-appointment')).toBeVisible();
+	});
 
-  test('should display book appointment action', async ({ page }) => {
-    await page.goto('/customers');
+	test('should handle customer API failure', async ({ page }) => {
+		await page.route('**/customers**', async (route) => {
+			await route.fulfill({
+				status: 500,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					message: 'Internal Server Error'
+				})
+			});
+		});
 
-    await expect(
-      page.getByTestId('customer-book-appointment')
-    ).toBeVisible();
-  });
+		await page.goto('/customers');
 
-  test('should handle customer API failure', async ({ page }) => {
-    await page.route('**/customers**', async (route) => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          message: 'Internal Server Error',
-        }),
-      });
-    });
-
-    await page.goto('/customers');
-
-    // Use your application's actual error test ID here.
-    await expect(
-      page.getByTestId('customer-error')
-    ).toBeVisible();
-  });
+		// Use your application's actual error test ID here.
+		await expect(page.getByTestId('customer-error')).toBeVisible();
+	});
 });

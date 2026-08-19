@@ -105,7 +105,9 @@
 		<!-- Header -->
 		<div class="flex items-center justify-between px-4 py-3">
 			<h2 data-testid="customer-heading" class="text-base font-semibold">Customers</h2>
-			<Button data-testid="customer-add" onclick={() => (addCustomerOpen = true)}><Plus />Add</Button>
+			<Button data-testid="customer-add" onclick={() => (addCustomerOpen = true)}
+				><Plus />Add</Button
+			>
 		</div>
 
 		<!-- Tabs row: All | Options -->
@@ -137,24 +139,36 @@
 		<div class="px-4 py-2">
 			<div class="relative">
 				<Search class="absolute top-2 left-2.5 size-3.5 text-muted-foreground" />
-				<Input bind:value={search} placeholder="Search" class="pl-8" data-testid="customer-search"/>
+				<Input
+					bind:value={search}
+					placeholder="Search"
+					class="pl-8"
+					data-testid="customer-search"
+				/>
 			</div>
 		</div>
 
 		<!-- Customer list -->
 		<div class="flex-1 overflow-y-auto" data-testid="customer-list">
 			{#if customersQuery.isPending}
-				<div class="flex items-center justify-center py-8 text-xs text-muted-foreground" data-testid="customer-loading">
+				<div
+					class="flex items-center justify-center py-8 text-xs text-muted-foreground"
+					data-testid="customer-loading"
+				>
 					Loading...
 				</div>
 			{:else if filteredCustomers.length === 0}
-				<div data-testid="customer-empty" class="flex items-center justify-center py-8 text-xs text-muted-foreground">
+				<div
+					data-testid="customer-empty"
+					class="flex items-center justify-center py-8 text-xs text-muted-foreground"
+				>
 					No customers found
 				</div>
 			{:else}
 				{#each filteredCustomers as customer (customer.id)}
 					<div class="mx-auto w-55">
-						<button data-testid={`customer-item-${customer.id}`}
+						<button
+							data-testid={`customer-item-${customer.id}`}
 							onclick={() => {
 								selectedCustomerId = customer.id;
 								activeTab = 'about';
@@ -181,7 +195,7 @@
 
 	<!-- ── Right panel ─────────────────────────────────────────────────────── -->
 	{#if selectedCustomerId && selectedCustomerQuery.isPending}
-		<div  class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+		<div class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 			Loading...
 		</div>
 	{:else if selectedCustomer}
@@ -231,7 +245,12 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 
-					<Button data-testid="customer-book-appointment" variant="outline" size="sm" class="gap-1.5">
+					<Button
+						data-testid="customer-book-appointment"
+						variant="outline"
+						size="sm"
+						class="gap-1.5"
+					>
 						<CalendarPlus class="size-4" />
 						Book appointment
 					</Button>
@@ -241,10 +260,18 @@
 			<!-- Tabs -->
 			<Tabs.Root bind:value={activeTab} class="flex flex-1 flex-col overflow-hidden">
 				<Tabs.List variant="line" class="h-auto justify-start rounded-none px-6">
-					<Tabs.Trigger data-testid="customer-tab-about" value="about" class="pb-2">About</Tabs.Trigger>
-					<Tabs.Trigger data-testid="customer-tab-notes" value="notes" class="pb-2">Notes</Tabs.Trigger>
-					<Tabs.Trigger data-testid="customer-tab-appointments" value="appointments" class="pb-2">Appointments</Tabs.Trigger>
-					<Tabs.Trigger data-testid="customer-tab-updates" value="updates" class="pb-2">Updates</Tabs.Trigger>
+					<Tabs.Trigger data-testid="customer-tab-about" value="about" class="pb-2"
+						>About</Tabs.Trigger
+					>
+					<Tabs.Trigger data-testid="customer-tab-notes" value="notes" class="pb-2"
+						>Notes</Tabs.Trigger
+					>
+					<Tabs.Trigger data-testid="customer-tab-appointments" value="appointments" class="pb-2"
+						>Appointments</Tabs.Trigger
+					>
+					<Tabs.Trigger data-testid="customer-tab-updates" value="updates" class="pb-2"
+						>Updates</Tabs.Trigger
+					>
 				</Tabs.List>
 
 				<Tabs.Content value="about" class="flex-1 overflow-y-auto px-6 py-4">
