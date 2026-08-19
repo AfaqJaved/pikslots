@@ -74,19 +74,13 @@
 				<Tabs.Trigger value="about" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					About
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="integrations"
-					class="cursor-pointer px-3 pb-2 text-muted-foreground"
-				>
+				<Tabs.Trigger value="integrations" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Integrations
 				</Tabs.Trigger>
 				<Tabs.Trigger value="services" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Services
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="working-hours"
-					class="cursor-pointer px-3 pb-2 text-muted-foreground"
-				>
+				<Tabs.Trigger value="working-hours" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Working hours
 				</Tabs.Trigger>
 				<Tabs.Trigger value="breaks" class="cursor-pointer px-3 pb-2 text-muted-foreground">
