@@ -14,8 +14,20 @@
 	import BreaksTab from './tabs/breaks.svelte';
 	import TimeOffTab from './tabs/timeoff.svelte';
 	import UpdatesTab from './tabs/updates.svelte';
+	import { toast } from 'svelte-sonner';
+	import axios from 'axios';
 
 	const userQuery = createQuery(() => getUserProfileQueryOptions());
+	const query = $derived.by(() => {
+		if (userQuery.isSuccess) {
+			return userQuery.data;
+		} else if (userQuery.isError) {
+			const error = userQuery.error;
+			if (axios.isAxiosError(error)) {
+				toast.error(error.response?.data?.message ?? 'Something went wrong');
+			}
+		}
+	});
 
 	function currentTime(): string {
 		return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -53,56 +65,44 @@
 	</div>
 
 	<!-- Tabs -->
-	<Tabs.Root value="about" class="flex flex-col">
+	<Tabs.Root value="about" class="flex flex-col ">
 		{#if authStore.getPayloadData()?.role !== 'Platform Owner'}
-			<Tabs.List class="h-auto justify-start rounded-none border-b bg-transparent px-6 pb-0">
-				<Tabs.Trigger
-					value="about"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
-				>
+			<Tabs.List
+				variant="line"
+				class="h-auto justify-start rounded-none border-b bg-transparent px-6 pb-0"
+			>
+				<Tabs.Trigger value="about" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					About
 				</Tabs.Trigger>
 				<Tabs.Trigger
 					value="integrations"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+					class="cursor-pointer px-3 pb-2 text-muted-foreground"
 				>
 					Integrations
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="services"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
-				>
+				<Tabs.Trigger value="services" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Services
 				</Tabs.Trigger>
 				<Tabs.Trigger
 					value="working-hours"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+					class="cursor-pointer px-3 pb-2 text-muted-foreground"
 				>
 					Working hours
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="breaks"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
-				>
+				<Tabs.Trigger value="breaks" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Breaks
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="time-off"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
-				>
+				<Tabs.Trigger value="time-off" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Time off
 				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="updates"
-					class="cursor-pointer rounded-none border-b-2 border-transparent px-3 pt-0 pb-2 text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
-				>
+				<Tabs.Trigger value="updates" class="cursor-pointer px-3 pb-2 text-muted-foreground">
 					Updates
 				</Tabs.Trigger>
 			</Tabs.List>
 		{/if}
 
-		<Tabs.Content value="about" class="mt-0">
-			<AboutTab user={userQuery.data} isLoading={userQuery.isLoading} />
+		<Tabs.Content value="about" class="mt-0 ">
+			<AboutTab user={query} isLoading={userQuery.isLoading} />
 		</Tabs.Content>
 
 		<Tabs.Content value="integrations" class="mt-0">
@@ -114,11 +114,11 @@
 		</Tabs.Content>
 
 		<Tabs.Content value="working-hours" class="mt-0">
-			<WorkingHoursTab userWorkingHours={userQuery.data?.userWorkingHours} />
+			<WorkingHoursTab userWorkingHours={query?.userWorkingHours} />
 		</Tabs.Content>
 
 		<Tabs.Content value="breaks" class="mt-0">
-			<BreaksTab userWorkingHours={userQuery.data?.userWorkingHours} />
+			<BreaksTab userWorkingHours={query?.userWorkingHours} />
 		</Tabs.Content>
 
 		<Tabs.Content value="time-off" class="mt-0">

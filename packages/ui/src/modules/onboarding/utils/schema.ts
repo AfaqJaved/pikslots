@@ -13,8 +13,15 @@ export const ownerSchema = z.object({
 		.max(100, 'Password is too long'),
 	first_name: z.string().min(1, 'First name is required').max(50),
 	last_name: z.string().min(1, 'Last name is required').max(50),
-	email: z.string().email('Please enter a valid email address'),
-	phone: z.number().min(11).max(15).optional(),
+	email: z.string().email('Please enter a valid email address	'),
+	phone: z.preprocess(
+		(value) => (value === null || value === '' ? undefined : value),
+		z
+			.number()
+			.refine((value) => value.toString().length >= 10, 'Phone number must be at least 10 digits!')
+			.refine((value) => value.toString().length <= 15, 'Phone number must be at most 15 digits!')
+			.optional()
+	),
 	booking_url: z
 		.string()
 		.min(3, 'Booking URL must be at least 3 characters')

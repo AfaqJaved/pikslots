@@ -16,9 +16,7 @@ export const completeOnboarding = async (
 		ONBOARDING_ENDPOINTS.ONBOARDING_COMPLETE,
 		input
 	);
-	{
-		console.log('whats return', data);
-	}
+
 	return data.data;
 };
 

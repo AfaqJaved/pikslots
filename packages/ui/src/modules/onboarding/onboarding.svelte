@@ -113,11 +113,8 @@
 
 	function handleBusinessNext() {
 		const payload = buildPayload();
-		if (
-			`${payload.platformOwner.name.firstName} ${payload.platformOwner.name.lastName}`.trim() ===
-			`${payload.businessOwner.name.firstName} ${payload.businessOwner.name.lastName}`.trim()
-		) {
-			toast.error('Platform owner and business owner names must be different!');
+		if (payload.platformOwner.username === payload.businessOwner.username) {
+			toast.error('Platform owner and business owner usernames must be different!');
 			return;
 		}
 
@@ -127,9 +124,12 @@
 		}
 
 		completeOnboardingMutation.mutate(payload, {
-			onSuccess: () => {
+			onSuccess: async () => {
 				currentStep = 3;
-				setTimeout(() => goto(resolve('/login')), 3000);
+
+				await new Promise((resolve) => setTimeout(resolve, 3000));
+
+				await goto(resolve('/login'));
 			},
 			onError: (error) => {
 				toast.error(error?.response?.data?.message ?? 'Onboarding failed. Please try again.');
@@ -222,7 +222,7 @@
 				</CardHeader>
 				<CardContent>
 					{#if currentStep === 0}
-						<OwnerStep values={ownerValues} onNext={handleOwnerNext} onBack={handleBack} />
+						<OwnerStep values={ownerValues} onNext={handleOwnerNext} />
 					{:else if currentStep === 1}
 						<BusinessOwnerStep
 							values={businessOwnerValues}

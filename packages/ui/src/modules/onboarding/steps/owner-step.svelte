@@ -7,11 +7,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 
-	let {
-		values,
-		onNext,
-		onBack
-	}: { values: OwnerFormValues; onNext: () => void; onBack: () => void } = $props();
+	let { values, onNext }: { values: OwnerFormValues; onNext: () => void } = $props();
 
 	const form = superForm<OwnerFormValues>(
 		untrack(() => ({ ...values })),
@@ -31,8 +27,6 @@
 	);
 
 	const { form: formData, errors, enhance, submitting } = form;
-
-	const isValid = $derived(PlatformOwnerSchema.safeParse($formData).success);
 </script>
 
 <form method="POST" use:enhance class="flex flex-col gap-6">
@@ -101,7 +95,7 @@
 
 		<Field>
 			<div class="flex items-center justify-end gap-4">
-				<Button type="submit" disabled={!isValid}>
+				<Button type="submit">
 					{$submitting ? 'Saving...' : 'Continue'}
 				</Button>
 			</div>

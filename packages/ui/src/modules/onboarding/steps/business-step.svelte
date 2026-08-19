@@ -47,9 +47,27 @@
 
 	const { form: formData, errors, enhance, submitting } = form;
 
-	const isValid = $derived(businessSchema.safeParse($formData).success);
-
 	let slugEdited = $state(false);
+
+	let timezoneOpen = $state(false);
+	let tzSearch = $state('');
+	let tzSearchInput = $state<HTMLInputElement | null>(null);
+
+	const filteredTimezones = $derived.by(() => {
+		const query = tzSearch.trim().toLowerCase();
+		if (!query) return timezones;
+		return timezones.filter(
+			(tz) => tz.toLowerCase().includes(query) || timezoneLabel(tz).toLowerCase().includes(query)
+		);
+	});
+
+	$effect(() => {
+		if (!timezoneOpen) {
+			tzSearch = '';
+			return;
+		}
+		setTimeout(() => tzSearchInput?.focus(), 1);
+	});
 
 	function slugify(value: string): string {
 		return value
@@ -88,6 +106,7 @@
 				<Input
 					id="slug"
 					name="slug"
+					disabled
 					class="flex-1"
 					bind:value={$formData.slug}
 					oninput={() => (slugEdited = true)}
@@ -118,7 +137,7 @@
 
 		<Field>
 			<FieldLabel for="timezone">Default timezone</FieldLabel>
-			<Select type="single" bind:value={$formData.default_time_zone}>
+			<Select type="single" bind:value={$formData.default_time_zone} bind:open={timezoneOpen}>
 				<SelectTrigger id="timezone">
 					{#if $formData.default_time_zone}
 						{timezoneLabel($formData.default_time_zone)}
@@ -127,11 +146,35 @@
 					{/if}
 				</SelectTrigger>
 				<SelectContent class="max-h-60 overflow-y-auto">
+					<div class="sticky top-0 z-10 border-b border-border bg-popover p-1.5">
+						<Input
+							bind:ref={tzSearchInput}
+							type="text"
+							placeholder="Search timezones..."
+							bind:value={tzSearch}
+							class="h-7"
+							onkeydown={(e) => {
+								if (e.key === 'Escape') return;
+								e.stopPropagation();
+								if (e.key === 'Enter') {
+									e.preventDefault();
+									if (filteredTimezones.length) {
+										$formData.default_time_zone = filteredTimezones[0];
+									}
+									timezoneOpen = false;
+								}
+							}}
+						/>
+					</div>
 					<SelectGroup>
 						<SelectGroupHeading>All timezones</SelectGroupHeading>
-						{#each timezones as tz, i (i)}
-							<SelectItem value={tz}>{timezoneLabel(tz)}</SelectItem>
-						{/each}
+						{#if filteredTimezones.length}
+							{#each filteredTimezones as tz, i (i)}
+								<SelectItem value={tz}>{timezoneLabel(tz)}</SelectItem>
+							{/each}
+						{:else}
+							<div class="px-3 py-2 text-xs text-muted-foreground">No timezones found</div>
+						{/if}
 					</SelectGroup>
 				</SelectContent>
 			</Select>
@@ -141,7 +184,7 @@
 		<Field class="flex-row items-center justify-between">
 			<div class="flex items-center justify-end gap-4">
 				<Button type="button" variant="outline" onclick={onBack}>Back</Button>
-				<Button type="submit" disabled={!isValid}>
+				<Button type="submit">
 					{$submitting || isSubmitting ? 'Saving...' : 'Create'}
 				</Button>
 			</div></Field

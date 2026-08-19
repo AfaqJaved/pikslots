@@ -2,7 +2,7 @@
 
 import { Business, type BusinessIndustry } from '../business';
 import type { FullName } from '../shared';
-import { User, type UserRole } from '../user';
+import { User, type UserRole, type UserStatus } from '../user';
 
 export interface OnboardingProps {
   readonly platformOwner: User;
@@ -20,6 +20,7 @@ export interface CreateUser {
   name: FullName;
   email: string;
   phone?: string;
+  status?: UserStatus;
   role: UserRole;
   bookingUrl: string;
   createdBy: string;

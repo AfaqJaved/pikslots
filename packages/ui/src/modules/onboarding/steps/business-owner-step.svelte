@@ -31,7 +31,6 @@
 	);
 
 	const { form: formData, errors, enhance, submitting } = form;
-	const isValid = $derived(businessOwnerSchema.safeParse($formData).success);
 </script>
 
 <form method="POST" use:enhance class="flex flex-col gap-6">
@@ -111,7 +110,7 @@
 		<Field>
 			<div class="flex items-center justify-end gap-4">
 				<Button type="button" variant="outline" onclick={onBack}>Back</Button>
-				<Button type="submit" disabled={!isValid}>
+				<Button type="submit">
 					{$submitting ? 'Saving...' : 'Continue'}
 				</Button>
 			</div>
