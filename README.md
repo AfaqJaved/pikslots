@@ -4,7 +4,7 @@
 
 **Pikslots** is a multi-tenant SaaS appointment booking and scheduling platform. Businesses (salons, health centers, fitness studios, medical practices, etc.) use it to offer online booking to their customers, manage their team's calendar, and control the full booking experience — from branding to cancellation policies.
 
-The core concept: businesses own "slots" (availability windows) that customers can discover and book, with deep customization over how that process looks and behaves dd.
+The core concept: businesses own "slots" (availability windows) that customers can discover and book, with deep customization over how that process looks and behaves.
 
 ---
 
