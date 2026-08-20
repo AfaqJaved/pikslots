@@ -12,6 +12,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import type { App } from 'supertest/types';
 import { Kysely } from 'kysely';
+import cookieParser from 'cookie-parser';
 
 import { PikslotsAppModule } from '../../src/pikslots.app.module';
 import { PikslotsConfigModule } from '../../src/shared/config/pikslots.config.module';
@@ -60,6 +61,14 @@ export async function createRealInfraTestApp(): Promise<RealInfraTestApp> {
   app.useGlobalPipes(
     new ValidationPipe({ exceptionFactory: validationExceptionFactory }),
   );
+  // Mirrors main.ts's bootstrap() — this test harness builds the app via
+  // Test.createTestingModule() + createNestApplication() directly rather
+  // than going through main.ts, so main.ts's own app.use(cookieParser())
+  // call is never reached here. Without it, req.cookies is always
+  // undefined, and User module endpoints that read a cookie directly
+  // (refreshUserSession's req.cookies?.jid) would 401 unconditionally
+  // regardless of what the client actually sent.
+  app.use(cookieParser());
   await app.init();
 
   return {
