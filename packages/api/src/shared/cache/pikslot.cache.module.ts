@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
 import { Cacheable } from 'cacheable';
 import { createKeyv } from '@keyv/redis';
 import { ConfigService } from '@nestjs/config';
@@ -24,4 +24,14 @@ import { CACHE } from './cache.tokens';
   ],
   exports: [CACHE, OtpService],
 })
-export class PikslotCacheModule {}
+export class PikslotCacheModule implements OnModuleDestroy {
+  constructor(@Inject(CACHE) private readonly cache: Cacheable) {}
+
+  /** The CACHE provider's underlying ioredis connection (via @keyv/redis) has
+   * no Nest lifecycle hook of its own since it's a plain factory value, so
+   * without this the socket stays open past app.close() and Jest hangs on
+   * an open handle in e2e runs. */
+  async onModuleDestroy(): Promise<void> {
+    await this.cache.disconnect();
+  }
+}
