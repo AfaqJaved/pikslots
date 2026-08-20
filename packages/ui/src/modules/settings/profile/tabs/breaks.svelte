@@ -21,7 +21,7 @@
 	const businessId = authStore.getPayloadData()?.businessId ?? '';
 	const queryClient = useQueryClient();
 
-	const breaksQuery = createQuery(() => getBreaksByUserQueryOptions(userId));
+	const breaksQuery = createQuery(() => getBreaksByUserQueryOptions(userId, businessId));
 	const createMut = createMutation(() => createBreakMutationOptions());
 	const updateMut = createMutation(() => updateBreakMutationOptions());
 	const deleteMut = createMutation(() => deleteBreakMutationOptions());

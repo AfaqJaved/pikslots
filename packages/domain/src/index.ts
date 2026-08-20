@@ -13,3 +13,4 @@ export * from './timeoff/';
 export * from './booking/';
 export * from './break/';
 export * from './public-booking-page';
+export * from './onboarding';

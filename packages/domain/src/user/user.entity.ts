@@ -44,6 +44,7 @@ export interface CreateUserInput {
   name: FullName;
   email: string;
   phone?: string;
+  status?: UserStatus;
   role: UserRole;
   bookingUrl: string;
   createdBy: string;
@@ -73,7 +74,7 @@ export class User {
       email: input.email,
       phone: input.phone ?? null,
       role: input.role,
-      status: 'invited',
+      status: input.status ?? 'invited',
       bookingUrl: input.bookingUrl,
       avatarUrl: null,
       emailVerified: false,
