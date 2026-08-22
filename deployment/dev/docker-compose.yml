@@ -27,7 +27,7 @@ services:
 
       # container-network hostnames - always the compose service names,
       # not user-configurable via .env
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pikslots
+      DATABASE_URL: ${DATABASE_URL}
 
       REDIS_HOST: redis_pikslots_dev
       REDIS_PORT: 6379
