@@ -124,9 +124,7 @@ test.describe('Add customer dialog - uncommon / unexpected input', () => {
 		await expect(page.getByTestId('add-customer-first-name-error')).not.toBeVisible();
 	});
 
-	test('markup-like text in first name is stored as plain text, not executed', async ({
-		page
-	}) => {
+	test('markup-like text in first name is stored as plain text, not executed', async ({ page }) => {
 		await openAddCustomerDialog(page);
 
 		const payload = '<img src=x onerror=alert(1)>';
@@ -141,20 +139,17 @@ test.describe('Add customer dialog - uncommon / unexpected input', () => {
 });
 
 test.describe('Add customer dialog - once phone validation exists (target behavior)', () => {
-	test.fixme(
-		'rejects letters typed into the phone field with a toast',
-		async ({ page }) => {
-			await openAddCustomerDialog(page);
+	test.fixme('rejects letters typed into the phone field with a toast', async ({ page }) => {
+		await openAddCustomerDialog(page);
 
-			await page.getByTestId('add-customer-first-name').fill('Jane');
-			await page.getByTestId('add-customer-phone').fill('abcdefg');
-			await page.getByTestId('add-customer-save').click();
+		await page.getByTestId('add-customer-first-name').fill('Jane');
+		await page.getByTestId('add-customer-phone').fill('abcdefg');
+		await page.getByTestId('add-customer-save').click();
 
-			const toast = page.locator('[data-sonner-toast]');
-			await expect(toast).toBeVisible();
-			await expect(toast).toContainText('phone');
-		}
-	);
+		const toast = page.locator('[data-sonner-toast]');
+		await expect(toast).toBeVisible();
+		await expect(toast).toContainText('phone');
+	});
 });
 
 test.describe('Add customer dialog - submission', () => {
