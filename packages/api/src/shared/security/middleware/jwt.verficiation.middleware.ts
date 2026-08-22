@@ -17,6 +17,8 @@ const PUBLIC_ROUTES: string[] = [
   '/users/free-slots/*', // get free slots for the user
   '/users/available-dates/*', // get available dates
   '/public-booking-page/*/booking-details',
+  '/onboarding/complete',
+  '/onboarding/status',
 ];
 
 function isPublicRoute(originalUrl: string): boolean {

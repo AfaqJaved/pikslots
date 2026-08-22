@@ -12,6 +12,7 @@ import {
 import {
   createTestS3Client,
   deleteS3Object,
+  destroyTestS3Client,
 } from '../../common/s3-test-client';
 
 export interface BookingTestContext {
@@ -115,6 +116,12 @@ export function setupBookingTestContext(): BookingTestContext {
         // best-effort cleanup
       }
     }
+
+    // S3Client keeps an internal keep-alive HTTP agent open until this is
+    // called explicitly — otherwise it's exactly the kind of leaked handle
+    // behind Jest's "did not exit one second after the test run has
+    // completed" warning. See the note on destroyTestS3Client.
+    destroyTestS3Client({ client: ctx.s3Client, bucket: ctx.s3Bucket });
 
     await closeRealInfraTestApp({ app: ctx.app, db: ctx.db });
   });

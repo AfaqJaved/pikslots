@@ -329,7 +329,7 @@
 				<Skeleton class="min-h-40 rounded-lg" />
 			{:else if galleryUrls.length > 0}
 				<div class="grid grid-cols-5 gap-2 rounded-lg border p-2">
-					{#each galleryUrls as url (url)}
+					{#each galleryUrls as url, i (i)}
 						<div class="group relative aspect-square overflow-hidden rounded-md">
 							<img src={url} alt="Gallery" class="h-full w-full object-cover" />
 

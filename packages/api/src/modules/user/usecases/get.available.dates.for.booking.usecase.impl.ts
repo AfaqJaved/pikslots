@@ -14,6 +14,7 @@ import type {
 } from '@pikslots/domain';
 import {
   createDatesWithinShedulingWindow,
+  formatIsoInTimezone,
   getWeekDay,
 } from '@pikslots/datetime';
 
@@ -92,27 +93,33 @@ export class GetAvailableDatesForBookingUseCaseImpl implements GetAvailableDates
     const allDayBlock = new Set<string>();
 
     for (const timeoff of timeoffsResult.value) {
-      const start = new Date(timeoff.startDateTime);
-      const end = new Date(timeoff.endDateTime);
+      const timeoffStartDate = `${timeoff.startDateTime.slice(0, 10)}T00:00:00.000Z`;
+      const timeoffEndDate = `${timeoff.endDateTime.slice(0, 10)}T00:00:00.000Z`;
 
-      const current = new Date(
-        Date.UTC(
-          start.getUTCFullYear(),
-          start.getUTCMonth(),
-          start.getUTCDate(),
-        ),
+      const timezoneCurrentDate = formatIsoInTimezone(
+        timeoffStartDate,
+        command.businessTimezone,
+        'yyyy-MM-dd',
       );
 
-      const endUTC = new Date(
-        Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()),
+      const timezoneEndDate = formatIsoInTimezone(
+        timeoffEndDate,
+        command.businessTimezone,
+        'yyyy-MM-dd',
       );
 
-      while (current < endUTC) {
+      const current = new Date(timezoneCurrentDate);
+      const end = new Date(timezoneEndDate);
+
+      if (timeoff.allDay) {
+        allDayBlock.add(current.toISOString().slice(0, 10));
+      }
+
+      while (current < end) {
         allDayBlock.add(current.toISOString().slice(0, 10));
         current.setUTCDate(current.getUTCDate() + 1);
       }
     }
-
     const dates: string[] = [];
 
     //   check: user working hours is not off on that day
