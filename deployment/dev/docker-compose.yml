@@ -107,6 +107,8 @@ services:
   redis_pikslots_dev:
     image: redis:8.0.6 # Pulls the most recent stable version
     container_name: redis_pikslots_dev
+    networks:
+      - nginx
     # ports:
     # - '6379:6379' # Map host port 6379 to container port 6379
     volumes:
