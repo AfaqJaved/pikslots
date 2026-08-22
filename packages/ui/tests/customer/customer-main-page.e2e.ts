@@ -1,8 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { USER } from '../common/user-data';
+import { loginAs } from '../common/login';
 
 test.describe('Customer Page - Main Page', () => {
+	test.beforeEach(async ({ page }) => {
+		await loginAs(page, USER.BUSINESS_OWNER);
+	});
+
 	test('customer page should have proper heading', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		const heading = page.getByTestId('customer-heading');
 
@@ -17,7 +23,7 @@ test.describe('Customer Page - Main Page', () => {
 	//       await route.continue();
 	//     });
 
-	//     await page.goto('/customers');
+	//     await page.goto('/home/customers');
 
 	//     await expect(page.getByTestId('customer-loading')).toBeVisible();
 	//   });
@@ -31,13 +37,13 @@ test.describe('Customer Page - Main Page', () => {
 			});
 		});
 
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-empty')).toBeVisible();
 	});
 
 	test('should display customers', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-list')).toBeVisible();
 
@@ -45,7 +51,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should automatically select the first customer', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-item-customer-1')).toHaveAttribute(
 			'data-selected',
@@ -56,7 +62,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should select another customer', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-item-customer-2').click();
 
@@ -69,7 +75,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should reset to About tab when selecting another customer', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-tab-notes').click();
 
@@ -79,7 +85,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should search customers by first name', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-search').fill('John');
 
@@ -89,7 +95,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should search customers by last name', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-search').fill('Smith');
 
@@ -97,7 +103,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should search customers by full name', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-search').fill('John Smith');
 
@@ -105,7 +111,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should perform case-insensitive search', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-search').fill('jOhN sMiTh');
 
@@ -113,7 +119,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should display empty state when search has no results', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-search').fill('DoesNotExist');
 
@@ -121,7 +127,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should display all customers after clearing search', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		const search = page.getByTestId('customer-search');
 
@@ -135,7 +141,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should open the customer options menu', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-options').click();
 
@@ -145,7 +151,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should display all customer tabs', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-tab-about')).toBeVisible();
 
@@ -157,7 +163,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should switch between customer tabs', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-tab-notes').click();
 
@@ -180,7 +186,7 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should open customer actions menu', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await page.getByTestId('customer-actions').click();
 
@@ -188,13 +194,13 @@ test.describe('Customer Page - Main Page', () => {
 	});
 
 	test('should display edit customer action', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-edit')).toBeVisible();
 	});
 
 	test('should display book appointment action', async ({ page }) => {
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		await expect(page.getByTestId('customer-book-appointment')).toBeVisible();
 	});
@@ -210,7 +216,7 @@ test.describe('Customer Page - Main Page', () => {
 			});
 		});
 
-		await page.goto('/customers');
+		await page.goto('/home/customers');
 
 		// Use your application's actual error test ID here.
 		await expect(page.getByTestId('customer-error')).toBeVisible();
