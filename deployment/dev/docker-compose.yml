@@ -96,7 +96,7 @@ services:
     networks:
       - nginx
     volumes:
-      - mailpit_data:/data
+      - mailpit_pikslots_dev_data:/data
     ports:
       - 8025:8025
       - 1025:1025
@@ -112,7 +112,7 @@ services:
     ports:
       - '6379:6379' # Map host port 6379 to container port 6379
     volumes:
-      - redis_data:/data # Persist data even if container is removed
+      - redis_pikslots_dev_data:/data # Persist data even if container is removed
     command: redis-server --requirepass password --save 60 1
     restart: unless-stopped
 
@@ -121,3 +121,7 @@ networks:
     external: true
   shared_postgres:
     external: true
+
+volumes:
+  mailpit_pikslots_dev_data:
+  redis_pikslots_dev_data:
