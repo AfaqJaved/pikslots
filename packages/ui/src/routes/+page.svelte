@@ -1,23 +1,21 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { browser } from '$app/environment';
 	import PublicBookingPage from '../modules/public-booking/public-booking-page.svelte';
-	import { getBusinessSlugFromHost, isAppHost } from '$utils/tenant-host';
 
-	const host = browser ? window.location.host : '';
-	const slug = browser ? getBusinessSlugFromHost(host) : null;
+	let { data } = $props();
 
 	$effect(() => {
-		if (browser && isAppHost(host)) {
+		if (browser && data.isAppHost) {
 			goto(resolve('/home'));
 		}
 	});
 </script>
 
-{#if slug}
-	<PublicBookingPage {slug} />
-{:else if browser && !isAppHost(host)}
+{#if data.businessSlug}
+	<PublicBookingPage slug={data.businessSlug} />
+{:else if !data.isAppHost}
 	<div class="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
 		No business found at this address.
 	</div>
