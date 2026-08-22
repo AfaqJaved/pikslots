@@ -1,0 +1,24 @@
+node_modules
+**/node_modules
+.git
+
+# build output (regenerated inside the image)
+**/dist
+**/build
+**/coverage
+**/test-results
+**/playwright-report
+
+.nx
+.vscode
+.idea
+*.log
+
+# secrets - injected at runtime via docker-compose, never baked into the image
+.env
+.env.*
+!.env.example
+
+deployment
+notes
+docs
