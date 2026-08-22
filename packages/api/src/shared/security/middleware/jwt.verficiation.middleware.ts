@@ -19,6 +19,7 @@ const PUBLIC_ROUTES: string[] = [
   '/public-booking-page/*/booking-details',
   '/onboarding/complete',
   '/onboarding/status',
+  '/health',
 ];
 
 function isPublicRoute(originalUrl: string): boolean {
