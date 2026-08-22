@@ -17,6 +17,11 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import FileText from '@tabler/icons-svelte/icons/file-text';
+	import Card from '$lib/components/ui/card/card.svelte';
+	import CardHeader from '$lib/components/ui/card/card-header.svelte';
+	import CardTitle from '$lib/components/ui/card/card-title.svelte';
+	import CardContent from '$lib/components/ui/card/card-content.svelte';
+	import { ShieldAlert, LoaderCircle } from '@lucide/svelte';
 
 	let { slug }: { slug: string } = $props();
 
@@ -143,7 +148,34 @@
 	}
 </script>
 
-{#if business !== undefined}
+{#if bookingPageDetailsQuery.isPending}
+	<div class="flex min-h-screen items-center justify-center">
+		<LoaderCircle class="h-8 w-8 animate-spin text-muted-foreground" />
+	</div>
+{:else if bookingPageDetailsQuery.isError}
+	<div class="flex min-h-screen items-center justify-center px-4">
+		<Card class="w-full max-w-md rounded-2xl border-slate-200/60 shadow-xl">
+			<CardHeader class="text-center">
+				<CardTitle class="text-2xl">404 - Page Not Found</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div class="space-y-4 py-6 text-center">
+					<div
+						class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10"
+					>
+						<ShieldAlert class="h-8 w-8 text-destructive" />
+					</div>
+					<div>
+						<h3 class="text-xl font-semibold">Oops</h3>
+						<p class="mt-1 text-sm text-muted-foreground">
+							Page is not found. Please try again or ensure the URL is correct! '
+						</p>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
+	</div>
+{:else if business}
 	<BookingPageWrapper {business}>
 		{#if view === 'browse'}
 			<PublicNav {activeTab} {tabs} onSelect={handleNavSelect} />
