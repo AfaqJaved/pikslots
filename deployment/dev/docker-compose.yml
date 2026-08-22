@@ -65,10 +65,8 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - postgres
-      - redis
-      - mailpit
-      - rustfs
+      - redis_pikslots_dev
+      - mailpit_pikslots_dev
 
   pikslots_dev_ui:
     build:
