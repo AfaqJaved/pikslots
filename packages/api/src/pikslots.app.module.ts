@@ -22,6 +22,7 @@ import { BreakModule } from './modules/break/break.module';
 import { PikslotS3Module } from './shared/s3/s3.module';
 import { PublicBookingPage } from './modules/public-booking-page/public.booking.page.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { HealtController } from './health.controller';
 
 @Module({
   imports: [
@@ -50,7 +51,7 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
     PublicBookingPage,
     OnboardingModule,
   ],
-  controllers: [],
+  controllers: [HealtController],
   providers: [],
 })
 export class PikslotsAppModule implements NestModule {

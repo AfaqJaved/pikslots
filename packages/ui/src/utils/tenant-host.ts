@@ -16,8 +16,9 @@ export function isAppHost(host: string): boolean {
 
 /**
  * Extracts the tenant business slug from a hostname, e.g. 'afaq.pikslots.com' -> 'afaq'.
- * Returns null for the bare root domain, the app subdomain, or anything with more than
- * one subdomain label (no nested tenant subdomains).
+ * Supports any number of nested subdomain levels (e.g. 'test.test.fast.com' -> 'test'),
+ * always taking the leftmost label as the slug. Returns null for the bare root domain
+ * or the app subdomain.
  */
 export function getBusinessSlugFromHost(host: string): string | null {
 	const hostname = stripPort(host);
@@ -27,7 +28,10 @@ export function getBusinessSlugFromHost(host: string): string | null {
 	if (hostname === root || !hostname.endsWith(suffix)) return null;
 
 	const subdomain = hostname.slice(0, -suffix.length);
-	if (!subdomain || subdomain.includes('.') || subdomain === APP_SUBDOMAIN) return null;
+	if (!subdomain) return null;
 
-	return subdomain;
+	const slug = subdomain.split('.')[0];
+	if (!slug || slug === APP_SUBDOMAIN) return null;
+
+	return slug;
 }

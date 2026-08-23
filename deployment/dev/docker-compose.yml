@@ -1,0 +1,127 @@
+# Dev deployment stack: builds the api and ui images from source and wires
+# them up to the same infra used in local dev (postgres/redis/mailpit/rustfs).
+#
+# Usage (from this directory):
+#   docker compose --env-file ../../.env -f docker-compose.yml up -d --build
+
+# include:
+#   - ../../docker/postgres.yml
+#   - ../../docker/redis.yml
+#   - ../../docker/mailpit.yml
+#   - ../../docker/rustfs.yml
+
+services:
+  pikslots_api_dev:
+    build:
+      context: ../..
+      dockerfile: packages/api/Dockerfile
+    image: pikslots-api:dev
+    container_name: pikslots_api
+    restart: unless-stopped
+    networks:
+      - nginx
+      - shared_postgres
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+
+      # container-network hostnames - always the compose service names,
+      # not user-configurable via .env
+      DATABASE_URL: ${DATABASE_URL}
+
+      REDIS_HOST: redis_pikslots_dev
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-1d}
+
+      INVITE_JWT_SECRET: ${INVITE_JWT_SECRET}
+      INVITE_JWT_EXPIRES_IN: ${INVITE_JWT_EXPIRES_IN:-5m}
+
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL:-http://localhost:3000}
+      FRONTEND_PUBLIC_URL: ${FRONTEND_PUBLIC_URL:-http://localhost:8080}
+
+      ENABLE_API_DOCS: ${ENABLE_API_DOCS:-true}
+
+      # mailpit
+      MAIL_HOST: mailpit_pikslots_dev
+      MAIL_PORT: 1025
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_FROM: ${MAIL_FROM}
+
+      # will be connected with mino
+      S3_HOST: ${S3_HOST}
+      S3_ENABLED: ${S3_ENABLED:-true}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-admin}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-admin}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-pikslots}
+      S3_FORCED_PATH_STYLE: ${S3_FORCED_PATH_STYLE:-true}
+    # ports:
+    # - '3000:3000'
+    depends_on:
+      - redis_pikslots_dev
+      - mailpit_pikslots_dev
+
+  pikslots_dev_ui:
+    build:
+      context: ../..
+      dockerfile: packages/ui/Dockerfile
+      args:
+        # baked into the static bundle at build time - must be reachable
+        # from the browser, not from inside the compose network
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+        VITE_APP_ROOT_DOMAIN: ${VITE_APP_ROOT_DOMAIN:-localhost}
+    image: pikslots-ui:dev
+    container_name: pikslots_ui
+    networks:
+      - nginx
+    restart: unless-stopped
+    # ports:
+    # - '8080:80'
+    depends_on:
+      - pikslots_api_dev
+
+  mailpit_pikslots_dev:
+    image: axllent/mailpit
+    container_name: mailpit_pikslots_dev
+    restart: unless-stopped
+    networks:
+      - nginx
+    volumes:
+      - mailpit_pikslots_dev_data:/data
+    # ports:
+    # - 8025:8025
+    # - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  redis_pikslots_dev:
+    image: redis:8.0.6 # Pulls the most recent stable version
+    container_name: redis_pikslots_dev
+    networks:
+      - nginx
+    # ports:
+    # - '6379:6379' # Map host port 6379 to container port 6379
+    volumes:
+      - redis_pikslots_dev_data:/data # Persist data even if container is removed
+    command: redis-server --requirepass password --save 60 1
+    restart: unless-stopped
+
+networks:
+  nginx:
+    external: true
+  shared_postgres:
+    external: true
+
+volumes:
+  mailpit_pikslots_dev_data:
+  redis_pikslots_dev_data:

@@ -1,5 +1,10 @@
 import type { InfrastructureError, UnauthorizedError, Result } from '../../shared';
-import type { UserInactiveError, UserNoAccessError, UserSuspendedError } from '../errors';
+import type {
+  UserInactiveError,
+  UserInvitedError,
+  UserNoAccessError,
+  UserSuspendedError,
+} from '../errors';
 
 export interface LoginUserCommand {
   usernameOrEmail: string;
@@ -18,6 +23,7 @@ export interface LoginUserUseCase {
       | UserSuspendedError
       | UserInactiveError
       | UserNoAccessError
+      | UserInvitedError
       | InfrastructureError
     >
   >;
