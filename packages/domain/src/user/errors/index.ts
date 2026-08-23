@@ -26,6 +26,12 @@ export type UserInactiveError = ErrorShape & {
   status: 'inactive';
 };
 
+// User is invited hence please login via invite link sent to your email
+export type UserInvitedError = ErrorShape & {
+  kind: 'user_invited';
+  status: 'invited';
+};
+
 /**
  * The inviter does not have permission to assign the requested role.
  *
