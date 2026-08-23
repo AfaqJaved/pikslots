@@ -12,6 +12,7 @@ import type {
   UnauthorizedError,
   User,
   UserInactiveError,
+  UserInvitedError,
   UserNoAccessError,
   UserRepository,
   UserSuspendedError,
@@ -25,7 +26,9 @@ type LoginError =
   | InfrastructureError
   | UserSuspendedError
   | UserInactiveError
+  | UserInvitedError
   | UserNoAccessError;
+
 type LoginResult = Result<
   { accessToken: string; refreshToken: string },
   LoginError
@@ -58,6 +61,13 @@ const USER_NO_ACCESS = (): UserNoAccessError => ({
   timestamp: new Date(),
 });
 
+const USER_INVITED_ERROR = (): UserInvitedError => ({
+  kind: 'user_invited',
+  status: 'invited',
+  timestamp: new Date(),
+  message: 'You are invited. Please check the email and login from there',
+});
+
 @Injectable()
 export class LoginUserUseCaseImpl implements LoginUserUseCase {
   constructor(
@@ -78,6 +88,7 @@ export class LoginUserUseCaseImpl implements LoginUserUseCase {
     if (!passwordMatches) return err(ACCESS_DENIED());
     if (user.value.role === 'No Access') return err(USER_NO_ACCESS());
     if (user.value.status === 'inactive') return err(USER_INACTIVE());
+    if (user.value.status === 'invited') return err(USER_INVITED_ERROR());
     if (user.value.status === 'suspended' && user.value.suspendedReason)
       return err(USER_SUSPENDED(user.value.suspendedReason));
 

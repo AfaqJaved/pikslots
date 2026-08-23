@@ -33,7 +33,7 @@ describe('LoginUserUseCaseImpl', () => {
     (hash.compare as jest.Mock).mockResolvedValue(true);
 
     const result = await useCase.execute({
-      usernameOrEmail: 'admin_user',
+      usernameOrEmail: 'admin_user_2',
       password: 'pw',
     });
 
@@ -75,6 +75,7 @@ describe('LoginUserUseCaseImpl', () => {
       expect(result.error.message).toBeDefined();
     }
   });
+
   it('returns user_inactive when user is inactive', async () => {
     (hash.compare as jest.Mock).mockResolvedValue(true);
 
@@ -102,6 +103,21 @@ describe('LoginUserUseCaseImpl', () => {
 
     if (!result.ok) {
       expect(result.error.kind).toBe('user_suspended');
+    }
+  });
+
+  it('returns user_invited_error when user is invited', async () => {
+    (hash.compare as jest.Mock).mockResolvedValue(true);
+
+    const result = await useCase.execute({
+      usernameOrEmail: 'invited_user',
+      password: 'pw',
+    });
+
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('user_invited');
     }
   });
 });
