@@ -10,10 +10,6 @@
 	const appHost = $derived(isAppHost(host));
 
 	$effect(() => {
-		console.log(appHost);
-		console.log(host);
-		console.log(businessSlug);
-
 		if (browser && appHost) {
 			goto(resolve('/home'));
 		}
