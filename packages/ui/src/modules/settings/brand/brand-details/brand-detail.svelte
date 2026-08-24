@@ -258,7 +258,13 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button class="cursor-pointer" size="sm" onclick={handleSave} disabled={!isDirty || isSaving} data-testid="save-btn">
+		<Button
+			class="cursor-pointer"
+			size="sm"
+			onclick={handleSave}
+			disabled={!isDirty || isSaving}
+			data-testid="save-btn"
+		>
 			{updateMutation.isPending ? 'Saving...' : 'Save'}
 		</Button>
 	</div>
@@ -381,7 +387,12 @@
 				{#if business === null}
 					<Skeleton class="h-9 w-full rounded-md" />
 				{:else}
-					<Input id="business-name" bind:value={businessName} placeholder="Your business name" data-testid="business-name" />
+					<Input
+						id="business-name"
+						bind:value={businessName}
+						placeholder="Your business name"
+						data-testid="business-name"
+					/>
 				{/if}
 			</div>
 
