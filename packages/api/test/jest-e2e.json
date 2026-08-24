@@ -20,5 +20,17 @@
   "transformIgnorePatterns": ["node_modules/(?!.*(kysely|uuid))"],
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/../src/$1"
-  }
+  },
+  "reporters": [
+    "default",
+    [
+      "jest-html-reporters",
+      {
+        "publicPath": "./test-report/e2e",
+        "filename": "index.html",
+        "pageTitle": "API E2E Test Report",
+        "openReport": false
+      }
+    ]
+  ]
 }
