@@ -258,7 +258,7 @@
 				<span>35% complete</span>
 			</div>
 		</div>
-		<Button class="cursor-pointer" size="sm" onclick={handleSave} disabled={!isDirty || isSaving}>
+		<Button class="cursor-pointer" size="sm" onclick={handleSave} disabled={!isDirty || isSaving} data-testid="save-btn">
 			{updateMutation.isPending ? 'Saving...' : 'Save'}
 		</Button>
 	</div>
@@ -292,6 +292,7 @@
 					accept=".jpg,.jpeg,.png"
 					class="hidden"
 					onchange={handleBannerUpload}
+					data-testid="banner-upload"
 				/>
 			{:else if business?.brandDetail.bannerImageUrl}
 				<Button
@@ -312,6 +313,7 @@
 					accept=".jpg,.jpeg,.png"
 					class="hidden"
 					onchange={handleBannerUpload}
+					data-testid="banner-upload"
 				/>
 			{:else if business === null}
 				<Skeleton class="h-40 w-full rounded-lg" />
@@ -326,6 +328,7 @@
 						accept=".jpg,.jpeg,.png"
 						class="hidden"
 						onchange={handleBannerUpload}
+						data-testid="banner-upload"
 					/>
 					<Button variant="outline" size="sm" onclick={() => bannerInput?.click()}>
 						<Upload size={14} />
@@ -363,6 +366,7 @@
 						accept=".jpg,.jpeg,.png"
 						class="hidden"
 						onchange={handleLogoUpload}
+						data-testid="logo-upload"
 					/>
 					<Button variant="outline" size="sm" class="mt-1 w-fit" onclick={() => logoInput.click()}>
 						<Upload size={14} />
@@ -377,7 +381,7 @@
 				{#if business === null}
 					<Skeleton class="h-9 w-full rounded-md" />
 				{:else}
-					<Input id="business-name" bind:value={businessName} placeholder="Your business name" />
+					<Input id="business-name" bind:value={businessName} placeholder="Your business name" data-testid="business-name" />
 				{/if}
 			</div>
 
@@ -393,6 +397,7 @@
 							bind:value={bookingUrl}
 							placeholder="your-slug"
 							class="rounded-r-none"
+							data-testid="booking-url"
 						/>
 						<div
 							class="flex items-center rounded-r-md border border-l-0 border-input bg-muted px-3 text-xs text-muted-foreground"
@@ -410,7 +415,7 @@
 					<Skeleton class="h-9 w-full rounded-md" />
 				{:else}
 					<Select.Root type="single" bind:value={selectedIndustry}>
-						<Select.Trigger class="w-full">
+						<Select.Trigger class="w-full" data-testid="industry-select">
 							{INDUSTRIES.find((i) => i.value === selectedIndustry)?.label ?? 'Select an industry'}
 						</Select.Trigger>
 						<Select.Content>
@@ -434,6 +439,7 @@
 						placeholder="Tell the world about your brand"
 						rows={4}
 						class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+						data-testid="about"
 					></textarea>
 				{/if}
 			</div>
