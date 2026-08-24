@@ -30,6 +30,7 @@ export class LoginPage {
 		await this.fillEmail(email);
 		await this.fillPassword(password);
 		await this.loginBtn.click();
+		await expect(this.page).toHaveURL(/\/home/);
 	}
 
 	async expectLoginButtonEnabled() {
