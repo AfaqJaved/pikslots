@@ -323,7 +323,7 @@
 									selectedGroupId = null;
 									rightPanelView = 'services';
 								}}
-								class="text-sm font-medium">Services ({filteredServices.length ?? 0})</button
+								class="text-sm font-medium" data-testid="services-count">Services ({filteredServices.length ?? 0})</button
 							>
 							<button
 								type="button"
@@ -385,7 +385,7 @@
 								type="button"
 								onclick={() => (newGroupDialogOpen = true)}
 								class="flex w-full items-center gap-1.5 px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground"
-							>
+								data-testid="add-service-group-btn">
 								<Plus size={13} />
 								New service group
 							</button>
@@ -492,6 +492,7 @@
 					<DropdownMenu.Content align="end" class="w-36">
 						<DropdownMenu.Item
 							class="cursor-pointer gap-2"
+							data-testid="add-service-btn"
 							onclick={() => goto(resolve('/home/services/new'))}
 						>
 							<IconBriefcase size={15} class="text-muted-foreground" />
@@ -641,6 +642,7 @@
 							<div
 								role="button"
 								tabindex="0"
+								data-testid="service-row"
 								onclick={() =>
 									goto(resolve('/home/services/[serviceId]/edit', { serviceId: service.id }))}
 								onkeydown={(e) => {

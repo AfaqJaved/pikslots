@@ -240,7 +240,7 @@
 			</button>
 			<span class="text-base font-semibold">New service</span>
 		</div>
-		<Button type="submit" size="sm" disabled={!canCreate || isSaving}>
+		<Button type="submit" size="sm" disabled={!canCreate || isSaving} data-testid="create-service-btn">
 			{registerMutation.isPending ? 'Creating...' : 'Create'}
 		</Button>
 	</div>
