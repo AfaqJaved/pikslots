@@ -318,7 +318,12 @@
 				</button>
 				<span class="text-base font-semibold">Edit service</span>
 			</div>
-			<Button type="submit" size="sm" disabled={!canSave || isSaving} data-testid="save-service-btn">
+			<Button
+				type="submit"
+				size="sm"
+				disabled={!canSave || isSaving}
+				data-testid="save-service-btn"
+			>
 				{updateMutation.isPending ? 'Saving...' : 'Save'}
 			</Button>
 		</div>

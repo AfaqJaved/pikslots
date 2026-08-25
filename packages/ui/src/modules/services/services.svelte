@@ -323,7 +323,8 @@
 									selectedGroupId = null;
 									rightPanelView = 'services';
 								}}
-								class="text-sm font-medium" data-testid="services-count">Services ({filteredServices.length ?? 0})</button
+								class="text-sm font-medium"
+								data-testid="services-count">Services ({filteredServices.length ?? 0})</button
 							>
 							<button
 								type="button"
@@ -385,7 +386,8 @@
 								type="button"
 								onclick={() => (newGroupDialogOpen = true)}
 								class="flex w-full items-center gap-1.5 px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground"
-								data-testid="add-service-group-btn">
+								data-testid="add-service-group-btn"
+							>
 								<Plus size={13} />
 								New service group
 							</button>

@@ -1,6 +1,6 @@
 import { test } from '../services/support/services-fixture';
 // import { USER } from '../../../common/user-data';
-import { USER } from '../common/user-data'
+import { USER } from '../common/user-data';
 import { expect } from '@playwright/test';
 
 test.beforeEach(async ({ loginPage, servicesPage }) => {
