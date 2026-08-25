@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { USER } from '../common/user-data';
-import { loginAs } from '../common/login';
+import { createCustomerAndOpenDetail } from '../common/customer-fixture';
 
 test.describe('Delete customer', () => {
 	test('opening the actions menu and clicking delete shows a confirmation dialog', async ({
 		page
 	}) => {
-		await loginAs(page, USER.BUSINESS_OWNER);
-		await page.goto('/home/customers');
+		await createCustomerAndOpenDetail(page);
 
 		await page.getByTestId('customer-actions').click();
 		await page.getByTestId('customer-delete').click();
@@ -18,8 +16,7 @@ test.describe('Delete customer', () => {
 	});
 
 	test('Cancel on the confirm dialog does not delete the customer', async ({ page }) => {
-		await loginAs(page, USER.BUSINESS_OWNER);
-		await page.goto('/home/customers');
+		await createCustomerAndOpenDetail(page);
 
 		let deleteCalled = false;
 		await page.route('**/customers/**', async (route) => {
@@ -36,8 +33,7 @@ test.describe('Delete customer', () => {
 	});
 
 	test('confirming delete removes the customer and shows a success toast', async ({ page }) => {
-		await loginAs(page, USER.BUSINESS_OWNER);
-		await page.goto('/home/customers');
+		await createCustomerAndOpenDetail(page);
 
 		await page.route('**/customers/**', async (route) => {
 			if (route.request().method() !== 'DELETE') return route.continue();
@@ -54,8 +50,7 @@ test.describe('Delete customer', () => {
 	});
 
 	test('shows an error toast when the delete request fails', async ({ page }) => {
-		await loginAs(page, USER.BUSINESS_OWNER);
-		await page.goto('/home/customers');
+		await createCustomerAndOpenDetail(page);
 
 		await page.route('**/customers/**', async (route) => {
 			if (route.request().method() !== 'DELETE') return route.continue();
