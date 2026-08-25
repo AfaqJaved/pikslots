@@ -42,10 +42,22 @@
 			<Dialog.Description class="text-xs text-muted-foreground">{description}</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer class="flex justify-end gap-2">
-			<Button variant="outline" size="sm" onclick={handleCancel} disabled={loading}>
+			<Button
+				data-testid="confirm-dialog-cancel"
+				variant="outline"
+				size="sm"
+				onclick={handleCancel}
+				disabled={loading}
+			>
 				{cancelLabel}
 			</Button>
-			<Button variant="destructive" size="sm" onclick={onConfirm} disabled={loading}>
+			<Button
+				data-testid="confirm-dialog-confirm"
+				variant="destructive"
+				size="sm"
+				onclick={onConfirm}
+				disabled={loading}
+			>
 				{loading ? 'Deleting...' : confirmLabel}
 			</Button>
 		</Dialog.Footer>

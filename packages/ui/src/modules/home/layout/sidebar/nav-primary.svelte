@@ -22,7 +22,12 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton isActive={isActive(item.url)}>
 					{#snippet child({ props })}
-						<a {...props} href={item.url} onclick={() => settingsStore.close()}>
+						<a
+							{...props}
+							href={item.url}
+							data-testid={`nav-item-${item.name.toLowerCase()}`}
+							onclick={() => settingsStore.close()}
+						>
 							<item.icon />
 							<span>{item.name}</span>
 						</a>

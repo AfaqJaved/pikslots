@@ -201,7 +201,6 @@
 		UpdateCustomerProfileImageMutationOptions()
 	);
 
-	// svelte-ignore state_referenced_locally -- seed value; re-synced by the effect below on customer change
 	const { form, errors, enhance } = superForm(buildFormValues(customer), {
 		validators: zod(AddCustomerSchema),
 		SPA: true,
@@ -430,13 +429,27 @@
 						<div class="grid grid-cols-2 gap-4">
 							<Field>
 								<FieldLabel>First name</FieldLabel>
-								<Input bind:value={$form.firstName} placeholder="Enter first name" />
-								<FieldError errors={$errors.firstName?.map((e) => ({ message: e }))} />
+								<Input
+									data-testid="edit-customer-first-name"
+									bind:value={$form.firstName}
+									placeholder="Enter first name"
+								/>
+								<FieldError
+									data-testid="edit-customer-first-name-error"
+									errors={$errors.firstName?.map((e) => ({ message: e }))}
+								/>
 							</Field>
 							<Field>
 								<FieldLabel>Last name</FieldLabel>
-								<Input bind:value={$form.lastName} placeholder="Enter last name" />
-								<FieldError errors={$errors.lastName?.map((e) => ({ message: e }))} />
+								<Input
+									data-testid="edit-customer-last-name"
+									bind:value={$form.lastName}
+									placeholder="Enter last name"
+								/>
+								<FieldError
+									data-testid="edit-customer-last-name-error"
+									errors={$errors.lastName?.map((e) => ({ message: e }))}
+								/>
 							</Field>
 						</div>
 
@@ -446,6 +459,7 @@
 							<InputGroup.Root>
 								<Select.Root type="single" bind:value={$form.countryCode}>
 									<Select.Trigger
+										data-testid="edit-customer-country-code"
 										class="w-20 shrink-0 rounded-none border-0 border-r shadow-none focus:ring-0"
 									>
 										{$form.countryCode}
@@ -456,23 +470,45 @@
 										{/each}
 									</Select.Content>
 								</Select.Root>
-								<InputGroup.Input bind:value={$form.phone} placeholder="Enter phone number" />
+								<InputGroup.Input
+									data-testid="edit-customer-phone"
+									bind:value={$form.phone}
+									placeholder="Enter phone number"
+								/>
 							</InputGroup.Root>
-							<FieldError errors={$errors.phone?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="edit-customer-phone-error"
+								errors={$errors.phone?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<!-- Primary email -->
 						<Field>
 							<FieldLabel>Primary email</FieldLabel>
-							<Input bind:value={$form.email} type="email" placeholder="Enter email address" />
-							<FieldError errors={$errors.email?.map((e) => ({ message: e }))} />
+							<Input
+								data-testid="edit-customer-email"
+								bind:value={$form.email}
+								type="email"
+								placeholder="Enter email address"
+							/>
+							<FieldError
+								data-testid="edit-customer-email-error"
+								errors={$errors.email?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<!-- Company -->
 						<Field>
 							<FieldLabel>Company</FieldLabel>
-							<Input bind:value={$form.company} placeholder="Enter company name" />
-							<FieldError errors={$errors.company?.map((e) => ({ message: e }))} />
+							<Input
+								data-testid="edit-customer-company"
+								bind:value={$form.company}
+								placeholder="Enter company name"
+							/>
+							<FieldError
+								data-testid="edit-customer-company-error"
+								errors={$errors.company?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 					</FieldGroup>
 
@@ -486,7 +522,7 @@
 						<Field>
 							<FieldLabel>Country</FieldLabel>
 							<Select.Root type="single" bind:value={$form.country}>
-								<Select.Trigger class="w-full">
+								<Select.Trigger data-testid="edit-customer-country" class="w-full">
 									{$form.country || 'Select country'}
 								</Select.Trigger>
 								<Select.Content class="max-h-60">
@@ -495,37 +531,65 @@
 									{/each}
 								</Select.Content>
 							</Select.Root>
-							<FieldError errors={$errors.country?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="edit-customer-country-error"
+								errors={$errors.country?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<!-- Address -->
 						<Field>
 							<FieldLabel>Address</FieldLabel>
 							<Input
+								data-testid="edit-customer-address"
 								bind:value={$form.address}
 								placeholder="Enter street name, apt, suite, floor"
 							/>
-							<FieldError errors={$errors.address?.map((e) => ({ message: e }))} />
+							<FieldError
+								data-testid="edit-customer-address-error"
+								errors={$errors.address?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<!-- City -->
 						<Field>
 							<FieldLabel>City</FieldLabel>
-							<Input bind:value={$form.city} placeholder="Enter city" />
-							<FieldError errors={$errors.city?.map((e) => ({ message: e }))} />
+							<Input
+								data-testid="edit-customer-city"
+								bind:value={$form.city}
+								placeholder="Enter city"
+							/>
+							<FieldError
+								data-testid="edit-customer-city-error"
+								errors={$errors.city?.map((e) => ({ message: e }))}
+							/>
 						</Field>
 
 						<!-- State + Zip -->
 						<div class="grid grid-cols-2 gap-4">
 							<Field>
 								<FieldLabel>State</FieldLabel>
-								<Input bind:value={$form.state} placeholder="Select state" />
-								<FieldError errors={$errors.state?.map((e) => ({ message: e }))} />
+								<Input
+									data-testid="edit-customer-state"
+									bind:value={$form.state}
+									placeholder="Select state"
+								/>
+								<FieldError
+									data-testid="edit-customer-state-error"
+									errors={$errors.state?.map((e) => ({ message: e }))}
+								/>
 							</Field>
 							<Field>
 								<FieldLabel>Zip code</FieldLabel>
-								<Input bind:value={$form.zipCode} placeholder="Enter code" />
-								<FieldError errors={$errors.zipCode?.map((e) => ({ message: e }))} />
+								<Input
+									data-testid="edit-customer-zip"
+									bind:value={$form.zipCode}
+									placeholder="Enter code"
+								/>
+								<FieldError
+									data-testid="edit-customer-zip-code-error"
+									errors={$errors.zipCode?.map((e) => ({ message: e }))}
+								/>
 							</Field>
 						</div>
 					</FieldGroup>
@@ -537,55 +601,90 @@
 							{#if extraFields.has('phone')}
 								<Field>
 									<FieldLabel>Additional phone</FieldLabel>
-									<Input bind:value={$form.additionalPhone} placeholder="Enter phone number" />
-									<FieldError errors={$errors.additionalPhone?.map((e) => ({ message: e }))} />
+									<Input
+										data-testid="edit-customer-additional-phone"
+										bind:value={$form.additionalPhone}
+										placeholder="Enter phone number"
+									/>
+									<FieldError
+										data-testid="edit-customer-additional-phone-error"
+										errors={$errors.additionalPhone?.map((e) => ({ message: e }))}
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('email')}
 								<Field>
 									<FieldLabel>Additional email</FieldLabel>
 									<Input
+										data-testid="edit-customer-additional-email"
 										bind:value={$form.additionalEmail}
 										type="email"
 										placeholder="Enter email address"
 									/>
-									<FieldError errors={$errors.additionalEmail?.map((e) => ({ message: e }))} />
+									<FieldError
+										data-testid="edit-customer-additional-email-error"
+										errors={$errors.additionalEmail?.map((e) => ({ message: e }))}
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('website')}
 								<Field>
 									<FieldLabel>Website</FieldLabel>
-									<Input bind:value={$form.website} placeholder="https://example.com" />
+									<Input
+										data-testid="edit-customer-website"
+										bind:value={$form.website}
+										placeholder="https://example.com"
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('instagram')}
 								<Field>
 									<FieldLabel>Instagram</FieldLabel>
-									<Input bind:value={$form.instagram} placeholder="@username" />
+									<Input
+										data-testid="edit-customer-instagram"
+										bind:value={$form.instagram}
+										placeholder="@username"
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('facebook')}
 								<Field>
 									<FieldLabel>Facebook</FieldLabel>
-									<Input bind:value={$form.facebook} placeholder="Profile URL or username" />
+									<Input
+										data-testid="edit-customer-facebook"
+										bind:value={$form.facebook}
+										placeholder="Profile URL or username"
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('x')}
 								<Field>
 									<FieldLabel>X</FieldLabel>
-									<Input bind:value={$form.x} placeholder="@username" />
+									<Input
+										data-testid="edit-customer-x"
+										bind:value={$form.x}
+										placeholder="@username"
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('youtube')}
 								<Field>
 									<FieldLabel>YouTube</FieldLabel>
-									<Input bind:value={$form.youtube} placeholder="Channel URL" />
+									<Input
+										data-testid="edit-customer-youtube"
+										bind:value={$form.youtube}
+										placeholder="Channel URL"
+									/>
 								</Field>
 							{/if}
 							{#if extraFields.has('linkedin')}
 								<Field>
 									<FieldLabel>LinkedIn</FieldLabel>
-									<Input bind:value={$form.linkedin} placeholder="Profile URL or username" />
+									<Input
+										data-testid="edit-customer-linkedin"
+										bind:value={$form.linkedin}
+										placeholder="Profile URL or username"
+									/>
 								</Field>
 							{/if}
 						</FieldGroup>
@@ -596,7 +695,7 @@
 				<Separator />
 				<div class="flex items-center px-6 py-3">
 					<DropdownMenu.Root>
-						<DropdownMenu.Trigger>
+						<DropdownMenu.Trigger data-testid="edit-customer-add-field">
 							{#snippet child({ props })}
 								<Button
 									variant="ghost"
@@ -614,6 +713,7 @@
 							{#each ADD_ITEMS as item (item.key)}
 								{#if !extraFields.has(item.key)}
 									<DropdownMenu.Item
+										data-testid={`edit-customer-add-field-${item.key}`}
 										class="cursor-pointer gap-2"
 										onclick={() => addField(item.key)}
 									>
@@ -626,10 +726,16 @@
 					</DropdownMenu.Root>
 
 					<div class="ml-auto flex items-center gap-2">
-						<Button variant="ghost" size="sm" type="button" onclick={() => (open = false)}>
+						<Button
+							data-testid="edit-customer-cancel"
+							variant="ghost"
+							size="sm"
+							type="button"
+							onclick={() => (open = false)}
+						>
 							Cancel
 						</Button>
-						<Button si ze="sm" type="submit" disabled={isSaving}>
+						<Button data-testid="edit-customer-save" si ze="sm" type="submit" disabled={isSaving}>
 							{isSaving ? 'Saving...' : 'Save'}
 						</Button>
 					</div>
