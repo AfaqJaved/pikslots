@@ -20,5 +20,5 @@
 {#if businessSlug}
 	<PublicBookingPage slug={businessSlug} />
 {:else if browser && !appHost}
-<Login/>
+	<Login />
 {/if}

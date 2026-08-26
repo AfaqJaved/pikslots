@@ -165,8 +165,12 @@
 		}).format(new Date(iso));
 	}
 
-	const startTimeOptions = $derived(freeSlots.map((s) => ({ iso: s.startTime, label: formatSlotTime(s.startTime) })));
-	const endTimeOptions = $derived(freeSlots.map((s) => ({ iso: s.endTime, label: formatSlotTime(s.endTime) })));
+	const startTimeOptions = $derived(
+		freeSlots.map((s) => ({ iso: s.startTime, label: formatSlotTime(s.startTime) }))
+	);
+	const endTimeOptions = $derived(
+		freeSlots.map((s) => ({ iso: s.endTime, label: formatSlotTime(s.endTime) }))
+	);
 
 	function onStartChange(value: string) {
 		const slot = freeSlots.find((s) => s.startTime === value);
@@ -333,60 +337,57 @@
 						</Field>
 
 						{#if selectedService}
-						{#if freeSlotsQuery.isPending && !!selectedService}
-							<p class="text-xs text-muted-foreground">Loading available times...</p>
-						{:else if freeSlots.length === 0}
-							<p class="text-xs text-muted-foreground">No available times for this date</p>
-						{:else}
-							<div class="grid grid-cols-2 gap-3">
-								<Field>
-									<FieldLabel>Start Time <span class="text-destructive">*</span></FieldLabel>
-									<Select.Root
-										type="single"
-										value={$form.startTime}
-										onValueChange={onStartChange}
-									>
-										<Select.Trigger class="w-full">
-											{startTimeOptions.find((o) => o.iso === $form.startTime)?.label ?? 'Select start'}
-										</Select.Trigger>
-										<Select.Content>
-											{#each startTimeOptions as opt (opt.iso)}
-												<Select.Item value={opt.iso}>{opt.label}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								</Field>
-								<Field>
-									<FieldLabel>End Time <span class="text-destructive">*</span></FieldLabel>
-									<Select.Root
-										type="single"
-										value={$form.endTime}
-										onValueChange={onEndChange}
-									>
-										<Select.Trigger class="w-full">
-											{endTimeOptions.find((o) => o.iso === $form.endTime)?.label ?? 'Select end'}
-										</Select.Trigger>
-										<Select.Content>
-											{#each endTimeOptions as opt (opt.iso)}
-												<Select.Item value={opt.iso}>{opt.label}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								</Field>
+							{#if freeSlotsQuery.isPending && !!selectedService}
+								<p class="text-xs text-muted-foreground">Loading available times...</p>
+							{:else if freeSlots.length === 0}
+								<p class="text-xs text-muted-foreground">No available times for this date</p>
+							{:else}
+								<div class="grid grid-cols-2 gap-3">
+									<Field>
+										<FieldLabel>Start Time <span class="text-destructive">*</span></FieldLabel>
+										<Select.Root
+											type="single"
+											value={$form.startTime}
+											onValueChange={onStartChange}
+										>
+											<Select.Trigger class="w-full">
+												{startTimeOptions.find((o) => o.iso === $form.startTime)?.label ??
+													'Select start'}
+											</Select.Trigger>
+											<Select.Content>
+												{#each startTimeOptions as opt (opt.iso)}
+													<Select.Item value={opt.iso}>{opt.label}</Select.Item>
+												{/each}
+											</Select.Content>
+										</Select.Root>
+									</Field>
+									<Field>
+										<FieldLabel>End Time <span class="text-destructive">*</span></FieldLabel>
+										<Select.Root type="single" value={$form.endTime} onValueChange={onEndChange}>
+											<Select.Trigger class="w-full">
+												{endTimeOptions.find((o) => o.iso === $form.endTime)?.label ?? 'Select end'}
+											</Select.Trigger>
+											<Select.Content>
+												{#each endTimeOptions as opt (opt.iso)}
+													<Select.Item value={opt.iso}>{opt.label}</Select.Item>
+												{/each}
+											</Select.Content>
+										</Select.Root>
+									</Field>
+								</div>
+							{/if}
+						{/if}
+
+						{#if selectedService}
+							<div class="rounded-md bg-muted p-3 text-sm">
+								<p class="pb-2 font-medium">{selectedService.title}</p>
+								<p class="text-muted-foreground">
+									Duration: {formatDuration(selectedService.durationInMins)} mins
+									<br /> Cost: {formatCost(selectedService.cost / 100, businessCurrency || '$')}
+								</p>
 							</div>
 						{/if}
-					{/if}
-
-					{#if selectedService}
-						<div class="rounded-md bg-muted p-3 text-sm">
-							<p class="pb-2 font-medium">{selectedService.title}</p>
-							<p class="text-muted-foreground">
-								Duration: {formatDuration(selectedService.durationInMins)} mins
-								<br /> Cost: {formatCost(selectedService.cost / 100, businessCurrency || '$')}
-							</p>
-						</div>
-					{/if}
-				</FieldGroup>
+					</FieldGroup>
 				</Tabs.Content>
 
 				<!-- ── Classes Tab ─────────────────────────────────────────────── -->

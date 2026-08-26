@@ -1,8 +1,5 @@
 import { BOOKING_ENDPOINTS } from '@pikslots/shared';
-import type {
-	BaseErrorResponse,
-	DeleteBookingResponse
-} from '@pikslots/shared';
+import type { BaseErrorResponse, DeleteBookingResponse } from '@pikslots/shared';
 import { apiClient } from '$lib/http/axios.js';
 import { mutationOptions } from '@tanstack/svelte-query';
 import type { AxiosError } from 'axios';
