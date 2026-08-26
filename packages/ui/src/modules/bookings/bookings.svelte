@@ -3,14 +3,25 @@
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	import timeGridPlugin from '@fullcalendar/timegrid';
 	import listPlugin from '@fullcalendar/list';
+	import interactionPlugin from '@fullcalendar/interaction';
 	import Plus from '@tabler/icons-svelte/icons/plus';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
+	import { getBookingsByBusinessForUserQueryOptions } from '../api/booking/get.bookings.by.business.for.user.query';
 	import { businessStore } from '$stores/business.svelte';
 	import { authStore } from '$stores/auth.svelte';
 	import ViewBookingDialog from './dialogs/view.booking.svelte';
+	import CreateBookingDialog from './dialogs/create.booking.svelte';
 	import type { BookingEvent } from './dialogs/view.booking.svelte';
+	import type { BookingItemResponse } from '@pikslots/shared';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { type DateValue, parseDate } from '@internationalized/date';
+	import { SvelteDate } from 'svelte/reactivity';
+	import { untrack } from 'svelte';
 
 	// ── State ───────────────────────────────────────────────────────────────────
 
@@ -19,7 +30,7 @@
 
 	const jwtPayload = $derived(authStore.getPayloadData());
 
-	// ── Queries ──────────────────────────────────────────────────────────────────
+	// ── user Query ──────────────────────────────────────────────────────────────────
 
 	const usersQuery = createQuery(() => ({
 		...getUsersInsideBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
@@ -30,105 +41,267 @@
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
 	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
 
+	// ── Bookings Query ───────────────────────────────────────────────────────────
+
+	const bookingsQuery = createQuery(() => ({
+		...getBookingsByBusinessForUserQueryOptions(
+			businessStore.selectedBusiness?.id ?? '',
+			jwtPayload?.userId ?? ''
+		),
+		enabled: !!businessStore.selectedBusiness?.id && !!jwtPayload?.userId
+	}));
+
+	// ── Events transformation ────────────────────────────────────────────────────
+	$effect(() => {
+		console.log('why', bookingsQuery.data);
+	});
+	const bookingEvents = $derived(
+		(bookingsQuery.data ?? []).map((booking: BookingItemResponse) => {
+			const start = new Date(booking.bookingStartTime);
+			const end = new Date(booking.bookingEndTime);
+			const durationMins = (end.getTime() - start.getTime()) / (1000 * 60);
+			return {
+				id: booking.id,
+				title: booking.serviceSnapshot.title,
+				start,
+				end,
+				color: '#0d9488',
+				extendedProps: {
+					isSlot: false,
+					durationMins,
+					host: currentUser
+						? `${currentUser.name.firstName} ${currentUser.name.lastName}`
+						: 'Unknown',
+					guests: [{ name: 'Customer' }],
+					bookingId: booking.bookingId,
+					source: 'Booked from Web App'
+				}
+			};
+		})
+	);
+
 	// ── Dialog state ─────────────────────────────────────────────────────────────
 
 	let dialogOpen = $state(false);
 	let selectedBooking = $state<BookingEvent | null>(null);
+	let createDialogOpen = $state(false);
+	let initialBookingDate = $state<DateValue | undefined>(undefined);
+	let initialBookingStartTime = $state<string | undefined>(undefined);
+	let initialSlot = $state<{ startTime: string; endTime: string } | undefined>(undefined);
 
-	// ── Test events ──────────────────────────────────────────────────────────────
+	// ── Visible date range ──────────────────────────────────────────────────────
 
-	const now = new Date();
-	const testEvents = [
-		{
-			id: '1',
-			title: '15 Minutes Meeting',
-			start: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0),
-			end: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 15),
-			color: '#0d9488',
-			extendedProps: {
-				durationMins: 15,
-				host: 'Afaq Javed',
-				guests: [{ name: 'Guest', deleted: true }],
-				bookingId: 'ECRMWYEE',
-				source: 'Booked from Web App'
+	let visibleStart = $state<Date>(new Date());
+	let visibleEnd = $state<Date>(new Date());
+
+	const WEEKDAYS = [
+		'sunday',
+		'monday',
+		'tuesday',
+		'wednesday',
+		'thursday',
+		'friday',
+		'saturday'
+	] as const;
+
+	const businessHours = $derived(businessStore.selectedBusiness?.businessHours);
+
+	function getDayHours(
+		date: Date
+	): { enabled: boolean; openTime: string; closeTime: string } | null {
+		if (!businessHours) return null;
+		const weekday = WEEKDAYS[date.getDay()];
+		const day = businessHours[weekday];
+		if (!day?.enabled) return null;
+		return day;
+	}
+
+	function generateSlotsForDay(date: Date): Array<{ start: Date; end: Date }> {
+		const hours = getDayHours(date);
+		if (!hours) return [];
+
+		const [openH, openM] = hours.openTime.split(':').map(Number);
+		const [closeH, closeM] = hours.closeTime.split(':').map(Number);
+
+		const slots: Array<{ start: Date; end: Date }> = [];
+		const cursor = new SvelteDate(date);
+		cursor.setHours(openH, openM, 0, 0);
+
+		const dayEnd = new SvelteDate(date);
+		dayEnd.setHours(closeH, closeM, 0, 0);
+
+		while (cursor < dayEnd) {
+			const slotEnd = new Date(cursor.getTime() + 15 * 60 * 1000);
+			if (slotEnd <= dayEnd) {
+				slots.push({ start: new Date(cursor), end: new Date(slotEnd) });
 			}
-		},
-		{
-			id: '2',
-			title: 'Strategy Call',
-			start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 14, 0),
-			end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 15, 0),
-			color: '#6366f1',
-			extendedProps: {
-				durationMins: 60,
-				host: 'Afaq Javed',
-				guests: [{ name: 'Sarah Connor' }, { name: 'John Doe' }],
-				bookingId: 'STRGY001',
-				source: 'Booked from Web App'
-			}
-		},
-		{
-			id: '3',
-			title: 'Onboarding Session',
-			start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 9, 30),
-			end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 10, 0),
-			color: '#f59e0b',
-			extendedProps: {
-				durationMins: 30,
-				host: 'Afaq Javed',
-				guests: [{ name: 'Alex Smith' }],
-				bookingId: 'ONBRD002',
-				source: 'Booked from Web App'
-			}
+			cursor.setMinutes(cursor.getMinutes() + 15);
 		}
-	];
+		return slots;
+	}
+
+	function getVisibleDates(start: Date, end: Date): Date[] {
+		const dates: SvelteDate[] = [];
+		const cur = new SvelteDate(start);
+		cur.setHours(0, 0, 0, 0);
+		while (cur < end) {
+			dates.push(new SvelteDate(cur));
+			cur.setDate(cur.getDate() + 1);
+		}
+		return dates;
+	}
+
+	const visibleDates = $derived(getVisibleDates(visibleStart, visibleEnd));
+
+	function overlapsBooking(slotStart: Date, slotEnd: Date): boolean {
+		return bookingEvents.some((b) => {
+			const bStart = b.start as Date;
+			const bEnd = b.end as Date;
+			return slotStart < bEnd && slotEnd > bStart;
+		});
+	}
+
+	const slotBackgroundEvents = $derived(
+		visibleDates.flatMap((date) => {
+			const dateKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+			return generateSlotsForDay(date)
+				.filter(({ start, end }) => !overlapsBooking(start, end))
+				.map(({ start, end }) => ({
+					id: `slot-${dateKey}-${start.getHours()}-${start.getMinutes()}`,
+					start,
+					end,
+					display: 'background' as const,
+					backgroundColor: 'oklch(0.92 0.05 16 / 0.35)',
+					borderColor: 'transparent',
+					extendedProps: {
+						isSlot: true,
+						slotStartTime: start.toISOString(),
+						slotEndTime: end.toISOString()
+					}
+				}));
+		})
+	);
+
+	const allEvents = $derived([...bookingEvents, ...slotBackgroundEvents]);
 
 	// ── Calendar ─────────────────────────────────────────────────────────────────
 
 	$effect(() => {
-		calendarEl = document.getElementById('calendar');
+		untrack(() => {
+			calendarEl = document.getElementById('calendar');
 
-		fullCalendar = new Calendar(calendarEl!, {
-			plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
-			initialView: 'dayGridMonth',
-			headerToolbar: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'dayGridMonth,timeGridWeek,listWeek'
-			},
-			buttonText: {
-				today: 'Today',
-				month: 'Month',
-				week: 'Week',
-				list: 'List'
-			},
-			noEventsText: 'No bookings for this period',
-			events: testEvents,
-			eventClick: (info) => {
-				const p = info.event.extendedProps;
-				selectedBooking = {
-					id: info.event.id,
-					title: info.event.title,
-					start: info.event.start!,
-					end: info.event.end!,
-					durationMins: p.durationMins,
-					host: p.host,
-					guests: p.guests,
-					bookingId: p.bookingId,
-					source: p.source,
-					color: info.event.backgroundColor
-				};
-				dialogOpen = true;
-			},
-			height: '100%',
-			expandRows: true,
-			handleWindowResize: true
+			fullCalendar = new Calendar(calendarEl!, {
+				plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+				initialView: 'dayGridMonth',
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'dayGridMonth,timeGridWeek,listWeek'
+				},
+				buttonText: {
+					today: 'Today',
+					month: 'Month',
+					week: 'Week',
+					list: 'List'
+				},
+				noEventsText: 'No bookings for this period',
+				events: allEvents,
+				datesSet: (info) => {
+					visibleStart = info.start;
+					visibleEnd = info.end;
+				},
+				eventDidMount: (info) => {
+					const p = info.event.extendedProps;
+					if (p.isSlot) {
+						const start = info.event.start!;
+						const end = info.event.end!;
+						const timeFmt = (d: Date) =>
+							d.toLocaleTimeString('en-US', {
+								hour: 'numeric',
+								minute: '2-digit',
+								hour12: true
+							});
+						info.el.title = `${timeFmt(start)} - ${timeFmt(end)}`;
+						info.el.classList.add('fc-slot-event');
+					}
+				},
+				dateClick: (info) => {
+					const clicked = info.date;
+					const y = clicked.getFullYear();
+					const m = (clicked.getMonth() + 1).toString().padStart(2, '0');
+					const d = clicked.getDate().toString().padStart(2, '0');
+					initialBookingDate = parseDate(`${y}-${m}-${d}`);
+					initialBookingStartTime = undefined;
+					initialSlot = undefined;
+					createDialogOpen = true;
+				},
+
+				eventClick: (info) => {
+					const p = info.event.extendedProps;
+
+					if (p.isSlot) {
+						const slotStart = new Date(p.slotStartTime);
+						const slotEnd = new Date(p.slotEndTime);
+						const y = slotStart.getFullYear();
+						const m = (slotStart.getMonth() + 1).toString().padStart(2, '0');
+						const d = slotStart.getDate().toString().padStart(2, '0');
+						initialBookingDate = parseDate(`${y}-${m}-${d}`);
+						initialSlot = {
+							startTime: p.slotStartTime,
+							endTime: p.slotEndTime
+						};
+						initialBookingStartTime = undefined;
+						createDialogOpen = true;
+						return;
+					}
+
+					selectedBooking = {
+						id: info.event.id,
+						title: info.event.title,
+						start: info.event.start!,
+						end: info.event.end!,
+						durationMins: p.durationMins,
+						host: p.host,
+						guests: p.guests,
+						bookingId: p.bookingId,
+						source: p.source,
+						color: info.event.backgroundColor
+					};
+					dialogOpen = true;
+				},
+				height: '100%',
+				expandRows: true,
+				handleWindowResize: true
+			});
+			fullCalendar.render();
 		});
-		fullCalendar.render();
+	});
+
+	// Update calendar events when they change
+	$effect(() => {
+		if (fullCalendar) {
+			fullCalendar.setOption('events', allEvents);
+		}
+	});
+
+	$effect(() => {
+		if ($page.url.searchParams.get('create') === 'true') {
+			initialBookingDate = undefined;
+			initialBookingStartTime = undefined;
+			initialSlot = undefined;
+			createDialogOpen = true;
+			goto(resolve('/home/bookings'), { replaceState: true, keepFocus: true });
+		}
 	});
 </script>
 
 <ViewBookingDialog bind:open={dialogOpen} booking={selectedBooking} />
+<CreateBookingDialog
+	bind:open={createDialogOpen}
+	{initialBookingDate}
+	{initialBookingStartTime}
+	{initialSlot}
+/>
 
 <div class="flex h-full min-h-0 flex-1">
 	<!-- ── Left: sidebar ──────────────────────────────────────────────────── -->
@@ -200,6 +373,20 @@
 
 	<!-- ── Right: calendar ───────────────────────────────────────────────── -->
 	<div class="flex flex-1 flex-col overflow-hidden">
+		<div class="mb-4 flex items-center justify-end px-4 pt-3">
+			<Button
+				size="sm"
+				onclick={() => {
+					initialBookingDate = undefined;
+					initialBookingStartTime = undefined;
+					initialSlot = undefined;
+					createDialogOpen = true;
+				}}
+			>
+				<Plus size={16} />
+				New Booking
+			</Button>
+		</div>
 		<div id="calendar" class="calendar-wrapper"></div>
 	</div>
 </div>
@@ -354,5 +541,25 @@
 	:global(.calendar-wrapper .fc-button-primary:not(:disabled).fc-button-active:focus) {
 		box-shadow: none !important;
 		outline: none !important;
+	}
+
+	/* ── Free slot background events ── */
+	:global(.calendar-wrapper .fc-slot-event) {
+		background-color: oklch(0.92 0.05 16 / 0.35) !important;
+		border: none !important;
+		cursor: pointer;
+		transition: background-color 0.15s ease;
+	}
+
+	:global(.calendar-wrapper .fc-slot-event:hover) {
+		background-color: oklch(0.85 0.12 16 / 0.5) !important;
+	}
+
+	:global(.dark .calendar-wrapper .fc-slot-event) {
+		background-color: oklch(0.3 0.05 16 / 0.35) !important;
+	}
+
+	:global(.dark .calendar-wrapper .fc-slot-event:hover) {
+		background-color: oklch(0.35 0.1 16 / 0.5) !important;
 	}
 </style>
