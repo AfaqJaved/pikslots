@@ -7,8 +7,9 @@
 	import Plus from '@tabler/icons-svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { getUsersInsideBusinessQueryOptions } from '../api/user/get.users.inside.business.query';
+	import { getCustomersByBusinessQueryOptions } from '../api/customer/get.customers.by.business.query';
 	import { getBookingsByBusinessForUserQueryOptions } from '../api/booking/get.bookings.by.business.for.user.query';
 	import { businessStore } from '$stores/business.svelte';
 	import { authStore } from '$stores/auth.svelte';
@@ -20,8 +21,8 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { type DateValue, parseDate } from '@internationalized/date';
-	import { SvelteDate } from 'svelte/reactivity';
 	import { untrack } from 'svelte';
+	import { formatIsoInTimezone } from '@pikslots/datetime';
 
 	// ── State ───────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@
 	let fullCalendar: Calendar | null = null;
 
 	const jwtPayload = $derived(authStore.getPayloadData());
+	const queryClient = useQueryClient();
 
 	// ── user Query ──────────────────────────────────────────────────────────────────
 
@@ -41,25 +43,45 @@
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
 	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
 
+	// ── Selected calendar owner ─────────────────────────────────────────────────
+
+	let selectedUserId = $state<string>('');
+	const effectiveUserId = $derived(selectedUserId || jwtPayload?.userId || '');
+	const selectedUser = $derived(users.find((u) => u.id === effectiveUserId));
+	const businessTimezone = $derived(
+		businessStore.selectedBusiness?.locationDetails.timeZone ||
+			Intl.DateTimeFormat().resolvedOptions().timeZone
+	);
+
 	// ── Bookings Query ───────────────────────────────────────────────────────────
 
 	const bookingsQuery = createQuery(() => ({
 		...getBookingsByBusinessForUserQueryOptions(
 			businessStore.selectedBusiness?.id ?? '',
-			jwtPayload?.userId ?? ''
+			effectiveUserId
 		),
-		enabled: !!businessStore.selectedBusiness?.id && !!jwtPayload?.userId
+		enabled: !!businessStore.selectedBusiness?.id && !!effectiveUserId
 	}));
 
+	// ── Customers Query  ──────────────────────────────
+
+	const hasBookings = $derived((bookingsQuery.data?.length ?? 0) > 0);
+
+	const customersQuery = createQuery(() => ({
+		...getCustomersByBusinessQueryOptions(businessStore.selectedBusiness?.id ?? ''),
+		enabled: !!businessStore.selectedBusiness?.id && hasBookings
+	}));
+
+	const customers = $derived(customersQuery.data ?? []);
+
 	// ── Events transformation ────────────────────────────────────────────────────
-	$effect(() => {
-		console.log('why', bookingsQuery.data);
-	});
+
 	const bookingEvents = $derived(
 		(bookingsQuery.data ?? []).map((booking: BookingItemResponse) => {
 			const start = new Date(booking.bookingStartTime);
 			const end = new Date(booking.bookingEndTime);
 			const durationMins = (end.getTime() - start.getTime()) / (1000 * 60);
+			const customer = customers.find((c) => c.id === booking.customerId);
 			return {
 				id: booking.id,
 				title: booking.serviceSnapshot.title,
@@ -67,12 +89,13 @@
 				end,
 				color: '#0d9488',
 				extendedProps: {
-					isSlot: false,
 					durationMins,
-					host: currentUser
-						? `${currentUser.name.firstName} ${currentUser.name.lastName}`
+					host: selectedUser
+						? `${selectedUser.name.firstName} ${selectedUser.name.lastName}`
 						: 'Unknown',
-					guests: [{ name: 'Customer' }],
+					guests: customer
+						? [{ name: `${customer.firstName} ${customer.lastName}` }]
+						: [{ name: 'Customer' }],
 					bookingId: booking.bookingId,
 					source: 'Booked from Web App'
 				}
@@ -89,100 +112,7 @@
 	let initialBookingStartTime = $state<string | undefined>(undefined);
 	let initialSlot = $state<{ startTime: string; endTime: string } | undefined>(undefined);
 
-	// ── Visible date range ──────────────────────────────────────────────────────
-
-	let visibleStart = $state<Date>(new Date());
-	let visibleEnd = $state<Date>(new Date());
-
-	const WEEKDAYS = [
-		'sunday',
-		'monday',
-		'tuesday',
-		'wednesday',
-		'thursday',
-		'friday',
-		'saturday'
-	] as const;
-
-	const businessHours = $derived(businessStore.selectedBusiness?.businessHours);
-
-	function getDayHours(
-		date: Date
-	): { enabled: boolean; openTime: string; closeTime: string } | null {
-		if (!businessHours) return null;
-		const weekday = WEEKDAYS[date.getDay()];
-		const day = businessHours[weekday];
-		if (!day?.enabled) return null;
-		return day;
-	}
-
-	function generateSlotsForDay(date: Date): Array<{ start: Date; end: Date }> {
-		const hours = getDayHours(date);
-		if (!hours) return [];
-
-		const [openH, openM] = hours.openTime.split(':').map(Number);
-		const [closeH, closeM] = hours.closeTime.split(':').map(Number);
-
-		const slots: Array<{ start: Date; end: Date }> = [];
-		const cursor = new SvelteDate(date);
-		cursor.setHours(openH, openM, 0, 0);
-
-		const dayEnd = new SvelteDate(date);
-		dayEnd.setHours(closeH, closeM, 0, 0);
-
-		while (cursor < dayEnd) {
-			const slotEnd = new Date(cursor.getTime() + 15 * 60 * 1000);
-			if (slotEnd <= dayEnd) {
-				slots.push({ start: new Date(cursor), end: new Date(slotEnd) });
-			}
-			cursor.setMinutes(cursor.getMinutes() + 15);
-		}
-		return slots;
-	}
-
-	function getVisibleDates(start: Date, end: Date): Date[] {
-		const dates: SvelteDate[] = [];
-		const cur = new SvelteDate(start);
-		cur.setHours(0, 0, 0, 0);
-		while (cur < end) {
-			dates.push(new SvelteDate(cur));
-			cur.setDate(cur.getDate() + 1);
-		}
-		return dates;
-	}
-
-	const visibleDates = $derived(getVisibleDates(visibleStart, visibleEnd));
-
-	function overlapsBooking(slotStart: Date, slotEnd: Date): boolean {
-		return bookingEvents.some((b) => {
-			const bStart = b.start as Date;
-			const bEnd = b.end as Date;
-			return slotStart < bEnd && slotEnd > bStart;
-		});
-	}
-
-	const slotBackgroundEvents = $derived(
-		visibleDates.flatMap((date) => {
-			const dateKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-			return generateSlotsForDay(date)
-				.filter(({ start, end }) => !overlapsBooking(start, end))
-				.map(({ start, end }) => ({
-					id: `slot-${dateKey}-${start.getHours()}-${start.getMinutes()}`,
-					start,
-					end,
-					display: 'background' as const,
-					backgroundColor: 'oklch(0.92 0.05 16 / 0.35)',
-					borderColor: 'transparent',
-					extendedProps: {
-						isSlot: true,
-						slotStartTime: start.toISOString(),
-						slotEndTime: end.toISOString()
-					}
-				}));
-		})
-	);
-
-	const allEvents = $derived([...bookingEvents, ...slotBackgroundEvents]);
+	const allEvents = $derived(bookingEvents);
 
 	// ── Calendar ─────────────────────────────────────────────────────────────────
 
@@ -206,24 +136,24 @@
 				},
 				noEventsText: 'No bookings for this period',
 				events: allEvents,
-				datesSet: (info) => {
-					visibleStart = info.start;
-					visibleEnd = info.end;
-				},
-				eventDidMount: (info) => {
-					const p = info.event.extendedProps;
-					if (p.isSlot) {
-						const start = info.event.start!;
-						const end = info.event.end!;
-						const timeFmt = (d: Date) =>
-							d.toLocaleTimeString('en-US', {
-								hour: 'numeric',
-								minute: '2-digit',
-								hour12: true
-							});
-						info.el.title = `${timeFmt(start)} - ${timeFmt(end)}`;
-						info.el.classList.add('fc-slot-event');
-					}
+				eventContent: (info) => {
+					const start = info.event.start;
+					const fmt = (d: Date | null) =>
+						d ? formatIsoInTimezone(d.toISOString(), businessTimezone, 'h:mm a') : '';
+
+					const seg = (el: string, cls: string, text: string): HTMLElement => {
+						const node = document.createElement(el);
+						node.className = cls;
+						node.textContent = text;
+						return node;
+					};
+
+					return {
+						domNodes: [
+							seg('span', 'fc-booking-time', fmt(start)),
+							seg('span', 'fc-booking-title', info.event.title)
+						]
+					};
 				},
 				dateClick: (info) => {
 					const clicked = info.date;
@@ -238,22 +168,6 @@
 
 				eventClick: (info) => {
 					const p = info.event.extendedProps;
-
-					if (p.isSlot) {
-						const slotStart = new Date(p.slotStartTime);
-						const slotEnd = new Date(p.slotEndTime);
-						const y = slotStart.getFullYear();
-						const m = (slotStart.getMonth() + 1).toString().padStart(2, '0');
-						const d = slotStart.getDate().toString().padStart(2, '0');
-						initialBookingDate = parseDate(`${y}-${m}-${d}`);
-						initialSlot = {
-							startTime: p.slotStartTime,
-							endTime: p.slotEndTime
-						};
-						initialBookingStartTime = undefined;
-						createDialogOpen = true;
-						return;
-					}
 
 					selectedBooking = {
 						id: info.event.id,
@@ -293,6 +207,16 @@
 			goto(resolve('/home/bookings'), { replaceState: true, keepFocus: true });
 		}
 	});
+
+	// ___ helpers_________________
+
+	function handleSelectedUserChange(userId: string) {
+		if (!userId) return;
+		selectedUserId = userId;
+		queryClient.invalidateQueries({
+			queryKey: ['bookings-by-business-for-user']
+		});
+	}
 </script>
 
 <ViewBookingDialog bind:open={dialogOpen} booking={selectedBooking} />
@@ -301,6 +225,7 @@
 	{initialBookingDate}
 	{initialBookingStartTime}
 	{initialSlot}
+	selectedUserId={effectiveUserId}
 />
 
 <div class="flex h-full min-h-0 flex-1">
@@ -312,8 +237,13 @@
 				>Your calendars</span
 			>
 			{#if currentUser}
-				<div
-					class="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-accent"
+				<button
+					type="button"
+					onclick={() => handleSelectedUserChange(currentUser.id)}
+					class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
+					currentUser.id
+						? 'bg-accent ring-1 ring-primary'
+						: 'hover:bg-accent'}"
 				>
 					<Avatar.Root class="size-6 text-[10px]">
 						{#if currentUser.avatarUrl}
@@ -329,7 +259,7 @@
 					<span class="truncate text-sm"
 						>{currentUser.name.firstName} {currentUser.name.lastName}</span
 					>
-				</div>
+				</button>
 			{/if}
 			<button
 				type="button"
@@ -347,8 +277,13 @@
 					>Team</span
 				>
 				{#each teamMembers as user (user.id)}
-					<div
-						class="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-accent"
+					<button
+						type="button"
+						onclick={() => handleSelectedUserChange(user.id)}
+						class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
+						user.id
+							? 'bg-accent ring-1 ring-primary'
+							: 'hover:bg-accent'}"
 					>
 						<Avatar.Root class="size-6 text-[10px]">
 							{#if user.avatarUrl}
@@ -365,7 +300,7 @@
 							<span class="truncate text-sm">{user.name.firstName} {user.name.lastName}</span>
 							<span class="truncate text-xs text-muted-foreground">{user.role}</span>
 						</div>
-					</div>
+					</button>
 				{/each}
 			</div>
 		{/if}
@@ -373,7 +308,19 @@
 
 	<!-- ── Right: calendar ───────────────────────────────────────────────── -->
 	<div class="flex flex-1 flex-col overflow-hidden">
-		<div class="mb-4 flex items-center justify-end px-4 pt-3">
+		<div class="mb-4 flex items-center justify-between px-4 pt-3">
+			<div class="min-w-0">
+				<h2 class="truncate text-sm font-medium">
+					{#if selectedUser}
+						{selectedUser.name.firstName} {selectedUser.name.lastName}'s Calendar
+					{:else}
+						Calendar
+					{/if}
+				</h2>
+				<p class="truncate text-xs text-muted-foreground">
+					{effectiveUserId === jwtPayload?.userId ? 'Your calendar' : 'Team member calendar'}
+				</p>
+			</div>
 			<Button
 				size="sm"
 				onclick={() => {
@@ -479,11 +426,18 @@
 
 	/* Event time */
 	:global(.calendar-wrapper .fc-list-event-time) {
-		color: var(--muted-foreground) !important;
+		display: none;
 	}
 
 	/* Event title */
+	:global(.calendar-wrapper .fc-list-event-title) {
+		display: flex;
+		align-items: center;
+	}
+
 	:global(.calendar-wrapper .fc-list-event-title a) {
+		display: flex;
+		align-items: center;
 		color: var(--foreground) !important;
 		text-decoration: none !important;
 	}
@@ -543,23 +497,46 @@
 		outline: none !important;
 	}
 
-	/* ── Free slot background events ── */
-	:global(.calendar-wrapper .fc-slot-event) {
-		background-color: oklch(0.92 0.05 16 / 0.35) !important;
+	/* ── Booking event content ── */
+	:global(.calendar-wrapper .fc-event) {
+		background-color: oklch(0.65 0.11 178 / 0.95) !important;
 		border: none !important;
-		cursor: pointer;
-		transition: background-color 0.15s ease;
+		border-left: 3px solid oklch(0.45 0.12 178) !important;
+		border-radius: 4px !important;
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.12) !important;
 	}
 
-	:global(.calendar-wrapper .fc-slot-event:hover) {
-		background-color: oklch(0.85 0.12 16 / 0.5) !important;
+	:global(.calendar-wrapper .fc-booking-time) {
+		display: inline-block;
+		font-size: 0.7rem;
+		font-weight: 700;
+		white-space: nowrap;
+		margin-right: 8px;
 	}
 
-	:global(.dark .calendar-wrapper .fc-slot-event) {
-		background-color: oklch(0.3 0.05 16 / 0.35) !important;
+	:global(.calendar-wrapper .fc-booking-title) {
+		display: inline-block;
+		font-size: 0.75rem;
+		font-weight: 500;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	:global(.dark .calendar-wrapper .fc-slot-event:hover) {
-		background-color: oklch(0.35 0.1 16 / 0.5) !important;
+	/* single-line row layout for both month & timeGrid */
+	:global(.calendar-wrapper .fc-event .fc-event-main) {
+		padding: 1px 5px 1px 4px !important;
+		display: flex;
+		align-items: center;
+		min-width: 0;
+	}
+
+	:global(.calendar-wrapper .fc-event-main > .fc-booking-time) {
+		flex-shrink: 0;
+	}
+
+	:global(.calendar-wrapper .fc-event-main > .fc-booking-title) {
+		flex: 1 1 auto;
+		min-width: 0;
 	}
 </style>

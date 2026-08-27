@@ -26,11 +26,13 @@
 
 	let {
 		open = $bindable(false),
+		selectedUserId,
 		initialBookingDate,
 		initialBookingStartTime,
 		initialSlot
 	}: {
 		open: boolean;
+		selectedUserId: string;
 		initialBookingDate?: DateValue;
 		initialBookingStartTime?: string;
 		initialSlot?: SlotResponse;
@@ -40,17 +42,25 @@
 	const jwtPayload = $derived(authStore.getPayloadData());
 	const businessId = $derived(businessStore.selectedBusiness?.id || '');
 	const businessCurrency = $derived(businessStore.selectedBusiness?.locationDetails.currency);
+	const assigneeUserId = $derived(selectedUserId || jwtPayload?.userId || '');
 
+	// ______ service Query _______________________________
 	const servicesQuery = createQuery(() => ({
 		...getServicesByBusinessQueryOptions(businessId),
 		enabled: !!businessId
 	}));
+
+	// const servicesQuery = createQuery(() => ({
+	// 	...getServicesByUserQueryOptions(selectedUserId),
+	// 	enabled: !!selectedUserId
+	// }));
 
 	// const classesQuery = createQuery(() => ({
 	// 	...getClassesByBusinessQueryOptions(businessId),
 	// 	enabled: !!businessId
 	// }));
 
+	// _________ CustomerQuery _____________________
 	const customersQuery = createQuery(() => ({
 		...getCustomersByBusinessQueryOptions(businessId),
 		enabled: !!businessId
@@ -101,7 +111,7 @@
 						bookingEndTime: form.data.endTime,
 						businessId,
 						serviceId: form.data.serviceId,
-						userId: jwtPayload?.userId ?? '',
+						userId: assigneeUserId,
 						customerId: form.data.customerId,
 						serviceSnapshot: {
 							title: service.title,
@@ -121,14 +131,14 @@
 
 	const freeSlotsQuery = createQuery(() => ({
 		...getFreeSlotsForUserQueryOptions({
-			userId: jwtPayload?.userId ?? '',
+			userId: assigneeUserId,
 			businessId,
 			date: dateString,
 			durationInMins: selectedService?.durationInMins ?? 60,
 			bufferTimeInMins: selectedService?.bufferTimeInMins ?? 0,
 			businessTimezone
 		}),
-		enabled: !!businessId && !!jwtPayload?.userId && !!selectedService && dateString.length > 0,
+		enabled: !!businessId && !!assigneeUserId && !!selectedService && dateString.length > 0,
 		placeholderData: (keepPreviousData) => keepPreviousData
 	}));
 
@@ -270,7 +280,10 @@
 									{:else}
 										{#each services as service (service.id)}
 											<Select.Item value={service.id}>
-												{service.title} - {service.durationInMins} mins - ${service.cost}
+												{service.title} - {service.durationInMins} mins - {formatCost(
+													service.cost / 100,
+													businessCurrency || '$'
+												)}
 											</Select.Item>
 										{/each}
 									{/if}
@@ -340,7 +353,7 @@
 							{#if freeSlotsQuery.isPending && !!selectedService}
 								<p class="text-xs text-muted-foreground">Loading available times...</p>
 							{:else if freeSlots.length === 0}
-								<p class="text-xs text-muted-foreground">No available times for this date</p>
+								<p class="text-xs text-muted-foreground">No available times Slots for this date</p>
 							{:else}
 								<div class="grid grid-cols-2 gap-3">
 									<Field>
@@ -354,7 +367,7 @@
 												{startTimeOptions.find((o) => o.iso === $form.startTime)?.label ??
 													'Select start'}
 											</Select.Trigger>
-											<Select.Content>
+											<Select.Content viewportClass="max-h-60">
 												{#each startTimeOptions as opt (opt.iso)}
 													<Select.Item value={opt.iso}>{opt.label}</Select.Item>
 												{/each}
@@ -367,7 +380,7 @@
 											<Select.Trigger class="w-full">
 												{endTimeOptions.find((o) => o.iso === $form.endTime)?.label ?? 'Select end'}
 											</Select.Trigger>
-											<Select.Content>
+											<Select.Content viewportClass="max-h-60">
 												{#each endTimeOptions as opt (opt.iso)}
 													<Select.Item value={opt.iso}>{opt.label}</Select.Item>
 												{/each}

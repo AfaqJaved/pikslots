@@ -5,12 +5,15 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import { toast } from 'svelte-sonner';
+	import axios from 'axios';
+	import { deleteBookingMutationOptions } from '../../api/booking/delete.booking.mutation';
 	import Clock from '@tabler/icons-svelte/icons/clock';
 	import Users from '@tabler/icons-svelte/icons/users';
 	import User from '@tabler/icons-svelte/icons/user';
 	import InfoCircle from '@tabler/icons-svelte/icons/info-circle';
 	import Circle from '@tabler/icons-svelte/icons/circle-filled';
-	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 
 	export type BookingEvent = {
 		id: string;
@@ -28,6 +31,32 @@
 	let { open = $bindable(false), booking }: { open: boolean; booking: BookingEvent | null } =
 		$props();
 
+	const queryClient = useQueryClient();
+	const deleteMutation = createMutation(deleteBookingMutationOptions);
+
+	$effect(() => {
+		if (deleteMutation.isSuccess) {
+			queryClient.invalidateQueries({ queryKey: ['bookings-by-business-for-user'] });
+			toast.success('Booking deleted successfully');
+			open = false;
+			deleteMutation.reset();
+		}
+
+		if (deleteMutation.isError) {
+			const error = deleteMutation.error;
+			if (axios.isAxiosError(error)) {
+				toast.error(error?.response?.data?.message ?? 'Failed to delete booking');
+			} else {
+				toast.error('Failed to delete booking');
+			}
+		}
+	});
+
+	function onDelete() {
+		if (!booking) return;
+		deleteMutation.mutate(booking.id);
+	}
+
 	function formatDate(date: Date) {
 		return date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
 	}
@@ -38,7 +67,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="flex h-[560px] w-[420px] flex-col gap-0 overflow-hidden p-0">
+	<Dialog.Content class="flex h-140 w-105 flex-col gap-0 overflow-hidden p-0">
 		<!-- Header -->
 		<Dialog.Header class="flex flex-row items-center justify-between border-b px-5 py-4">
 			<Dialog.Title class="text-base font-semibold">Appointment</Dialog.Title>
@@ -66,12 +95,12 @@
 								History
 							</Tabs.Trigger>
 						</Tabs.List>
-						<button
+						<!-- <button
 							class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
 						>
 							No label
 							<ChevronDown size={12} />
-						</button>
+						</button> -->
 					</div>
 
 					<!-- Details tab -->
@@ -165,7 +194,14 @@
 
 			<!-- Footer -->
 			<div class="flex justify-end border-t px-5 py-3">
-				<Button variant="ghost" class="text-destructive hover:text-destructive">Delete</Button>
+				<Button
+					variant="ghost"
+					class="text-destructive hover:text-destructive"
+					onclick={onDelete}
+					disabled={deleteMutation.isPending}
+				>
+					{deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+				</Button>
 			</div>
 		{/if}
 	</Dialog.Content>
