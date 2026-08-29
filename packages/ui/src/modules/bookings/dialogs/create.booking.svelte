@@ -64,9 +64,7 @@
 	}));
 
 	const services = $derived(
-		isElevatedRole
-			? (elevatedServicesQuery.data ?? [])
-			: (assignedServicesQuery.data ?? [])
+		isElevatedRole ? (elevatedServicesQuery.data ?? []) : (assignedServicesQuery.data ?? [])
 	);
 
 	// const classesQuery = createQuery(() => ({

@@ -43,7 +43,6 @@
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
 	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
 
-	
 	// ── Selected calendar owner ─────────────────────────────────────────────────
 
 	let selectedUserId = $state<string>('');
@@ -52,10 +51,9 @@
 	const effectiveUserRole = $derived(selectedUserRole || jwtPayload?.role);
 
 	const isElevatedRole = $derived(
-		effectiveUserRole === 'Platform Owner' ||
-			effectiveUserRole === 'Business Owner' 	);
+		effectiveUserRole === 'Platform Owner' || effectiveUserRole === 'Business Owner'
+	);
 
-	
 	// selected user data
 	const selectedUser = $derived(users.find((u) => u.id === effectiveUserId));
 	const businessTimezone = $derived(
@@ -324,7 +322,7 @@
 			<div class="min-w-0">
 				<h2 class="truncate text-sm font-medium">
 					{#if selectedUser && isElevatedRole}
-					{businessStore.selectedBusiness?.name ?? 'Business'} Calendar
+						{businessStore.selectedBusiness?.name ?? 'Business'} Calendar
 					{:else if selectedUser}
 						{selectedUser.name.firstName} {selectedUser.name.lastName}'s Calendar
 					{:else}
