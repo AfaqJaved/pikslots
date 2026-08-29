@@ -43,16 +43,20 @@
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
 	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
 
-	const isElevatedRole = $derived(
-		jwtPayload?.role === 'Platform Owner' ||
-			jwtPayload?.role === 'Business Owner' ||
-			jwtPayload?.role === 'Admin'
-	);
-
+	
 	// ── Selected calendar owner ─────────────────────────────────────────────────
 
 	let selectedUserId = $state<string>('');
+	let selectedUserRole = $state<string>('');
 	const effectiveUserId = $derived(selectedUserId || jwtPayload?.userId || '');
+	const effectiveUserRole = $derived(selectedUserRole || jwtPayload?.role);
+
+	const isElevatedRole = $derived(
+		effectiveUserRole === 'Platform Owner' ||
+			effectiveUserRole === 'Business Owner' 	);
+
+	
+	// selected user data
 	const selectedUser = $derived(users.find((u) => u.id === effectiveUserId));
 	const businessTimezone = $derived(
 		businessStore.selectedBusiness?.locationDetails.timeZone ||
@@ -216,9 +220,10 @@
 
 	// ___ helpers_________________
 
-	function handleSelectedUserChange(userId: string) {
+	function handleSelectedUserChange(userId: string, role: string) {
 		if (!userId) return;
 		selectedUserId = userId;
+		selectedUserRole = role;
 		queryClient.invalidateQueries({
 			queryKey: ['bookings-by-business-for-user']
 		});
@@ -231,6 +236,7 @@
 	{initialBookingDate}
 	{initialBookingStartTime}
 	{initialSlot}
+	selectedUserRole={effectiveUserRole as string}
 	selectedUserId={effectiveUserId}
 />
 
@@ -245,7 +251,7 @@
 			{#if currentUser}
 				<button
 					type="button"
-					onclick={() => handleSelectedUserChange(currentUser.id)}
+					onclick={() => handleSelectedUserChange(currentUser.id, currentUser.role)}
 					class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
 					currentUser.id
 						? 'bg-accent ring-1 ring-primary'
@@ -285,7 +291,7 @@
 				{#each teamMembers as user (user.id)}
 					<button
 						type="button"
-						onclick={() => handleSelectedUserChange(user.id)}
+						onclick={() => handleSelectedUserChange(user.id, user.role)}
 						class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
 						user.id
 							? 'bg-accent ring-1 ring-primary'
@@ -317,7 +323,9 @@
 		<div class="mb-4 flex items-center justify-between px-4 pt-3">
 			<div class="min-w-0">
 				<h2 class="truncate text-sm font-medium">
-					{#if selectedUser}
+					{#if selectedUser && isElevatedRole}
+					{businessStore.selectedBusiness?.name ?? 'Business'} Calendar
+					{:else if selectedUser}
 						{selectedUser.name.firstName} {selectedUser.name.lastName}'s Calendar
 					{:else}
 						Calendar

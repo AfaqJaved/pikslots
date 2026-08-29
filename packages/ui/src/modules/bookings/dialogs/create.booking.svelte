@@ -24,19 +24,22 @@
 	import { CreateBookingSchema } from '../validations/create-booking-schema';
 	import { formatCost, formatDuration } from '$utils/format-time-duration';
 	import { untrack } from 'svelte';
+	import { getServicesByUserQueryOptions } from '../../api/service-user-assignment/get.services.by.user.query';
 
 	let {
 		open = $bindable(false),
 		selectedUserId,
 		initialBookingDate,
 		initialBookingStartTime,
-		initialSlot
+		initialSlot,
+		selectedUserRole
 	}: {
 		open: boolean;
 		selectedUserId: string;
 		initialBookingDate?: DateValue;
 		initialBookingStartTime?: string;
 		initialSlot?: SlotResponse;
+		selectedUserRole: string;
 	} = $props();
 
 	const queryClient = useQueryClient();
@@ -46,15 +49,25 @@
 	const assigneeUserId = $derived(selectedUserId || jwtPayload?.userId || '');
 
 	// ______ service Query _______________________________
-	const servicesQuery = createQuery(() => ({
+	const isElevatedRole = $derived(
+		selectedUserRole === 'Platform Owner' || selectedUserRole === 'Business Owner'
+	);
+
+	const elevatedServicesQuery = createQuery(() => ({
 		...getServicesByBusinessQueryOptions(businessId),
-		enabled: !!businessId
+		enabled: isElevatedRole && !!businessId
 	}));
 
-	// const servicesQuery = createQuery(() => ({
-	// 	...getServicesByUserQueryOptions(selectedUserId),
-	// 	enabled: !!selectedUserId
-	// }));
+	const assignedServicesQuery = createQuery(() => ({
+		...getServicesByUserQueryOptions(assigneeUserId),
+		enabled: !isElevatedRole && !!assigneeUserId
+	}));
+
+	const services = $derived(
+		isElevatedRole
+			? (elevatedServicesQuery.data ?? [])
+			: (assignedServicesQuery.data ?? [])
+	);
 
 	// const classesQuery = createQuery(() => ({
 	// 	...getClassesByBusinessQueryOptions(businessId),
@@ -107,9 +120,9 @@
 		}
 	}
 
-	const registerMutation = createMutation(registerBookingMutationOptions);
+	// _____ register_booking_mutation_____________________________
 
-	const services = $derived(servicesQuery.data ?? []);
+	const registerMutation = createMutation(registerBookingMutationOptions);
 
 	let bookingDate = $state<DateValue>(today(getLocalTimeZone()));
 	let bookingDateOpen = $state<boolean>(false);
