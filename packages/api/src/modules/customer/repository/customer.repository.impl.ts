@@ -67,6 +67,56 @@ export class CustomerRepositoryImpl implements CustomerRepository {
     }
   }
 
+  async debounceCustomerSearchByBusiness(
+    businessId: string,
+    searchString: string,
+  ): Promise<
+    Result<
+      | { id: string; fullName: FullName; profileImageUrl: string | null }[]
+      | null,
+      InfrastructureError
+    >
+  > {
+    try {
+      const customers = await this.db
+        .selectFrom('customers')
+        .select(['id', 'first_name', 'last_name', 'profile_image_url'])
+        .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
+        .where((eb) =>
+          eb.or([
+            eb('first_name', 'ilike', `${searchString}%`),
+            eb('email', 'ilike', `${searchString}%`),
+            eb('primary_phone', 'ilike', `${searchString}%`),
+          ]),
+        )
+        .limit(10)
+        .execute();
+
+      if (customers.length > 0) {
+        return ok(
+          customers.map((customer) => ({
+            id: customer.id,
+            fullName: {
+              firstName: customer.first_name,
+              lastName: customer.last_name,
+            },
+            profileImageUrl: customer.profile_image_url,
+          })),
+        );
+      }
+
+      return ok(null);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'failed to get customers',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async save(
     customer: Customer,
   ): Promise<Result<void, CustomerAlreadyExistsError | InfrastructureError>> {

@@ -146,6 +146,48 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
 
     return ok(undefined);
   }
+  async debounceCustomerSearchByBusiness(
+    businessId: string,
+    searchString: string,
+  ): Promise<
+    Result<
+      { id: string; fullName: FullName; profileImageUrl: string | null }[] | null,
+      InfrastructureError
+    >
+  > {
+    try {
+      await Promise.resolve('');
+
+      const customersFound = CUSTOMER_TEST_DATA.filter(
+        (item) =>
+          item.businessId === businessId &&
+          item.isDeleted === false &&
+          (item.name.firstName.toLowerCase().includes(searchString.toLowerCase()) ||
+            item.name.lastName.toLowerCase().includes(searchString.toLowerCase())),
+      );
+
+      if (customersFound.length === 0) return ok(null);
+
+      return ok(
+        customersFound.map((customer) => ({
+          id: customer.id,
+          fullName: {
+            firstName: customer.name.firstName,
+            lastName: customer.name.lastName,
+          },
+          profileImageUrl: customer.profileImageUrl,
+        })),
+      );
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'Failed to search customers by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
   async existsByEmail(
     email: string,
     businessId: string,

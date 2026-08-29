@@ -9,6 +9,15 @@ export interface CustomerRepository {
     id: string,
   ): Promise<Result<Customer | null, CustomerNotFoundError | InfrastructureError>>;
   findAllByBusiness(businessId: string): Promise<Result<Customer[], InfrastructureError>>;
+  debounceCustomerSearchByBusiness(
+    businessId: string,
+    searchString: string,
+  ): Promise<
+    Result<
+      { id: string; fullName: FullName; profileImageUrl: string | null }[] | null,
+      InfrastructureError
+    >
+  >;
   findCustomerListByBusiness(
     businessId: string,
   ): Promise<

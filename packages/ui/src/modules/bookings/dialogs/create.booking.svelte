@@ -5,12 +5,13 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Field, FieldGroup, FieldLabel, FieldError } from '$lib/components/ui/field/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 	import { registerBookingMutationOptions } from '../../api/booking/register.booking.mutation';
 	import { getServicesByBusinessQueryOptions } from '../../api/service/get.services.by.business.query';
-	import { getCustomersByBusinessQueryOptions } from '../../api/customer/get.customers.by.business.query';
+	import { debounceCustomerSearchQueryOptions } from '../../api/customer/debounce.customer.search.query';
 	import { getFreeSlotsForUserQueryOptions } from '../../api/public-booking-page/get.free.slots.query';
 	import type { SlotResponse } from '@pikslots/shared';
 	import { businessStore } from '$stores/business.svelte';
@@ -60,17 +61,55 @@
 	// 	enabled: !!businessId
 	// }));
 
-	// _________ CustomerQuery _____________________
-	const customersQuery = createQuery(() => ({
-		...getCustomersByBusinessQueryOptions(businessId),
-		enabled: !!businessId
+	// _________ Customer Search (debounced) _____________________
+	let customerSearch = $state('');
+	let debouncedCustomerSearch = $state('');
+	let selectedCustomerName = $state('');
+
+	const customerSearchQuery = createQuery(() => ({
+		...debounceCustomerSearchQueryOptions(businessId, debouncedCustomerSearch),
+		enabled: !!businessId && debouncedCustomerSearch.trim().length > 0 && !$form.customerId
 	}));
+
+	const searchResults = $derived(customerSearchQuery.data ?? []);
+
+	$effect(() => {
+		const search = customerSearch
+		const timer = setTimeout(() => {
+			// queryClient.invalidateQueries({
+			// 	queryKey: ['customers-search',businessId , debouncedCustomerSearch]
+			// })
+			debouncedCustomerSearch = search ;
+		}, 500);
+		return () => clearTimeout(timer);
+	});
+
+	function selectCustomer(id: string, name: string) {
+		$form.customerId = id;
+		selectedCustomerName = name;
+		customerSearch = name;
+		debouncedCustomerSearch = '';
+	}
+
+	function clearCustomer() {
+		$form.customerId = '';
+		selectedCustomerName = '';
+		customerSearch = '';
+		debouncedCustomerSearch = '';
+	}
+
+	function onCustomerSearchFocus() {
+		if ($form.customerId) {
+			 $form.customerId = '';
+			selectedCustomerName = '';
+			customerSearch = '';
+			debouncedCustomerSearch = '';
+		}
+	}
 
 	const registerMutation = createMutation(registerBookingMutationOptions);
 
 	const services = $derived(servicesQuery.data ?? []);
-	// const classes = $derived(classesQuery.data ?? []);
-	const customers = $derived(customersQuery.data ?? []);
 
 	let bookingDate = $state<DateValue>(today(getLocalTimeZone()));
 	let bookingDateOpen = $state<boolean>(false);
@@ -125,7 +164,6 @@
 	);
 
 	const selectedService = $derived(services.find((s) => s.id === $form.serviceId));
-	const selectedCustomer = $derived(customers.find((c) => c.id === $form.customerId));
 
 	// ── Free Slots Query ─────────────────────────────────────────────────────────
 
@@ -147,6 +185,9 @@
 	function resetForm() {
 		bookingDate = today(getLocalTimeZone());
 		bookingType = 'service';
+		customerSearch = '';
+		debouncedCustomerSearch = '';
+		selectedCustomerName = '';
 		reset({
 			data: {
 				serviceId: '',
@@ -260,6 +301,7 @@
 				</Tabs.List>
 
 				<!-- ── Services Tab ────────────────────────────────────────────── -->
+				 <!-- select a service -->
 				<Tabs.Content value="service" class="mt-4">
 					<FieldGroup>
 						<Field>
@@ -291,34 +333,47 @@
 							</Select.Root>
 							<FieldError errors={$errors.serviceId?.map((e) => ({ message: e }))} />
 						</Field>
-
+						
+						<!-- search for a customer -->
 						<Field>
 							<FieldLabel>Customer <span class="text-destructive">*</span></FieldLabel>
-							<Select.Root type="single" bind:value={$form.customerId}>
-								<Select.Trigger
-									class="w-full"
-									disabled={customers.length === 0}
-									aria-invalid={$errors.customerId ? true : undefined}
-								>
-									{$form.customerId
-										? `${selectedCustomer?.firstName} ${selectedCustomer?.lastName}`
-										: 'Select a customer'}
-								</Select.Trigger>
-								<Select.Content>
-									{#if customers.length === 0}
-										<Select.Item disabled value="No customer available"
-											>No customers available</Select.Item
-										>
-									{:else}
-										{#each customers as customer (customer.id)}
-											<Select.Item value={customer.id}>
-												{customer.firstName}
-												{customer.lastName}
-											</Select.Item>
-										{/each}
-									{/if}
-								</Select.Content>
-							</Select.Root>
+							<div class="relative">
+								<Input
+									type="text"
+									placeholder="Search customers..."
+									bind:value={customerSearch}
+									class={$errors.customerId ? 'border-destructive' : ''}
+									onfocus={onCustomerSearchFocus}
+								/>
+								{#if $form.customerId || customerSearch.trim().length > 0}
+									<button
+										type="button"
+										class="absolute right-2  top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+										onclick={clearCustomer}
+									>
+										&times;
+									</button>
+								{/if}
+								{#if customerSearch.trim().length > 0 && !$form.customerId}
+									<div class="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-md border bg-popover shadow-md">
+										{#if customerSearchQuery.isPending}
+											<div class="px-3 py-2 text-xs text-muted-foreground">Searching...</div>
+										{:else if searchResults.length === 0}
+											<div class="px-3 py-2 text-xs text-muted-foreground">No customers found</div>
+										{:else}
+											{#each searchResults as customer (customer.id)}
+												<button
+													type="button"
+													class="flex w-full items-center px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground border-b border-2"
+													onclick={() => selectCustomer(customer.id, `${customer.firstName} ${customer.lastName}`)}
+												>
+													{customer.firstName} {customer.lastName}
+												</button>
+											{/each}
+										{/if}
+									</div>
+								{/if}
+							</div>
 							<FieldError errors={$errors.customerId?.map((e) => ({ message: e }))} />
 						</Field>
 

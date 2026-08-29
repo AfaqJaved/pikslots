@@ -43,6 +43,12 @@
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
 	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
 
+	const isElevatedRole = $derived(
+		jwtPayload?.role === 'Platform Owner' ||
+			jwtPayload?.role === 'Business Owner' ||
+			jwtPayload?.role === 'Admin'
+	);
+
 	// ── Selected calendar owner ─────────────────────────────────────────────────
 
 	let selectedUserId = $state<string>('');
@@ -63,7 +69,7 @@
 		enabled: !!businessStore.selectedBusiness?.id && !!effectiveUserId
 	}));
 
-	// ── Customers Query  ──────────────────────────────
+	// ── Customers Query  ──────────────────────────────────────────────────────────
 
 	const hasBookings = $derived((bookingsQuery.data?.length ?? 0) > 0);
 
@@ -318,7 +324,13 @@
 					{/if}
 				</h2>
 				<p class="truncate text-xs text-muted-foreground">
-					{effectiveUserId === jwtPayload?.userId ? 'Your calendar' : 'Team member calendar'}
+					{#if effectiveUserId !== jwtPayload?.userId}
+						Team member calendar
+					{:else if isElevatedRole}
+						{businessStore.selectedBusiness?.name ?? 'Calendar'}
+					{:else}
+						Your calendar
+					{/if}
 				</p>
 			</div>
 			<Button

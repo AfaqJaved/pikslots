@@ -60,6 +60,6 @@ export class FindAllBookingsByBusinessForUserUseCaseImpl implements FindAllBooki
       );
     }
 
-    return this.bookingRepository.findAllByBusinessForUser(businessId, userId);
+    return this.bookingRepository.findAllByBusiness(businessId);
   }
 }
