@@ -74,12 +74,12 @@
 	const searchResults = $derived(customerSearchQuery.data ?? []);
 
 	$effect(() => {
-		const search = customerSearch
+		const search = customerSearch;
 		const timer = setTimeout(() => {
 			// queryClient.invalidateQueries({
 			// 	queryKey: ['customers-search',businessId , debouncedCustomerSearch]
 			// })
-			debouncedCustomerSearch = search ;
+			debouncedCustomerSearch = search;
 		}, 500);
 		return () => clearTimeout(timer);
 	});
@@ -100,7 +100,7 @@
 
 	function onCustomerSearchFocus() {
 		if ($form.customerId) {
-			 $form.customerId = '';
+			$form.customerId = '';
 			selectedCustomerName = '';
 			customerSearch = '';
 			debouncedCustomerSearch = '';
@@ -301,7 +301,7 @@
 				</Tabs.List>
 
 				<!-- ── Services Tab ────────────────────────────────────────────── -->
-				 <!-- select a service -->
+				<!-- select a service -->
 				<Tabs.Content value="service" class="mt-4">
 					<FieldGroup>
 						<Field>
@@ -333,7 +333,7 @@
 							</Select.Root>
 							<FieldError errors={$errors.serviceId?.map((e) => ({ message: e }))} />
 						</Field>
-						
+
 						<!-- search for a customer -->
 						<Field>
 							<FieldLabel>Customer <span class="text-destructive">*</span></FieldLabel>
@@ -348,14 +348,16 @@
 								{#if $form.customerId || customerSearch.trim().length > 0}
 									<button
 										type="button"
-										class="absolute right-2  top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+										class="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 										onclick={clearCustomer}
 									>
 										&times;
 									</button>
 								{/if}
 								{#if customerSearch.trim().length > 0 && !$form.customerId}
-									<div class="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-md border bg-popover shadow-md">
+									<div
+										class="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-md border bg-popover shadow-md"
+									>
 										{#if customerSearchQuery.isPending}
 											<div class="px-3 py-2 text-xs text-muted-foreground">Searching...</div>
 										{:else if searchResults.length === 0}
@@ -364,10 +366,15 @@
 											{#each searchResults as customer (customer.id)}
 												<button
 													type="button"
-													class="flex w-full items-center px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground border-b border-2"
-													onclick={() => selectCustomer(customer.id, `${customer.firstName} ${customer.lastName}`)}
+													class="flex w-full items-center border-2 border-b px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+													onclick={() =>
+														selectCustomer(
+															customer.id,
+															`${customer.firstName} ${customer.lastName}`
+														)}
 												>
-													{customer.firstName} {customer.lastName}
+													{customer.firstName}
+													{customer.lastName}
 												</button>
 											{/each}
 										{/if}

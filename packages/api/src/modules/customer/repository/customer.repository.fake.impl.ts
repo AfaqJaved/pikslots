@@ -151,7 +151,8 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
     searchString: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[] | null,
+      | { id: string; fullName: FullName; profileImageUrl: string | null }[]
+      | null,
       InfrastructureError
     >
   > {
@@ -162,8 +163,12 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
         (item) =>
           item.businessId === businessId &&
           item.isDeleted === false &&
-          (item.name.firstName.toLowerCase().includes(searchString.toLowerCase()) ||
-            item.name.lastName.toLowerCase().includes(searchString.toLowerCase())),
+          (item.name.firstName
+            .toLowerCase()
+            .includes(searchString.toLowerCase()) ||
+            item.name.lastName
+              .toLowerCase()
+              .includes(searchString.toLowerCase())),
       );
 
       if (customersFound.length === 0) return ok(null);
