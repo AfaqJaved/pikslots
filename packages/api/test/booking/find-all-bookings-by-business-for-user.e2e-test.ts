@@ -52,7 +52,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
       businessId,
       userId,
       token,
-      { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+      {
+        startDateTime: '2026-08-01',
+        endDateTime: '2026-08-31',
+        timezone: 'UTC',
+      },
     );
 
     expect(response.status).toBe(200);
@@ -94,7 +98,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
       businessId,
       userId, // scope param is ignored for elevated roles
       tokenForRole(ctx, 'Business Owner', businessId, owner.id),
-      { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+      {
+        startDateTime: '2026-08-01',
+        endDateTime: '2026-08-31',
+        timezone: 'UTC',
+      },
     );
 
     expect(response.status).toBe(200);
@@ -112,7 +120,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
       businessId,
       userId,
       tokenForRole(ctx, 'Standard', businessId, userId),
-      { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+      {
+        startDateTime: '2026-08-01',
+        endDateTime: '2026-08-31',
+        timezone: 'UTC',
+      },
     );
 
     expect(response.status).toBe(200);
@@ -129,7 +141,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
       businessId,
       userId,
       tokenForRole(ctx, 'Standard', businessId, otherUser.id),
-      { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+      {
+        startDateTime: '2026-08-01',
+        endDateTime: '2026-08-31',
+        timezone: 'UTC',
+      },
     );
 
     expect(response.status).toBe(401);
@@ -146,7 +162,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
       businessId,
       userId,
       tokenForRole(ctx, 'Admin', otherBusinessId, randomUUID()),
-      { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+      {
+        startDateTime: '2026-08-01',
+        endDateTime: '2026-08-31',
+        timezone: 'UTC',
+      },
     );
 
     expect(response.status).toBe(401);
@@ -185,7 +205,11 @@ describe(`GET ${BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER}`, () => {
         businessId,
         userId,
         token,
-        { startDateTime: '2026-08-01', endDateTime: '2026-08-31', timezone: 'UTC' },
+        {
+          startDateTime: '2026-08-01',
+          endDateTime: '2026-08-31',
+          timezone: 'UTC',
+        },
       );
 
       expect(response.status).toBe(200);
