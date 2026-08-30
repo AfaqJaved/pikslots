@@ -37,6 +37,7 @@ export interface BookingItemResponse {
   bookingDate: string;
   bookingStartTime: string;
   bookingEndTime: string;
+  userId: string;
   serviceSnapshot: ServiceSnapshotResponse;
   serviceId: string;
   customerId: string;

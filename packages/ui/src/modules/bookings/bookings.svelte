@@ -63,12 +63,22 @@
 
 	// ── Bookings Query ───────────────────────────────────────────────────────────
 
+	let calendarStartDateTime = $state<string>('');
+	let calendarEndDateTime = $state<string>('');
+
 	const bookingsQuery = createQuery(() => ({
 		...getBookingsByBusinessForUserQueryOptions(
 			businessStore.selectedBusiness?.id ?? '',
-			effectiveUserId
+			effectiveUserId,
+			calendarStartDateTime,
+			calendarEndDateTime,
+			businessTimezone
 		),
-		enabled: !!businessStore.selectedBusiness?.id && !!effectiveUserId
+		enabled:
+			!!businessStore.selectedBusiness?.id &&
+			!!effectiveUserId &&
+			!!calendarStartDateTime &&
+			!!calendarEndDateTime
 	}));
 
 	// ── Customers Query  ──────────────────────────────────────────────────────────
@@ -83,11 +93,13 @@
 	const customers = $derived(customersQuery.data ?? []);
 
 	// ── Events transformation ────────────────────────────────────────────────────
+	const bookingData = $derived(bookingsQuery.data ?? []);
 
 	const bookingEvents = $derived(
-		(bookingsQuery.data ?? []).map((booking: BookingItemResponse) => {
+		bookingData.map((booking: BookingItemResponse) => {
 			const start = new Date(booking.bookingStartTime);
 			const end = new Date(booking.bookingEndTime);
+			const currentMember = users.find((user) => user.id === booking.userId);
 			const durationMins = (end.getTime() - start.getTime()) / (1000 * 60);
 			const customer = customers.find((c) => c.id === booking.customerId);
 			return {
@@ -98,8 +110,8 @@
 				color: '#0d9488',
 				extendedProps: {
 					durationMins,
-					host: selectedUser
-						? `${selectedUser.name.firstName} ${selectedUser.name.lastName}`
+					host: currentMember
+						? `${currentMember.name.firstName} ${currentMember.name.lastName}`
 						: 'Unknown',
 					guests: customer
 						? [{ name: `${customer.firstName} ${customer.lastName}` }]
@@ -144,6 +156,10 @@
 				},
 				noEventsText: 'No bookings for this period',
 				events: allEvents,
+				datesSet: (info) => {
+					calendarStartDateTime = info.startStr;
+					calendarEndDateTime = info.endStr;
+				},
 				eventContent: (info) => {
 					const start = info.event.start;
 					const fmt = (d: Date | null) =>
@@ -321,8 +337,8 @@
 		<div class="mb-4 flex items-center justify-between px-4 pt-3">
 			<div class="min-w-0">
 				<h2 class="truncate text-sm font-medium">
-					{#if selectedUser && isElevatedRole}
-						{businessStore.selectedBusiness?.name ?? 'Business'} Calendar
+					{#if selectedUser?.id === currentUser?.id}
+						Your Calendar
 					{:else if selectedUser}
 						{selectedUser.name.firstName} {selectedUser.name.lastName}'s Calendar
 					{:else}

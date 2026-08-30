@@ -47,7 +47,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-999',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
     });
@@ -59,7 +59,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
     });
@@ -71,7 +71,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-2',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -86,7 +86,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-enhanced-1');
+      const result = await useCase.execute('business-1', 'user-enhanced-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
     });
@@ -98,7 +98,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-2',
       });
 
-      const result = await useCase.execute('business-1', 'user-enhanced-1');
+      const result = await useCase.execute('business-1', 'user-enhanced-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -113,7 +113,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1'); // not self, but Enhanced doesn't need isSelf
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC'); // not self, but Enhanced doesn't need isSelf
 
       expect(result.ok).toBe(true);
     });
@@ -125,7 +125,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-2',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -140,7 +140,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
     });
@@ -152,7 +152,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-enhanced-1');
+      const result = await useCase.execute('business-1', 'user-enhanced-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -167,7 +167,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-2',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -181,7 +181,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
       const forUserSpy = jest.spyOn(repository, 'findAllByBusinessForUser');
       const allSpy = jest.spyOn(repository, 'findAllByBusiness');
 
-      await useCase.execute('business-1', 'user-standard-1');
+      await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(forUserSpy).toHaveBeenCalledTimes(1);
       expect(forUserSpy).toHaveBeenCalledWith('business-1', 'user-standard-1');
@@ -189,7 +189,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
     });
 
     it("returns only the Standard user's own bookings, excluding other users' bookings in the same business", async () => {
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -211,7 +211,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
       const forUserSpy = jest.spyOn(repository, 'findAllByBusinessForUser');
       const allSpy = jest.spyOn(repository, 'findAllByBusiness');
 
-      await useCase.execute('business-1', 'user-standard-1');
+      await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(allSpy).toHaveBeenCalledTimes(1);
       expect(allSpy).toHaveBeenCalledWith('business-1');
@@ -225,7 +225,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -254,7 +254,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         const forUserSpy = jest.spyOn(repository, 'findAllByBusinessForUser');
         const allSpy = jest.spyOn(repository, 'findAllByBusiness');
 
-        const result = await useCase.execute('business-1', 'user-enhanced-1');
+        const result = await useCase.execute('business-1', 'user-enhanced-1', '2024-01-01', '2024-12-31', 'UTC');
 
         expect(allSpy).toHaveBeenCalledTimes(1);
         expect(forUserSpy).not.toHaveBeenCalled();
@@ -272,7 +272,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
 
   describe('excludes soft-deleted bookings', () => {
     it('does not return a soft-deleted booking via the self-scoped path', async () => {
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -287,7 +287,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -308,7 +308,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         .spyOn(repository, 'findAllByBusinessForUser')
         .mockResolvedValueOnce(err(infraError));
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -332,7 +332,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         .spyOn(repository, 'findAllByBusiness')
         .mockResolvedValueOnce(err(infraError));
 
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -349,7 +349,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
         businessId: 'business-1',
       });
 
-      const result = await useCase.execute('business-1', 'user-with-none');
+      const result = await useCase.execute('business-1', 'user-with-none', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -358,7 +358,7 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
     });
 
     it('does not leak bookings from a different business', async () => {
-      const result = await useCase.execute('business-1', 'user-standard-1');
+      const result = await useCase.execute('business-1', 'user-standard-1', '2024-01-01', '2024-12-31', 'UTC');
 
       expect(result.ok).toBe(true);
       if (result.ok) {

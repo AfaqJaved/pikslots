@@ -244,14 +244,21 @@ export async function findAllBookingsByBusinessForUser(
   businessId: string,
   userId: string,
   actorToken: string,
+  query?: { startDateTime?: string; endDateTime?: string; timezone?: string },
 ): Promise<SupertestResponse> {
+  const qs = new URLSearchParams();
+  if (query?.startDateTime) qs.set('startDateTime', query.startDateTime);
+  if (query?.endDateTime) qs.set('endDateTime', query.endDateTime);
+  if (query?.timezone) qs.set('timezone', query.timezone);
+
+  const queryString = qs.toString();
+  const path = endpointFor(BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER, {
+    businessId,
+    userId,
+  });
+
   return request(ctx.app.getHttpServer())
-    .get(
-      endpointFor(BOOKING_ENDPOINTS.FIND_ALL_BY_BUSINESS_FOR_USER, {
-        businessId,
-        userId,
-      }),
-    )
+    .get(queryString ? `${path}?${queryString}` : path)
     .set(authHeader(actorToken));
 }
 

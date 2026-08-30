@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -36,6 +37,7 @@ import {
 import { BookingUseCasesFactory } from './factory/booking.usecases.factory';
 import { RegisterBookingDto } from './dto/register.booking.dto';
 import { EditBookingDto } from './dto/edit.booking.dto';
+import { FindAllBookingsByBusinessForUserDto } from './dto/find.all.bookings.by.business.for.user.dto';
 
 @ApiTags('Bookings')
 @Controller('')
@@ -89,6 +91,7 @@ export class BookingController {
     @Res({ passthrough: true }) res: Response,
     @Param('businessId') businessId: string,
     @Param('userId') userId: string,
+    @Query() query: FindAllBookingsByBusinessForUserDto,
   ): Promise<
     | PikslotsBaseErrorResponse
     | PikslotsBaseResponse<FindAllBookingsByBusinessForUserResponse>
@@ -97,6 +100,9 @@ export class BookingController {
       await this.bookingUseCasesFactory.findAllBookingsByBusinessUseCase.execute(
         businessId,
         userId,
+        query.startDateTime,
+        query.endDateTime,
+        query.timezone,
       );
 
     if (!result.ok) {
@@ -113,6 +119,7 @@ export class BookingController {
         bookingDate: b.bookingDate,
         bookingStartTime: b.bookingStartTime,
         bookingEndTime: b.bookingEndTime,
+        userId: b.userId,
         serviceSnapshot: b.serviceSnapshot,
         serviceId: b.serviceId,
         customerId: b.customerId,

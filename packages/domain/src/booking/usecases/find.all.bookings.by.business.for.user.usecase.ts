@@ -9,6 +9,9 @@ export interface FindAllBookingsByBusinessForUserUseCase {
   execute(
     businessId: string,
     userId: string,
+    startDateTime: string,
+    endDateTime: string,
+    timezone: string,
   ): Promise<
     Result<
       Pick<
@@ -18,6 +21,7 @@ export interface FindAllBookingsByBusinessForUserUseCase {
         | 'bookingDate'
         | 'bookingStartTime'
         | 'bookingEndTime'
+        | 'userId'
         | 'serviceSnapshot'
         | 'serviceId'
         | 'customerId'
