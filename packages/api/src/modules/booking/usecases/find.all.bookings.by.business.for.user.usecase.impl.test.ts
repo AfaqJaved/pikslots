@@ -318,33 +318,30 @@ describe('FindAllBookingsByBusinessForUserUseCaseImpl', () => {
       }
     });
 
-    it(
-      'calls findAllByBusinessForUser for an Enhanced user',
-      async () => {
-        Object.assign(securityContext, {
-          userId: 'user-enhanced-1',
-          role: 'Enhanced',
-          businessId: 'business-1',
-        });
-        const forUserSpy = jest.spyOn(repository, 'findAllByBusinessForUser');
+    it('calls findAllByBusinessForUser for an Enhanced user', async () => {
+      Object.assign(securityContext, {
+        userId: 'user-enhanced-1',
+        role: 'Enhanced',
+        businessId: 'business-1',
+      });
+      const forUserSpy = jest.spyOn(repository, 'findAllByBusinessForUser');
 
-        const result = await useCase.execute(
-          'business-1',
-          'user-enhanced-1',
-          '2024-01-01',
-          '2024-12-31',
-          'UTC',
-        );
+      const result = await useCase.execute(
+        'business-1',
+        'user-enhanced-1',
+        '2024-01-01',
+        '2024-12-31',
+        'UTC',
+      );
 
-        expect(forUserSpy).toHaveBeenCalledTimes(1);
-        expect(result.ok).toBe(true);
-        if (result.ok) {
-          const ids = result.value.map((b) => b.id);
-          expect(ids).toEqual(expect.arrayContaining(['booking-3', 'booking-6']));
-          expect(ids).not.toContain('booking-1');
-        }
-      },
-    );
+      expect(forUserSpy).toHaveBeenCalledTimes(1);
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        const ids = result.value.map((b) => b.id);
+        expect(ids).toEqual(expect.arrayContaining(['booking-3', 'booking-6']));
+        expect(ids).not.toContain('booking-1');
+      }
+    });
   });
 
   describe('excludes soft-deleted bookings', () => {
