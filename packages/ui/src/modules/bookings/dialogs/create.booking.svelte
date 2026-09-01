@@ -404,7 +404,7 @@
 		if (!v) resetForm();
 	}}
 >
-	<Dialog.Content class=" w-105  rounded-2xl sm:max-w-xl ">
+	<Dialog.Content class="flex max-h-[95vh] w-105 flex-col rounded-2xl sm:max-w-xl">
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2 text-base font-semibold">
 				<CalendarIcon class="size-4" />
@@ -412,8 +412,11 @@
 			</Dialog.Title>
 		</Dialog.Header>
 
-		<form method="POST" use:enhance>
-			<Tabs.Root bind:value={bookingType} class="w-full">
+		<form method="POST" use:enhance class="flex flex-1 flex-col overflow-hidden">
+			<Tabs.Root
+				bind:value={bookingType}
+				class="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+			>
 				<Tabs.List variant="line" class="justify-start px-0">
 					<Tabs.Trigger value="service" class="cursor-pointer">Services</Tabs.Trigger>
 					<!-- <Tabs.Trigger value="class">Classes</Tabs.Trigger> -->
@@ -490,7 +493,11 @@
 				<!-- ── Services Tab ────────────────────────────────────────────── -->
 
 				<!-- select a service -->
-				<Tabs.Content value="service" class="-mt-6">
+				<Tabs.Content
+					value="service"
+					class="scrollbar -mt-6 min-h-0 flex-1
+				 scrollbar-auto scrollbar-thumb-gray-500 scrollbar-track-transparent overflow-y-auto pr-2"
+				>
 					<FieldGroup>
 						<Field>
 							<FieldLabel class="flex items-center gap-1.5"
