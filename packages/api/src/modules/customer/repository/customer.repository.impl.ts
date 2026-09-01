@@ -32,9 +32,7 @@ export class CustomerRepositoryImpl implements CustomerRepository {
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
-  async findCustomerListByBusiness(
-    businessId: string,
-  ): Promise<
+  async findCustomerListByBusiness(businessId: string): Promise<
     Result<
       {
         id: string;

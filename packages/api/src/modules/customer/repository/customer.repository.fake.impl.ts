@@ -12,9 +12,7 @@ import {
 import { CUSTOMER_TEST_DATA } from './customer.test.data';
 
 export class CustomerRepositoryTestImpl implements CustomerRepository {
-  async findCustomerListByBusiness(
-    businessId: string,
-  ): Promise<
+  async findCustomerListByBusiness(businessId: string): Promise<
     Result<
       {
         id: string;
