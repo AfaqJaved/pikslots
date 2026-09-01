@@ -18,11 +18,9 @@
 	import { businessStore } from '$stores/business.svelte';
 	import { authStore } from '$stores/auth.svelte';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import Scissors from '@tabler/icons-svelte/icons/scissors';
 	import Clock from '@tabler/icons-svelte/icons/clock';
 	import User from '@tabler/icons-svelte/icons/user';
 	import Message from '@tabler/icons-svelte/icons/message';
-	import AlertTriangle from '@tabler/icons-svelte/icons/alert-triangle';
 	import Circle from '@tabler/icons-svelte/icons/circle-filled';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import X from '@tabler/icons-svelte/icons/x';
