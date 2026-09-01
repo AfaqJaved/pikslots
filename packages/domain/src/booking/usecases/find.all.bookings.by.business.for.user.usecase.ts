@@ -25,6 +25,8 @@ export interface FindAllBookingsByBusinessForUserUseCase {
         | 'serviceSnapshot'
         | 'serviceId'
         | 'customerId'
+        | 'label'
+        | 'notes'
       >[],
       UnauthorizedError | InfrastructureError
     >

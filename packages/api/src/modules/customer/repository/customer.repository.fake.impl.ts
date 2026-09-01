@@ -16,7 +16,7 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
     businessId: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[],
       InfrastructureError
     >
   > {
@@ -33,6 +33,7 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
             firstName: customer.name.firstName,
             lastName: customer.name.lastName,
           },
+          email: customer.email,
           profileImageUrl: customer.profileImageUrl,
         })),
       );
@@ -151,7 +152,7 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
     searchString: string,
   ): Promise<
     Result<
-      | { id: string; fullName: FullName; profileImageUrl: string | null }[]
+      | { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[]
       | null,
       InfrastructureError
     >
@@ -180,6 +181,7 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
             firstName: customer.name.firstName,
             lastName: customer.name.lastName,
           },
+          email: customer.email,
           profileImageUrl: customer.profileImageUrl,
         })),
       );

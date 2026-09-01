@@ -22,7 +22,7 @@ export class DebounceCustomerSearchByBusinessIdUseCaseImpl implements DebounceCu
     searchString: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[],
       InfrastructureError
     >
   > {

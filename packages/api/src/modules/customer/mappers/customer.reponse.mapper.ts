@@ -57,6 +57,7 @@ export class CustomerResponseMapper {
       id: customer.id,
       firstName: customer.firstName,
       lastName: customer.lastName,
+      email: customer.email,
       profileImageUrl: profile.profileImageUrl,
     };
   }

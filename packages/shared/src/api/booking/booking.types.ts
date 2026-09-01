@@ -23,6 +23,8 @@ export interface RegisterBookingRequest {
   userId: string;
   customerId: string;
   serviceSnapshot: ServiceSnapshotRequest;
+  label?: string;
+  notes?: string;
 }
 
 // --- Response types ---
@@ -41,6 +43,8 @@ export interface BookingItemResponse {
   serviceSnapshot: ServiceSnapshotResponse;
   serviceId: string;
   customerId: string;
+  label: string | null;
+  notes: string | null;
 }
 
 export type FindAllBookingsByBusinessForUserResponse = BookingItemResponse[];
@@ -56,6 +60,8 @@ export interface FindBookingByIdResponse {
   serviceId: string;
   customerId: string;
   userId: string;
+  label: string | null;
+  notes: string | null;
   createdAt: string;
   createdBy: string;
   updatedAt: string;
@@ -72,6 +78,8 @@ export interface EditBookingRequest {
   serviceId: string;
   customerId: string;
   userId: string;
+  label?: string;
+  notes?: string;
 }
 
 export interface EditBookingResponse {

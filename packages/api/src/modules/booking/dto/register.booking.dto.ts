@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
   IsUUID,
   Min,
@@ -82,4 +83,14 @@ export class RegisterBookingDto implements RegisterBookingRequest {
   @ValidateNested()
   @Type(() => ServiceSnapshotDto)
   serviceSnapshot: ServiceSnapshotDto;
+
+  @ApiProperty({ example: 'Confirmed', description: 'Booking label', required: false })
+  @IsOptional()
+  @IsString()
+  label?: string;
+
+  @ApiProperty({ example: 'Preferred morning slot', description: 'Optional notes for the booking', required: false })
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

@@ -14,7 +14,7 @@ export interface CustomerRepository {
     searchString: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[] | null,
+      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[] | null,
       InfrastructureError
     >
   >;
@@ -22,7 +22,7 @@ export interface CustomerRepository {
     businessId: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[],
       InfrastructureError
     >
   >;

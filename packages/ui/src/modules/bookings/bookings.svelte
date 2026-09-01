@@ -50,12 +50,12 @@
 	const effectiveUserId = $derived(selectedUserId || jwtPayload?.userId || '');
 	const effectiveUserRole = $derived(selectedUserRole || jwtPayload?.role);
 
-	const isElevatedRole = $derived(
-		effectiveUserRole === 'Platform Owner' || effectiveUserRole === 'Business Owner'
-	);
+	// const isElevatedRole = $derived(
+	// 	effectiveUserRole === 'Platform Owner' || effectiveUserRole === 'Business Owner'
+	// );
 
 	// selected user data
-	const selectedUser = $derived(users.find((u) => u.id === effectiveUserId));
+	// const selectedUser = $derived(users.find((u) => u.id === effectiveUserId));
 	const businessTimezone = $derived(
 		businessStore.selectedBusiness?.locationDetails.timeZone ||
 			Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -94,6 +94,9 @@
 
 	// ── Events transformation ────────────────────────────────────────────────────
 	const bookingData = $derived(bookingsQuery.data ?? []);
+	const brandColor = $derived(
+		businessStore.selectedBusiness?.brandAppearanceDetails?.brandColor || '#0d9488'
+	);
 
 	const bookingEvents = $derived(
 		bookingData.map((booking: BookingItemResponse) => {
@@ -107,7 +110,6 @@
 				title: booking.serviceSnapshot.title,
 				start,
 				end,
-				color: '#0d9488',
 				extendedProps: {
 					durationMins,
 					host: currentMember
@@ -117,7 +119,10 @@
 						? [{ name: `${customer.firstName} ${customer.lastName}` }]
 						: [{ name: 'Customer' }],
 					bookingId: booking.bookingId,
-					source: 'Booked from Web App'
+					source: 'Booked from Web App',
+					label: booking.label ?? undefined,
+					notes: booking.notes ?? undefined,
+					brandColor
 				}
 			};
 		})
@@ -165,6 +170,19 @@
 					const fmt = (d: Date | null) =>
 						d ? formatIsoInTimezone(d.toISOString(), businessTimezone, 'h:mm a') : '';
 
+					const color = (info.event.extendedProps as Record<string, unknown>)
+						.brandColor as string;
+					const label = (info.event.extendedProps as Record<string, unknown>)
+						.label as string | undefined;
+
+					const LABEL_COLORS: Record<string, string> = {
+						Confirmed: '#22c55e',
+						Pending: '#f59e0b',
+						Cancelled: '#ef4444',
+						Completed: '#3b82f6',
+						'No Show': '#a855f7'
+					};
+
 					const seg = (el: string, cls: string, text: string): HTMLElement => {
 						const node = document.createElement(el);
 						node.className = cls;
@@ -172,11 +190,23 @@
 						return node;
 					};
 
+					const dot = seg('span', 'fc-booking-dot', '');
+					dot.style.backgroundColor = color;
+
+					const nodes = [
+						dot,
+						seg('span', 'fc-booking-time', fmt(start)),
+						seg('span', 'fc-booking-title', info.event.title)
+					];
+
+					if (info.view.type === 'listWeek' && label) {
+						const badge = seg('span', 'fc-booking-label', label);
+						badge.style.backgroundColor = LABEL_COLORS[label] ?? 'var(--primary)';
+						nodes.push(badge);
+					}
+
 					return {
-						domNodes: [
-							seg('span', 'fc-booking-time', fmt(start)),
-							seg('span', 'fc-booking-title', info.event.title)
-						]
+						domNodes: nodes
 					};
 				},
 				dateClick: (info) => {
@@ -203,7 +233,9 @@
 						guests: p.guests,
 						bookingId: p.bookingId,
 						source: p.source,
-						color: info.event.backgroundColor
+						color: p.brandColor as string,
+						label: p.label as string | undefined,
+						notes: p.notes as string | undefined
 					};
 					dialogOpen = true;
 				},
@@ -257,6 +289,20 @@
 <div class="flex h-full min-h-0 flex-1">
 	<!-- ── Left: sidebar ──────────────────────────────────────────────────── -->
 	<div class=" flex w-56 shrink-0 flex-col gap-5 px-3 py-4">
+		<div class="-mb-2 flex items-center justify-end">
+			<Button
+				class="rounded-full px-2 py-3"
+				size="sm"
+				onclick={() => {
+					initialBookingDate = undefined;
+					initialBookingStartTime = undefined;
+					initialSlot = undefined;
+					createDialogOpen = true;
+				}}
+			>
+				<Plus size={16} />
+			</Button>
+		</div>
 		<!-- Your calendars -->
 		<div class="flex flex-col gap-1">
 			<span class="px-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
@@ -334,8 +380,7 @@
 
 	<!-- ── Right: calendar ───────────────────────────────────────────────── -->
 	<div class="flex flex-1 flex-col overflow-hidden">
-		<div class="mb-4 flex items-center justify-between px-4 pt-3">
-			<div class="min-w-0">
+		<!-- <div class="min-w-0">
 				<h2 class="truncate text-sm font-medium">
 					{#if selectedUser?.id === currentUser?.id}
 						Your Calendar
@@ -354,20 +399,7 @@
 						Your calendar
 					{/if}
 				</p>
-			</div>
-			<Button
-				size="sm"
-				onclick={() => {
-					initialBookingDate = undefined;
-					initialBookingStartTime = undefined;
-					initialSlot = undefined;
-					createDialogOpen = true;
-				}}
-			>
-				<Plus size={16} />
-				New Booking
-			</Button>
-		</div>
+			</div> -->
 		<div id="calendar" class="calendar-wrapper"></div>
 	</div>
 </div>
@@ -533,11 +565,19 @@
 
 	/* ── Booking event content ── */
 	:global(.calendar-wrapper .fc-event) {
-		background-color: oklch(0.65 0.11 178 / 0.95) !important;
+		background-color: transparent !important;
 		border: none !important;
-		border-left: 3px solid oklch(0.45 0.12 178) !important;
 		border-radius: 4px !important;
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.12) !important;
+	}
+
+	:global(.calendar-wrapper .fc-booking-dot) {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		min-width: 8px;
+		border-radius: 50%;
+		flex-shrink: 0;
+		margin-right: 6px;
 	}
 
 	:global(.calendar-wrapper .fc-booking-time) {
@@ -545,7 +585,8 @@
 		font-size: 0.7rem;
 		font-weight: 700;
 		white-space: nowrap;
-		margin-right: 8px;
+		color: var(--foreground);
+		margin-right: 6px;
 	}
 
 	:global(.calendar-wrapper .fc-booking-title) {
@@ -555,6 +596,7 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		color: var(--foreground);
 	}
 
 	/* single-line row layout for both month & timeGrid */
@@ -572,5 +614,17 @@
 	:global(.calendar-wrapper .fc-event-main > .fc-booking-title) {
 		flex: 1 1 auto;
 		min-width: 0;
+	}
+
+	:global(.calendar-wrapper .fc-booking-label) {
+		display: inline-block;
+		font-size: 0.6rem;
+		font-weight: 600;
+		padding: 1px 6px;
+		border-radius: 9999px;
+		color: white;
+		margin-left: 8px;
+		white-space: nowrap;
+		line-height: 1.4;
 	}
 </style>

@@ -151,6 +151,8 @@ export interface BookingPayloadOverrides {
   bookingStartTime?: string;
   bookingEndTime?: string;
   serviceSnapshot?: ServiceSnapshotOverrides;
+  label?: string;
+  notes?: string;
 }
 
 /**
@@ -179,6 +181,8 @@ export function registerBookingPayload(
     userId,
     customerId,
     serviceSnapshot: serviceSnapshotPayload(overrides.serviceSnapshot),
+    ...(overrides.label ? { label: overrides.label } : {}),
+    ...(overrides.notes ? { notes: overrides.notes } : {}),
   };
 }
 
@@ -269,6 +273,8 @@ export interface EditBookingPayloadOverrides {
   serviceId?: string;
   customerId?: string;
   userId?: string;
+  label?: string;
+  notes?: string;
 }
 
 export function editBookingPayload(
@@ -289,6 +295,8 @@ export function editBookingPayload(
     serviceId: overrides.serviceId ?? base.serviceId,
     customerId: overrides.customerId ?? base.customerId,
     userId: overrides.userId ?? base.userId,
+    ...(overrides.label ? { label: overrides.label } : {}),
+    ...(overrides.notes ? { notes: overrides.notes } : {}),
   };
 }
 

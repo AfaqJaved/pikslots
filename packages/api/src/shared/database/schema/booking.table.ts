@@ -13,6 +13,8 @@ export interface BookingTable extends AuditFields {
   customer_id: string; // fk → customers.id
   user_id: string; // fk → users.id
   service_snapshot: ServiceSnapshot; // jsonb — frozen copy at booking time
+  label: string | null; // booking label (e.g. Confirmed, Pending)
+  notes: string | null; // optional notes for the booking
 }
 
 export type BookingTableSelect = Selectable<BookingTable>;

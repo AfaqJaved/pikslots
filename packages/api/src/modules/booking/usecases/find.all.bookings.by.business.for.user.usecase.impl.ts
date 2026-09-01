@@ -47,6 +47,8 @@ export class FindAllBookingsByBusinessForUserUseCaseImpl implements FindAllBooki
         | 'serviceSnapshot'
         | 'serviceId'
         | 'customerId'
+        | 'label'
+        | 'notes'
       >[],
       UnauthorizedError | InfrastructureError
     >
@@ -93,6 +95,8 @@ export class FindAllBookingsByBusinessForUserUseCaseImpl implements FindAllBooki
         serviceSnapshot: b.serviceSnapshot,
         serviceId: b.serviceId,
         customerId: b.customerId,
+        label: b.label,
+        notes: b.notes,
       })),
     );
   }

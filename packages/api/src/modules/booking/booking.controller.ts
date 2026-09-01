@@ -68,6 +68,8 @@ export class BookingController {
         customerId: dto.customerId,
         serviceSnapshot: dto.serviceSnapshot,
         createdBy: this.securityContext.userId,
+        label: dto.label,
+        notes: dto.notes,
       });
 
     if (!result.ok) {
@@ -123,6 +125,8 @@ export class BookingController {
         serviceSnapshot: b.serviceSnapshot,
         serviceId: b.serviceId,
         customerId: b.customerId,
+        label: b.label,
+        notes: b.notes,
       })),
       HttpStatus.OK,
     );
@@ -163,6 +167,8 @@ export class BookingController {
         serviceId: b.serviceId,
         customerId: b.customerId,
         userId: b.userId,
+        label: b.label,
+        notes: b.notes,
         createdAt: b.createdAt.toISOString(),
         createdBy: b.createdBy,
         updatedAt: b.updatedAt.toISOString(),
@@ -196,6 +202,8 @@ export class BookingController {
         customerId: dto.customerId,
         userId: dto.userId,
         updatedBy: this.securityContext.userId,
+        label: dto.label,
+        notes: dto.notes,
       },
     );
 
