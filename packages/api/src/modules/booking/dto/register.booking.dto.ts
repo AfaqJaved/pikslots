@@ -84,12 +84,20 @@ export class RegisterBookingDto implements RegisterBookingRequest {
   @Type(() => ServiceSnapshotDto)
   serviceSnapshot: ServiceSnapshotDto;
 
-  @ApiProperty({ example: 'Confirmed', description: 'Booking label', required: false })
+  @ApiProperty({
+    example: 'Confirmed',
+    description: 'Booking label',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   label?: string;
 
-  @ApiProperty({ example: 'Preferred morning slot', description: 'Optional notes for the booking', required: false })
+  @ApiProperty({
+    example: 'Preferred morning slot',
+    description: 'Optional notes for the booking',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   notes?: string;

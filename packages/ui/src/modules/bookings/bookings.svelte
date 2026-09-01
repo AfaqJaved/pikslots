@@ -170,10 +170,10 @@
 					const fmt = (d: Date | null) =>
 						d ? formatIsoInTimezone(d.toISOString(), businessTimezone, 'h:mm a') : '';
 
-					const color = (info.event.extendedProps as Record<string, unknown>)
-						.brandColor as string;
-					const label = (info.event.extendedProps as Record<string, unknown>)
-						.label as string | undefined;
+					const color = (info.event.extendedProps as Record<string, unknown>).brandColor as string;
+					const label = (info.event.extendedProps as Record<string, unknown>).label as
+						| string
+						| undefined;
 
 					const LABEL_COLORS: Record<string, string> = {
 						Confirmed: '#22c55e',

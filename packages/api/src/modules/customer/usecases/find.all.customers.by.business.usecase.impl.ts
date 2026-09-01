@@ -30,7 +30,12 @@ export class FindAllCustomersByBusinessUseCaseImpl implements FindAllCustomersBy
     businessId: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[],
+      {
+        id: string;
+        fullName: FullName;
+        profileImageUrl: string | null;
+        email: string | null;
+      }[],
       InfrastructureError | UnauthorizedError
     >
   > {

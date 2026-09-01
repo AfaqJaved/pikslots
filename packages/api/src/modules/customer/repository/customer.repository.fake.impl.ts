@@ -16,7 +16,12 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
     businessId: string,
   ): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[],
+      {
+        id: string;
+        fullName: FullName;
+        profileImageUrl: string | null;
+        email: string | null;
+      }[],
       InfrastructureError
     >
   > {
@@ -152,7 +157,12 @@ export class CustomerRepositoryTestImpl implements CustomerRepository {
     searchString: string,
   ): Promise<
     Result<
-      | { id: string; fullName: FullName; profileImageUrl: string | null; email: string | null }[]
+      | {
+          id: string;
+          fullName: FullName;
+          profileImageUrl: string | null;
+          email: string | null;
+        }[]
       | null,
       InfrastructureError
     >
