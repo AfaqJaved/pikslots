@@ -32,18 +32,21 @@ export class CustomerRepositoryImpl implements CustomerRepository {
     @Inject(PIKSLOTS_DB) private readonly db: Kysely<PikSlotsDatabase>,
   ) {}
 
-  async findCustomerListByBusiness(
-    businessId: string,
-  ): Promise<
+  async findCustomerListByBusiness(businessId: string): Promise<
     Result<
-      { id: string; fullName: FullName; profileImageUrl: string | null }[],
+      {
+        id: string;
+        fullName: FullName;
+        profileImageUrl: string | null;
+        email: string | null;
+      }[],
       InfrastructureError
     >
   > {
     try {
       const rows = await this.db
         .selectFrom('customers')
-        .select(['id', 'first_name', 'last_name', 'profile_image_url'])
+        .select(['id', 'first_name', 'last_name', 'email', 'profile_image_url'])
         .where('business_id', '=', businessId)
         .where('is_deleted', '=', false)
         .execute();
@@ -53,6 +56,7 @@ export class CustomerRepositoryImpl implements CustomerRepository {
           return {
             id: row.id,
             fullName: { firstName: row.first_name, lastName: row.last_name },
+            email: row.email,
             profileImageUrl: row.profile_image_url,
           };
         }),
@@ -61,6 +65,62 @@ export class CustomerRepositoryImpl implements CustomerRepository {
       return err<InfrastructureError>({
         kind: 'infrastructure',
         message: 'Failed to find customers by business',
+        timestamp: new Date(),
+        cause,
+      });
+    }
+  }
+
+  async debounceCustomerSearchByBusiness(
+    businessId: string,
+    searchString: string,
+  ): Promise<
+    Result<
+      | {
+          id: string;
+          fullName: FullName;
+          profileImageUrl: string | null;
+          email: string | null;
+        }[]
+      | null,
+      InfrastructureError
+    >
+  > {
+    try {
+      const customers = await this.db
+        .selectFrom('customers')
+        .select(['id', 'first_name', 'last_name', 'email', 'profile_image_url'])
+        .where('business_id', '=', businessId)
+        .where('is_deleted', '=', false)
+        .where((eb) =>
+          eb.or([
+            eb('first_name', 'ilike', `${searchString}%`),
+            eb('email', 'ilike', `${searchString}%`),
+            eb('primary_phone', 'ilike', `${searchString}%`),
+          ]),
+        )
+        .limit(10)
+        .execute();
+
+      if (customers.length > 0) {
+        return ok(
+          customers.map((customer) => ({
+            id: customer.id,
+            fullName: {
+              firstName: customer.first_name,
+              lastName: customer.last_name,
+            },
+            email: customer.email,
+            profileImageUrl: customer.profile_image_url,
+          })),
+        );
+      }
+
+      return ok(null);
+    } catch (cause) {
+      return err<InfrastructureError>({
+        kind: 'infrastructure',
+        message: 'failed to get customers',
         timestamp: new Date(),
         cause,
       });

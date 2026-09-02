@@ -22,7 +22,7 @@
 	const currentUserRole = $derived(authStore.getPayloadData());
 
 	const actions = [
-		{ label: 'New booking', icon: CalendarPlus, href: '/home/bookings/new' },
+		{ label: 'New booking', icon: CalendarPlus, href: '/home/bookings?create=true' },
 		{
 			label: 'Add team member',
 			icon: UsersPlus,

@@ -43,11 +43,16 @@ export interface EditCustomerInput {
   businessId: string;
 }
 
+export interface DebounceCustomerSearchByBusinessRequest {
+  searchString: string;
+}
+
 // --- Responses ---
 export interface PartialCustomerResponse {
   id: string;
   firstName: string;
   lastName: string;
+  email: string | null;
   profileImageUrl: string | null;
 }
 
@@ -76,6 +81,8 @@ export interface RegisterCustomerResponse {
 }
 
 export type FindAllCustomersByBusinessResponse = PartialCustomerResponse[];
+
+export type DebounceCustomerSearchByBusinessResponse = PartialCustomerResponse[];
 
 export interface EditCustomerResponse {
   message: 'success';

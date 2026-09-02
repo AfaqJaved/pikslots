@@ -30,6 +30,7 @@ import {
   FindAllCustomersByBusinessDocs,
   FindCustomerByIdDocs,
   UpdateCustomerProfileImageDocs,
+  DebounceCustomerSearchDocs,
 } from './docs/customer.controller.docs';
 import { CustomerUseCasesFactory } from './factory/customer.usecases.factory';
 import type {
@@ -39,12 +40,14 @@ import type {
   DeleteCustomerResponse,
   FindCustomerByIdResponse,
   UpdateCustomerProfileImageResponse,
+  DebounceCustomerSearchByBusinessResponse,
 } from '@pikslots/shared';
 import { CustomerResponseMapper } from './mappers/customer.reponse.mapper';
 import {
   IPikslotS3Service,
   type PikslotS3Service,
 } from 'src/shared/s3/s3.service';
+import { DebounceCustomerSearchDto } from './dto/debounce.customer.search.dto';
 
 @ApiTags('Customers')
 @Controller('')
@@ -254,6 +257,7 @@ export class CustomerController {
             id: customer.id,
             firstName: customer.fullName.firstName,
             lastName: customer.fullName.lastName,
+            email: customer.email,
             profileImageUrl: customer.profileImageUrl,
           },
           this.s3Service,
@@ -267,6 +271,7 @@ export class CustomerController {
         id: c.id,
         firstName: c.firstName,
         lastName: c.lastName,
+        email: c.email,
         profileImageUrl: c.profileImageUrl,
       })),
       HttpStatus.OK,
@@ -302,6 +307,69 @@ export class CustomerController {
     res.status(HttpStatus.OK);
     return new PikslotsBaseResponse<UpdateCustomerProfileImageResponse>(
       { message: 'success' },
+      HttpStatus.OK,
+    );
+  }
+
+  @DebounceCustomerSearchDocs()
+  @UseGuards(RolesGuard)
+  @Roles('Platform Owner', 'Business Owner', 'Admin', 'Enhanced', 'Standard')
+  @Post(CUSTOMER_ENDPOINTS.DEBOUNCE_CUSTOMER_SEARCH_BY_BUSINESS)
+  async debounceCustomerSearch(
+    @Res({ passthrough: true }) res: Response,
+    @Param('businessId') businessId: string,
+    @Body() dto: DebounceCustomerSearchDto,
+  ): Promise<
+    | PikslotsBaseErrorResponse
+    | PikslotsBaseResponse<DebounceCustomerSearchByBusinessResponse>
+  > {
+    const result =
+      await this.customerUseCasesFactory.debounceCustomerSearchByBusinessIdUseCase.execute(
+        businessId,
+        dto.searchString,
+      );
+
+    if (!result.ok) {
+      const errorResponse = mapCustomerError(result.error);
+      res.status(errorResponse.statusCode);
+      return errorResponse;
+    }
+
+    const customers = result.value;
+
+    if (customers.length === 0) {
+      res.status(HttpStatus.OK);
+      return new PikslotsBaseResponse<DebounceCustomerSearchByBusinessResponse>(
+        [],
+        HttpStatus.OK,
+      );
+    }
+
+    const customerResponses: DebounceCustomerSearchByBusinessResponse =
+      await Promise.all(
+        customers.map((customer) =>
+          CustomerResponseMapper.toPartialCustomerResponse(
+            {
+              id: customer.id,
+              firstName: customer.fullName.firstName,
+              lastName: customer.fullName.lastName,
+              email: customer.email,
+              profileImageUrl: customer.profileImageUrl,
+            },
+            this.s3Service,
+          ),
+        ),
+      );
+
+    res.status(HttpStatus.OK);
+    return new PikslotsBaseResponse<DebounceCustomerSearchByBusinessResponse>(
+      customerResponses.map((c) => ({
+        id: c.id,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        email: c.email,
+        profileImageUrl: c.profileImageUrl,
+      })),
       HttpStatus.OK,
     );
   }
