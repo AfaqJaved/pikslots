@@ -41,7 +41,10 @@
 
 	const users = $derived(usersQuery.data ?? []);
 	const currentUser = $derived(users.find((u) => u.id === jwtPayload?.userId));
-	const teamMembers = $derived(users.filter((u) => u.id !== jwtPayload?.userId));
+	const currentUserRole = $derived(jwtPayload?.role);
+	const teamMembers = $derived(
+		currentUserRole !== 'Standard' ? users.filter((u) => u.id !== jwtPayload?.userId) : []
+	);
 
 	// ── Selected calendar owner ─────────────────────────────────────────────────
 
@@ -94,9 +97,6 @@
 
 	// ── Events transformation ────────────────────────────────────────────────────
 	const bookingData = $derived(bookingsQuery.data ?? []);
-	const brandColor = $derived(
-		businessStore.selectedBusiness?.brandAppearanceDetails?.brandColor || '#0d9488'
-	);
 
 	const bookingEvents = $derived(
 		bookingData.map((booking: BookingItemResponse) => {
@@ -122,7 +122,12 @@
 					source: 'Booked from Web App',
 					label: booking.label ?? undefined,
 					notes: booking.notes ?? undefined,
-					brandColor
+					serviceColor: booking.serviceSnapshot.colorCode || '#0d9488',
+					serviceId: booking.serviceId,
+					customerId: booking.customerId,
+					userId: booking.userId,
+					bookingDate: booking.bookingDate,
+					serviceSnapshot: booking.serviceSnapshot
 				}
 			};
 		})
@@ -134,8 +139,6 @@
 	let selectedBooking = $state<BookingEvent | null>(null);
 	let createDialogOpen = $state(false);
 	let initialBookingDate = $state<DateValue | undefined>(undefined);
-	let initialBookingStartTime = $state<string | undefined>(undefined);
-	let initialSlot = $state<{ startTime: string; endTime: string } | undefined>(undefined);
 
 	const allEvents = $derived(bookingEvents);
 
@@ -170,7 +173,8 @@
 					const fmt = (d: Date | null) =>
 						d ? formatIsoInTimezone(d.toISOString(), businessTimezone, 'h:mm a') : '';
 
-					const color = (info.event.extendedProps as Record<string, unknown>).brandColor as string;
+					const color = (info.event.extendedProps as Record<string, unknown>)
+						.serviceColor as string;
 					const label = (info.event.extendedProps as Record<string, unknown>).label as
 						| string
 						| undefined;
@@ -215,8 +219,6 @@
 					const m = (clicked.getMonth() + 1).toString().padStart(2, '0');
 					const d = clicked.getDate().toString().padStart(2, '0');
 					initialBookingDate = parseDate(`${y}-${m}-${d}`);
-					initialBookingStartTime = undefined;
-					initialSlot = undefined;
 					createDialogOpen = true;
 				},
 
@@ -233,9 +235,19 @@
 						guests: p.guests,
 						bookingId: p.bookingId,
 						source: p.source,
-						color: p.brandColor as string,
+						color: p.serviceColor as string,
 						label: p.label as string | undefined,
-						notes: p.notes as string | undefined
+						notes: p.notes as string | undefined,
+						serviceId: p.serviceId as string,
+						customerId: p.customerId as string,
+						userId: p.userId as string,
+						bookingDate: p.bookingDate as string,
+						serviceSnapshot: p.serviceSnapshot as {
+							title: string;
+							durationInMins: number;
+							cost: number;
+							colorCode: string;
+						}
 					};
 					dialogOpen = true;
 				},
@@ -257,8 +269,6 @@
 	$effect(() => {
 		if ($page.url.searchParams.get('create') === 'true') {
 			initialBookingDate = undefined;
-			initialBookingStartTime = undefined;
-			initialSlot = undefined;
 			createDialogOpen = true;
 			goto(resolve('/home/bookings'), { replaceState: true, keepFocus: true });
 		}
@@ -276,12 +286,15 @@
 	}
 </script>
 
-<ViewBookingDialog bind:open={dialogOpen} booking={selectedBooking} />
+<ViewBookingDialog
+	bind:open={dialogOpen}
+	booking={selectedBooking}
+	selectedUserRole={effectiveUserRole as string}
+	selectedUserId={effectiveUserId}
+/>
 <CreateBookingDialog
 	bind:open={createDialogOpen}
 	{initialBookingDate}
-	{initialBookingStartTime}
-	{initialSlot}
 	selectedUserRole={effectiveUserRole as string}
 	selectedUserId={effectiveUserId}
 />
@@ -295,8 +308,6 @@
 				size="sm"
 				onclick={() => {
 					initialBookingDate = undefined;
-					initialBookingStartTime = undefined;
-					initialSlot = undefined;
 					createDialogOpen = true;
 				}}
 			>
@@ -314,7 +325,7 @@
 					onclick={() => handleSelectedUserChange(currentUser.id, currentUser.role)}
 					class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
 					currentUser.id
-						? 'bg-accent ring-1 ring-primary'
+						? 'bg-accent '
 						: 'hover:bg-accent'}"
 				>
 					<Avatar.Root class="size-6 text-[10px]">
@@ -354,7 +365,7 @@
 						onclick={() => handleSelectedUserChange(user.id, user.role)}
 						class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left {effectiveUserId ===
 						user.id
-							? 'bg-accent ring-1 ring-primary'
+							? 'bg-accent'
 							: 'hover:bg-accent'}"
 					>
 						<Avatar.Root class="size-6 text-[10px]">

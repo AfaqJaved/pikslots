@@ -5,6 +5,7 @@ export interface ServiceSnapshot {
   readonly title: string;
   readonly durationInMins: number;
   readonly cost: number;
+  readonly colorCode: string;
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────

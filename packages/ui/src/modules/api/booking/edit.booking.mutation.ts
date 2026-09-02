@@ -10,7 +10,7 @@ export const editBooking = async (
 	input: EditBookingRequest
 ): Promise<EditBookingResponse> => {
 	const url = BOOKING_ENDPOINTS.EDIT.replace(':bookingId', bookingId);
-	const { data } = await apiClient.put<PikslotResponse<EditBookingResponse>>(url, input);
+	const { data } = await apiClient.patch<PikslotResponse<EditBookingResponse>>(url, input);
 	return data.data;
 };
 

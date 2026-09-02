@@ -18,6 +18,7 @@
 	import { formatIsoInTimezone } from '@pikslots/datetime';
 	import { businessStore } from '$stores/business.svelte';
 	import Note from '@tabler/icons-svelte/icons/message';
+	import EditBookingDialog from './edit.booking.svelte';
 
 	export type BookingEvent = {
 		id: string;
@@ -32,6 +33,16 @@
 		color?: string;
 		label?: string;
 		notes?: string;
+		serviceId: string;
+		customerId: string;
+		userId: string;
+		bookingDate: string;
+		serviceSnapshot: {
+			title: string;
+			durationInMins: number;
+			cost: number;
+			colorCode: string;
+		};
 	};
 
 	const LABEL_COLORS: Record<string, string> = {
@@ -42,8 +53,19 @@
 		'No Show': '#a855f7'
 	};
 
-	let { open = $bindable(false), booking }: { open: boolean; booking: BookingEvent | null } =
-		$props();
+	let {
+		open = $bindable(false),
+		booking,
+		selectedUserRole,
+		selectedUserId
+	}: {
+		open: boolean;
+		booking: BookingEvent | null;
+		selectedUserRole: string;
+		selectedUserId: string;
+	} = $props();
+
+	let editDialogOpen = $state(false);
 
 	const businessTimezone = $derived(
 		businessStore.selectedBusiness?.locationDetails?.timeZone || 'UTC'
@@ -232,7 +254,17 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="flex justify-end border-t px-5 py-3">
+			<div class="flex justify-end gap-2 border-t px-5 py-3">
+				<Button
+					variant="outline"
+					class="text-outline hover:text-outline"
+					onclick={() => {
+						open = false;
+						editDialogOpen = true;
+					}}
+				>
+					Edit
+				</Button>
 				<Button
 					variant="ghost"
 					class="text-destructive hover:text-destructive"
@@ -245,3 +277,5 @@
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>
+
+<EditBookingDialog bind:open={editDialogOpen} {booking} {selectedUserRole} {selectedUserId} />

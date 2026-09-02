@@ -34,6 +34,14 @@ export class ServiceSnapshotDto implements ServiceSnapshotRequest {
   @IsNumber()
   @Min(0)
   cost: number;
+
+  @ApiProperty({
+    example: '#0d9488',
+    description: 'Service color code',
+  })
+  @IsString()
+  @IsNotEmpty()
+  colorCode: string;
 }
 
 export class RegisterBookingDto implements RegisterBookingRequest {

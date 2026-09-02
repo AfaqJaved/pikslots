@@ -134,6 +134,7 @@ export interface ServiceSnapshotOverrides {
   title?: string;
   durationInMins?: number;
   cost?: number;
+  colorCode?: string;
 }
 
 export function serviceSnapshotPayload(
@@ -143,6 +144,7 @@ export function serviceSnapshotPayload(
     title: overrides.title ?? 'Haircut',
     durationInMins: overrides.durationInMins ?? 30,
     cost: overrides.cost ?? 2500,
+    colorCode: overrides.colorCode ?? '#0d9488',
   };
 }
 

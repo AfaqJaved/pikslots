@@ -10,12 +10,11 @@
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
-	import { registerBookingMutationOptions } from '../../api/booking/register.booking.mutation';
+	import { editBookingMutationOptions } from '../../api/booking/edit.booking.mutation';
 	import { getServicesByBusinessQueryOptions } from '../../api/service/get.services.by.business.query';
 	import { debounceCustomerSearchQueryOptions } from '../../api/customer/debounce.customer.search.query';
 	import { getFreeSlotsForUserQueryOptions } from '../../api/public-booking-page/get.free.slots.query';
 	import { businessStore } from '$stores/business.svelte';
-	import { authStore } from '$stores/auth.svelte';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import Clock from '@tabler/icons-svelte/icons/clock';
 	import User from '@tabler/icons-svelte/icons/user';
@@ -23,32 +22,32 @@
 	import Circle from '@tabler/icons-svelte/icons/circle-filled';
 	import ChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import X from '@tabler/icons-svelte/icons/x';
-	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+	import { getLocalTimeZone, today, type DateValue, parseDate } from '@internationalized/date';
 	import axios from 'axios';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
-	import { CreateBookingSchema } from '../validations/create-booking-schema';
+	import { EditBookingSchema } from '../validations/edit-booking-schema';
 	import { formatCost, formatDuration } from '$utils/format-time-duration';
 	import { untrack, tick } from 'svelte';
 	import { getServicesByUserQueryOptions } from '../../api/service-user-assignment/get.services.by.user.query';
+	import type { BookingEvent } from './view.booking.svelte';
 
 	let {
 		open = $bindable(false),
+		booking,
 		selectedUserId,
-		initialBookingDate,
 		selectedUserRole
 	}: {
 		open: boolean;
+		booking: BookingEvent | null;
 		selectedUserId: string;
-		initialBookingDate?: DateValue;
 		selectedUserRole: string;
 	} = $props();
 
 	const queryClient = useQueryClient();
-	const jwtPayload = $derived(authStore.getPayloadData());
 	const businessId = $derived(businessStore.selectedBusiness?.id || '');
 	const businessCurrency = $derived(businessStore.selectedBusiness?.locationDetails.currency);
-	const assigneeUserId = $derived(selectedUserId || jwtPayload?.userId || '');
+	const assigneeUserId = $derived(selectedUserId || '');
 
 	// ── Label ──────────────────────────────────────────────────────────────────
 	const PREDEFINED_LABELS = ['Confirmed', 'Pending', 'Cancelled', 'Completed', 'No Show'] as const;
@@ -118,11 +117,6 @@
 		isElevatedRole ? (elevatedServicesQuery.data ?? []) : (assignedServicesQuery.data ?? [])
 	);
 
-	// const classesQuery = createQuery(() => ({
-	// 	...getClassesByBusinessQueryOptions(businessId),
-	// 	enabled: !!businessId
-	// }));
-
 	// _________ Customer Search (debounced) _____________________
 	let customerSearch = $state('');
 	let debouncedCustomerSearch = $state('');
@@ -138,9 +132,6 @@
 	$effect(() => {
 		const search = customerSearch;
 		const timer = setTimeout(() => {
-			// queryClient.invalidateQueries({
-			// 	queryKey: ['customers-search',businessId , debouncedCustomerSearch]
-			// })
 			debouncedCustomerSearch = search;
 		}, 500);
 		return () => clearTimeout(timer);
@@ -169,9 +160,9 @@
 		}
 	}
 
-	// _____ register_booking_mutation_____________________________
+	// _____ edit_booking_mutation_____________________________
 
-	const registerMutation = createMutation(registerBookingMutationOptions);
+	const editMutation = createMutation(editBookingMutationOptions);
 
 	let bookingDate = $state<DateValue>(today(getLocalTimeZone()));
 	let bookingDateOpen = $state<boolean>(false);
@@ -191,45 +182,32 @@
 			serviceId: '',
 			classId: '',
 			customerId: '',
-			startTime: '09:00',
-			endTime: '10:00'
+			startTime: '',
+			endTime: ''
 		},
 		{
-			validators: zod(CreateBookingSchema),
+			validators: zod(EditBookingSchema),
 			SPA: true,
 			resetForm: false,
 			onUpdate: async ({ form }) => {
-				if (form.valid) {
+				if (form.valid && booking) {
 					const service = services.find((s) => s.id === form.data.serviceId);
-					if (!service || !businessId) {
+					if (!service) {
 						toast.error('Please refresh the website and try again');
 						return;
 					}
 
-					const costCents =
-						overrideCost !== '' ? Math.round(parseFloat(overrideCost) * 100) : service.cost;
-					const durationMins =
-						overrideDuration !== ''
-							? durationUnit === 'hrs'
-								? Math.round(parseFloat(overrideDuration) * 60)
-								: parseInt(overrideDuration, 10)
-							: service.durationInMins;
-
-					registerMutation.mutate({
-						bookingDate: bookingDate.toString(),
-						bookingStartTime: form.data.startTime,
-						bookingEndTime: form.data.endTime,
-						businessId,
-						serviceId: form.data.serviceId,
-						userId: assigneeUserId,
-						customerId: form.data.customerId,
-						...(selectedLabel.trim() ? { label: selectedLabel.trim() } : {}),
-						...(bookingNotes.trim() ? { notes: bookingNotes.trim() } : {}),
-						serviceSnapshot: {
-							title: service.title,
-							durationInMins: durationMins,
-							cost: costCents,
-							colorCode: service.colorCode
+					editMutation.mutate({
+						bookingId: booking.id,
+						input: {
+							bookingDate: bookingDate.toString(),
+							bookingStartTime: form.data.startTime,
+							bookingEndTime: form.data.endTime,
+							serviceId: form.data.serviceId,
+							userId: assigneeUserId,
+							customerId: form.data.customerId,
+							...(selectedLabel.trim() ? { label: selectedLabel.trim() } : {}),
+							...(bookingNotes.trim() ? { notes: bookingNotes.trim() } : {})
 						}
 					});
 				}
@@ -321,18 +299,35 @@
 		}).format(d);
 	}
 
-	const startTimeOptions = $derived(
-		freeSlots.map((s) => ({ iso: s.startTime, label: formatSlotTime(s.startTime) }))
-	);
-	const endTimeOptions = $derived(
-		freeSlots.map((s) => ({ iso: s.endTime, label: formatSlotTime(s.endTime) }))
-	);
+	const startTimeOptions = $derived.by(() => {
+		const opts = freeSlots
+			.map((s) => ({ iso: s.startTime, label: formatSlotTime(s.startTime) }))
+			.filter((o) => o.label);
+
+		if ($form.startTime && !opts.some((o) => o.iso === $form.startTime)) {
+			const label = formatSlotTime($form.startTime);
+			if (label) opts.unshift({ iso: $form.startTime, label });
+		}
+		return opts;
+	});
+	const endTimeOptions = $derived.by(() => {
+		const opts = freeSlots
+			.map((s) => ({ iso: s.endTime, label: formatSlotTime(s.endTime) }))
+			.filter((o) => o.label);
+		if ($form.endTime && !opts.some((o) => o.iso === $form.endTime)) {
+			const label = formatSlotTime($form.endTime);
+			if (label) opts.unshift({ iso: $form.endTime, label });
+		}
+		return opts;
+	});
 
 	function onStartChange(value: string) {
 		const slot = freeSlots.find((s) => s.startTime === value);
 		if (slot) {
 			$form.startTime = slot.startTime;
 			$form.endTime = slot.endTime;
+		} else {
+			$form.startTime = value;
 		}
 	}
 
@@ -341,29 +336,44 @@
 		if (slot) {
 			$form.startTime = slot.startTime;
 			$form.endTime = slot.endTime;
+		} else {
+			$form.endTime = value;
 		}
 	}
 
 	$effect(() => {
-		if (registerMutation.isSuccess) {
+		if (editMutation.isSuccess) {
 			queryClient.invalidateQueries({ queryKey: ['bookings-by-business-for-user'] });
-			toast.success('Booking created successfully');
+			toast.success('Booking updated successfully');
 			open = false;
 			resetForm();
-			registerMutation.reset();
+			editMutation.reset();
 		}
 
-		if (registerMutation.isError) {
-			const error = registerMutation.error;
+		if (editMutation.isError) {
+			const error = editMutation.error;
 			if (axios.isAxiosError(error)) {
-				toast.error(error?.response?.data?.message ?? 'Failed to create booking');
+				toast.error(error?.response?.data?.message ?? 'Failed to update booking');
 			}
 		}
 	});
 
+	// Pre-fill form when dialog opens with booking data
 	$effect(() => {
-		if (open && initialBookingDate) {
-			bookingDate = initialBookingDate;
+		if (open && booking) {
+			bookingDate = parseDate(booking.bookingDate.split('T')[0]);
+			$form.serviceId = booking.serviceId;
+			$form.customerId = booking.customerId;
+			$form.startTime = booking.start.toISOString();
+			$form.endTime = booking.end.toISOString();
+			selectedLabel = booking.label ?? '';
+			bookingNotes = booking.notes ?? '';
+
+			// Pre-fill customer search display
+			if (booking.guests.length > 0) {
+				selectedCustomerName = booking.guests[0].name;
+				customerSearch = booking.guests[0].name;
+			}
 		}
 	});
 
@@ -396,7 +406,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2 text-base font-semibold">
 				<CalendarIcon class="size-4" />
-				Appointment
+				Edit Appointment
 			</Dialog.Title>
 		</Dialog.Header>
 
@@ -407,7 +417,6 @@
 			>
 				<Tabs.List variant="line" class="justify-start px-0">
 					<Tabs.Trigger value="service" class="cursor-pointer">Services</Tabs.Trigger>
-					<!-- <Tabs.Trigger value="class">Classes</Tabs.Trigger> -->
 				</Tabs.List>
 
 				<!-- Label -->
@@ -480,7 +489,6 @@
 
 				<!-- ── Services Tab ────────────────────────────────────────────── -->
 
-				<!-- select a service -->
 				<Tabs.Content
 					value="service"
 					class="scrollbar -mt-6 min-h-0 flex-1
@@ -491,7 +499,9 @@
 							<FieldLabel class="flex items-center gap-1.5"
 								><span
 									class="inline-block size-3.5 shrink-0 rounded-full"
-									style="background-color: {selectedService?.colorCode || '#0d9488'}"
+									style="background-color: {selectedService?.colorCode ||
+										booking?.color ||
+										'#0d9488'}"
 								></span>
 								Service <span class="text-destructive">*</span></FieldLabel
 							>
@@ -623,7 +633,7 @@
 									</svg>
 									<span class="text-xs text-muted-foreground">Finding available time slots...</span>
 								</div>
-							{:else if freeSlots.length === 0 && selectedService}
+							{:else if freeSlots.length === 0 && selectedService && $form.startTime.length == 0}
 								<div
 									class="flex items-center gap-2 rounded-md border border-dashed border-amber-300 bg-amber-50 px-3 py-2.5 dark:border-amber-700 dark:bg-amber-950/30"
 								>
@@ -761,118 +771,6 @@
 						</Field>
 					</FieldGroup>
 				</Tabs.Content>
-
-				<!-- ── Classes Tab ─────────────────────────────────────────────── -->
-				<!-- <Tabs.Content value="class">
-					<FieldGroup>
-						<Field>
-							<FieldLabel>Class <span class="text-destructive">*</span></FieldLabel>
-							<Select.Root type="single" bind:value={$form.classId}>
-								<Select.Trigger class="w-full" disabled={classes.length === 0}>
-									{$form.classId ? selectedClass?.title : 'Select a class'}
-								</Select.Trigger>
-								<Select.Content>
-									{#if classes.length === 0}
-										<Select.Item disabled value="No class available"
-											>No classes available</Select.Item
-										>
-									{:else}
-										{#each classes as cls (cls.id)}
-											<Select.Item value={cls.id}>
-												{cls.title} - {cls.durationInMins} mins - {cls.seats} seats - ${cls.cost}
-											</Select.Item>
-										{/each}
-									{/if}
-								</Select.Content>
-							</Select.Root>
-						</Field>
-
-						<Field>
-							<FieldLabel>Customer <span class="text-destructive">*</span></FieldLabel>
-							<Select.Root type="single" bind:value={$form.customerId}>
-								<Select.Trigger class="w-full" disabled={customers.length === 0}>
-									{$form.customerId
-										? `${selectedCustomer?.firstName} ${selectedCustomer?.lastName}`
-										: 'Select a customer'}
-								</Select.Trigger>
-								<Select.Content>
-									{#if customers.length === 0}
-										<Select.Item disabled value="No customer available"
-											>No customers available</Select.Item
-										>
-									{:else}
-										{#each customers as customer (customer.id)}
-											<Select.Item value={customer.id}>
-												{customer.firstName}
-												{customer.lastName}
-											</Select.Item>
-										{/each}
-									{/if}
-								</Select.Content>
-							</Select.Root>
-						</Field>
-
-						<Field>
-							<FieldLabel>Date & Time</FieldLabel>
-							<div class="grid grid-cols-3 gap-3">
-								<div class="col-span-1">
-									<FieldLabel class="text-xs">Date</FieldLabel>
-									<Popover.Root bind:open={bookingDateOpen}>
-										<Popover.Trigger class="w-full">
-											{#snippet child({ props })}
-												<Button
-													{...props}
-													variant="outline"
-													class="w-full justify-between font-normal"
-												>
-													{formatDate(bookingDate)}
-													<CalendarIcon class="text-muted-foreground" />
-												</Button>
-											{/snippet}
-										</Popover.Trigger>
-										<Popover.Content class="w-auto p-0" align="start">
-											<Calendar
-												type="single"
-												value={bookingDate}
-												captionLayout="dropdown"
-												minValue={today(getLocalTimeZone())}
-												onValueChange={(value) => {
-													if (!value) return;
-													bookingDate = value;
-													bookingDateOpen = false;
-												}}
-											/>
-										</Popover.Content>
-									</Popover.Root>
-								</div>
-								<Field>
-									<FieldLabel class="text-xs"
-										>Start time <span class="text-destructive">*</span></FieldLabel
-									>
-									<Input type="time" bind:value={$form.startTime} />
-								</Field>
-								<Field>
-									<FieldLabel class="text-xs"
-										>End time <span class="text-destructive">*</span></FieldLabel
-									>
-									<Input type="time" bind:value={$form.endTime} />
-								</Field>
-							</div>
-						</Field>
-
-						{#if selectedClass}
-							<div class="rounded-md bg-muted p-3 text-sm">
-								<p class="font-medium">{selectedClass.title}</p>
-								<p class="text-muted-foreground">
-									Duration: {selectedClass.durationInMins} mins | Seats: {selectedClass.seats} | Cost:
-									${selectedClass.cost}
-								</p>
-							</div>
-						{/if}
-
-						<p class="text-xs text-muted-foreground">Class booking support coming soon.</p>
-					</FieldGroup>
-				</Tabs.Content> -->
 			</Tabs.Root>
 
 			<Dialog.Footer class="mt-4 flex items-center justify-center">
@@ -883,7 +781,7 @@
 					type="button"
 					variant="ghost"
 					onclick={() => (open = false)}
-					disabled={registerMutation.isPending}
+					disabled={editMutation.isPending}
 				>
 					Cancel
 				</Button>
@@ -899,9 +797,9 @@
 								labelError = false;
 								submit();
 							}}
-							disabled={registerMutation.isPending}
+							disabled={editMutation.isPending}
 						>
-							{registerMutation.isPending ? 'Creating...' : 'Create Booking'}
+							{editMutation.isPending ? 'Saving...' : 'Save Changes'}
 						</Button>
 					</div>
 				{:else}

@@ -4,6 +4,7 @@ export interface ServiceSnapshotResponse {
   title: string;
   durationInMins: number;
   cost: number;
+  colorCode: string;
 }
 
 // --- Request types ---
@@ -12,6 +13,7 @@ export interface ServiceSnapshotRequest {
   title: string;
   durationInMins: number;
   cost: number;
+  colorCode: string;
 }
 
 export interface RegisterBookingRequest {
